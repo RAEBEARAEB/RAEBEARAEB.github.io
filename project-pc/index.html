@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>工作台 - 深圳市建设施工围挡数字化管理系统</title>
+<style>
+
+/* ═══ Design Token ═══ */
+:root{
+  --color-primary-50:#EBF2FF;--color-primary-100:#C6D9FF;--color-primary-200:#9DBEFF;
+  --color-primary-300:#6B9EF5;--color-primary-400:#3D7FED;--color-primary-500:#1862D4;
+  --color-primary-600:#104FAD;--color-primary-700:#0A3C86;--color-primary-800:#062A60;--color-primary-900:#031940;
+  --color-gray-0:#FFFFFF;--color-gray-50:#F7F8FA;--color-gray-100:#F0F1F5;--color-gray-200:#E3E6ED;
+  --color-gray-300:#C6CBD8;--color-gray-400:#9CA3B0;--color-gray-500:#6B7280;--color-gray-600:#4B5563;
+  --color-gray-700:#374151;--color-gray-800:#1F2937;--color-gray-900:#111827;
+  --color-success-light:#E6F4EA;--color-success:#1A9042;--color-success-dark:#136B31;
+  --color-warning-light:#FEF3CD;--color-warning:#D48A00;--color-warning-dark:#9E6600;
+  --color-danger-light:#FDECEA;--color-danger:#D13B2F;--color-danger-dark:#9E2C22;
+  --color-info-light:#E8F3FF;--color-info:#1862D4;--color-info-dark:#104FAD;
+  --text-title:var(--color-gray-900);--text-primary:var(--color-gray-800);--text-secondary:var(--color-gray-600);
+  --text-tertiary:var(--color-gray-400);--text-link:var(--color-primary-500);--text-link-hover:var(--color-primary-600);--text-inverse:#FFFFFF;
+  --border-color-light:var(--color-gray-200);--border-color-default:var(--color-gray-300);--border-color-focus:var(--color-primary-500);
+  --border-radius-sm:2px;--border-radius-md:4px;--border-radius-lg:6px;--border-radius-tag:2px;
+  --bg-page:var(--color-gray-50);--bg-card:var(--color-gray-0);--bg-table-head:var(--color-gray-100);
+  --bg-table-stripe:var(--color-gray-50);--bg-sidebar:#0D2B55;--bg-header:#FFFFFF;--bg-header-border:var(--color-gray-200);--bg-overlay:rgba(0,0,0,0.45);
+  --shadow-sm:0 1px 2px rgba(0,0,0,0.06);--shadow-md:0 2px 8px rgba(0,0,0,0.08);
+  --shadow-lg:0 4px 16px rgba(0,0,0,0.10);--shadow-card:0 1px 4px rgba(0,0,0,0.07);
+  --space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:20px;
+  --space-6:24px;--space-8:32px;--space-10:40px;--space-12:48px;
+  --font-family:"PingFang SC","Microsoft YaHei","Helvetica Neue",Arial,sans-serif;
+  --font-size-xs:12px;--font-size-sm:13px;--font-size-md:14px;--font-size-lg:16px;
+  --font-size-xl:18px;--font-size-2xl:20px;--font-size-3xl:24px;
+  --font-weight-regular:400;--font-weight-medium:500;--font-weight-bold:600;
+  --line-height-tight:1.4;--line-height-normal:1.6;--line-height-loose:1.8;
+  --transition-fast:0.1s ease;--transition-normal:0.2s ease;
+  --height-sm:28px;--height-md:32px;--height-lg:36px;
+  --header-height:56px;--sidebar-width:220px;
+}
+
+/* ═══ 全局基础 ═══ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{font-family:var(--font-family);font-size:var(--font-size-md);color:var(--text-primary);background:var(--bg-page);line-height:var(--line-height-normal);-webkit-font-smoothing:antialiased;height:100%}
+a{color:var(--text-link);text-decoration:none;transition:color var(--transition-fast)}
+a:hover{color:var(--text-link-hover)}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--color-gray-300);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--color-gray-400)}
+
+/* ═══ 布局框架 ═══ */
+.layout-wrapper{display:flex;flex-direction:column;height:100vh;overflow:hidden}
+.layout-header{height:var(--header-height);background:var(--bg-header);border-bottom:1px solid var(--bg-header-border);display:flex;align-items:center;padding:0;position:fixed;top:0;left:0;right:0;z-index:100;box-shadow:var(--shadow-sm)}
+.header-logo{display:flex;align-items:center;gap:var(--space-3);padding:0 var(--space-6);height:100%;border-right:1px solid var(--color-gray-100)}
+.header-logo-icon{width:32px;height:32px;background:var(--color-primary-500);border-radius:var(--border-radius-md);display:flex;align-items:center;justify-content:center;color:var(--text-inverse);flex-shrink:0}
+.header-logo-icon svg{width:20px;height:20px}
+.header-logo-text{font-size:var(--font-size-lg);font-weight:var(--font-weight-bold);color:var(--text-title);letter-spacing:0.01em;white-space:nowrap}
+.header-right{margin-left:auto;display:flex;align-items:center;height:100%;padding:0 var(--space-4)}
+.header-action-group{display:flex;align-items:center;height:100%;border-right:1px solid var(--color-gray-100);padding-right:var(--space-3);margin-right:var(--space-3)}
+.header-action-btn{position:relative;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:var(--border-radius-md);cursor:pointer;background:none;border:none;color:var(--text-secondary);transition:background var(--transition-fast)}
+.header-action-btn:hover{background:var(--color-gray-50);color:var(--text-primary)}
+.header-action-btn svg{width:18px;height:18px}
+.header-badge{position:absolute;top:4px;right:4px;min-width:16px;height:16px;background:var(--color-danger);color:var(--text-inverse);font-size:10px;font-weight:var(--font-weight-bold);border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 4px;line-height:1;border:2px solid var(--bg-header)}
+.header-user{display:flex;align-items:center;gap:var(--space-2);padding:var(--space-1) var(--space-2);cursor:pointer;border-radius:var(--border-radius-md);transition:background var(--transition-fast)}
+.header-user:hover{background:var(--color-gray-50)}
+.header-avatar{width:28px;height:28px;border-radius:50%;background:var(--color-primary-100);display:flex;align-items:center;justify-content:center;font-size:var(--font-size-xs);color:var(--color-primary-700);font-weight:var(--font-weight-medium)}
+.header-user-name{font-size:var(--font-size-sm);color:var(--text-primary);font-weight:var(--font-weight-medium)}
+.header-user-role{font-size:10px;color:var(--text-tertiary)}
+.header-user-info{display:flex;flex-direction:column;line-height:1.3}
+.header-chevron{width:14px;height:14px;color:var(--text-tertiary);margin-left:2px}
+.layout-body{display:flex;margin-top:var(--header-height);height:calc(100vh - var(--header-height));overflow:hidden}
+.layout-sidebar{width:var(--sidebar-width);background:var(--bg-sidebar);height:100%;overflow-y:auto;flex-shrink:0;display:flex;flex-direction:column}
+.nav-menu{list-style:none;padding:var(--space-3) 0;flex:1}
+.nav-group-label{padding:var(--space-3) var(--space-4) var(--space-1);font-size:var(--font-size-xs);color:rgba(255,255,255,0.35);letter-spacing:0.06em;font-weight:var(--font-weight-medium)}
+.nav-item{position:relative}
+.nav-item a{display:flex;align-items:center;gap:var(--space-3);padding:var(--space-2) var(--space-5);height:40px;font-size:var(--font-size-sm);color:rgba(255,255,255,0.65);transition:background var(--transition-fast),color var(--transition-fast);text-decoration:none;position:relative}
+.nav-item a:hover{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.9)}
+.nav-item a.active{background:var(--color-primary-500);color:#FFFFFF;font-weight:var(--font-weight-medium)}
+.nav-item a.active::before{content:'';position:absolute;left:0;width:3px;height:40px;background:#FFFFFF;border-radius:0 2px 2px 0}
+.nav-icon{width:16px;height:16px;flex-shrink:0;opacity:0.8}
+.nav-item a.active .nav-icon{opacity:1}
+.sidebar-bottom{padding:var(--space-3) var(--space-5);border-top:1px solid rgba(255,255,255,0.06)}
+.sidebar-version{font-size:11px;color:rgba(255,255,255,0.2)}
+.layout-main{flex:1;overflow-y:auto;padding:var(--space-4) var(--space-5);background:var(--bg-page)}
+
+/* ═══ 页面标题 ═══ */
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:var(--space-5)}
+.page-title{font-size:var(--font-size-2xl);font-weight:var(--font-weight-bold);color:var(--text-title);margin:0 0 var(--space-1);line-height:var(--line-height-tight)}
+.page-desc{font-size:var(--font-size-sm);color:var(--text-secondary)}
+.page-actions{display:flex;align-items:center;gap:var(--space-2);flex-shrink:0;padding-top:var(--space-1)}
+
+/* ═══ 按钮 ═══ */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--space-1);height:var(--height-md);padding:0 var(--space-4);font-size:var(--font-size-sm);font-weight:var(--font-weight-medium);border-radius:var(--border-radius-md);border:1px solid transparent;cursor:pointer;transition:all var(--transition-fast);white-space:nowrap;line-height:1;font-family:var(--font-family);text-decoration:none}
+.btn-primary{background:var(--color-primary-500);color:var(--text-inverse);border-color:var(--color-primary-500)}
+.btn-primary:hover{background:var(--color-primary-600);border-color:var(--color-primary-600)}
+.btn-ghost{background:transparent;color:var(--text-secondary);border-color:var(--border-color-default)}
+.btn-ghost:hover{background:var(--color-gray-100);color:var(--text-primary)}
+.btn svg{width:14px;height:14px;flex-shrink:0}
+
+/* ═══ 统计卡片（加大可读性） ═══ */
+.stat-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--space-4);margin-bottom:var(--space-5)}
+.stat-card{border:1px solid var(--border-color-light);border-radius:var(--border-radius-lg);padding:var(--space-4) var(--space-5);box-shadow:var(--shadow-card);position:relative;overflow:hidden;background:var(--bg-card)}
+.stat-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--color-primary-500);border-radius:var(--border-radius-md) 0 0 var(--border-radius-md)}
+.stat-card.warning{background:var(--color-warning-light)}
+.stat-card.warning::before{background:var(--color-warning)}
+.stat-card.danger{background:var(--color-danger-light)}
+.stat-card.danger::before{background:var(--color-danger)}
+.stat-card.success{background:var(--color-success-light)}
+.stat-card.success::before{background:var(--color-success)}
+.stat-label{font-size:var(--font-size-md);color:var(--text-primary);font-weight:var(--font-weight-medium);margin-bottom:var(--space-2)}
+.stat-value{font-size:var(--font-size-3xl);font-weight:var(--font-weight-bold);color:var(--text-title);line-height:1.2}
+.stat-unit{font-size:var(--font-size-md);font-weight:var(--font-weight-regular);color:var(--text-secondary);margin-left:var(--space-1)}
+.stat-sub{font-size:var(--font-size-xs);color:var(--text-tertiary);margin-top:var(--space-2)}
+
+/* ═══ 卡片 ═══ */
+.card{background:var(--bg-card);border:1px solid var(--border-color-light);border-radius:var(--border-radius-lg);box-shadow:var(--shadow-card);margin-bottom:var(--space-4);display:flex;flex-direction:column}
+.card-header{display:flex;align-items:center;justify-content:space-between;padding:var(--space-3) var(--space-5);border-bottom:1px solid var(--border-color-light)}
+.card-title{font-size:var(--font-size-md);font-weight:var(--font-weight-medium);color:var(--text-title);display:flex;align-items:center;gap:var(--space-2)}
+.card-body{flex:1;min-height:0;overflow-y:auto}
+.card-footer{text-align:center;padding:var(--space-2) var(--space-5);border-top:1px solid var(--border-color-light)}
+
+/* ═══ 标签 ═══ */
+.tag{display:inline-flex;align-items:center;padding:0 var(--space-2);height:20px;font-size:var(--font-size-xs);font-weight:var(--font-weight-medium);border-radius:var(--border-radius-tag);border:1px solid transparent;white-space:nowrap;vertical-align:middle}
+.tag-info{background:var(--color-info-light);color:var(--color-info-dark);border-color:#B3CDEF}
+.tag-warning{background:var(--color-warning-light);color:var(--color-warning-dark);border-color:#F5D98B}
+.tag-default{background:var(--color-gray-100);color:var(--text-secondary);border-color:var(--border-color-light)}
+.count-badge{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;background:var(--color-primary-500);color:var(--text-inverse);font-size:11px;font-weight:var(--font-weight-bold);border-radius:10px;padding:0 6px}
+
+/* ═══ 表格 ═══ */
+.table-wrapper{width:100%;overflow-x:auto}
+.table{width:100%;border-collapse:collapse;font-size:var(--font-size-sm)}
+.table th{background:var(--bg-table-head);color:var(--text-secondary);font-weight:var(--font-weight-medium);font-size:var(--font-size-xs);letter-spacing:0.02em;text-align:left;padding:var(--space-2) var(--space-4);border-bottom:1px solid var(--border-color-light);white-space:nowrap}
+.table td{padding:var(--space-3) var(--space-4);border-bottom:1px solid var(--border-color-light);color:var(--text-primary);vertical-align:middle}
+.table tbody tr:nth-child(even) td{background:var(--bg-table-stripe)}
+.table tbody tr:hover td{background:var(--color-primary-50);transition:background var(--transition-fast)}
+.col-center{text-align:center}
+.col-num{width:44px;text-align:center;color:var(--text-tertiary);font-size:var(--font-size-xs)}
+.col-type{width:90px;text-align:center}
+.col-code{width:120px;font-size:var(--font-size-xs);color:var(--text-secondary);font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace}
+.col-time{width:110px;text-align:center;white-space:nowrap}
+.col-action{width:60px;text-align:center}
+.time-urgent{color:var(--color-danger);font-weight:var(--font-weight-medium)}
+.table-action-link{color:var(--text-link);font-size:var(--font-size-sm);cursor:pointer;padding:0;background:none;border:none;font-family:var(--font-family);transition:color var(--transition-fast)}
+.table-action-link:hover{color:var(--text-link-hover);text-decoration:underline}
+
+/* ═══ Tab 栏 ═══ */
+.tab-bar{display:flex;gap:0;border-bottom:1px solid var(--border-color-light);padding:0 var(--space-5)}
+.tab-btn{padding:var(--space-2) var(--space-4);font-size:var(--font-size-sm);color:var(--text-secondary);border:none;background:none;border-bottom:2px solid transparent;cursor:pointer;font-family:var(--font-family);font-weight:var(--font-weight-medium);transition:color var(--transition-fast),border-color var(--transition-fast)}
+.tab-btn:hover{color:var(--text-primary)}
+.tab-btn.active{color:var(--color-primary-500);border-bottom-color:var(--color-primary-500)}
+.tab-count{font-size:var(--font-size-xs);color:var(--text-tertiary);margin-left:2px}
+
+/* ═══ 提醒事项 · 圆点 ═══ */
+.dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:var(--space-1);vertical-align:middle;flex-shrink:0}
+.dot-red{background:var(--color-danger)}
+.dot-orange{background:var(--color-warning)}
+.days-danger{color:var(--color-danger);font-weight:var(--font-weight-medium);font-size:var(--font-size-sm)}
+.days-warning{color:var(--color-warning-dark);font-weight:var(--font-weight-medium);font-size:var(--font-size-sm)}
+
+/* ═══ 图表区两栏 ═══ */
+.chart-row{display:flex;gap:var(--space-4);align-items:stretch}
+.chart-row .card{margin-bottom:0;flex:1}
+.chart-box{width:100%;height:280px}
+.two-col-cards{display:flex;gap:var(--space-4);align-items:stretch;margin-bottom:var(--space-4)}
+.two-col-cards>.card{margin-bottom:0;flex:1;min-width:0}
+.two-col-cards .table{table-layout:fixed}
+.two-col-cards .table th{padding:var(--space-2) var(--space-3)}
+.two-col-cards .table td{padding:var(--space-2) var(--space-3)}
+.two-col-cards .table td:nth-child(3) .info-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.info-name{line-height:var(--line-height-tight)}
+.fence-code{font-size:var(--font-size-xs);color:var(--text-tertiary);margin-top:1px;line-height:1;font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace}
+
+/* ═══ 工具类 ═══ */
+.text-link{color:var(--text-link);font-size:var(--font-size-xs);display:inline-flex;align-items:center;gap:2px;cursor:pointer}
+.text-link:hover{color:var(--text-link-hover)}
+.text-link svg{width:12px;height:12px}
+
+</style>
+<script src="../shared_data.js"></script>
+</head>
+<body>
+<div class="layout-wrapper">
+
+  <!-- Header -->
+  <header class="layout-header">
+    <div class="header-logo">
+      <div class="header-logo-icon"><svg viewBox="0 0 22 22" fill="currentColor"><rect x="2" y="4" width="2.4" height="14" rx="0.6"/><rect x="9.8" y="4" width="2.4" height="14" rx="0.6"/><rect x="17.6" y="4" width="2.4" height="14" rx="0.6"/><rect x="2" y="5.5" width="18" height="2" rx="0.5"/><rect x="2" y="14.5" width="18" height="2" rx="0.5"/><rect x="4.8" y="7.8" width="1.2" height="6.4" rx="0.3" opacity="0.55"/><rect x="6.6" y="7.8" width="1.2" height="6.4" rx="0.3" opacity="0.55"/><rect x="8.4" y="7.8" width="1.2" height="6.4" rx="0.3" opacity="0.55"/><rect x="12.4" y="7.8" width="1.2" height="6.4" rx="0.3" opacity="0.55"/><rect x="14.2" y="7.8" width="1.2" height="6.4" rx="0.3" opacity="0.55"/><rect x="16" y="7.8" width="1.2" height="6.4" rx="0.3" opacity="0.55"/><rect x="1.2" y="2.8" width="4" height="1.8" rx="0.7"/><rect x="9" y="2.8" width="4" height="1.8" rx="0.7"/><rect x="16.8" y="2.8" width="4" height="1.8" rx="0.7"/></svg></div>
+      <span class="header-logo-text">深圳市建设施工围挡数字化管理系统</span>
+    </div>
+    <div class="header-right">
+      <div class="header-action-group">
+        <button class="header-action-btn" title="全屏"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg></button>
+        <button class="header-action-btn" title="消息"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><span class="header-badge">3</span></button>
+        <button class="header-action-btn" title="通知"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg><span class="header-badge">5</span></button>
+      </div>
+      <div class="header-user">
+        <div class="header-avatar">张</div>
+        <div class="header-user-info"><span class="header-user-name">张项目</span><span class="header-user-role">项目端负责人</span></div>
+        <svg class="header-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout-body">
+
+    <!-- Sidebar -->
+    <aside class="layout-sidebar">
+      <ul class="nav-menu">
+        <li class="nav-item"><a href="index.html" class="active"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>首页</a></li>
+        <li class="nav-group-label">围挡管理</li>
+        <li class="nav-item"><a href="index_v2_project.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>围挡档案管理</a></li>
+        <li class="nav-item"><a href="redline.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8l-5 5-5-5"/><line x1="12" y1="13" x2="12" y2="3"/></svg>项目红线管理</a></li>
+        <li class="nav-group-label">系统管理</li>
+        <li class="nav-item"><a href="#"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>项目管理</a></li>
+      </ul>
+      <div class="sidebar-bottom"><div class="sidebar-version">v2.0.0 · 2026.05</div></div>
+    </aside>
+
+    <!-- ═══ Main ═══ -->
+    <main class="layout-main">
+
+      <!-- 页面标题 -->
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">工作台</h1>
+          <div class="page-desc">2026年5月8日 星期四</div>
+        </div>
+        <div class="page-actions">
+          <a href="detail_v2_project.html" class="btn btn-primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> 新增围挡</a>
+          <a href="#" class="btn btn-ghost">巡查上报</a>
+        </div>
+      </div>
+
+      <!-- 统计卡片 -->
+      <div class="stat-cards">
+        <div class="stat-card">
+          <div class="stat-label">围挡总数</div>
+          <div class="stat-value">1,284<span class="stat-unit">条</span></div>
+          <div class="stat-sub">较上月 +32</div>
+        </div>
+        <div class="stat-card warning">
+          <div class="stat-label">待办事项</div>
+          <div class="stat-value">3<span class="stat-unit">条</span></div>
+          <div class="stat-sub">需今日处理</div>
+        </div>
+        <div class="stat-card danger">
+          <div class="stat-label">超期预警</div>
+          <div class="stat-value">12<span class="stat-unit">条</span></div>
+          <div class="stat-sub">需立即督办</div>
+        </div>
+        <div class="stat-card success">
+          <div class="stat-label">本月已整改</div>
+          <div class="stat-value">89<span class="stat-unit">条</span></div>
+          <div class="stat-sub">完成率 86%</div>
+        </div>
+      </div>
+
+      <div class="two-col-cards">
+      <!-- 待办事项 -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">待办事项 <span class="count-badge">3</span></div>
+          <span class="text-link">查看全部 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+        </div>
+        <div class="card-body">
+          <div class="table-wrapper">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th style="width:28px;text-align:center">序号</th>
+                  <th style="width:68px;text-align:center">类型</th>
+                  <th style="width:150px">围挡信息</th>
+                  <th style="width:88px;text-align:center">提醒时间</th>
+                  <th style="width:50px;text-align:center">操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="col-num">1</td>
+                  <td class="col-center"><span class="tag tag-warning">待整改</span></td>
+                  <td><div class="info-name">福田区 · 梅林路XX工程 · 全封闭围挡</div><div class="fence-code">WD-2026-0421</div></td>
+                  <td class="col-center"><span>05-08 09:00</span></td>
+                  <td class="col-center"><button class="table-action-link">去整改</button></td>
+                </tr>
+                <tr>
+                  <td class="col-num">2</td>
+                  <td class="col-center"><span class="tag tag-warning">待整改</span></td>
+                  <td><div class="info-name">南山区 · 科技园北路XX项目 · 半封闭围挡</div><div class="fence-code">WD-2026-0189</div></td>
+                  <td class="col-center"><span>05-08 08:30</span></td>
+                  <td class="col-center"><button class="table-action-link">去整改</button></td>
+                </tr>
+                <tr>
+                  <td class="col-num">3</td>
+                  <td class="col-center"><span class="tag tag-warning">待整改</span></td>
+                  <td><div class="info-name">龙岗区 · 坂田街道龙平路段 · 半封闭围挡</div><div class="fence-code">WD-2026-0298</div></td>
+                  <td class="col-center"><span>05-09 10:00</span></td>
+                  <td class="col-center"><button class="table-action-link">去整改</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 提醒事项 -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">提醒事项</div>
+          <span class="text-link">查看全部 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+        </div>
+        <div class="tab-bar">
+          <button class="tab-btn active" data-filter="all">全部<span class="tab-count">(5)</span></button>
+          <button class="tab-btn" data-filter="overdue">超期提醒<span class="tab-count">(2)</span></button>
+          <button class="tab-btn" data-filter="expiring">临期预警<span class="tab-count">(3)</span></button>
+        </div>
+        <div class="card-body">
+          <div class="table-wrapper">
+            <table class="table" id="remindTable">
+              <thead>
+                <tr>
+                  <th style="width:82px">预警类型</th>
+                  <th style="width:150px">围挡信息</th>
+                  <th style="width:100px">预警详情</th>
+                  <th style="width:44px;text-align:center">操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr data-type="overdue">
+                  <td><span class="dot dot-red"></span>超期提醒</td>
+                  <td><div class="info-name">福田区 · 金田路与莲花路交叉口 · 全封闭围挡</div><div class="fence-code">WD-2026-0156</div></td>
+                  <td><span class="days-danger">已超期14天</span></td>
+                  <td class="col-center"><a href="detail_info_v2_project.html" class="table-action-link">查看</a></td>
+                </tr>
+                <tr data-type="overdue">
+                  <td><span class="dot dot-red"></span>超期提醒</td>
+                  <td><div class="info-name">宝安区 · 新安街道宝民一路段 · 全封闭围挡</div><div class="fence-code">WD-2026-0178</div></td>
+                  <td><span class="days-danger">已超期23天</span></td>
+                  <td class="col-center"><a href="detail_info_v2_project.html" class="table-action-link">查看</a></td>
+                </tr>
+                <tr data-type="expiring">
+                  <td><span class="dot dot-orange"></span>临期预警</td>
+                  <td><div class="info-name">南山区 · 科技园北路XX项目 · 半封闭围挡</div><div class="fence-code">WD-2026-0234</div></td>
+                  <td><span class="days-warning">距拆除还剩7天</span></td>
+                  <td class="col-center"><a href="detail_info_v2_project.html" class="table-action-link">查看</a></td>
+                </tr>
+                <tr data-type="expiring">
+                  <td><span class="dot dot-orange"></span>临期预警</td>
+                  <td><div class="info-name">龙华区 · 民治大道与民乐路交叉口 · 全封闭围挡</div><div class="fence-code">WD-2026-0389</div></td>
+                  <td><span class="days-warning">距拆除还剩15天</span></td>
+                  <td class="col-center"><a href="detail_info_v2_project.html" class="table-action-link">查看</a></td>
+                </tr>
+                <tr data-type="expiring">
+                  <td><span class="dot dot-orange"></span>临期预警</td>
+                  <td><div class="info-name">罗湖区 · 东门街道解放路施工段 · 全封闭围挡</div><div class="fence-code">WD-2026-0177</div></td>
+                  <td><span class="days-warning">距拆除还剩30天</span></td>
+                  <td class="col-center"><a href="detail_info_v2_project.html" class="table-action-link">查看</a></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      </div>
+
+      <!-- 统计图表 -->
+      <div class="card" style="margin-top:var(--space-4)">
+        <div class="card-header">
+          <div class="card-title">围挡预警数量趋势</div>
+        </div>
+        <div class="card-body" style="padding:var(--space-3)">
+          <div id="chartTrend" class="chart-box" style="height:340px"></div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<script>
+/* Tab 切换 */
+document.querySelectorAll('.tab-btn').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active')});
+    this.classList.add('active');
+    var filter=this.getAttribute('data-filter');
+    document.querySelectorAll('#remindTable tbody tr').forEach(function(row){
+      if(filter==='all'||row.getAttribute('data-type')===filter){
+        row.style.display='';
+      }else{
+        row.style.display='none';
+      }
+    });
+  });
+});
+
+/* 图表 */
+var chartT=echarts.init(document.getElementById('chartTrend'));
+chartT.setOption({
+  tooltip:{trigger:'axis',backgroundColor:'#fff',borderColor:'#E3E6ED',borderWidth:1,textStyle:{color:'#1F2937',fontSize:13},formatter:function(p){return p[0].name+'<br/>预警数量：<b>'+p[0].value+'</b> 条'}},
+  grid:{left:48,right:16,top:16,bottom:32},
+  xAxis:{type:'category',boundaryGap:false,data:['2025.11','2025.12','2026.01','2026.02','2026.03','2026.04'],axisLabel:{fontSize:12,color:'#6B7280'},axisLine:{lineStyle:{color:'#E3E6ED'}},axisTick:{show:false}},
+  yAxis:{type:'value',axisLabel:{fontSize:11,color:'#9CA3B0'},splitLine:{lineStyle:{color:'#F0F1F5',type:'dashed'}},axisLine:{show:false},axisTick:{show:false}},
+  series:[{type:'line',smooth:true,data:[45,38,52,41,35,47],lineStyle:{color:'#1862D4',width:2},itemStyle:{color:'#1862D4'},symbol:'circle',symbolSize:6,areaStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:'rgba(24,98,212,0.12)'},{offset:1,color:'rgba(24,98,212,0.01)'}]}}}]
+});
+
+window.addEventListener('resize',function(){chartD.resize();chartT.resize()});
+</script>
+</body>
+</html>

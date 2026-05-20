@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>绘制红线 - 深圳市建设施工围挡数字化管理系统</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+/* ═══ Design Token ═══ */
+:root {
+  --color-primary-50:#EBF2FF;--color-primary-100:#C6D9FF;--color-primary-200:#9DBEFF;
+  --color-primary-300:#6B9EF5;--color-primary-400:#3D7FED;--color-primary-500:#1862D4;
+  --color-primary-600:#104FAD;--color-primary-700:#0A3C86;--color-primary-800:#062A60;--color-primary-900:#031940;
+  --color-gray-0:#FFFFFF;--color-gray-50:#F7F8FA;--color-gray-100:#F0F1F5;--color-gray-200:#E3E6ED;
+  --color-gray-300:#C6CBD8;--color-gray-400:#9CA3B0;--color-gray-500:#6B7280;--color-gray-600:#4B5563;
+  --color-gray-700:#374151;--color-gray-800:#1F2937;--color-gray-900:#111827;
+  --color-success-light:#E6F4EA;--color-success:#1A9042;--color-success-dark:#136B31;
+  --color-warning-light:#FEF3CD;--color-warning:#D48A00;--color-warning-dark:#9E6600;
+  --color-danger-light:#FDECEA;--color-danger:#D13B2F;--color-danger-dark:#9E2C22;
+  --color-info-light:#E8F3FF;--color-info:#1862D4;--color-info-dark:#104FAD;
+  --text-title:var(--color-gray-900);--text-primary:var(--color-gray-800);--text-secondary:var(--color-gray-600);
+  --text-tertiary:var(--color-gray-400);--text-link:var(--color-primary-500);--text-link-hover:var(--color-primary-600);--text-inverse:#FFFFFF;
+  --border-color-light:var(--color-gray-200);--border-color-default:var(--color-gray-300);--border-color-focus:var(--color-primary-500);
+  --border-radius-sm:2px;--border-radius-md:4px;--border-radius-lg:6px;--border-radius-tag:2px;
+  --bg-page:var(--color-gray-50);--bg-card:var(--color-gray-0);--bg-table-head:var(--color-gray-100);
+  --bg-table-stripe:var(--color-gray-50);--bg-sidebar:#0D2B55;--bg-header:#FFFFFF;--bg-overlay:rgba(0,0,0,0.45);
+  --shadow-sm:0 1px 2px rgba(0,0,0,0.04);--shadow-md:0 2px 8px rgba(0,0,0,0.06);
+  --shadow-lg:0 4px 16px rgba(0,0,0,0.08);--shadow-card:0 1px 4px rgba(0,0,0,0.05);
+  --space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:20px;
+  --space-6:24px;--space-8:32px;--space-10:40px;--space-12:48px;
+  --font-family:"PingFang SC","Microsoft YaHei","Helvetica Neue",Arial,sans-serif;
+  --font-size-xs:12px;--font-size-sm:13px;--font-size-md:14px;--font-size-lg:16px;
+  --font-size-xl:18px;--font-size-2xl:20px;--font-size-3xl:24px;
+  --font-weight-regular:400;--font-weight-medium:500;--font-weight-bold:600;
+  --line-height-tight:1.4;--line-height-normal:1.6;--line-height-loose:1.8;
+  --transition-fast:0.15s ease;--transition-normal:0.2s ease;
+  --height-sm:28px;--height-md:32px;--height-lg:36px;
+  --header-height:56px;--sidebar-width:220px;
+}
+.leaflet-container{font-family:var(--font-family)!important;background:#E8ECF2}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{font-family:var(--font-family);font-size:var(--font-size-md);color:var(--text-primary);background:var(--bg-page);line-height:var(--line-height-normal);-webkit-font-smoothing:antialiased;height:100%}
+a{color:var(--text-link);text-decoration:none;transition:color var(--transition-fast)}
+a:hover{color:var(--text-link-hover)}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--color-gray-300);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--color-gray-400)}
+
+/* ═══ 布局 ═══ */
+.layout-wrapper{display:flex;flex-direction:column;height:100vh;overflow:hidden}
+.layout-header{height:var(--header-height);background:var(--bg-header);display:flex;align-items:center;padding:0;position:fixed;top:0;left:0;right:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
+.layout-header::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--color-primary-600),var(--color-primary-400),var(--color-primary-600))}
+.header-logo{display:flex;align-items:center;gap:var(--space-4);padding:0 var(--space-6);height:100%;border-right:1px solid var(--color-gray-100)}
+.header-logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--color-primary-500),var(--color-primary-700));border-radius:var(--border-radius-md);display:flex;align-items:center;justify-content:center;color:var(--text-inverse);box-shadow:0 2px 6px rgba(24,98,212,0.25)}
+.header-logo-text{font-size:var(--font-size-xl);font-weight:var(--font-weight-bold);color:var(--text-title);letter-spacing:0.02em}
+.header-right{margin-left:auto;display:flex;align-items:center;gap:0;height:100%;padding:0 var(--space-5)}
+.header-action-group{display:flex;align-items:center;gap:2px;padding:0 var(--space-3);border-right:1px solid var(--color-gray-100);height:100%}
+.header-action-btn{position:relative;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:var(--border-radius-md);cursor:pointer;transition:background var(--transition-fast);background:none;border:none;color:var(--text-secondary)}
+.header-action-btn:hover{background:var(--color-gray-50);color:var(--text-primary)}
+.header-action-btn svg{width:18px;height:18px}
+.header-badge{position:absolute;top:4px;right:4px;min-width:16px;height:16px;background:var(--color-danger);color:var(--text-inverse);font-size:10px;font-weight:var(--font-weight-bold);border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 4px;line-height:1;border:2px solid var(--bg-header)}
+.header-user{display:flex;align-items:center;gap:var(--space-2);padding:0 var(--space-2);cursor:pointer;height:36px;border-radius:var(--border-radius-md);transition:background var(--transition-fast)}
+.header-user:hover{background:var(--color-gray-50)}
+.header-avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--color-primary-100),var(--color-primary-200));display:flex;align-items:center;justify-content:center;font-size:var(--font-size-xs);color:var(--color-primary-700);font-weight:var(--font-weight-medium)}
+.header-user-info{display:flex;flex-direction:column;line-height:1.3}
+.header-user-name{font-size:var(--font-size-sm);color:var(--text-primary);font-weight:var(--font-weight-medium)}
+.header-user-role{font-size:10px;color:var(--text-tertiary)}
+.layout-body{display:flex;margin-top:var(--header-height);height:calc(100vh - var(--header-height));overflow:hidden}
+.layout-sidebar{width:var(--sidebar-width);background:var(--bg-sidebar);height:100%;overflow-y:auto;flex-shrink:0;display:flex;flex-direction:column}
+.nav-menu{list-style:none;padding:var(--space-4) 0;flex:1}
+.nav-group-label{padding:var(--space-5) var(--space-5) var(--space-1);font-size:11px;color:rgba(255,255,255,0.25);letter-spacing:0.08em;font-weight:var(--font-weight-medium);text-transform:uppercase}
+.nav-item{position:relative}
+.nav-item a{display:flex;align-items:center;gap:var(--space-3);padding:0 var(--space-5);height:40px;font-size:var(--font-size-sm);color:rgba(255,255,255,0.55);transition:all var(--transition-fast);text-decoration:none;position:relative}
+.nav-item a:hover{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.85)}
+.nav-item a.active{background:rgba(24,98,212,0.25);color:#FFFFFF;font-weight:var(--font-weight-medium)}
+.nav-item a.active::before{content:'';position:absolute;left:0;top:4px;bottom:4px;width:3px;background:#FFFFFF;border-radius:0 2px 2px 0}
+.nav-icon{width:16px;height:16px;flex-shrink:0;opacity:0.7}
+.nav-item a.active .nav-icon{opacity:1}
+.sidebar-bottom{padding:var(--space-3) var(--space-5);border-top:1px solid rgba(255,255,255,0.06)}
+.sidebar-version{font-size:11px;color:rgba(255,255,255,0.2)}
+.layout-main{flex:1;background:var(--bg-page);display:flex;flex-direction:column;min-height:0}
+
+.breadcrumb{display:flex;align-items:center;gap:var(--space-1);font-size:var(--font-size-sm);margin-bottom:var(--space-2);padding:var(--space-3) var(--space-6) 0;flex-shrink:0}
+.breadcrumb-item{color:var(--text-tertiary)}
+.breadcrumb-item a{color:var(--text-tertiary)}
+.breadcrumb-item a:hover{color:var(--text-link)}
+.breadcrumb-item:last-child{color:var(--text-secondary);font-weight:var(--font-weight-medium)}
+.breadcrumb-sep{color:var(--color-gray-300);font-size:11px}
+.page-header-fixed{position:sticky;top:0;z-index:9;background:var(--bg-page);display:flex;align-items:center;justify-content:space-between;padding:var(--space-3) var(--space-6);border-bottom:1px solid var(--border-color-light);margin-bottom:0;flex-shrink:0}
+.page-header-actions{display:flex;gap:var(--space-3)}
+.page-title{font-size:var(--font-size-2xl);font-weight:var(--font-weight-bold);color:var(--text-title);line-height:var(--line-height-tight)}
+.page-title-accent{display:inline-block;width:3px;height:20px;background:var(--color-primary-500);border-radius:2px;margin-right:var(--space-2);vertical-align:middle;position:relative;top:-1px}
+
+/* ═══ 按钮 ═══ */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--space-1);height:var(--height-md);padding:0 var(--space-4);font-size:var(--font-size-md);font-weight:var(--font-weight-medium);border-radius:var(--border-radius-md);border:1px solid transparent;cursor:pointer;transition:all var(--transition-fast);white-space:nowrap;line-height:1;outline:none;font-family:var(--font-family)}
+.btn:active{transform:translateY(1px)}
+.btn:disabled{opacity:0.5;cursor:not-allowed;pointer-events:none}
+.btn-primary{background:var(--color-primary-500);color:var(--text-inverse);border-color:var(--color-primary-500)}
+.btn-primary:hover{background:var(--color-primary-600);border-color:var(--color-primary-600)}
+.btn-ghost{background:transparent;color:var(--text-secondary);border-color:var(--border-color-default)}
+.btn-ghost:hover{background:var(--color-gray-100);color:var(--text-primary)}
+.btn-lg{height:var(--height-lg);padding:0 var(--space-5);font-size:var(--font-size-lg)}
+.btn svg{width:14px;height:14px}
+
+/* ═══ 主内容区 ═══ */
+.main-body{display:flex;flex:1;min-height:0;flex-direction:column;padding:var(--space-4) var(--space-6);gap:var(--space-4)}
+
+/* ═══ 信息卡片 ═══ */
+.info-card{background:var(--bg-card);border:1px solid var(--border-color-light);border-radius:var(--border-radius-lg);box-shadow:var(--shadow-card);padding:var(--space-4) var(--space-6);flex-shrink:0}
+.info-card-row{display:flex;gap:var(--space-8)}
+.info-card-item{display:flex;flex-direction:column;gap:var(--space-1)}
+.info-card-label{font-size:var(--font-size-xs);color:var(--text-tertiary)}
+.info-card-value{font-size:var(--font-size-md);color:var(--text-primary);font-weight:var(--font-weight-medium)}
+
+/* ═══ 地图区域 ═══ */
+.map-area{flex:1;display:flex;flex-direction:column;min-height:0}
+.map-status-tip{padding:var(--space-2) var(--space-4);background:var(--color-info-light);border:1px solid var(--color-primary-100);border-radius:var(--border-radius-md);font-size:var(--font-size-sm);color:var(--color-primary-700);flex-shrink:0;margin-bottom:var(--space-3)}
+.map-draw-container{flex:1;position:relative;border:1px solid var(--border-color-default);border-radius:var(--border-radius-md);overflow:hidden;background:var(--color-gray-100);display:flex;flex-direction:column;min-height:0}
+#redlineMap{width:100%;flex:1}
+.map-toolbar{display:flex;align-items:center;gap:var(--space-2);padding:var(--space-2) var(--space-3);background:var(--bg-card);border-top:1px solid var(--border-color-light);position:relative;z-index:2;flex-shrink:0}
+.map-toolbar-btn{display:inline-flex;align-items:center;gap:var(--space-1);height:26px;padding:0 var(--space-3);font-size:var(--font-size-xs);font-weight:var(--font-weight-medium);border:1px solid var(--border-color-default);border-radius:var(--border-radius-md);background:var(--bg-card);color:var(--text-primary);cursor:pointer;font-family:var(--font-family);transition:all var(--transition-fast)}
+.map-toolbar-btn:hover{border-color:var(--color-primary-300);color:var(--color-primary-500)}
+.map-toolbar-btn.active{background:var(--color-primary-500);color:var(--text-inverse);border-color:var(--color-primary-500)}
+.map-toolbar-btn.danger{color:var(--color-danger)}
+.map-toolbar-btn.danger:hover{border-color:var(--color-danger);color:var(--color-danger-dark)}
+.map-toolbar-btn svg{width:12px;height:12px}
+.map-toolbar-info{margin-left:auto;font-size:var(--font-size-xs);color:var(--text-tertiary)}
+.map-toolbar-info strong{color:var(--color-primary-500);font-weight:var(--font-weight-bold)}
+.draw-vertex-icon{width:12px;height:12px;background:#D13B2F;border:2px solid #FFFFFF;border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,0.3);cursor:grab}
+.draw-vertex-icon:active{cursor:grabbing}
+/* ═══ 绘制区域布局：地图 + 右侧范围列表 ═══ */
+.draw-layout{display:flex;flex:1;min-height:0;gap:var(--space-4)}
+.draw-layout .map-area{flex:1;display:flex;flex-direction:column;min-height:0;min-width:0}
+/* ═══ 右侧范围列表 ═══ */
+.range-sidebar{width:220px;flex-shrink:0;display:flex;flex-direction:column;border:1px solid var(--border-color-light);border-radius:var(--border-radius-lg);background:var(--bg-card);box-shadow:var(--shadow-card);overflow:hidden}
+.range-sidebar-header{padding:var(--space-3) var(--space-4);font-size:var(--font-size-sm);font-weight:var(--font-weight-bold);color:var(--text-title);border-bottom:1px solid var(--border-color-light);flex-shrink:0;display:flex;align-items:center;gap:var(--space-2)}
+.range-sidebar-header .rs-count{font-size:11px;font-weight:var(--font-weight-regular);color:var(--text-tertiary);margin-left:auto}
+.range-sidebar-list{flex:1;overflow-y:auto;padding:var(--space-2)}
+.range-sidebar-empty{text-align:center;padding:var(--space-10) var(--space-3);color:var(--text-tertiary);font-size:var(--font-size-xs);line-height:1.8}
+.range-card{display:flex;align-items:center;gap:var(--space-2);padding:var(--space-2) var(--space-3);border:1px solid var(--border-color-light);border-radius:var(--border-radius-md);margin-bottom:var(--space-1);cursor:pointer;transition:all var(--transition-fast);background:var(--bg-card)}
+.range-card:hover{border-color:var(--color-primary-300)}
+.range-card.active{border-color:var(--color-primary-500);background:var(--color-primary-50)}
+.range-card-dot{width:8px;height:8px;border-radius:2px;background:var(--color-primary-500);flex-shrink:0}
+.range-card.active .range-card-dot{box-shadow:0 0 0 3px rgba(24,144,255,0.18)}
+.range-card-body{flex:1;min-width:0}
+.range-card-title{font-size:var(--font-size-xs);font-weight:var(--font-weight-medium);color:var(--text-primary);line-height:1.3}
+.range-card-info{font-size:11px;color:var(--text-tertiary);margin-top:1px}
+.range-card-del{width:20px;height:20px;display:flex;align-items:center;justify-content:center;border:none;background:transparent;color:var(--text-tertiary);cursor:pointer;border-radius:var(--border-radius-sm);font-size:14px;flex-shrink:0;transition:all var(--transition-fast);line-height:1}
+.range-card-del:hover{background:var(--color-danger-light);color:var(--color-danger)}
+
+/* ═══ Toast ═══ */
+.toast{position:fixed;top:var(--space-6);left:50%;transform:translateX(-50%);z-index:2000;padding:var(--space-3) var(--space-6);background:var(--color-success);color:#fff;font-size:var(--font-size-sm);border-radius:var(--border-radius-md);box-shadow:var(--shadow-lg);display:none;align-items:center;gap:var(--space-2)}
+.toast.show{display:flex}
+.toast.error{background:var(--color-danger)}
+</style>
+<script src="../shared_data.js"></script>
+</head>
+<body>
+<div class="layout-wrapper">
+<!-- ═══ Header ═══ -->
+<header class="layout-header">
+<div class="header-logo">
+<div class="header-logo-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg></div>
+<span class="header-logo-text">深圳市建设施工围挡数字化管理系统</span>
+</div>
+<div class="header-right">
+<div class="header-action-group">
+<button class="header-action-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg></button>
+</div>
+<div class="header-user">
+<div class="header-avatar">张</div>
+<div class="header-user-info">
+<span class="header-user-name">张项目</span>
+<span class="header-user-role">项目端负责人</span>
+</div>
+</div>
+</div>
+</header>
+
+<!-- ═══ Body ═══ -->
+<div class="layout-body">
+<aside class="layout-sidebar">
+<ul class="nav-menu">
+<li class="nav-item"><a href="index.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>首页</a></li>
+<li class="nav-group-label">围挡管理</li>
+<li class="nav-item"><a href="index_v2_project.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>围挡档案管理</a></li>
+<li class="nav-item"><a href="redline.html" class="active"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8l-5 5-5-5"/><line x1="12" y1="13" x2="12" y2="3"/></svg>项目红线管理</a></li>
+<li class="nav-group-label">系统管理</li>
+<li class="nav-item"><a href="#"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>项目管理</a></li>
+</ul>
+<div class="sidebar-bottom"><div class="sidebar-version">v2.0.0 · 2026.05</div></div>
+</aside>
+
+<main class="layout-main">
+<div class="breadcrumb">
+<span class="breadcrumb-item"><a href="index.html">首页</a></span>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item"><a href="index_v2_project.html">围挡管理</a></span>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item"><a href="redline.html">项目红线管理</a></span>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item" id="breadcrumbAction">绘制红线</span>
+</div>
+
+<div class="page-header-fixed">
+<h1 class="page-title"><span class="page-title-accent"></span><span id="pageAction">绘制红线</span></h1>
+<div class="page-header-actions">
+<button class="btn btn-ghost" onclick="window.location.href='redline.html?idx='+urlIdx">返回列表</button>
+<button class="btn btn-ghost" onclick="clearAll()">清除</button>
+<button class="btn btn-primary" onclick="saveRedline()">保存红线</button>
+</div>
+</div>
+
+<div class="main-body">
+<div class="info-card">
+<div class="info-card-row">
+<div class="info-card-item">
+<span class="info-card-label">项目名称</span>
+<span class="info-card-value" id="infoProject">-</span>
+</div>
+<div class="info-card-item">
+<span class="info-card-label">工程名称</span>
+<span class="info-card-value" id="infoEngineering">-</span>
+</div>
+<div class="info-card-item">
+<span class="info-card-label">行政区</span>
+<span class="info-card-value" id="infoDistrict">-</span>
+</div>
+</div>
+</div>
+
+<div class="draw-layout">
+<div class="map-area">
+<div class="map-status-tip" id="mapStatusTip">单击地图添加红线顶点，双击即可完成绘制，右键撤回上一个顶点</div>
+<div class="map-draw-container">
+<div id="redlineMap"></div>
+<div class="map-toolbar">
+<button type="button" class="map-toolbar-btn active" id="btnDrawPolygon" onclick="toggleDrawMode()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>绘制红线</button>
+<button type="button" class="map-toolbar-btn" id="btnUndo" onclick="undoLastPoint()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>撤回</button>
+<button type="button" class="map-toolbar-btn danger" onclick="clearAll()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>清空全部</button>
+<span class="map-toolbar-info" id="mapInfo">顶点 <strong>0</strong></span>
+</div>
+</div>
+</div>
+<div class="range-sidebar">
+<div class="range-sidebar-header">红线范围列表<span class="rs-count" id="rsCount">共 0 个</span></div>
+<div class="range-sidebar-list" id="rangeSidebarList"><div class="range-sidebar-empty">点击「绘制红线」<br>开始绘制</div></div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ═══ 数据加载 ═══ */
+var STORAGE_KEY = 'redlineMockData_v2';
+var DEFAULT_DATA = [
+{no:1,project:'南山区科技园综合体项目',engineering:'基坑围护工程',district:'南山区',status:'已绘制',time:'2026-04-21 10:32',area:'2,340',geo:[[[22.538,113.952],[22.544,113.960],[22.534,113.968],[22.528,113.954]]]},
+{no:2,project:'福田中心区市政管网改造工程',engineering:'管道铺设工程',district:'福田区',status:'已绘制',time:'2026-04-18 14:05',area:'1,860',geo:[[[22.548,114.055],[22.556,114.063],[22.548,114.070],[22.540,114.058]]]},
+{no:3,project:'宝安区新安街道住宅楼项目',engineering:'土方开挖工程',district:'宝安区',status:'已绘制',time:'2026-04-15 09:17',area:'3,120',geo:[[[22.565,113.890],[22.575,113.900],[22.568,113.912],[22.556,113.898]]]},
+{no:4,project:'宝安区新安街道住宅楼项目',engineering:'基础工程',district:'宝安区',status:'已绘制',time:'2026-04-15 09:45',area:'2,850',geo:[[[22.570,113.895],[22.578,113.905],[22.572,113.915],[22.562,113.900]]]},
+{no:5,project:'龙华区民治街道城市更新项目',engineering:'主体结构工程',district:'龙华区',status:'已绘制',time:'2026-04-10 16:28',area:'1,950',geo:[[[22.620,114.035],[22.628,114.045],[22.618,114.052],[22.612,114.038]]]},
+{no:6,project:'光明区凤凰城道路工程',engineering:'路基施工工程',district:'光明区',status:'未绘制',time:'—',area:'—',geo:null},
+{no:7,project:'盐田区港口配套基础设施项目',engineering:'地基处理工程',district:'盐田区',status:'未绘制',time:'—',area:'—',geo:null},
+{no:8,project:'罗湖区湖贝旧村改造项目',engineering:'桩基工程',district:'罗湖区',status:'已绘制',time:'2026-05-10 09:15',area:'2,120',geo:[[[22.543,114.126],[22.551,114.132],[22.545,114.138],[22.538,114.130]]]}
+];
+
+var mockData = (function(){
+  try { var stored = localStorage.getItem(STORAGE_KEY); if (stored) return JSON.parse(stored); } catch(e) {}
+  var defaults = JSON.parse(JSON.stringify(DEFAULT_DATA));
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(defaults)); } catch(e) {}
+  return defaults;
+})();
+
+function normalizeGeo(geo) {
+  if (!geo || geo.length === 0) return [];
+  if (Array.isArray(geo[0]) && Array.isArray(geo[0][0]) && typeof geo[0][0][0] === 'number') return geo;
+  if (typeof geo[0][0] === 'number') return [geo];
+  return [];
+}
+
+function normalizeGeoShapes(geo) {
+  if (!geo || geo.length === 0) return { pointsArray: [[]], types: ['polygon'] };
+  // New format: array of {type, points}
+  if (geo[0] && typeof geo[0].type === 'string' && Array.isArray(geo[0].points)) {
+    var pointsArray = [];
+    var types = [];
+    for (var i = 0; i < geo.length; i++) {
+      pointsArray.push(geo[i].points);
+      types.push(geo[i].type || 'polygon');
+    }
+    return { pointsArray: pointsArray, types: types };
+  }
+  // Old format: array of coordinate arrays
+  var pts = normalizeGeo(geo);
+  var types = [];
+  for (var i = 0; i < pts.length; i++) {
+    types.push('polygon');
+  }
+  return { pointsArray: pts, types: types };
+}
+
+/* ═══ URL 参数 ═══ */
+var urlIdx = (function(){
+  var m = window.location.search.match(/idx=(\d+)/);
+  return m ? parseInt(m[1], 10) : -1;
+})();
+
+if (urlIdx < 0 || urlIdx >= mockData.length) {
+  window.location.href = 'redline.html';
+}
+
+var currentRow = mockData[urlIdx];
+var hasExisting = currentRow.status === '已绘制' && currentRow.geo;
+
+document.getElementById('infoProject').textContent = currentRow.project;
+document.getElementById('infoEngineering').textContent = currentRow.engineering;
+document.getElementById('infoDistrict').textContent = currentRow.district;
+document.getElementById('pageAction').textContent = hasExisting ? '管理红线' : '绘制红线';
+document.getElementById('breadcrumbAction').textContent = hasExisting ? '管理红线' : '绘制红线';
+document.title = (hasExisting ? '管理红线' : '绘制红线') + ' - 深圳市建设施工围挡数字化管理系统';
+
+/* ═══ 地图引擎 ═══ */
+var redlineMap = null;
+var polygons = [];
+var activeIdx = -1;
+var drawPoints = [];
+var polygon = null;
+var markers = [];
+var staticLayers = [];
+var isDrawing = false;
+var previewLine = null;
+var pendingClick = null;
+
+function updatePreviewLine(e) {
+  clearPreviewLine();
+  if (!redlineMap || drawPoints.length === 0) return;
+  var mousePt = [e.latlng.lat, e.latlng.lng];
+  var lastPt = drawPoints[drawPoints.length - 1];
+  var coords = [lastPt, mousePt];
+  // If we have at least 2 placed vertices, also draw closing line back to first point
+  if (drawPoints.length >= 2) {
+    coords.push(drawPoints[0]);
+  }
+  previewLine = L.polyline(coords, {
+    color: '#D13B2F', weight: 2, dashArray: '6 4', interactive: false
+  }).addTo(redlineMap);
+}
+
+function clearPreviewLine() {
+  if (previewLine) { redlineMap.removeLayer(previewLine); previewLine = null; }
+}
+
+function toggleDrawMode() {
+  if (!redlineMap) return;
+  isDrawing = !isDrawing;
+  var btn = document.getElementById('btnDrawPolygon');
+  if (isDrawing) {
+    btn.classList.add('active');
+    redlineMap.getContainer().style.cursor = 'crosshair';
+    redlineMap.on('mousemove', updatePreviewLine);
+    updatePoly();
+    document.getElementById('mapStatusTip').textContent = '单击地图添加顶点，双击即可完成绘制，右键撤回上一个顶点';
+  } else {
+    btn.classList.remove('active');
+    redlineMap.getContainer().style.cursor = '';
+    redlineMap.off('mousemove', updatePreviewLine);
+    clearPreviewLine();
+    if (pendingClick) { clearTimeout(pendingClick); pendingClick = null; }
+    saveActivePolygon();
+    updatePoly();
+    updateRangeSidebar();
+    updateMapInfo();
+    document.getElementById('mapStatusTip').textContent = '已退出绘制，点击「绘制红线」继续';
+  }
+}
+var vertexIcon = L.divIcon({className:'draw-vertex-icon', iconSize:[12,12], iconAnchor:[6,6]});
+
+function initMap() {
+  try {
+    if (typeof L === 'undefined') { showMapErr(); return; }
+    redlineMap = L.map('redlineMap', { zoomControl: false, doubleClickZoom: false, scrollWheelZoom: true }).setView([22.55, 114.05], 12);
+    L.control.zoom({ position: 'bottomright' }).addTo(redlineMap);
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { attribution: 'Esri', maxZoom: 19 }).addTo(redlineMap);
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19 }).addTo(redlineMap);
+    redlineMap.on('click', onMapClick);
+    redlineMap.on('dblclick', function(e) {
+      if (isDrawing) {
+        L.DomEvent.preventDefault(e);
+        if (pendingClick) { clearTimeout(pendingClick); pendingClick = null; }
+        drawPoints.push([e.latlng.lat, e.latlng.lng]);
+        var m = L.marker(e.latlng, { icon: vertexIcon, draggable: true }).addTo(redlineMap);
+        var idx = markers.length;
+        m.on('drag', function(ev) { drawPoints[idx] = [ev.target.getLatLng().lat, ev.target.getLatLng().lng]; updatePoly(); updateMapInfo(); });
+        m.on('dblclick', function(ev) { L.DomEvent.stopPropagation(ev); deleteVertex(idx); });
+        markers.push(m);
+        updatePoly();
+        updateMapInfo();
+        finishDraw();
+      }
+    });
+    redlineMap.on('contextmenu', function(e) { if (isDrawing) { L.DomEvent.preventDefault(e); undoLastPoint(); } });
+  } catch(e) { showMapErr(); }
+}
+
+function showMapErr() {
+  var el = document.getElementById('redlineMap'); if (!el) return;
+  el.style.background = '#F0F1F5';
+  el.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:#9CA3B0;gap:8px"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span style="font-size:13px">地图组件加载失败，请检查网络连接</span></div>';
+}
+
+/* ═══ 多边形管理 ═══ */
+function saveActivePolygon() {
+  if (activeIdx >= 0 && activeIdx < polygons.length) {
+    polygons[activeIdx] = drawPoints.slice();
+  }
+}
+
+function clearActiveDisplay() {
+  clearPreviewLine();
+  if (polygon) { redlineMap.removeLayer(polygon); polygon = null; }
+  markers.forEach(function(m) { redlineMap.removeLayer(m); });
+  markers = [];
+}
+
+function renderStaticPolygon(idx) {
+  var pts = polygons[idx];
+  if (!pts || pts.length < 3) return;
+  if (staticLayers[idx]) redlineMap.removeLayer(staticLayers[idx]);
+  var opts = { color: '#D13B2F', weight: 2, dashArray: '6 3', fillColor: 'rgba(209,59,47,0.08)', fillOpacity: 0.3 };
+  staticLayers[idx] = L.polygon(pts, opts).addTo(redlineMap);
+}
+
+function rebuildActiveDisplay() {
+  if (!redlineMap) return;
+  drawPoints.forEach(function(p) {
+    var m = L.marker([p[0], p[1]], { icon: vertexIcon, draggable: true }).addTo(redlineMap);
+    m.on('drag', function(e) {
+      var i = markers.indexOf(m);
+      if (i >= 0) { drawPoints[i] = [e.target.getLatLng().lat, e.target.getLatLng().lng]; updatePoly(); updateMapInfo(); }
+    });
+    m.on('dblclick', function(e) {
+      L.DomEvent.stopPropagation(e);
+      var i = markers.indexOf(m);
+      if (i >= 0) deleteVertex(i);
+    });
+    markers.push(m);
+  });
+  if (isDrawing) {
+    if (drawPoints.length >= 2) {
+      polygon = L.polyline(drawPoints, {
+        color: '#D13B2F', weight: 2.5
+      }).addTo(redlineMap);
+    }
+  } else if (drawPoints.length >= 3) {
+    polygon = L.polygon(drawPoints, {
+      color: '#D13B2F', weight: 2.5, fillColor: 'rgba(209,59,47,0.15)', fillOpacity: 0.5
+    }).addTo(redlineMap);
+  }
+}
+
+function switchToPolygon(idx) {
+  if (idx === activeIdx || idx < 0 || idx >= polygons.length) return;
+  if (pendingClick) { clearTimeout(pendingClick); pendingClick = null; }
+  saveActivePolygon();
+  clearActiveDisplay();
+  if (activeIdx >= 0 && polygons[activeIdx] && polygons[activeIdx].length >= 3) {
+    renderStaticPolygon(activeIdx);
+  }
+  activeIdx = idx;
+  if (staticLayers[activeIdx]) {
+    redlineMap.removeLayer(staticLayers[activeIdx]);
+    staticLayers[activeIdx] = null;
+  }
+  drawPoints = polygons[activeIdx] ? polygons[activeIdx].slice() : [];
+  rebuildActiveDisplay();
+  updateRangeSidebar();
+  updateMapInfo();
+  document.getElementById('mapStatusTip').textContent = drawPoints.length >= 3 ? '当前范围编辑中，可拖拽顶点或继续绘制，双击即可完成' : '单击地图添加红线顶点，双击即可完成绘制';
+}
+
+function deletePolygon(idx) {
+  if (!confirm('确定要删除该红线范围吗？此操作不可恢复。')) return;
+  if (polygons.length <= 1) {
+    clearAll();
+    return;
+  }
+  saveActivePolygon();
+  if (staticLayers[idx]) { redlineMap.removeLayer(staticLayers[idx]); staticLayers.splice(idx, 1); }
+  else { staticLayers.splice(idx, 1); }
+  if (idx === activeIdx) {
+    clearActiveDisplay();
+    polygons.splice(idx, 1);
+    activeIdx = Math.min(idx, polygons.length - 1);
+    drawPoints = polygons[activeIdx] ? polygons[activeIdx].slice() : [];
+    rebuildActiveDisplay();
+  } else {
+    polygons.splice(idx, 1);
+    if (activeIdx > idx) activeIdx--;
+  }
+  updateRangeSidebar();
+  updateMapInfo();
+}
+
+function updateRangeSidebar() {
+  var container = document.getElementById('rangeSidebarList');
+  if (!container) return;
+  var html = '';
+  var completed = 0;
+  for (var i = 0; i < polygons.length; i++) {
+    var pts = polygons[i];
+    if (!pts || pts.length < 3) continue;
+    completed++;
+    var activeClass = i === activeIdx ? ' active' : '';
+    html += '<div class="range-card' + activeClass + '" onclick="switchToPolygon(' + i + ')">';
+    html += '<span class="range-card-dot"></span>';
+    html += '<div class="range-card-body"><div class="range-card-title">范围 ' + (i + 1) + '</div><div class="range-card-info">' + pts.length + ' 个顶点</div></div>';
+    html += '<button class="range-card-del" onclick="event.stopPropagation();deletePolygon(' + i + ')" title="删除">×</button>';
+    html += '</div>';
+  }
+  if (completed === 0) {
+    container.innerHTML = '<div class="range-sidebar-empty">点击「绘制红线」<br>开始绘制</div>';
+    document.getElementById('rsCount').textContent = '共 0 个';
+    return;
+  }
+  container.innerHTML = html;
+  document.getElementById('rsCount').textContent = '共 ' + completed + ' 个';
+}
+
+/* ═══ 地图交互 ═══ */
+function onMapClick(e) {
+  if (!isDrawing) return;
+  // Debounce: delay vertex placement so double-click can cancel it
+  if (pendingClick) clearTimeout(pendingClick);
+  var latlng = e.latlng;
+  pendingClick = setTimeout(function() {
+    drawPoints.push([latlng.lat, latlng.lng]);
+    var m = L.marker(latlng, { icon: vertexIcon, draggable: true }).addTo(redlineMap);
+    var idx = markers.length;
+    m.on('drag', function(ev) { drawPoints[idx] = [ev.target.getLatLng().lat, ev.target.getLatLng().lng]; updatePoly(); updateMapInfo(); });
+    m.on('dblclick', function(ev) { L.DomEvent.stopPropagation(ev); deleteVertex(idx); });
+    markers.push(m);
+    updatePoly();
+    updateMapInfo();
+    clearPreviewLine();
+    pendingClick = null;
+  }, 280);
+}
+
+function updatePoly() {
+  if (!redlineMap) return;
+  if (polygon) { redlineMap.removeLayer(polygon); polygon = null; }
+  if (drawPoints.length < 2) return;
+  if (isDrawing) {
+    polygon = L.polyline(drawPoints, {
+      color: '#D13B2F', weight: 2.5
+    }).addTo(redlineMap);
+  } else if (drawPoints.length >= 3) {
+    polygon = L.polygon(drawPoints, {
+      color: '#D13B2F', weight: 2.5, fillColor: 'rgba(209,59,47,0.15)', fillOpacity: 0.5
+    }).addTo(redlineMap);
+  } else {
+    polygon = L.polyline(drawPoints, {
+      color: '#D13B2F', weight: 2.5
+    }).addTo(redlineMap);
+  }
+}
+
+function updateMapInfo() {
+  document.getElementById('mapInfo').innerHTML = '顶点 <strong>' + drawPoints.length + '</strong>';
+  updateRangeSidebar();
+}
+
+function calcArea(pts) {
+  if (!pts || pts.length < 3) return 0;
+  var sum = 0;
+  for (var i = 0; i < pts.length; i++) {
+    var j = (i + 1) % pts.length;
+    sum += pts[i][0] * pts[j][1];
+    sum -= pts[j][0] * pts[i][1];
+  }
+  var degArea = Math.abs(sum) / 2;
+  var latMid = (pts.reduce(function(a, p) { return a + p[0]; }, 0) / pts.length) * Math.PI / 180;
+  var mPerDegLat = 111132.954 - 559.822 * Math.cos(2 * latMid) + 1.175 * Math.cos(4 * latMid);
+  var mPerDegLng = 111319.488 * Math.cos(latMid);
+  return degArea * mPerDegLat * mPerDegLng;
+}
+
+function finishDraw() {
+  if (!redlineMap || drawPoints.length < 3) return;
+  clearPreviewLine();
+  // Remove active polygon and markers
+  if (polygon) { redlineMap.removeLayer(polygon); polygon = null; }
+  markers.forEach(function(m) { redlineMap.removeLayer(m); });
+  markers = [];
+  // Render as static polygon
+  saveActivePolygon();
+  renderStaticPolygon(activeIdx);
+  // Auto-create new polygon for continuous drawing
+  polygons.push([]);
+  staticLayers.push(null);
+  activeIdx = polygons.length - 1;
+  drawPoints = [];
+  // Keep drawing mode active
+  redlineMap.getContainer().style.cursor = 'crosshair';
+  updateRangeSidebar();
+  updateMapInfo();
+  document.getElementById('mapStatusTip').textContent = '范围完成！继续绘制下一个范围，双击即可完成绘制，右键撤回';
+}
+
+function deleteVertex(idx) {
+  if (pendingClick) { clearTimeout(pendingClick); pendingClick = null; }
+  drawPoints.splice(idx, 1);
+  redlineMap.removeLayer(markers[idx]);
+  markers.splice(idx, 1);
+  updatePoly();
+  updateMapInfo();
+  if (drawPoints.length < 3 && polygon) {
+    redlineMap.removeLayer(polygon);
+    polygon = null;
+  }
+}
+
+function undoLastPoint() {
+  if (!redlineMap || drawPoints.length === 0) return;
+  if (pendingClick) { clearTimeout(pendingClick); pendingClick = null; }
+  drawPoints.pop();
+  var last = markers.pop();
+  if (last) redlineMap.removeLayer(last);
+  updatePoly();
+  updateMapInfo();
+}
+
+function clearAll() {
+  if (!redlineMap) return;
+  isDrawing = false;
+  document.getElementById('btnDrawPolygon').classList.remove('active');
+  redlineMap.getContainer().style.cursor = '';
+  redlineMap.off('mousemove', updatePreviewLine);
+  clearPreviewLine();
+  if (pendingClick) { clearTimeout(pendingClick); pendingClick = null; }
+  if (polygon) { redlineMap.removeLayer(polygon); polygon = null; }
+  markers.forEach(function(m) { redlineMap.removeLayer(m); });
+  markers = [];
+  staticLayers.forEach(function(l) { if (l) redlineMap.removeLayer(l); });
+  polygons = [[]];
+  staticLayers = [null];
+  activeIdx = 0;
+  drawPoints = [];
+  updateMapInfo();
+  document.getElementById('mapStatusTip').textContent = '点击「绘制红线」开始绘制，双击即可完成绘制';
+}
+
+/* ═══ 保存 ═══ */
+function saveRedline() {
+  saveActivePolygon();
+  var validShapes = [];
+  for (var i = 0; i < polygons.length; i++) {
+    var pts = polygons[i];
+    if (pts && pts.length >= 3) {
+      validShapes.push({type: 'polygon', points: pts.map(function(p) { return [p[0], p[1]]; })});
+    }
+  }
+  if (validShapes.length === 0) {
+    alert('请至少完成一个红线范围（多边形至少3个顶点）');
+    return;
+  }
+  var now = new Date();
+  var ts = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0') + ' ' + String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+  currentRow.status = '已绘制';
+  currentRow.time = ts;
+  currentRow.geo = validShapes;
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(mockData)); } catch(e) {}
+  // Sync to SD
+  if(currentRow.project){
+    var sp=SD.getProjects().find(function(p){return p.name===currentRow.project});
+    if(sp)SD.updateRedline(sp.id,validShapes,'已绘制');
+  }
+  showToast('红线保存成功（共 ' + validShapes.length + ' 个形状）');
+  setTimeout(function() { window.location.href = 'redline.html?idx=' + urlIdx; }, 800);
+}
+
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function() { t.classList.remove('show'); }, 2000);
+}
+
+/* ═══ 初始化 ═══ */
+function init() {
+  initMap();
+  if (hasExisting) {
+    var result = normalizeGeoShapes(currentRow.geo);
+    polygons = result.pointsArray;
+  }
+  if (!polygons || polygons.length === 0) { polygons = [[]]; }
+  // Filter invalid shapes - all are polygons
+  polygons = polygons.map(function(pts) { return (pts && pts.length >= 3) ? pts : []; });
+  if (polygons.length === 0) polygons = [[]];
+  staticLayers = polygons.map(function() { return null; });
+  activeIdx = 0;
+  drawPoints = polygons[0] ? polygons[0].slice() : [];
+
+  if (hasExisting && drawPoints.length >= 3) {
+    for (var i = 1; i < polygons.length; i++) {
+      if (polygons[i] && polygons[i].length >= 3) {
+        renderStaticPolygon(i);
+      }
+    }
+    rebuildActiveDisplay();
+    updateRangeSidebar();
+    updateMapInfo();
+    document.getElementById('mapStatusTip').textContent = '红线已加载（' + polygons.length + ' 个范围）。点击「绘制红线」继续绘制';
+    try { redlineMap.fitBounds(polygon.getBounds(), {padding:[30,30],maxZoom:17}); } catch(e) {}
+  } else {
+    updateRangeSidebar();
+    // Auto-enter draw mode
+    isDrawing = true;
+    document.getElementById('btnDrawPolygon').classList.add('active');
+    redlineMap.getContainer().style.cursor = 'crosshair';
+    redlineMap.on('mousemove', updatePreviewLine);
+    document.getElementById('mapStatusTip').textContent = '单击地图添加红线顶点，双击即可完成绘制，右键撤回上一个顶点';
+  }
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+  init();
+  setTimeout(function() { if (redlineMap) redlineMap.invalidateSize(); }, 400);
+});
+</script>
+</body>
+</html>
