@@ -221,12 +221,12 @@ a:hover{color:var(--text-link-hover)}
 <span class="info-card-value" id="infoProject">-</span>
 </div>
 <div class="info-card-item">
-<span class="info-card-label">工程名称</span>
-<span class="info-card-value" id="infoEngineering">-</span>
-</div>
-<div class="info-card-item">
 <span class="info-card-label">行政区</span>
 <span class="info-card-value" id="infoDistrict">-</span>
+</div>
+<div class="info-card-item">
+<span class="info-card-label">项目状态</span>
+<span class="info-card-value" id="infoProjectStatus">-</span>
 </div>
 </div>
 </div>
@@ -260,14 +260,14 @@ a:hover{color:var(--text-link-hover)}
 /* ═══ 数据加载 ═══ */
 var STORAGE_KEY = 'redlineMockData_v2';
 var DEFAULT_DATA = [
-{no:1,project:'南山区科技园综合体项目',engineering:'基坑围护工程',district:'南山区',status:'已绘制',time:'2026-04-21 10:32',area:'2,340',geo:[[[22.538,113.952],[22.544,113.960],[22.534,113.968],[22.528,113.954]]]},
-{no:2,project:'福田中心区市政管网改造工程',engineering:'管道铺设工程',district:'福田区',status:'已绘制',time:'2026-04-18 14:05',area:'1,860',geo:[[[22.548,114.055],[22.556,114.063],[22.548,114.070],[22.540,114.058]]]},
-{no:3,project:'宝安区新安街道住宅楼项目',engineering:'土方开挖工程',district:'宝安区',status:'已绘制',time:'2026-04-15 09:17',area:'3,120',geo:[[[22.565,113.890],[22.575,113.900],[22.568,113.912],[22.556,113.898]]]},
-{no:4,project:'宝安区新安街道住宅楼项目',engineering:'基础工程',district:'宝安区',status:'已绘制',time:'2026-04-15 09:45',area:'2,850',geo:[[[22.570,113.895],[22.578,113.905],[22.572,113.915],[22.562,113.900]]]},
-{no:5,project:'龙华区民治街道城市更新项目',engineering:'主体结构工程',district:'龙华区',status:'已绘制',time:'2026-04-10 16:28',area:'1,950',geo:[[[22.620,114.035],[22.628,114.045],[22.618,114.052],[22.612,114.038]]]},
-{no:6,project:'光明区凤凰城道路工程',engineering:'路基施工工程',district:'光明区',status:'未绘制',time:'—',area:'—',geo:null},
-{no:7,project:'盐田区港口配套基础设施项目',engineering:'地基处理工程',district:'盐田区',status:'未绘制',time:'—',area:'—',geo:null},
-{no:8,project:'罗湖区湖贝旧村改造项目',engineering:'桩基工程',district:'罗湖区',status:'已绘制',time:'2026-05-10 09:15',area:'2,120',geo:[[[22.543,114.126],[22.551,114.132],[22.545,114.138],[22.538,114.130]]]}
+{no:1,project:'南山区科技园综合体项目',engineering:'基坑围护工程',district:'南山区',projectStatus:'在建',status:'已绘制',time:'2026-04-21 10:32',area:'2,340',geo:[[[22.538,113.952],[22.544,113.960],[22.534,113.968],[22.528,113.954]]]},
+{no:2,project:'福田中心区市政管网改造工程',engineering:'管道铺设工程',district:'福田区',projectStatus:'在建',status:'已绘制',time:'2026-04-18 14:05',area:'1,860',geo:[[[22.548,114.055],[22.556,114.063],[22.548,114.070],[22.540,114.058]]]},
+{no:3,project:'宝安区新安街道住宅楼项目',engineering:'土方开挖工程',district:'宝安区',projectStatus:'备案',status:'已绘制',time:'2026-04-15 09:17',area:'3,120',geo:[[[22.565,113.890],[22.575,113.900],[22.568,113.912],[22.556,113.898]]]},
+{no:4,project:'宝安区新安街道住宅楼项目',engineering:'基础工程',district:'宝安区',projectStatus:'备案',status:'已绘制',time:'2026-04-15 09:45',area:'2,850',geo:[[[22.570,113.895],[22.578,113.905],[22.572,113.915],[22.562,113.900]]]},
+{no:5,project:'龙华区民治街道城市更新项目',engineering:'主体结构工程',district:'龙华区',projectStatus:'在建',status:'已绘制',time:'2026-04-10 16:28',area:'1,950',geo:[[[22.620,114.035],[22.628,114.045],[22.618,114.052],[22.612,114.038]]]},
+{no:6,project:'光明区凤凰城道路工程',engineering:'路基施工工程',district:'光明区',projectStatus:'报建',status:'未绘制',time:'—',area:'—',geo:null},
+{no:7,project:'盐田区港口配套基础设施项目',engineering:'地基处理工程',district:'盐田区',projectStatus:'停工',status:'未绘制',time:'—',area:'—',geo:null},
+{no:8,project:'罗湖区湖贝旧村改造项目',engineering:'桩基工程',district:'罗湖区',projectStatus:'竣工',status:'已绘制',time:'2026-05-10 09:15',area:'2,120',geo:[[[22.543,114.126],[22.551,114.132],[22.545,114.138],[22.538,114.130]]]}
 ];
 
 var mockData = (function(){
@@ -319,7 +319,7 @@ var currentRow = mockData[urlIdx];
 var hasExisting = currentRow.status === '已绘制' && currentRow.geo;
 
 document.getElementById('infoProject').textContent = currentRow.project;
-document.getElementById('infoEngineering').textContent = currentRow.engineering;
+document.getElementById('infoProjectStatus').textContent = currentRow.projectStatus || '—';
 document.getElementById('infoDistrict').textContent = currentRow.district;
 document.getElementById('pageAction').textContent = hasExisting ? '管理红线' : '绘制红线';
 document.getElementById('breadcrumbAction').textContent = hasExisting ? '管理红线' : '绘制红线';
