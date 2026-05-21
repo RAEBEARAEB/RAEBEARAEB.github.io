@@ -122,6 +122,31 @@ a:hover{color:var(--text-link-hover)}
 /* ═══ Toast ═══ */
 .toast{position:fixed;top:var(--space-6);left:50%;transform:translateX(-50%);z-index:2000;padding:var(--space-3) var(--space-6);background:var(--color-success);color:#fff;font-size:var(--font-size-sm);border-radius:var(--border-radius-md);box-shadow:var(--shadow-lg);display:none;align-items:center;gap:var(--space-2)}
 .toast.show{display:flex}
+
+/* ═══ 弹窗 ═══ */
+.modal-overlay{position:fixed;inset:0;background:var(--bg-overlay);z-index:1000;display:flex;align-items:center;justify-content:center}
+.modal{background:var(--bg-card);border-radius:var(--border-radius-lg);box-shadow:var(--shadow-lg);width:560px;max-width:90vw;max-height:80vh;display:flex;flex-direction:column}
+.modal-header{padding:var(--space-5) var(--space-6);border-bottom:1px solid var(--border-color-light);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.modal-title{font-size:var(--font-size-xl);font-weight:var(--font-weight-bold);color:var(--text-title)}
+.modal-close{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:var(--border-radius-md);cursor:pointer;background:none;border:none;color:var(--text-tertiary)}
+.modal-close:hover{background:var(--color-gray-100);color:var(--text-primary)}
+.modal-body{padding:var(--space-6);overflow-y:auto;flex:1}
+/* ═══ 变更记录 ═══ */
+.ch-modal .modal{width:900px;max-width:95vw;max-height:85vh}
+.timeline{padding:0;position:relative}
+.timeline::before{content:'';position:absolute;left:15px;top:0;bottom:0;width:2px;background:var(--border-color-default)}
+.timeline-card{position:relative;padding-left:40px;margin-bottom:24px}
+.timeline-card:last-child{margin-bottom:0}
+.timeline-dot{position:absolute;left:10px;top:4px;width:12px;height:12px;border-radius:50%;background:var(--color-primary-500);border:2px solid #fff;box-shadow:0 0 0 2px var(--color-primary-200)}
+.timeline-dot.first{background:var(--color-success);box-shadow:0 0 0 2px rgba(26,144,66,0.2)}
+.ch-time{font-size:var(--font-size-sm);color:var(--text-secondary);margin-bottom:2px}
+.ch-type{font-size:11px;color:var(--color-primary-500);font-weight:var(--font-weight-medium);margin-left:var(--space-2)}
+.ch-meta{font-size:var(--font-size-xs);color:var(--text-tertiary);margin-bottom:var(--space-2);display:flex;gap:var(--space-4)}
+.ch-maps{display:flex;gap:var(--space-3)}
+.ch-map-wrap{flex:1;min-width:0}
+.ch-map-label{font-size:11px;color:var(--text-tertiary);margin-bottom:4px;font-weight:var(--font-weight-medium)}
+.ch-map{width:100%;height:180px;border-radius:var(--border-radius-md);border:1px solid var(--border-color-light);overflow:hidden}
+.ch-empty-map{width:100%;height:180px;border-radius:var(--border-radius-md);border:1px dashed var(--border-color-default);display:flex;align-items:center;justify-content:center;font-size:var(--font-size-xs);color:var(--text-tertiary);background:var(--color-gray-50)}
 </style>
 <script src="../shared_data.js"></script>
 </head>
@@ -181,6 +206,7 @@ a:hover{color:var(--text-link-hover)}
 <div class="page-header-fixed">
 <h1 class="page-title"><span class="page-title-accent"></span><span id="pageTitle">查看红线</span></h1>
 <div class="page-header-actions">
+<button class="btn btn-ghost" onclick="openChangeHistory()">变更记录</button>
 <button class="btn btn-ghost" onclick="window.location.href='redline.html?idx='+urlIdx">返回列表</button>
 </div>
 </div>
@@ -199,6 +225,10 @@ a:hover{color:var(--text-link-hover)}
 <div class="info-card-item">
 <span class="info-card-label">行业类型</span>
 <span class="info-card-value" id="infoIndustry">-</span>
+</div>
+<div class="info-card-item">
+<span class="info-card-label">项目状态</span>
+<span class="info-card-value" id="infoProjectStatus">-</span>
 </div>
 <div class="info-card-item">
 <span class="info-card-label">更新时间</span>
@@ -226,17 +256,28 @@ a:hover{color:var(--text-link-hover)}
 
 <div class="toast" id="toast"></div>
 
+<!-- 变更记录弹窗 -->
+<div class="modal-overlay ch-modal" id="changeHistoryModal" style="display:none">
+<div class="modal">
+<div class="modal-header">
+<span class="modal-title">红线变更记录</span>
+<button class="modal-close" onclick="closeChangeHistory()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+</div>
+<div class="modal-body" id="changeHistoryBody"></div>
+</div>
+</div>
+
 <script>
 /* ═══ 数据加载 ═══ */
 var STORAGE_KEY = 'redlineMockData_v2';
 	var DEFAULT_DATA = [
-	{no:1,project:'南山区科技园综合体项目',district:'南山区',industry:'住建',status:'已绘制',time:'2026-04-21 10:32',area:'2,340',geo:[[[22.538,113.952],[22.544,113.960],[22.534,113.968],[22.528,113.954]]]},
-	{no:2,project:'福田中心区市政管网改造工程',district:'福田区',industry:'水务',status:'已绘制',time:'2026-04-18 14:05',area:'1,860',geo:[[[22.548,114.055],[22.556,114.063],[22.548,114.070],[22.540,114.058]]]},
-	{no:3,project:'宝安区新安街道住宅楼项目',district:'宝安区',industry:'住建',status:'已绘制',time:'2026-04-15 09:45',area:'2,850',geo:[[[22.570,113.895],[22.578,113.905],[22.572,113.915],[22.562,113.900]]]},
-	{no:4,project:'龙华区民治街道城市更新项目',district:'龙华区',industry:'住建',status:'已绘制',time:'2026-04-10 16:28',area:'1,950',geo:[[[22.620,114.035],[22.628,114.045],[22.618,114.052],[22.612,114.038]]]},
-	{no:5,project:'光明区凤凰城道路工程',district:'光明区',industry:'交通',status:'未绘制',time:'—',area:'—',geo:null},
-	{no:6,project:'盐田区港口配套基础设施项目',district:'盐田区',industry:'交通',status:'未绘制',time:'—',area:'—',geo:null},
-	{no:7,project:'罗湖区湖贝旧村改造项目',district:'罗湖区',industry:'住建',status:'已绘制',time:'2026-05-10 09:15',area:'2,120',geo:[[[22.543,114.126],[22.551,114.132],[22.545,114.138],[22.538,114.130]]]}
+	{no:1,project:'南山区科技园综合体项目',district:'南山区',industry:'住建',projectStatus:'在建',status:'已绘制',time:'2026-04-21 10:32',area:'2,340',geo:[[[22.538,113.952],[22.544,113.960],[22.534,113.968],[22.528,113.954]]]},
+	{no:2,project:'福田中心区市政管网改造工程',district:'福田区',industry:'水务',projectStatus:'在建',status:'已绘制',time:'2026-04-18 14:05',area:'1,860',geo:[[[22.548,114.055],[22.556,114.063],[22.548,114.070],[22.540,114.058]]]},
+	{no:3,project:'宝安区新安街道住宅楼项目',district:'宝安区',industry:'住建',projectStatus:'备案',status:'已绘制',time:'2026-04-15 09:45',area:'2,850',geo:[[[22.570,113.895],[22.578,113.905],[22.572,113.915],[22.562,113.900]]]},
+	{no:4,project:'龙华区民治街道城市更新项目',district:'龙华区',industry:'住建',projectStatus:'在建',status:'已绘制',time:'2026-04-10 16:28',area:'1,950',geo:[[[22.620,114.035],[22.628,114.045],[22.618,114.052],[22.612,114.038]]]},
+	{no:5,project:'光明区凤凰城道路工程',district:'光明区',industry:'交通',projectStatus:'报建',status:'未绘制',time:'—',area:'—',geo:null},
+	{no:6,project:'盐田区港口配套基础设施项目',district:'盐田区',industry:'交通',projectStatus:'停工',status:'未绘制',time:'—',area:'—',geo:null},
+	{no:7,project:'罗湖区湖贝旧村改造项目',district:'罗湖区',industry:'住建',projectStatus:'竣工',status:'已绘制',time:'2026-05-10 09:15',area:'2,120',geo:[[[22.543,114.126],[22.551,114.132],[22.545,114.138],[22.538,114.130]]]}
 	];
 
 var mockData = (function(){
@@ -249,6 +290,10 @@ var mockData = (function(){
       for (var i = 0; i < data.length; i++) {
         if (data[i].industry === undefined && defs[i] && defs[i].industry) {
           data[i].industry = defs[i].industry;
+          migrated = true;
+        }
+        if (data[i].projectStatus === undefined && defs[i] && defs[i].projectStatus) {
+          data[i].projectStatus = defs[i].projectStatus;
           migrated = true;
         }
       }
@@ -302,6 +347,7 @@ for (var si = 0; si < geoShapes.length; si++) {
 document.getElementById('infoProject').textContent = row.project;
 document.getElementById('infoDistrict').textContent = row.district;
 	document.getElementById('infoIndustry').textContent = row.industry || '—';
+document.getElementById('infoProjectStatus').textContent = row.projectStatus || '—';
 document.getElementById('infoTime').textContent = row.time;
 document.getElementById('pageTitle').textContent = '查看红线 — ' + row.project;
 document.title = '查看红线 — ' + row.project + ' — 深圳市建设施工围挡数字化管理系统';
@@ -353,6 +399,114 @@ function renderPolygon() {
 window.addEventListener('DOMContentLoaded', function() {
   renderPolygon();
 });
+
+/* ═══ 变更记录 ═══ */
+var chMaps = [];
+var changeHistoryData = {
+  0:[
+    {time:'2026-05-10 14:20',unit:'中建三局第一建设工程有限公司',operator:'李建明',type:'范围调整',
+     before:[[[22.538,113.952],[22.544,113.960],[22.534,113.968],[22.528,113.954]]],
+     after:[[[22.536,113.950],[22.546,113.958],[22.536,113.966],[22.526,113.956]]]},
+    {time:'2026-04-21 10:32',unit:'中建三局第一建设工程有限公司',operator:'李建明',type:'初始绘制',
+     before:null,
+     after:[[[22.538,113.952],[22.544,113.960],[22.534,113.968],[22.528,113.954]]]}
+  ],
+  1:[
+    {time:'2026-05-06 11:08',unit:'深圳市水务工程建设有限公司',operator:'王志刚',type:'范围扩展',
+     before:[[[22.548,114.055],[22.556,114.063],[22.548,114.070],[22.540,114.058]]],
+     after:[[[22.546,114.052],[22.558,114.060],[22.550,114.072],[22.540,114.060],[22.538,114.050]]]},
+    {time:'2026-04-18 14:05',unit:'深圳市水务工程建设有限公司',operator:'王志刚',type:'初始绘制',
+     before:null,
+     after:[[[22.548,114.055],[22.556,114.063],[22.548,114.070],[22.540,114.058]]]}
+  ],
+  2:[
+    {time:'2026-04-15 09:45',unit:'宝安建工集团有限公司',operator:'陈国华',type:'初始绘制',
+     before:null,
+     after:[[[22.570,113.895],[22.578,113.905],[22.572,113.915],[22.562,113.900]]]}
+  ],
+  3:[
+    {time:'2026-04-10 16:28',unit:'龙华建设发展有限公司',operator:'张伟',type:'初始绘制',
+     before:null,
+     after:[[[22.620,114.035],[22.628,114.045],[22.618,114.052],[22.612,114.038]]]}
+  ],
+  6:[
+    {time:'2026-05-15 16:40',unit:'罗湖建筑工务署',operator:'刘明',type:'范围调整',
+     before:[[[22.545,114.128],[22.553,114.134],[22.547,114.140]]],
+     after:[[[22.543,114.126],[22.551,114.132],[22.545,114.138],[22.538,114.130]]]},
+    {time:'2026-05-10 09:15',unit:'罗湖建筑工务署',operator:'刘明',type:'初始绘制',
+     before:null,
+     after:[[[22.545,114.128],[22.553,114.134],[22.547,114.140]]]}
+  ]
+};
+
+function openChangeHistory(){
+  destroyChMaps();
+  var records=changeHistoryData[urlIdx];
+  if(!records||records.length===0){
+    document.getElementById('changeHistoryBody').innerHTML='<div style="display:flex;flex-direction:column;align-items:center;padding:48px 0;color:var(--text-tertiary);gap:12px"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.25"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><div style="font-size:13px">暂无变更记录</div></div>';
+    document.getElementById('changeHistoryModal').style.display='flex';
+    return;
+  }
+  var html='<div class="timeline">';
+  records.forEach(function(rec,i){
+    var isFirst=i===records.length-1;
+    html+='<div class="timeline-card">';
+    html+='<div class="timeline-dot'+(isFirst?' first':'')+'"></div>';
+    html+='<div class="ch-time">'+rec.time+'<span class="ch-type">'+rec.type+'</span></div>';
+    html+='<div class="ch-meta"><span>操作单位：'+rec.unit+'</span><span>操作人：'+rec.operator+'</span></div>';
+    html+='<div class="ch-maps">';
+    html+='<div class="ch-map-wrap"><div class="ch-map-label">变更前</div>';
+    if(rec.before&&rec.before.length>0&&rec.before[0].length>=3){
+      html+='<div class="ch-map" id="ch-before-'+i+'"></div>';
+    }else{
+      html+='<div class="ch-empty-map">无历史红线</div>';
+    }
+    html+='</div>';
+    html+='<div class="ch-map-wrap"><div class="ch-map-label">变更后</div>';
+    if(rec.after&&rec.after.length>0&&rec.after[0].length>=3){
+      html+='<div class="ch-map" id="ch-after-'+i+'"></div>';
+    }else{
+      html+='<div class="ch-empty-map">无红线数据</div>';
+    }
+    html+='</div></div></div>';
+  });
+  html+='</div>';
+  document.getElementById('changeHistoryBody').innerHTML=html;
+  document.getElementById('changeHistoryModal').style.display='flex';
+  setTimeout(function(){initChMaps(records)},300);
+}
+
+function initChMaps(records){
+  records.forEach(function(rec,i){
+    if(rec.before&&rec.before.length>0&&rec.before[0].length>=3){
+      var el=document.getElementById('ch-before-'+i);
+      if(el){
+        var m=L.map(el,{zoomControl:false,attributionControl:false}).setView([22.55,114.05],12);
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}).addTo(m);
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}).addTo(m);
+        var g=L.featureGroup();
+        rec.before.forEach(function(pts){if(pts.length>=3){g.addLayer(L.polygon(pts,{color:'#9CA3B0',weight:2,fillColor:'rgba(156,163,176,0.15)',fillOpacity:0.5,dashArray:'4 3'}).addTo(m))}});
+        try{m.fitBounds(g.getBounds(),{padding:[10,10],maxZoom:17})}catch(e){}
+        chMaps.push(m);
+      }
+    }
+    if(rec.after&&rec.after.length>0&&rec.after[0].length>=3){
+      var el2=document.getElementById('ch-after-'+i);
+      if(el2){
+        var m2=L.map(el2,{zoomControl:false,attributionControl:false}).setView([22.55,114.05],12);
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}).addTo(m2);
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}).addTo(m2);
+        var g2=L.featureGroup();
+        rec.after.forEach(function(pts){if(pts.length>=3){g2.addLayer(L.polygon(pts,{color:'#D13B2F',weight:2,fillColor:'rgba(209,59,47,0.15)',fillOpacity:0.5}).addTo(m2))}});
+        try{m2.fitBounds(g2.getBounds(),{padding:[10,10],maxZoom:17})}catch(e){}
+        chMaps.push(m2);
+      }
+    }
+  });
+}
+
+function destroyChMaps(){chMaps.forEach(function(m){m.remove()});chMaps=[]}
+function closeChangeHistory(){document.getElementById('changeHistoryModal').style.display='none';setTimeout(destroyChMaps,200)}
 </script>
 </body>
 </html>
