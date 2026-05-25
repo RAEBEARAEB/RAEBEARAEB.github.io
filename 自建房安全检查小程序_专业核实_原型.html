@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>专业核实</title>
+    <style>
+        :root {
+            --td-brand-color: #0052d9;
+            --td-brand-color-hover: #003cab;
+            --td-brand-color-light: #ecf2fe;
+            --td-brand-color-focus: #d9e1ff;
+            --td-success-color: #2ba471;
+            --td-success-color-light: #e3f9ed;
+            --td-warning-color: #e37318;
+            --td-warning-color-light: #fff1e6;
+            --td-error-color: #d54941;
+            --td-error-color-light: #fff0ed;
+            --td-text-color-primary: #1a1a1a;
+            --td-text-color-secondary: #444444;
+            --td-text-color-placeholder: #bbbbbb;
+            --td-text-color-disabled: #c0c0c0;
+            --td-bg-color-page: #f5f5f5;
+            --td-bg-color-container: #ffffff;
+            --td-bg-color-secondary: #f5f5f5;
+            --td-border-color: #e7e7e7;
+            --td-radius-default: 6px;
+            --td-radius-large: 12px;
+            --td-radius-round: 999px;
+            --td-font-size-xs: 10px;
+            --td-font-size-s: 12px;
+            --td-font-size-base: 14px;
+            --td-font-size-m: 16px;
+            --td-font-size-l: 18px;
+            --td-spacer-1: 4px;
+            --td-spacer-2: 8px;
+            --td-spacer-3: 12px;
+            --td-spacer-4: 16px;
+            --td-spacer-5: 20px;
+            --td-spacer-6: 24px;
+            --td-spacer-8: 32px;
+            --td-shadow-1: 0 1px 6px rgba(0, 0, 0, 0.05);
+            --td-shadow-2: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(160deg, #0b1a3e 0%, #162d6e 40%, #1e3f8f 100%);
+            min-height: 100vh; display: flex; align-items: center; justify-content: center;
+        }
+        .container { width: 100%; max-width: 480px; }
+        .phone-frame {
+            background: var(--td-bg-color-page); border-radius: var(--td-radius-large);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.3), 0 0 0 6px #111;
+            overflow: hidden; height: 800px; display: flex; flex-direction: column;
+        }
+        /* ========== 顶部导航 ========== */
+        .page-header {
+            background: var(--td-brand-color); padding: 10px var(--td-spacer-4);
+            padding-top: 36px; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: space-between; position: relative;
+        }
+        .page-header::before {
+            content: ''; position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+            width: 120px; height: 28px; background: #000; border-radius: 14px;
+        }
+        .header-left { display: flex; align-items: center; gap: var(--td-spacer-2); }
+        .header-back {
+            width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; border-radius: 50%; transition: background 0.2s; color: #fff;
+        }
+        .header-back:active { background: rgba(255,255,255,0.15); }
+        .header-title { font-size: var(--td-font-size-m); font-weight: 600; color: #fff; }
+        .header-right { display: flex; align-items: center; }
+        .header-btn-text {
+            font-size: var(--td-font-size-s); color: rgba(255,255,255,0.9);
+            padding: 6px 14px; background: rgba(255,255,255,0.15);
+            border-radius: var(--td-radius-round); cursor: pointer; transition: background 0.2s;
+            border: none; backdrop-filter: blur(4px);
+        }
+        .header-btn-text:active { background: rgba(255,255,255,0.25); }
+
+        /* ========== Tab 导航 ========== */
+        .tab-nav {
+            display: flex; background: var(--td-bg-color-container);
+            border-bottom: 1px solid var(--td-border-color); padding: 0 var(--td-spacer-1);
+            flex-shrink: 0; overflow-x: auto; -webkit-overflow-scrolling: touch;
+        }
+        .tab-nav::-webkit-scrollbar { display: none; }
+        .tab-item {
+            padding: var(--td-spacer-3); font-size: var(--td-font-size-s);
+            color: var(--td-text-color-placeholder); cursor: pointer; white-space: nowrap;
+            border-bottom: 2px solid transparent; transition: all 0.2s; flex-shrink: 0; position: relative;
+        }
+        .tab-item:active { opacity: 0.7; }
+        .tab-item.active { color: var(--td-brand-color); font-weight: 600; border-bottom-color: var(--td-brand-color); }
+        .tab-item .changed-dot {
+            position: absolute; top: 6px; right: 2px; width: 6px; height: 6px; border-radius: 50%;
+            background: var(--td-brand-color); display: none;
+        }
+        .tab-item.has-changes .changed-dot { display: block; }
+
+        /* ========== 内容滚动区 ========== */
+        .page-body {
+            flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
+            padding: var(--td-spacer-3) var(--td-spacer-4); padding-bottom: 80px;
+        }
+        .page-body::-webkit-scrollbar { display: none; }
+
+        /* ========== 区块卡片 ========== */
+        .section-card {
+            background: var(--td-bg-color-container); border-radius: var(--td-radius-large);
+            box-shadow: var(--td-shadow-1); margin-bottom: var(--td-spacer-3);
+        }
+        .section-header {
+            padding: var(--td-spacer-4) var(--td-spacer-4) 0;
+            display: flex; align-items: center; gap: var(--td-spacer-2); cursor: pointer;
+        }
+        .section-dot { width: 4px; height: 16px; border-radius: 2px; background: var(--td-brand-color); flex-shrink: 0; }
+        .section-title { font-size: var(--td-font-size-base); font-weight: 600; color: var(--td-text-color-primary); flex: 1; }
+        .section-toggle { font-size: var(--td-font-size-s); color: var(--td-text-color-placeholder); transition: transform 0.2s; }
+        .section-toggle.collapsed { transform: rotate(-90deg); }
+        .section-body { padding: var(--td-spacer-3) var(--td-spacer-4) var(--td-spacer-4); overflow: visible; }
+        .section-body.collapsed { display: none; }
+
+        /* ========== 字段行 ========== */
+        .field-row {
+            display: flex; padding: var(--td-spacer-2) 0;
+            border-bottom: 1px solid rgba(0,0,0,0.03); position: relative;
+        }
+        .field-row:last-child { border-bottom: none; }
+        .field-row.changed { background: rgba(0,82,217,0.04); border-radius: var(--td-radius-default); }
+        .field-row.changed::before {
+            content: ''; position: absolute; left: calc(-1 * var(--td-spacer-4));
+            top: 4px; bottom: 4px; width: 3px; background: var(--td-brand-color); border-radius: 2px;
+        }
+        .field-label {
+            width: 140px; flex-shrink: 0; font-size: var(--td-font-size-s);
+            color: var(--td-text-color-placeholder); line-height: 1.6; padding-top: 1px;
+        }
+        .field-value {
+            flex: 1; font-size: var(--td-font-size-s); color: var(--td-text-color-primary);
+            line-height: 1.6; min-width: 0; word-break: break-all;
+        }
+        .field-value.desensitized { color: var(--td-text-color-disabled); letter-spacing: 2px; }
+        .field-value input, .field-value select {
+            width: 100%; border: none; outline: none; font-size: var(--td-font-size-s);
+            color: var(--td-text-color-primary); background: transparent; font-family: inherit;
+            padding: 0; line-height: 1.6;
+        }
+        .field-value input::placeholder, .field-value select:invalid { color: var(--td-text-color-placeholder); }
+        .field-value input:focus, .field-value select:focus { border-bottom: 1px solid var(--td-brand-color); margin-bottom: -1px; }
+        .field-value select { cursor: pointer; }
+        .radio-group { display: flex; gap: var(--td-spacer-4); flex-wrap: wrap; }
+        .radio-item {
+            display: flex; align-items: center; gap: var(--td-spacer-1); cursor: pointer;
+            font-size: var(--td-font-size-s); color: var(--td-text-color-primary);
+        }
+        .radio-item input[type="radio"] { width: 16px; height: 16px; accent-color: var(--td-brand-color); margin: 0; }
+        .sub-group-title {
+            font-size: var(--td-font-size-s); font-weight: 600; color: var(--td-text-color-secondary);
+            padding: var(--td-spacer-3) 0 var(--td-spacer-2); border-bottom: 1px solid var(--td-border-color); margin-top: var(--td-spacer-1);
+        }
+        /* ========== 底部提交栏 ========== */
+        .submit-bar {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            padding: var(--td-spacer-3) var(--td-spacer-5); padding-bottom: 28px;
+            background: var(--td-bg-color-container); border-top: 1px solid var(--td-border-color);
+            display: flex; gap: var(--td-spacer-3); z-index: 100; box-shadow: 0 -5px 10px rgba(0,0,0,0.05);
+        }
+        .submit-btn {
+            flex: 1; padding: var(--td-spacer-3) 0; border-radius: var(--td-radius-default);
+            font-size: var(--td-font-size-base); font-weight: 600; border: none; cursor: pointer; text-align: center;
+        }
+        .submit-btn:active { opacity: 0.7; }
+        .submit-btn.primary { background: var(--td-brand-color); color: #fff; }
+        .submit-btn.secondary { background: var(--td-bg-color-page); color: var(--td-text-color-secondary); }
+
+        /* ========== 变更浮标 ========== */
+        .change-fab {
+            position: absolute; bottom: 80px; right: var(--td-spacer-4);
+            background: var(--td-brand-color); color: #fff; padding: var(--td-spacer-2) var(--td-spacer-3);
+            border-radius: var(--td-radius-round); font-size: var(--td-font-size-s); font-weight: 600;
+            cursor: pointer; z-index: 90; box-shadow: 0 4px 12px rgba(0,82,217,0.3);
+            display: none; transition: transform 0.15s;
+        }
+        .change-fab:active { transform: scale(0.95); }
+        .change-fab.show { display: flex; align-items: center; gap: var(--td-spacer-1); }
+
+        /* ========== 时间轴弹窗 ========== */
+        .timeline-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5); z-index: 1500;
+            display: none; align-items: flex-end; justify-content: center;
+        }
+        .timeline-overlay.show { display: flex; }
+        .timeline-panel {
+            width: 100%; max-width: 480px; max-height: 75vh;
+            background: var(--td-bg-color-container); border-radius: var(--td-radius-large) var(--td-radius-large) 0 0;
+            display: flex; flex-direction: column; animation: slideUp 0.3s cubic-bezier(0.16,1,0.3,1);
+        }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .timeline-panel-header {
+            padding: var(--td-spacer-4) var(--td-spacer-5); border-bottom: 1px solid var(--td-border-color);
+            display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;
+        }
+        .timeline-panel-title { font-size: var(--td-font-size-m); font-weight: 600; color: var(--td-text-color-primary); }
+        .timeline-panel-close {
+            width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; border-radius: 50%; color: var(--td-text-color-placeholder);
+        }
+        .timeline-panel-body { flex: 1; overflow-y: auto; padding: var(--td-spacer-5); }
+        .timeline-panel-body::-webkit-scrollbar { display: none; }
+        .timeline { position: relative; padding-left: 28px; }
+        .timeline::before { content: ''; position: absolute; left: 9px; top: 6px; bottom: 6px; width: 2px; background: var(--td-border-color); }
+        .timeline-item { position: relative; padding-bottom: var(--td-spacer-5); }
+        .timeline-item:last-child { padding-bottom: 0; }
+        .timeline-dot { position: absolute; left: -28px; top: 4px; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 1; }
+        .timeline-dot.inspected { background: var(--td-brand-color-light); border: 2px solid var(--td-brand-color); }
+        .timeline-dot.approved { background: var(--td-success-color-light); border: 2px solid var(--td-success-color); }
+        .timeline-dot.rejected { background: var(--td-error-color-light); border: 2px solid var(--td-error-color); }
+        .timeline-dot.verified { background: var(--td-warning-color-light); border: 2px solid var(--td-warning-color); }
+        .timeline-dot svg { width: 10px; height: 10px; }
+        .timeline-card { background: var(--td-bg-color-page); border-radius: var(--td-radius-default); padding: var(--td-spacer-3) var(--td-spacer-4); }
+        .timeline-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--td-spacer-2); }
+        .timeline-flow { font-size: var(--td-font-size-base); font-weight: 600; color: var(--td-text-color-primary); }
+        .timeline-result-tag { font-size: var(--td-font-size-xs); padding: 2px 10px; border-radius: var(--td-radius-round); font-weight: 500; }
+        .timeline-result-tag.pass { background: var(--td-success-color-light); color: var(--td-success-color); }
+        .timeline-result-tag.reject { background: var(--td-error-color-light); color: var(--td-error-color); }
+        .timeline-result-tag.info { background: var(--td-brand-color-light); color: var(--td-brand-color); }
+        .timeline-result-tag.verify { background: var(--td-warning-color-light); color: var(--td-warning-color); }
+        .timeline-meta { font-size: var(--td-font-size-xs); color: var(--td-text-color-placeholder); margin-bottom: var(--td-spacer-2); }
+        .timeline-meta span { margin-right: var(--td-spacer-3); }
+        .timeline-opinion { font-size: var(--td-font-size-s); color: var(--td-text-color-secondary); padding: var(--td-spacer-2) var(--td-spacer-3); background: var(--td-bg-color-container); border-radius: var(--td-radius-default); border-left: 3px solid var(--td-brand-color); margin-top: var(--td-spacer-2); line-height: 1.5; }
+        .timeline-changes { font-size: var(--td-font-size-s); color: var(--td-text-color-secondary); padding: var(--td-spacer-2) var(--td-spacer-3); background: var(--td-bg-color-container); border-radius: var(--td-radius-default); border-left: 3px solid var(--td-warning-color); margin-top: var(--td-spacer-2); line-height: 1.5; }
+        .change-field { font-weight: 600; color: var(--td-text-color-primary); }
+        .change-old { text-decoration: line-through; color: var(--td-error-color); font-size: var(--td-font-size-xs); }
+        .change-new { color: var(--td-success-color); font-weight: 500; }
+        .fa-toast { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.75); color: #fff; padding: var(--td-spacer-3) 28px; border-radius: var(--td-radius-default); font-size: var(--td-font-size-base); z-index: 2000; display: none; }
+        .fa-toast.show { display: block; animation: toastFade 0.2s ease; }
+        @keyframes toastFade { from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+        .hidden { display: none !important; }
+        html.in-iframe body { background: var(--td-bg-color-page); padding: 0; }
+        html.in-iframe .phone-frame { border-radius: 0; box-shadow: none; height: 100vh; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="phone-frame">
+            <div class="page-header">
+                <div class="header-left">
+                    <span class="header-back" onclick="navigateBack()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+                    </span>
+                    <span class="header-title">专业核实</span>
+                </div>
+                <div class="header-right">
+                    <button class="header-btn-text" onclick="openTimeline()">审核记录</button>
+                </div>
+            </div>
+            <div class="tab-nav" id="tabNav"></div>
+            <div class="page-body" id="pageBody"></div>
+            <div class="change-fab" id="changeFab" onclick="showChangeSummary()"></div>
+            <div class="submit-bar">
+                <button class="submit-btn secondary" onclick="navigateBack()">取消</button>
+                <button class="submit-btn primary" onclick="handleSubmit()">提交核实</button>
+            </div>
+        </div>
+    </div>
+    <div class="timeline-overlay" id="timelineOverlay" onclick="closeTimeline()">
+        <div class="timeline-panel" onclick="event.stopPropagation()">
+            <div class="timeline-panel-header">
+                <span class="timeline-panel-title">审核记录</span>
+                <span class="timeline-panel-close" onclick="closeTimeline()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                </span>
+            </div>
+            <div class="timeline-panel-body" id="timelineBody"></div>
+        </div>
+    </div>
+    <div class="fa-toast" id="toast"></div>
+
+<script>
+// ====== URL 参数 ======
+const P = new URLSearchParams(location.search);
+const houseName = P.get('houseName')||'细靓北十二巷7号';
+const houseCode = P.get('houseCode')||'4403070010032700169';
+const areaName = P.get('area')||'龙岗区';
+const streetName = P.get('street')||'平湖';
+const communityName = P.get('community')||'辅城坳';
+const gridName = P.get('grid')||'辅城坳37';
+const detailAddr = P.get('detailAddress')||'龙阳光路32-2号';
+const houseId = P.get('houseId')||'1';
+
+// ====== 可编辑字段集合 ======
+const EDITABLE_KEYS = new Set([
+    'hasExtension','extensionCount','extensionContent',
+    'hasCrack','hasDamage','damageLocation','damageType',
+    'preliminaryJudge','hasSafetyInspection','inspectionResult','inspectionOrg','inspectionTime','hasTiltSettlement','tiltType',
+    'hasConcreteIssue','concreteType',
+    'hasTopAddition','hasBottomAddition','hasWallChange','hasWallPositionChange','hasNewHole','hasFireDamage','isDemolished',
+]);
+
+// ====== 脱敏字段集合 ======
+const DESENS_KEYS = new Set([
+    'safetyResponsible','safetyPhone','industryDept',
+    'ownerName','ownerIdCard',
+    'propertyUnit','propertyContact','propertyPhone',
+]);
+
+// ====== Mock 数据 ======
+const MOCK = {
+    isSelfBuild:'是',houseName:'细靓北十二巷7号',belongArea:'龙岗区',houseAddress:'龙阳光路32-2号',canInspect:'是',
+    safetyResponsible:'张三',safetyPhone:'13800138000',industryDept:'住建局 0755-12345678',
+    hasPropertyReg:'是',ownerName:'李四',ownerIdCard:'440307199001011234',
+    landNature:'集体用地',locationArea:'城区',buildMethod:'自建',designMethod:'无设计',
+    structureType:'砖混结构',usageFunction:'住宅',groundFloors:'6',undergroundFloors:'1',
+    buildingArea:'480',buildingHeight:'18',buildingCount:'1',floorCount:'6',
+    userCount:'24',householdCount:'6',suiteCount:'6',
+    buildDate:'2015-06-01',designDate:'',designUnit:'',constructionUnit:'村民自建队',
+    propertyUnit:'',propertyContact:'',propertyPhone:'',
+    hasDrawing:'无',hasFireApproval:'否',
+    isOwnerUse:'否',isBusinessSelfBuild:'是',usageChanged:'否',changedUsage:'',
+    hasExtension:'是',extensionCount:'1',extensionContent:'加层',
+    hasCrack:'否',hasDamage:'无变形损伤',damageLocation:'',damageType:'',
+    preliminaryJudge:'暂未发现安全隐患',
+    hasSafetyInspection:'否',inspectionResult:'',inspectionOrg:'',inspectionTime:'',
+    hasTiltSettlement:'否',tiltType:'',
+    isDecorating:'否',decorationChangeStructure:'',
+    hasBalcony:'是',balconyType:'悬挑梁阳台',
+    adminLicense:'无',isIllegalBuild:'否',illegalType:'',isIllegalApproval:'',
+    hasPublicReport:'否',hasConcreteIssue:'否',concreteType:'',
+    hasTopAddition:'否',hasBottomAddition:'否',hasWallChange:'否',
+    hasWallPositionChange:'否',hasNewHole:'否',hasFireDamage:'否',isDemolished:'否',
+    hasEarthDigging:'否',hasMetroConstruction:'否',hasMountainSlope:'否',
+    hasGroundCollapse:'否',surroundingAreaType:'平原',
+    hasRectifyMeasure:'否'
+};
+
+// ====== 字段定义（与审核页结构一致，但通过 EDITABLE_KEYS/DESENS_KEYS 控制可编辑性和脱敏） ======
+const FIELD_DEFS = {
+    isSelfBuild:{l:'是否为自建房',t:'radio',opts:['是','否']},
+    houseName:{l:'房屋名称',t:'text'},
+    belongArea:{l:'所属区域',t:'text'},
+    houseAddress:{l:'房屋地址',t:'text'},
+    canInspect:{l:'可否正常开展安全检查',t:'readonly'},
+    safetyResponsible:{l:'房屋安全责任人',t:'text'},
+    safetyPhone:{l:'责任人联系电话',t:'text'},
+    industryDept:{l:'行业主管部门及联系方式',t:'text'},
+    hasPropertyReg:{l:'有无产权登记',t:'radio',opts:['是','否','其他']},
+    ownerName:{l:'产权人（使用人）姓名',t:'text'},
+    ownerIdCard:{l:'身份证号',t:'text'},
+    landNature:{l:'土地性质',t:'radio',opts:['国有用地','集体用地']},
+    locationArea:{l:'所在区域',t:'select',opts:['城区','郊区','农村']},
+    buildMethod:{l:'建造方式',t:'select',opts:['自建','委托建设','其他']},
+    designMethod:{l:'设计方式',t:'select',opts:['自行设计','委托设计','无设计']},
+    structureType:{l:'结构类型',t:'select',opts:['砖混结构','框架结构','钢结构','砖木结构','土木结构','其他']},
+    usageFunction:{l:'使用功能',t:'select',opts:['住宅','商业','办公','仓储','其他']},
+    groundFloors:{l:'房屋地上层数',t:'number'},
+    undergroundFloors:{l:'房屋地下层数',t:'number'},
+    buildingArea:{l:'建筑面积（平方米）',t:'number'},
+    buildingHeight:{l:'建筑高度（米）',t:'number'},
+    buildingCount:{l:'栋数',t:'number'},
+    floorCount:{l:'楼层数',t:'number'},
+    userCount:{l:'使用人数',t:'number'},
+    householdCount:{l:'户数',t:'number'},
+    suiteCount:{l:'套数',t:'number'},
+    buildDate:{l:'建成日期',t:'date'},
+    designDate:{l:'设计时间',t:'date'},
+    designUnit:{l:'设计单位',t:'text'},
+    constructionUnit:{l:'施工单位',t:'text'},
+    propertyUnit:{l:'物业管理单位',t:'text'},
+    propertyContact:{l:'物业联系人',t:'text'},
+    propertyPhone:{l:'物业联系方式',t:'text'},
+    hasDrawing:{l:'设计图纸',t:'select',opts:['有','无','部分']},
+    hasFireApproval:{l:'消防审批手续是否办理',t:'radio',opts:['是','否']},
+    isOwnerUse:{l:'1、房屋是否业主自用',t:'radio',opts:['是','否']},
+    isBusinessSelfBuild:{l:'是否为经营性自建房',t:'radio',opts:['是','否']},
+    usageChanged:{l:'2、房屋用途是否发生改变',t:'radio',opts:['是','否']},
+    changedUsage:{l:'改变后用途',t:'select',opts:['商业经营','仓储物流','餐饮服务','住宿服务','其他'],showWhen:{f:'usageChanged',v:'是'}},
+    hasExtension:{l:'3、房屋是否改扩建',t:'radio',opts:['是','否']},
+    extensionCount:{l:'房屋改扩建次数',t:'number',showWhen:{f:'hasExtension',v:'是'}},
+    extensionContent:{l:'改扩建内容',t:'select',opts:['加层','扩建','改建','其他'],showWhen:{f:'hasExtension',v:'是'}},
+    hasCrack:{l:'4、主要构件是否有明显裂缝',t:'radio',opts:['是','否']},
+    hasDamage:{l:'5、是否有结构损伤情况',t:'radio',opts:['有变形损伤','无变形损伤']},
+    damageLocation:{l:'损伤部位',t:'select',opts:['墙体','梁柱','楼板','屋面','其他'],showWhen:{f:'hasDamage',v:'有变形损伤'}},
+    damageType:{l:'问题类型（损伤）',t:'select',opts:['裂缝','变形','剥落','其他'],showWhen:{f:'hasDamage',v:'有变形损伤'}},
+    preliminaryJudge:{l:'6、初步判定',t:'select',opts:['暂未发现安全隐患','存在安全隐患']},
+    hasSafetyInspection:{l:'7、安全鉴定',t:'radio',opts:['是','否']},
+    inspectionResult:{l:'鉴定结论',t:'select',opts:['A','B','C','D'],showWhen:{f:'hasSafetyInspection',v:'是'}},
+    inspectionOrg:{l:'鉴定机构名称',t:'text',showWhen:{f:'hasSafetyInspection',v:'是'}},
+    inspectionTime:{l:'鉴定时间',t:'date',showWhen:{f:'hasSafetyInspection',v:'是'}},
+    hasTiltSettlement:{l:'8、是否有倾斜沉降等异常',t:'radio',opts:['是','否']},
+    tiltType:{l:'问题类型（倾斜）',t:'select',opts:['整体倾斜','局部倾斜','沉降'],showWhen:{f:'hasTiltSettlement',v:'是'}},
+    isDecorating:{l:'9、是否正进行装修',t:'radio',opts:['是','否']},
+    decorationChangeStructure:{l:'装修是否改变主体结构',t:'radio',opts:['是','否'],showWhen:{f:'isDecorating',v:'是'}},
+    hasBalcony:{l:'10、是否有外挑阳台',t:'radio',opts:['是','否']},
+    balconyType:{l:'阳台类型',t:'select',opts:['挑板式阳台','悬挑梁阳台','其他'],showWhen:{f:'hasBalcony',v:'是'}},
+    adminLicense:{l:'11、已取得的行政许可',t:'select',opts:['建设工程规划许可证','施工许可证','无']},
+    isIllegalBuild:{l:'12、是否违法建设和违法审批',t:'radio',opts:['是','否']},
+    illegalType:{l:'问题类型（违法）',t:'select',opts:['违法建设','违法审批','两者均有'],showWhen:{f:'isIllegalBuild',v:'是'}},
+    isIllegalApproval:{l:'是否违法审批',t:'radio',opts:['是','否'],showWhen:{f:'isIllegalBuild',v:'是'}},
+    hasPublicReport:{l:'13、是否有群众反映结构安全问题',t:'radio',opts:['是','否']},
+    hasConcreteIssue:{l:'14、是否有混凝土剥落/钢筋问题',t:'radio',opts:['是','否']},
+    concreteType:{l:'问题类型（混凝土）',t:'select',opts:['混凝土剥落','钢筋外露','钢筋锈蚀','其他'],showWhen:{f:'hasConcreteIssue',v:'是'}},
+    hasTopAddition:{l:'15、顶部是否有加建',t:'radio',opts:['是','否']},
+    hasBottomAddition:{l:'16、底层是否有加建',t:'radio',opts:['是','否']},
+    hasWallChange:{l:'17、是否增加或减少墙体',t:'radio',opts:['是','否']},
+    hasWallPositionChange:{l:'18、是否改变墙体位置',t:'radio',opts:['是','否']},
+    hasNewHole:{l:'19、墙体楼板是否有新开洞',t:'radio',opts:['是','否']},
+    hasFireDamage:{l:'20、是否受过火灾等外力损害',t:'radio',opts:['是','否']},
+    isDemolished:{l:'21、房屋是否被拆除',t:'radio',opts:['是','否']},
+    hasEarthDigging:{l:'22、周边是否有开挖土方',t:'radio',opts:['是','否']},
+    hasMetroConstruction:{l:'23、周边是否有地铁/管廊/隧道',t:'radio',opts:['是','否']},
+    hasMountainSlope:{l:'24、周边是否有山体或边坡',t:'radio',opts:['是','否']},
+    hasGroundCollapse:{l:'25、周边地面是否有塌陷',t:'radio',opts:['是','否']},
+    surroundingAreaType:{l:'周边地域情况',t:'select',opts:['平原','山地','丘陵','河边','其他']},
+    hasRectifyMeasure:{l:'现场是否有采取整治措施',t:'radio',opts:['是','否']},
+};
+
+// ====== Tab 分组 ======
+const TAB_GROUPS = [
+    { label:'基础信息', tabId:'tab0', sectionIds:['basicInfo','inspectBase'] },
+    { label:'使用信息', tabId:'tab1', sectionIds:['inspectUsage'] },
+    { label:'周边环境', tabId:'tab2', sectionIds:['inspectEnv'] },
+    { label:'整治情况', tabId:'tab3', sectionIds:['inspectRectify'] },
+];
+let activeTab = 0;
+
+// ====== 区块定义（key 列表） ======
+const SECTIONS = {
+    basicInfo: { title:'房屋基础信息', readonly:true, fields:[
+        ['房屋名称',houseName],['建筑物编码',houseCode],['所属区域',areaName],
+        ['所属街道',streetName],['所属社区',communityName],['所属网格',gridName],['详细地址',detailAddr]
+    ]},
+    inspectBase: { title:'检查信息 — 基本信息', groups:[
+        {title:'房屋基本信息',keys:['isSelfBuild','houseName','belongArea','houseAddress','canInspect']},
+        {title:'房屋安全责任人信息',keys:['safetyResponsible','safetyPhone','industryDept']},
+        {title:'产权信息',keys:['hasPropertyReg','ownerName','ownerIdCard']},
+        {title:'建筑信息',keys:['landNature','locationArea','buildMethod','designMethod','structureType','usageFunction','groundFloors','undergroundFloors','buildingArea','buildingHeight','buildingCount','floorCount','userCount','householdCount','suiteCount']},
+        {title:'建设信息',keys:['buildDate','designDate','designUnit','constructionUnit']},
+        {title:'物业管理信息',keys:['propertyUnit','propertyContact','propertyPhone']},
+        {title:'资料信息',keys:['hasDrawing','hasFireApproval']},
+    ]},
+    inspectUsage: { title:'检查信息 — 使用信息', groups:[
+        {title:'房屋使用情况',keys:['isOwnerUse','isBusinessSelfBuild','usageChanged','changedUsage']},
+        {title:'改扩建情况',keys:['hasExtension','extensionCount','extensionContent']},
+        {title:'结构损伤情况',keys:['hasCrack','hasDamage','damageLocation','damageType']},
+        {title:'安全判定',keys:['preliminaryJudge','hasSafetyInspection','inspectionResult','inspectionOrg','inspectionTime','hasTiltSettlement','tiltType']},
+        {title:'装修与结构改动',keys:['isDecorating','decorationChangeStructure','hasBalcony','balconyType']},
+        {title:'行政许可与违法建设',keys:['adminLicense','isIllegalBuild','illegalType','isIllegalApproval']},
+        {title:'群众反映与构件问题',keys:['hasPublicReport','hasConcreteIssue','concreteType']},
+        {title:'加建与墙体变化',keys:['hasTopAddition','hasBottomAddition','hasWallChange','hasWallPositionChange','hasNewHole','hasFireDamage','isDemolished']},
+    ]},
+    inspectEnv: { title:'检查信息 — 周边环境', groups:[
+        {title:'周边环境检查',keys:['hasEarthDigging','hasMetroConstruction','hasMountainSlope','hasGroundCollapse','surroundingAreaType']},
+    ]},
+    inspectRectify: { title:'检查信息 — 现场整治情况', groups:[
+        {title:'现场整治',keys:['hasRectifyMeasure']},
+    ]},
+};
+
+// ====== 变更追踪 ======
+const changes = new Map();
+function onFieldChange(key, newVal) {
+    const orig = MOCK[key] ?? '';
+    const row = document.querySelector(`.field-row[data-key="${key}"]`);
+    if (newVal !== orig) {
+        changes.set(key, {old:orig, new:newVal});
+        if (row) row.classList.add('changed');
+    } else {
+        changes.delete(key);
+        if (row) row.classList.remove('changed');
+    }
+    updateConditionalFields();
+    updateChangeFab();
+    updateTabDots();
+}
+function updateConditionalFields() {
+    document.querySelectorAll('.field-row[data-show-when]').forEach(row => {
+        const cond = JSON.parse(row.dataset.showWhen);
+        const current = getFieldValue(cond.f);
+        row.classList.toggle('hidden', current !== cond.v);
+    });
+}
+function getFieldValue(key) {
+    const el = document.querySelector(`[data-field="${key}"]`);
+    if (!el) return MOCK[key] ?? '';
+    if (el.classList.contains('radio-group')) {
+        const checked = el.querySelector('input:checked');
+        return checked ? checked.value : '';
+    }
+    return el.value;
+}
+function updateChangeFab() {
+    const fab = document.getElementById('changeFab');
+    if (changes.size > 0) { fab.textContent = changes.size + ' 处修改'; fab.classList.add('show'); }
+    else { fab.classList.remove('show'); }
+}
+function updateTabDots() {
+    const tabCounts = {};
+    changes.forEach((_, key) => {
+        for (let i = 0; i < TAB_GROUPS.length; i++) {
+            const grp = TAB_GROUPS[i];
+            const found = grp.sectionIds.some(sid => SECTIONS[sid]?.groups?.some(g => g.keys.includes(key)));
+            if (found) { tabCounts[i] = (tabCounts[i]||0) + 1; break; }
+        }
+    });
+    TAB_GROUPS.forEach((_, i) => {
+        const tabEl = document.querySelector(`.tab-item[data-idx="${i}"]`);
+        if (tabEl) tabEl.classList.toggle('has-changes', !!tabCounts[i]);
+    });
+}
+function showChangeSummary() {
+    if (changes.size === 0) { showToast('暂无修改'); return; }
+    let items = [];
+    changes.forEach((v, k) => {
+        const def = FIELD_DEFS[k];
+        items.push(`"${def?def.l:k}"：${v.old||'（空）'} → ${v.new||'（空）'}`);
+    });
+    showToast('共 ' + items.length + ' 处修改：' + items.join('；'));
+}
+
+// ====== 渲染 ======
+function renderAll() {
+    let tabHtml = '';
+    TAB_GROUPS.forEach((tg, i) => {
+        tabHtml += `<div class="tab-item${i===0?' active':''}" data-idx="${i}" onclick="switchTab(${i})">${tg.label}<span class="changed-dot"></span></div>`;
+    });
+    document.getElementById('tabNav').innerHTML = tabHtml;
+
+    let bodyHtml = '';
+    TAB_GROUPS.forEach((tg) => {
+        bodyHtml += `<div id="${tg.tabId}">`;
+        tg.sectionIds.forEach(sid => {
+            const sec = SECTIONS[sid];
+            if (!sec) return;
+            bodyHtml += renderSection(sid, sec);
+        });
+        bodyHtml += `</div>`;
+    });
+    document.getElementById('pageBody').innerHTML = bodyHtml;
+}
+
+function renderSection(sid, sec) {
+    let h = `<div class="section-card"><div class="section-header" onclick="toggleSection('${sid}')">
+        <span class="section-dot"></span><span class="section-title">${sec.title}</span>
+        <span class="section-toggle" id="toggle_${sid}">▼</span></div>
+        <div class="section-body" id="body_${sid}">`;
+    if (sec.readonly) {
+        sec.fields.forEach(([l,v]) => {
+            h += `<div class="field-row"><span class="field-label">${l}</span><span class="field-value">${v}</span></div>`;
+        });
+    } else {
+        sec.groups.forEach(g => {
+            h += `<div class="sub-group-title">${g.title}</div>`;
+            g.keys.forEach(key => {
+                const def = FIELD_DEFS[key];
+                if (!def) return;
+                const isEditable = EDITABLE_KEYS.has(key);
+                const isDesens = DESENS_KEYS.has(key);
+                const val = isDesens ? '***' : (MOCK[key] ?? '');
+                const showAttr = def.showWhen ? `data-show-when='${JSON.stringify(def.showWhen)}'` : '';
+                const hideClass = def.showWhen && MOCK[def.showWhen.f] !== def.showWhen.v ? ' hidden' : '';
+                const desensClass = isDesens ? ' desensitized' : '';
+                h += `<div class="field-row${hideClass}" data-key="${key}" ${showAttr}>
+                    <span class="field-label">${def.l}</span>
+                    <span class="field-value${desensClass}">${isEditable ? renderField(key,def,MOCK[key]??'') : (val || '—')}</span></div>`;
+            });
+        });
+    }
+    return h + `</div></div>`;
+}
+
+function renderField(key, def, val) {
+    const t = def.t;
+    if (t === 'readonly') return val || '—';
+    if (['text','number','tel'].includes(t))
+        return `<input type="${t}" value="${esc(val)}" data-field="${key}" data-original="${esc(val)}" oninput="onFieldChange('${key}',this.value)" placeholder="请输入">`;
+    if (t === 'date')
+        return `<input type="date" value="${esc(val)}" data-field="${key}" data-original="${esc(val)}" onchange="onFieldChange('${key}',this.value)">`;
+    if (t === 'select') {
+        let s = `<select data-field="${key}" data-original="${esc(val)}" onchange="onFieldChange('${key}',this.value)"><option value="">请选择</option>`;
+        (def.opts||[]).forEach(o => { s += `<option value="${o}"${val===o?' selected':''}>${o}</option>`; });
+        return s + `</select>`;
+    }
+    if (t === 'radio') {
+        let r = `<div class="radio-group" data-field="${key}" data-original="${esc(val)}">`;
+        (def.opts||[]).forEach(o => {
+            r += `<label class="radio-item"><input type="radio" name="field_${key}" value="${o}"${val===o?' checked':''} onchange="onFieldChange('${key}','${o}')"><span>${o}</span></label>`;
+        });
+        return r + `</div>`;
+    }
+    return val || '—';
+}
+function esc(s) { return String(s).replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+function toggleSection(id) {
+    const body = document.getElementById('body_' + id);
+    const toggle = document.getElementById('toggle_' + id);
+    if (body && toggle) { body.classList.toggle('collapsed'); toggle.classList.toggle('collapsed'); }
+}
+function switchTab(idx) {
+    activeTab = idx;
+    document.querySelectorAll('.tab-item').forEach((el,i) => el.classList.toggle('active', i===idx));
+    const target = document.getElementById(TAB_GROUPS[idx].tabId);
+    if (target) {
+        document.getElementById('pageBody').scrollTo({ top: target.offsetTop - 4, behavior: 'smooth' });
+    }
+}
+function setupScrollSpy() {
+    const pageBody = document.getElementById('pageBody');
+    let scrollTimer = null;
+    let isManualScroll = false;
+    document.querySelectorAll('.tab-item').forEach(el => {
+        el.addEventListener('click', () => { isManualScroll = true; });
+    });
+    pageBody.addEventListener('scroll', () => {
+        clearTimeout(scrollTimer);
+        if (isManualScroll) { scrollTimer = setTimeout(() => { isManualScroll = false; }, 600); return; }
+        const anchors = TAB_GROUPS.map(tg => document.getElementById(tg.tabId));
+        let newActive = 0;
+        anchors.forEach((el, i) => { if (el && el.offsetTop - 20 <= pageBody.scrollTop) newActive = i; });
+        if (newActive !== activeTab) {
+            activeTab = newActive;
+            document.querySelectorAll('.tab-item').forEach((el,i) => el.classList.toggle('active', i===newActive));
+        }
+    });
+}
+
+// ====== 核实 ======
+function handleSubmit() {
+    const changeList = [];
+    changes.forEach((v, k) => {
+        const def = FIELD_DEFS[k];
+        changeList.push({field:def?def.l:k, oldVal:v.old||'（空）', newVal:v.new||'（空）'});
+    });
+    if (window.parent !== window) {
+        window.parent.postMessage({type:'formSubmitted',data:{houseId,changes:changeList}},'*');
+    } else {
+        showToast('核实已提交' + (changeList.length ? '，修改' + changeList.length + '项' : ''));
+    }
+}
+
+// ====== 审核记录 ======
+const auditRecords = [
+    {flow:'街道审批',result:'不通过',opinion:'结构类型和改扩建信息有误，需专业机构核实',changes:[],auditor:'王街道',unit:'A街道',time:'2025-12-13 14:20:00'},
+    {flow:'网格检查',result:'已检查',opinion:'',changes:[],auditor:'李网格',unit:'aa网格',time:'2025-12-12 12:45:17'},
+    {flow:'专业核实',result:'已核实',opinion:'经核实，结构类型和改扩建信息有误，已更正',changes:[
+        {field:'结构类型',oldVal:'混杂结构',newVal:'砖混结构'},
+        {field:'房屋改扩建次数',oldVal:'0',newVal:'1'}
+    ],auditor:'郑专业',unit:'XXX检测鉴定有限公司',time:'2025-12-11 17:54:17'},
+    {flow:'网格检查',result:'已检查',opinion:'',changes:[],auditor:'李网格',unit:'aa网格',time:'2025-12-10 09:30:00'},
+];
+function openTimeline() { renderTimeline(); document.getElementById('timelineOverlay').classList.add('show'); }
+function closeTimeline() { document.getElementById('timelineOverlay').classList.remove('show'); }
+function renderTimeline() {
+    document.getElementById('timelineBody').innerHTML = `<div class="timeline">${
+        auditRecords.map(r => {
+            const dc = r.result==='已检查'?'inspected':r.result==='不通过'?'rejected':r.result==='已核实'?'verified':'approved';
+            const tc = r.result==='已检查'?'info':r.result==='不通过'?'reject':r.result==='已核实'?'verify':'pass';
+            const ic = r.result==='已检查'?'#0052d9':r.result==='不通过'?'#d54941':r.result==='已核实'?'#e37318':'#2ba471';
+            return `<div class="timeline-item"><div class="timeline-dot ${dc}"><svg viewBox="0 0 24 24" fill="none" stroke="${ic}" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></div>
+            <div class="timeline-card"><div class="timeline-card-header"><span class="timeline-flow">${r.flow}</span><span class="timeline-result-tag ${tc}">${r.result}</span></div>
+            <div class="timeline-meta"><span>${r.auditor}</span><span>${r.unit}</span></div><div class="timeline-meta">${r.time}</div>
+            ${r.opinion?`<div class="timeline-opinion">${r.opinion}</div>`:''}
+            ${r.changes&&r.changes.length?`<div class="timeline-changes">${r.changes.map(c=>`"<span class="change-field">${c.field}</span>" 由 <span class="change-old">${c.oldVal}</span> 修改为 <span class="change-new">${c.newVal}</span>`).join('<br>')}</div>`:''}
+            </div></div>`;
+        }).join('')
+    }</div>`;
+}
+
+// ====== 导航 / Toast ======
+function navigateBack() {
+    if (window.parent !== window) window.parent.postMessage({type:'navigateBack'},'*');
+    else window.history.back();
+}
+function showToast(msg) {
+    const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ====== 初始化 ======
+renderAll();
+setupScrollSpy();
+if (window.parent !== window) document.documentElement.classList.add('in-iframe');
+</script>
+</body>
+</html>
