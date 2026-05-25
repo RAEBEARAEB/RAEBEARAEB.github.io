@@ -1,0 +1,1682 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>自建房安全检查 - 任务列表</title>
+    <style>
+        :root {
+            /* TDesign 主题色 */
+            --td-brand-color: #0052d9;
+            --td-brand-color-hover: #003cab;
+            --td-brand-color-light: #ecf2fe;
+            --td-brand-color-focus: #d9e1ff;
+
+            /* 功能色 */
+            --td-success-color: #2ba471;
+            --td-success-color-light: #e3f9ed;
+            --td-warning-color: #e37318;
+            --td-warning-color-light: #fff1e6;
+            --td-error-color: #d54941;
+            --td-error-color-light: #fff0ed;
+
+            /* 中性色 */
+            --td-text-color-primary: #1a1a1a;
+            --td-text-color-secondary: #444444;
+            --td-text-color-placeholder: #bbbbbb;
+            --td-text-color-disabled: #c0c0c0;
+
+            /* 背景色 */
+            --td-bg-color-page: #f5f5f5;
+            --td-bg-color-container: #ffffff;
+            --td-bg-color-secondary: #f5f5f5;
+
+            /* 边框色 */
+            --td-border-color: #e7e7e7;
+
+            /* 圆角 */
+            --td-radius-default: 6px;
+            --td-radius-large: 12px;
+            --td-radius-round: 999px;
+
+            /* 字体大小 */
+            --td-font-size-xs: 10px;
+            --td-font-size-s: 12px;
+            --td-font-size-base: 14px;
+            --td-font-size-m: 16px;
+            --td-font-size-l: 18px;
+
+            /* 间距 */
+            --td-spacer-1: 4px;
+            --td-spacer-2: 8px;
+            --td-spacer-3: 12px;
+            --td-spacer-4: 16px;
+            --td-spacer-5: 20px;
+            --td-spacer-6: 24px;
+            --td-spacer-8: 32px;
+
+            /* 阴影 */
+            --td-shadow-1: 0 1px 6px rgba(0, 0, 0, 0.05);
+            --td-shadow-2: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(160deg, #0b1a3e 0%, #162d6e 40%, #1e3f8f 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+        }
+
+        /* 手机外壳 */
+        .phone-frame {
+            background: var(--td-bg-color-page);
+            border-radius: var(--td-radius-large);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.3), 0 0 0 6px #111;
+            overflow: hidden;
+            height: 800px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ========== 顶部导航区 ========== */
+        .nav-area {
+            background: var(--td-brand-color);
+            flex-shrink: 0;
+        }
+
+        /* 状态栏 */
+        .status-bar {
+            padding: 8px var(--td-spacer-5);
+            display: flex;
+            justify-content: space-between;
+            font-size: var(--td-font-size-s);
+            color: rgba(255,255,255,0.85);
+        }
+
+        /* 导航栏 */
+        .navbar {
+            padding: var(--td-spacer-3) var(--td-spacer-5);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .navbar-title {
+            font-size: var(--td-font-size-m);
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .navbar-actions {
+            display: flex;
+            align-items: center;
+            gap: var(--td-spacer-4);
+        }
+
+        .navbar-btn {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background 0.2s;
+            color: #fff;
+            font-size: 18px;
+        }
+
+        .navbar-btn:active {
+            background: rgba(255,255,255,0.15);
+        }
+
+        /* 搜索栏 */
+        .search-bar {
+            padding: 0 var(--td-spacer-5) var(--td-spacer-4);
+        }
+
+        .search-input-wrap {
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(8px);
+            border-radius: var(--td-radius-round);
+            padding: 10px var(--td-spacer-4);
+            display: flex;
+            align-items: center;
+            gap: var(--td-spacer-2);
+        }
+
+        .search-input-wrap input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            outline: none;
+            font-size: var(--td-font-size-base);
+            color: #fff;
+        }
+
+        .search-input-wrap input::placeholder {
+            color: rgba(255,255,255,0.6);
+        }
+
+        .search-icon {
+            font-size: 16px;
+            opacity: 0.8;
+        }
+
+        /* ========== 快捷筛选 Tabs ========== */
+        .quick-filter-area {
+            background: var(--td-bg-color-container);
+            padding: var(--td-spacer-4) var(--td-spacer-5) var(--td-spacer-3);
+            flex-shrink: 0;
+        }
+
+        .quick-filter-scroll {
+            display: flex;
+            gap: var(--td-spacer-3);
+            overflow-x: auto;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .quick-filter-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .qf-tab {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 12px;
+            font-size: var(--td-font-size-s);
+            color: var(--td-text-color-secondary);
+            background: var(--td-bg-color-secondary);
+            border-radius: var(--td-radius-round);
+            cursor: pointer;
+            transition: all 0.25s ease;
+            flex-shrink: 0;
+            border: 1.5px solid transparent;
+        }
+
+        .qf-tab .qf-count {
+            font-size: 10px;
+            background: rgba(0,0,0,0.08);
+            padding: 1px 5px;
+            border-radius: var(--td-radius-round);
+            color: var(--td-text-color-placeholder);
+        }
+
+        .qf-tab.active {
+            background: var(--td-brand-color-light);
+            color: var(--td-brand-color);
+            border-color: var(--td-brand-color);
+            font-weight: 500;
+        }
+
+        .qf-tab.active .qf-count {
+            background: var(--td-brand-color);
+            color: #fff;
+        }
+
+        /* ========== 列表区域 ========== */
+        .list-area {
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: var(--td-spacer-3) var(--td-spacer-5) 0;
+        }
+
+        .list-area::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* 任务卡片 - TDesign Card 风格 */
+        .task-card {
+            background: var(--td-bg-color-container);
+            border-radius: var(--td-radius-large);
+            margin-bottom: var(--td-spacer-3);
+            box-shadow: var(--td-shadow-1);
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .task-card:active {
+            transform: scale(0.985);
+            box-shadow: var(--td-shadow-2);
+        }
+
+        /* 卡片顶部色条 */
+        .card-top-bar {
+            height: 3px;
+            width: 100%;
+        }
+
+        .card-top-bar.unchecked { background: var(--td-error-color); }
+        .card-top-bar.checking { background: var(--td-warning-color); }
+        .card-top-bar.checked { background: var(--td-success-color); }
+
+        /* 卡片内容区 */
+        .card-content {
+            padding: var(--td-spacer-4) var(--td-spacer-5);
+        }
+
+        /* 卡片头部 - 名称+状态 */
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: var(--td-spacer-3);
+        }
+
+        .card-title-area {
+            flex: 1;
+            min-width: 0;
+            padding-right: var(--td-spacer-3);
+        }
+
+        .card-title {
+            font-size: var(--td-font-size-m);
+            font-weight: 600;
+            color: var(--td-text-color-primary);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            line-height: 1.4;
+        }
+
+        .card-subtitle {
+            font-size: var(--td-font-size-s);
+            color: var(--td-text-color-placeholder);
+            margin-top: 2px;
+            font-family: 'SF Mono', 'Menlo', monospace;
+            letter-spacing: 0.5px;
+        }
+
+        .card-status-area {
+            display: flex;
+            flex-direction: column;
+            gap: var(--td-spacer-1);
+            align-items: flex-end;
+            flex-shrink: 0;
+        }
+
+        /* 状态标签 */
+        .td-tag {
+            display: inline-flex;
+            align-items: center;
+            font-size: var(--td-font-size-xs);
+            padding: 3px 10px;
+            border-radius: var(--td-radius-round);
+            font-weight: 500;
+            white-space: nowrap;
+            line-height: 1.6;
+        }
+
+        .td-tag.unchecked {
+            background: var(--td-error-color-light);
+            color: var(--td-error-color);
+        }
+
+        .td-tag.checking {
+            background: var(--td-warning-color-light);
+            color: var(--td-warning-color);
+        }
+
+        .td-tag.checked {
+            background: var(--td-success-color-light);
+            color: var(--td-success-color);
+        }
+
+        .td-tag.audit-default {
+            background: var(--td-bg-color-secondary);
+            color: var(--td-text-color-secondary);
+            border: 1px solid var(--td-border-color);
+        }
+
+        .td-tag.audit-pass {
+            background: var(--td-success-color-light);
+            color: var(--td-success-color);
+            border: 1px solid rgba(43,164,113,0.3);
+        }
+
+        .td-tag.audit-reject {
+            background: var(--td-error-color-light);
+            color: var(--td-error-color);
+            border: 1px solid rgba(213,73,65,0.3);
+        }
+
+        /* 卡片地址区 */
+        .card-address {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--td-spacer-2);
+            padding: var(--td-spacer-3);
+            background: var(--td-bg-color-secondary);
+            border-radius: var(--td-radius-default);
+            margin-bottom: var(--td-spacer-3);
+        }
+
+        .card-address-icon {
+            font-size: 13px;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .card-address-text {
+            flex: 1;
+            font-size: var(--td-font-size-s);
+            color: var(--td-text-color-secondary);
+            line-height: 1.6;
+        }
+
+        /* 卡片信息网格 */
+        .card-info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--td-spacer-2) var(--td-spacer-4);
+            margin-bottom: var(--td-spacer-3);
+        }
+
+        .card-info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .card-info-label {
+            font-size: var(--td-font-size-xs);
+            color: var(--td-text-color-placeholder);
+        }
+
+        .card-info-value {
+            font-size: var(--td-font-size-s);
+            color: var(--td-text-color-secondary);
+        }
+
+        /* 检查结果标签 */
+        .card-result-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: var(--td-font-size-s);
+            padding: 4px 12px;
+            border-radius: var(--td-radius-round);
+            margin-bottom: var(--td-spacer-3);
+        }
+
+        .card-result-tag.safe {
+            background: var(--td-success-color-light);
+            color: var(--td-success-color);
+        }
+
+        .card-result-tag.risk {
+            background: var(--td-error-color-light);
+            color: var(--td-error-color);
+        }
+
+        /* 卡片底部分割线+操作按钮 */
+        .card-footer {
+            border-top: 1px solid var(--td-border-color);
+            padding: var(--td-spacer-3) var(--td-spacer-5);
+            display: flex;
+            gap: var(--td-spacer-2);
+        }
+
+        .td-btn {
+            flex: 1;
+            padding: 9px 12px;
+            border-radius: var(--td-radius-default);
+            font-size: var(--td-font-size-s);
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            text-align: center;
+            transition: opacity 0.15s;
+            line-height: 1.4;
+        }
+
+        .td-btn:active {
+            opacity: 0.7;
+        }
+
+        .td-btn-brand {
+            background: var(--td-brand-color);
+            color: #fff;
+        }
+
+        .td-btn-outline {
+            background: var(--td-bg-color-container);
+            color: var(--td-brand-color);
+            border: 1px solid var(--td-brand-color);
+        }
+
+        .td-btn-warning {
+            background: var(--td-warning-color);
+            color: #fff;
+        }
+
+        /* ========== 底部分页 ========== */
+        .list-footer {
+            flex-shrink: 0;
+            text-align: center;
+            padding: var(--td-spacer-3);
+            font-size: var(--td-font-size-xs);
+            color: var(--td-text-color-placeholder);
+            background: var(--td-bg-color-container);
+            border-top: 1px solid var(--td-border-color);
+        }
+
+        /* ========== 加载更多 ========== */
+        .loading-tip, .no-more-tip {
+            text-align: center;
+            padding: var(--td-spacer-4) 0;
+            font-size: var(--td-font-size-s);
+            color: var(--td-text-color-placeholder);
+        }
+
+        .no-more-tip::before,
+        .no-more-tip::after {
+            content: '—';
+            margin: 0 8px;
+            color: var(--td-border-color);
+        }
+
+        /* ========== 空状态 ========== */
+        .empty-state {
+            padding: 80px var(--td-spacer-6);
+            text-align: center;
+        }
+
+        .empty-state-icon {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto var(--td-spacer-5);
+            background: var(--td-bg-color-secondary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .empty-state-icon svg {
+            width: 56px;
+            height: 56px;
+            color: var(--td-text-color-placeholder);
+        }
+
+        .empty-state-title {
+            font-size: var(--td-font-size-base);
+            color: var(--td-text-color-secondary);
+            margin-bottom: var(--td-spacer-2);
+        }
+
+        .empty-state-desc {
+            font-size: var(--td-font-size-s);
+            color: var(--td-text-color-placeholder);
+            margin-bottom: var(--td-spacer-6);
+        }
+
+        /* ========== 筛选面板（半屏弹窗） ========== */
+        .filter-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            z-index: 1000;
+        }
+
+        .filter-overlay.show {
+            display: block;
+        }
+
+        .filter-panel {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 82%;
+            max-width: 380px;
+            background: var(--td-bg-color-container);
+            display: flex;
+            flex-direction: column;
+            animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+
+        /* 筛选头部 */
+        .filter-panel-header {
+            padding: var(--td-spacer-4) var(--td-spacer-5);
+            border-bottom: 1px solid var(--td-border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .filter-panel-title {
+            font-size: var(--td-font-size-m);
+            font-weight: 600;
+            color: var(--td-text-color-primary);
+        }
+
+        .filter-panel-actions {
+            display: flex;
+            gap: var(--td-spacer-2);
+        }
+
+        .filter-action-btn {
+            padding: 8px 20px;
+            border-radius: var(--td-radius-default);
+            font-size: var(--td-font-size-base);
+            cursor: pointer;
+            border: none;
+            transition: opacity 0.15s;
+        }
+
+        .filter-action-btn:active {
+            opacity: 0.7;
+        }
+
+        .filter-action-btn.reset {
+            background: var(--td-bg-color-secondary);
+            color: var(--td-text-color-secondary);
+        }
+
+        .filter-action-btn.confirm {
+            background: var(--td-brand-color);
+            color: #fff;
+            font-weight: 500;
+        }
+
+        /* 筛选内容滚动区 */
+        .filter-panel-body {
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            background: var(--td-bg-color-page);
+            padding: var(--td-spacer-4);
+        }
+
+        .filter-panel-body::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* 筛选分组 */
+        .filter-group {
+            background: var(--td-bg-color-container);
+            border-radius: var(--td-radius-large);
+            padding: var(--td-spacer-4);
+            margin-bottom: var(--td-spacer-3);
+        }
+
+        .filter-group-title {
+            font-size: var(--td-font-size-s);
+            font-weight: 600;
+            color: var(--td-text-color-placeholder);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: var(--td-spacer-3);
+            padding-bottom: var(--td-spacer-3);
+            border-bottom: 1px solid var(--td-border-color);
+        }
+
+        /* 筛选项行 */
+        .filter-row {
+            padding: var(--td-spacer-3) 0;
+            border-bottom: 1px solid rgba(0,0,0,0.04);
+        }
+
+        .filter-row:last-child {
+            border-bottom: none;
+        }
+
+        .filter-row-label {
+            font-size: var(--td-font-size-base);
+            color: var(--td-text-color-secondary);
+            margin-bottom: var(--td-spacer-2);
+            font-weight: 500;
+        }
+
+        .filter-chips {
+            display: flex;
+            gap: var(--td-spacer-2);
+            flex-wrap: wrap;
+        }
+
+        .f-chip {
+            padding: 7px 16px;
+            border-radius: var(--td-radius-round);
+            font-size: var(--td-font-size-s);
+            cursor: pointer;
+            background: var(--td-bg-color-secondary);
+            color: var(--td-text-color-secondary);
+            border: 1.5px solid transparent;
+            transition: all 0.2s ease;
+            line-height: 1.4;
+        }
+
+        .f-chip:active {
+            opacity: 0.7;
+        }
+
+        .f-chip.active {
+            background: var(--td-brand-color-light);
+            color: var(--td-brand-color);
+            border-color: var(--td-brand-color);
+        }
+
+        .f-chip.danger.active {
+            background: var(--td-error-color-light);
+            color: var(--td-error-color);
+            border-color: var(--td-error-color);
+        }
+
+        .f-chip.success.active {
+            background: var(--td-success-color-light);
+            color: var(--td-success-color);
+            border-color: var(--td-success-color);
+        }
+
+        /* 日期选择 */
+        .date-range {
+            display: flex;
+            gap: var(--td-spacer-2);
+            align-items: center;
+        }
+
+        .date-range input {
+            flex: 1;
+            padding: 9px 12px;
+            border: 1px solid var(--td-border-color);
+            border-radius: var(--td-radius-default);
+            font-size: var(--td-font-size-s);
+            background: var(--td-bg-color-container);
+            color: var(--td-text-color-secondary);
+            outline: none;
+        }
+
+        .date-range input:focus {
+            border-color: var(--td-brand-color);
+        }
+
+        .date-range span {
+            color: var(--td-text-color-placeholder);
+            font-size: var(--td-font-size-s);
+        }
+
+        /* 文本输入筛选 */
+        .filter-input {
+            width: 100%;
+            padding: 9px 12px;
+            border: 1px solid var(--td-border-color);
+            border-radius: var(--td-radius-default);
+            font-size: var(--td-font-size-base);
+            background: var(--td-bg-color-container);
+            color: var(--td-text-color-secondary);
+            outline: none;
+        }
+
+        .filter-input:focus {
+            border-color: var(--td-brand-color);
+        }
+
+        .filter-input::placeholder {
+            color: var(--td-text-color-placeholder);
+        }
+
+        /* Switch 开关 */
+        .switch-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .switch-row-label {
+            font-size: var(--td-font-size-s);
+            color: var(--td-text-color-placeholder);
+        }
+
+        .td-switch {
+            width: 48px;
+            height: 26px;
+            background: #ccc;
+            border-radius: 13px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .td-switch.active {
+            background: var(--td-brand-color);
+        }
+
+        .td-switch-knob {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 20px;
+            height: 20px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+            transition: transform 0.2s ease;
+        }
+
+        .td-switch.active .td-switch-knob {
+            transform: translateX(22px);
+        }
+
+        /* ========== Modal 对话框 ========== */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            z-index: 1500;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .td-dialog {
+            background: var(--td-bg-color-container);
+            border-radius: var(--td-radius-large);
+            width: 80%;
+            max-width: 300px;
+            overflow: hidden;
+        }
+
+        .td-dialog-body {
+            padding: var(--td-spacer-6) var(--td-spacer-5);
+            font-size: var(--td-font-size-base);
+            color: var(--td-text-color-primary);
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        .td-dialog-footer {
+            display: flex;
+            border-top: 1px solid var(--td-border-color);
+        }
+
+        .td-dialog-btn {
+            flex: 1;
+            padding: var(--td-spacer-4);
+            border: none;
+            background: none;
+            font-size: var(--td-font-size-base);
+            cursor: pointer;
+            color: var(--td-text-color-secondary);
+        }
+
+        .td-dialog-btn:active {
+            background: var(--td-bg-color-secondary);
+        }
+
+        .td-dialog-btn.primary {
+            color: var(--td-brand-color);
+            font-weight: 600;
+        }
+
+        /* ========== Toast ========== */
+        .td-toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.75);
+            color: #fff;
+            padding: 12px 28px;
+            border-radius: var(--td-radius-default);
+            font-size: var(--td-font-size-base);
+            z-index: 2000;
+            display: none;
+            backdrop-filter: blur(4px);
+        }
+
+        .td-toast.show {
+            display: block;
+            animation: toastFade 0.2s ease;
+        }
+
+        @keyframes toastFade {
+            from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+            to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+
+        /* ====== iframe 嵌入模式适配 ====== */
+        html.in-iframe body {
+            background: var(--td-bg-color-page);
+            padding: 0;
+        }
+        html.in-iframe .phone-frame {
+            border-radius: 0;
+            box-shadow: none;
+            height: 100vh;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="phone-frame">
+            <!-- 顶部蓝色导航区 -->
+            <div class="nav-area">
+                <!-- 状态栏 -->
+                <div class="status-bar">
+                    <span>9:41</span>
+                    <span style="letter-spacing: 4px;">&#9679;&#9679;&#9679;</span>
+                </div>
+                <!-- 导航栏 -->
+                <div class="navbar">
+                    <span class="navbar-title">自建房安全检查</span>
+                    <div class="navbar-actions">
+                        <span class="navbar-btn" onclick="showToast('更多功能开发中')">&#8943;</span>
+                        <span class="navbar-btn" onclick="toggleFilter()">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h10M4 18h14"/></svg>
+                        </span>
+                    </div>
+                </div>
+                <!-- 搜索栏 -->
+                <div class="search-bar">
+                    <div class="search-input-wrap">
+                        <span class="search-icon">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                        </span>
+                        <input type="text" placeholder="搜索房屋名称 / 编号 / 地址" id="searchInput" oninput="handleSearch()">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 快捷筛选 -->
+            <div class="quick-filter-area">
+                <div class="quick-filter-scroll">
+                    <div class="qf-tab active" onclick="onQuickFilter('all', this)">
+                        全部 <span class="qf-count" id="countAll">0</span>
+                    </div>
+                    <div class="qf-tab" onclick="onQuickFilter('unchecked', this)">
+                        未检查 <span class="qf-count" id="countUnchecked">0</span>
+                    </div>
+                    <div class="qf-tab" onclick="onQuickFilter('checking', this)">
+                        检查中 <span class="qf-count" id="countChecking">0</span>
+                    </div>
+                    <div class="qf-tab" onclick="onQuickFilter('checked', this)">
+                        已检查 <span class="qf-count" id="countChecked">0</span>
+                    </div>
+                    <div class="qf-tab" onclick="onQuickFilter('risk', this)">
+                        存在隐患 <span class="qf-count" id="countRisk">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 列表区域 -->
+            <div class="list-area" id="taskList">
+                <!-- 卡片由 JS 动态渲染 -->
+            </div>
+
+            <!-- 底部分页 -->
+            <div class="list-footer" id="paginationInfo">
+                共 672 项数据 &middot; 第 1 页
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 筛选面板 ========== -->
+    <div class="filter-overlay" id="filterOverlay" onclick="toggleFilter()">
+        <div class="filter-panel" onclick="event.stopPropagation()">
+            <!-- 头部 -->
+            <div class="filter-panel-header">
+                <span class="filter-panel-title">筛选条件</span>
+                <div class="filter-panel-actions">
+                    <button class="filter-action-btn reset" onclick="resetFilter()">重置</button>
+                    <button class="filter-action-btn confirm" onclick="applyFilter()">确定</button>
+                </div>
+            </div>
+            <!-- 滚动内容 -->
+            <div class="filter-panel-body">
+
+                <!-- 区域位置 -->
+                <div class="filter-group">
+                    <div class="filter-group-title">区域位置</div>
+                    <div class="filter-row">
+                        <div class="filter-row-label">所属区域</div>
+                        <div class="filter-chips" id="areaOptions">
+                            <span class="f-chip active" onclick="selectChip(this, 'area', '')">全部</span>
+                            <span class="f-chip" onclick="selectChip(this, 'area', '罗湖区')">罗湖区</span>
+                            <span class="f-chip" onclick="selectChip(this, 'area', '福田区')">福田区</span>
+                            <span class="f-chip" onclick="selectChip(this, 'area', '南山区')">南山区</span>
+                            <span class="f-chip" onclick="selectChip(this, 'area', '宝安区')">宝安区</span>
+                            <span class="f-chip" onclick="selectChip(this, 'area', '龙岗区')">龙岗区</span>
+                            <span class="f-chip" onclick="selectChip(this, 'area', '盐田区')">盐田区</span>
+                        </div>
+                    </div>
+                    <div class="filter-row">
+                        <div class="filter-row-label">所属街道</div>
+                        <div class="filter-chips">
+                            <span class="f-chip active" onclick="selectChip(this, 'street', '')">全部</span>
+                            <span class="f-chip" onclick="selectChip(this, 'street', '黄贝街道')">黄贝街道</span>
+                            <span class="f-chip" onclick="selectChip(this, 'street', '东门街道')">东门街道</span>
+                            <span class="f-chip" onclick="selectChip(this, 'street', '桂园街道')">桂园街道</span>
+                            <span class="f-chip" onclick="selectChip(this, 'street', '南湖街道')">南湖街道</span>
+                        </div>
+                    </div>
+                    <div class="filter-row">
+                        <div class="filter-row-label">所属社区</div>
+                        <div class="filter-chips">
+                            <span class="f-chip active" onclick="selectChip(this, 'community', '')">全部</span>
+                            <span class="f-chip" onclick="selectChip(this, 'community', '水库社区')">水库社区</span>
+                            <span class="f-chip" onclick="selectChip(this, 'community', '新秀社区')">新秀社区</span>
+                            <span class="f-chip" onclick="selectChip(this, 'community', '湖贝社区')">湖贝社区</span>
+                            <span class="f-chip" onclick="selectChip(this, 'community', '松园社区')">松园社区</span>
+                        </div>
+                    </div>
+                    <div class="filter-row">
+                        <div class="filter-row-label">所属网格</div>
+                        <div class="filter-chips">
+                            <span class="f-chip active" onclick="selectChip(this, 'grid', '')">全部</span>
+                            <span class="f-chip" onclick="selectChip(this, 'grid', '水库社区 1')">水库社区 1</span>
+                            <span class="f-chip" onclick="selectChip(this, 'grid', '水库社区 2')">水库社区 2</span>
+                            <span class="f-chip" onclick="selectChip(this, 'grid', '新秀社区 1')">新秀社区 1</span>
+                            <span class="f-chip" onclick="selectChip(this, 'grid', '湖贝社区 1')">湖贝社区 1</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 房屋属性 -->
+                <div class="filter-group">
+                    <div class="filter-group-title">房屋属性</div>
+                    <div class="filter-row">
+                        <div class="filter-row-label">是否自建房</div>
+                        <div class="filter-chips">
+                            <span class="f-chip active" onclick="selectChip(this, 'isSelfBuild', '')">全部</span>
+                            <span class="f-chip" onclick="selectChip(this, 'isSelfBuild', '是')">自建房</span>
+                            <span class="f-chip" onclick="selectChip(this, 'isSelfBuild', '否')">非自建房</span>
+                        </div>
+                    </div>
+                    <div class="filter-row">
+                        <div class="filter-row-label">经营性自建房</div>
+                        <div class="filter-chips">
+                            <span class="f-chip active" onclick="selectChip(this, 'isBusiness', '')">全部</span>
+                            <span class="f-chip" onclick="selectChip(this, 'isBusiness', '是')">是</span>
+                            <span class="f-chip" onclick="selectChip(this, 'isBusiness', '否')">否</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 检查与审核状态 -->
+                <div class="filter-group">
+                    <div class="filter-group-title">检查与审核</div>
+                    <div class="filter-row">
+                        <div class="filter-row-label">检查状态</div>
+                        <div class="filter-chips">
+                            <span class="f-chip active" onclick="selectChip(this, 'inspectionStatus', '')">全部</span>
+                            <span class="f-chip danger" onclick="selectChip(this, 'inspectionStatus', '未检查')">未检查</span>
+                            <span class="f-chip" onclick="selectChip(this, 'inspectionStatus', '检查中')">检查中</span>
+                            <span class="f-chip success" onclick="selectChip(this, 'inspectionStatus', '已检查')">已检查</span>
+                        </div>
+                    </div>
+                    <div class="filter-row">
+                        <div class="filter-row-label">检查结果</div>
+                        <div class="filter-chips">
+                            <span class="f-chip active" onclick="selectChip(this, 'inspectionResult', '')">全部</span>
+                            <span class="f-chip success" onclick="selectChip(this, 'inspectionResult', '未发现安全隐患')">未发现隐患</span>
+                            <span class="f-chip danger" onclick="selectChip(this, 'inspectionResult', '疑似存在结构安全隐患')">疑似隐患</span>
+                        </div>
+                    </div>
+                    <div class="filter-row">
+                        <div class="filter-row-label">审核状态</div>
+                        <div class="filter-chips">
+                            <span class="f-chip active" onclick="selectChip(this, 'auditStatus', '')">全部</span>
+                            <span class="f-chip" onclick="selectChip(this, 'auditStatus', '街道审核')">街道审核</span>
+                            <span class="f-chip" onclick="selectChip(this, 'auditStatus', '待专排接收')">待专排接收</span>
+                            <span class="f-chip" onclick="selectChip(this, 'auditStatus', '区级审核')">区级审核</span>
+                            <span class="f-chip danger" onclick="selectChip(this, 'auditStatus', '退回街道')">退回街道</span>
+                            <span class="f-chip danger" onclick="selectChip(this, 'auditStatus', '退回网格')">退回网格</span>
+                            <span class="f-chip" onclick="selectChip(this, 'auditStatus', '专业核实')">专业核实</span>
+                            <span class="f-chip success" onclick="selectChip(this, 'auditStatus', '已通过')">已通过</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 时间范围 -->
+                <div class="filter-group">
+                    <div class="filter-group-title">时间范围</div>
+                    <div class="filter-row">
+                        <div class="filter-row-label">检查时间</div>
+                        <div class="date-range">
+                            <input type="date" id="dateStart">
+                            <span>至</span>
+                            <input type="date" id="dateEnd">
+                        </div>
+                    </div>
+                    <div class="filter-row">
+                        <div class="filter-row-label">数据上传时间</div>
+                        <div class="date-range">
+                            <input type="date" id="uploadDateStart">
+                            <span>至</span>
+                            <input type="date" id="uploadDateEnd">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 其他 -->
+                <div class="filter-group">
+                    <div class="filter-group-title">其他</div>
+                    <div class="filter-row">
+                        <div class="filter-row-label">无法开展安全检查情况</div>
+                        <div class="filter-chips">
+                            <span class="f-chip active" onclick="selectChip(this, 'cannotInspect', '')">全部</span>
+                            <span class="f-chip" onclick="selectChip(this, 'cannotInspect', '建筑不存在')">建筑不存在</span>
+                        </div>
+                    </div>
+                    <div class="filter-row">
+                        <div class="switch-row">
+                            <div>
+                                <div class="filter-row-label" style="margin-bottom:2px;">逻辑规则异常数据</div>
+                                <div class="switch-row-label">仅显示存在逻辑异常的记录</div>
+                            </div>
+                            <div class="td-switch" id="logicExceptionSwitch" onclick="toggleSwitch(this)">
+                                <div class="td-switch-knob"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 确认对话框 ========== -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="td-dialog">
+            <div class="td-dialog-body" id="modalContent">确认执行此操作？</div>
+            <div class="td-dialog-footer">
+                <button class="td-dialog-btn" onclick="hideModal()">取消</button>
+                <button class="td-dialog-btn primary" onclick="confirmAction()">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="td-toast" id="toast"></div>
+
+    <script>
+        // ====== 数据字典 ======
+        const DICT = {
+            areas: ['罗湖区', '福田区', '南山区', '宝安区', '龙岗区', '盐田区'],
+            streets: ['黄贝街道', '东门街道', '桂园街道', '南湖街道', '翠竹街道'],
+            communities: ['水库社区', '新秀社区', '湖贝社区', '松园社区', '木头龙社区'],
+            grids: ['水库社区 1', '水库社区 2', '新秀社区 1', '湖贝社区 1', '松园社区 1'],
+            prefixes: ['水闸', '莲塘', '吓围', '农批市场', '红群楼', '布吉', '桂园', '船步']
+        };
+
+        // ====== 全量 Mock 数据池（一次性生成，筛选时前端过滤） ======
+        const ALL_MOCK_DATA = [];
+        (function initMockPool() {
+            for (let i = 1; i <= 658; i++) {
+                ALL_MOCK_DATA.push(generateMockItem(i));
+            }
+                        // ====== 固定示例数据：覆盖所有检查场景，确保首屏可见 ======
+            const EXAMPLES = [
+                // ===== 未检查 =====
+                // 1. 未检查（自建+非经营）
+                { id:991, houseCode:'4403030991', houseName:'罗湖区水闸1号楼', area:'罗湖区', street:'黄贝街道', community:'水库社区', grid:'水库社区 1', detailAddress:'莲塘路71号', isSelfBuild:'是', isBusiness:'否', inspectionStatus:'未检查', auditStatus:'-', inspectionTime:'', uploadTime:'2026-04-09', inspectionResult:'-', cannotInspect:'-' },
+                // 2. 未检查（经营性）
+                { id:992, houseCode:'4403030992', houseName:'罗湖区莲塘2号楼', area:'罗湖区', street:'东门街道', community:'新秀社区', grid:'新秀社区 1', detailAddress:'布吉路72号', isSelfBuild:'是', isBusiness:'是', inspectionStatus:'未检查', auditStatus:'-', inspectionTime:'', uploadTime:'2026-04-10', inspectionResult:'-', cannotInspect:'-' },
+                // 3. 未检查（非自建房）
+                { id:993, houseCode:'4403030993', houseName:'罗湖区商业广场A栋', area:'罗湖区', street:'桂园街道', community:'湖贝社区', grid:'湖贝社区 1', detailAddress:'桂园路73号', isSelfBuild:'否', isBusiness:'是', inspectionStatus:'未检查', auditStatus:'-', inspectionTime:'', uploadTime:'2026-04-11', inspectionResult:'-', cannotInspect:'-' },
+                // ===== 检查中 =====
+                // 4. 检查中（无审核）
+                { id:994, houseCode:'4403030994', houseName:'罗湖区吓围4号楼', area:'罗湖区', street:'桂园街道', community:'湖贝社区', grid:'湖贝社区 1', detailAddress:'船步街74号', isSelfBuild:'是', isBusiness:'否', inspectionStatus:'检查中', auditStatus:'-', inspectionTime:'2026-04-07', uploadTime:'2026-04-08', inspectionResult:'-', cannotInspect:'-' },
+                // 5. 检查中 + 街道审核
+                { id:995, houseCode:'4403030995', houseName:'罗湖区布吉5号楼', area:'罗湖区', street:'黄贝街道', community:'水库社区', grid:'水库社区 1', detailAddress:'布吉路75号', isSelfBuild:'是', isBusiness:'否', inspectionStatus:'检查中', auditStatus:'街道审核', inspectionTime:'2026-04-06', uploadTime:'2026-04-07', inspectionResult:'-', cannotInspect:'-' },
+                // 6. 检查中 + 专业核实
+                { id:996, houseCode:'4403030996', houseName:'罗湖区莲塘6号楼', area:'罗湖区', street:'东门街道', community:'新秀社区', grid:'新秀社区 1', detailAddress:'莲塘路76号', isSelfBuild:'是', isBusiness:'是', inspectionStatus:'检查中', auditStatus:'专业核实', inspectionTime:'2026-04-05', uploadTime:'2026-04-06', inspectionResult:'-', cannotInspect:'-' },
+                // ===== 已检查 + 可正常检查 =====
+                // 7. 已检查 + 未发现隐患 + 已通过
+                { id:997, houseCode:'4403030997', houseName:'罗湖区农批7号楼', area:'罗湖区', street:'南湖街道', community:'松园社区', grid:'松园社区 1', detailAddress:'船步街77号', isSelfBuild:'是', isBusiness:'否', inspectionStatus:'已检查', auditStatus:'已通过', inspectionTime:'2026-04-04', uploadTime:'2026-04-05', inspectionResult:'未发现安全隐患', cannotInspect:'-' },
+                // 8. 已检查 + 疑似隐患 + 已通过
+                { id:998, houseCode:'4403030998', houseName:'罗湖区红群楼8号楼', area:'罗湖区', street:'翠竹街道', community:'木头龙社区', grid:'松园社区 1', detailAddress:'莲塘路78号', isSelfBuild:'是', isBusiness:'是', inspectionStatus:'已检查', auditStatus:'已通过', inspectionTime:'2026-04-03', uploadTime:'2026-04-04', inspectionResult:'疑似存在结构安全隐患', cannotInspect:'-' },
+                // 9. 已检查 + 街道审核
+                { id:999, houseCode:'4403030999', houseName:'罗湖区布吉9号楼', area:'罗湖区', street:'黄贝街道', community:'水库社区', grid:'水库社区 1', detailAddress:'布吉路79号', isSelfBuild:'是', isBusiness:'否', inspectionStatus:'已检查', auditStatus:'街道审核', inspectionTime:'2026-04-02', uploadTime:'2026-04-03', inspectionResult:'未发现安全隐患', cannotInspect:'-' },
+                // 10. 已检查 + 退回街道
+                { id:1000, houseCode:'4403031000', houseName:'罗湖区桂园10号楼', area:'罗湖区', street:'东门街道', community:'新秀社区', grid:'新秀社区 1', detailAddress:'桂园路80号', isSelfBuild:'是', isBusiness:'否', inspectionStatus:'已检查', auditStatus:'退回街道', inspectionTime:'2026-04-01', uploadTime:'2026-04-02', inspectionResult:'疑似存在结构安全隐患', cannotInspect:'-' },
+                // 11. 已检查 + 待专排接收
+                { id:1001, houseCode:'4403031001', houseName:'罗湖区船步11号楼', area:'罗湖区', street:'桂园街道', community:'湖贝社区', grid:'湖贝社区 1', detailAddress:'船步街81号', isSelfBuild:'是', isBusiness:'是', inspectionStatus:'已检查', auditStatus:'待专排接收', inspectionTime:'2026-03-31', uploadTime:'2026-04-01', inspectionResult:'疑似存在结构安全隐患', cannotInspect:'-' },
+                // 12. 已检查 + 区级审核
+                { id:1002, houseCode:'4403031002', houseName:'罗湖区莲塘12号楼', area:'罗湖区', street:'南湖街道', community:'松园社区', grid:'松园社区 1', detailAddress:'莲塘路82号', isSelfBuild:'是', isBusiness:'否', inspectionStatus:'已检查', auditStatus:'区级审核', inspectionTime:'2026-03-30', uploadTime:'2026-03-31', inspectionResult:'未发现安全隐患', cannotInspect:'-' },
+                // 13. 已检查 + 退回网格
+                { id:1003, houseCode:'4403031003', houseName:'罗湖区水闸13号楼', area:'罗湖区', street:'翠竹街道', community:'木头龙社区', grid:'松园社区 1', detailAddress:'布吉路83号', isSelfBuild:'是', isBusiness:'否', inspectionStatus:'已检查', auditStatus:'退回网格', inspectionTime:'2026-03-29', uploadTime:'2026-03-30', inspectionResult:'未发现安全隐患', cannotInspect:'-' },
+                // 14. 已检查 + 专业核实
+                { id:1004, houseCode:'4403031004', houseName:'罗湖区吓围14号楼', area:'罗湖区', street:'黄贝街道', community:'水库社区', grid:'水库社区 2', detailAddress:'桂园路84号', isSelfBuild:'是', isBusiness:'是', inspectionStatus:'已检查', auditStatus:'专业核实', inspectionTime:'2026-03-28', uploadTime:'2026-03-29', inspectionResult:'疑似存在结构安全隐患', cannotInspect:'-' },
+                // ===== 已检查 + 不可正常检查（建筑不存在）=====
+                // 15. 建筑不存在 + 街道审核
+                { id:1005, houseCode:'4403031005', houseName:'罗湖区莲塘15号楼', area:'罗湖区', street:'东门街道', community:'新秀社区', grid:'新秀社区 1', detailAddress:'莲塘路85号', isSelfBuild:'是', isBusiness:'否', inspectionStatus:'已检查', auditStatus:'街道审核', inspectionTime:'2026-03-27', uploadTime:'2026-03-28', inspectionResult:'-', cannotInspect:'建筑不存在' },
+                // 16. 建筑不存在 + 退回街道
+                { id:1006, houseCode:'4403031006', houseName:'罗湖区红群楼16号楼', area:'罗湖区', street:'桂园街道', community:'湖贝社区', grid:'湖贝社区 1', detailAddress:'船步街86号', isSelfBuild:'是', isBusiness:'否', inspectionStatus:'已检查', auditStatus:'退回街道', inspectionTime:'2026-03-26', uploadTime:'2026-03-27', inspectionResult:'-', cannotInspect:'建筑不存在' },
+                // 17. 建筑不存在 + 待专排接收
+                { id:1007, houseCode:'4403031007', houseName:'罗湖区布吉17号楼', area:'罗湖区', street:'黄贝街道', community:'水库社区', grid:'水库社区 1', detailAddress:'布吉路87号', isSelfBuild:'是', isBusiness:'否', inspectionStatus:'已检查', auditStatus:'待专排接收', inspectionTime:'2026-03-25', uploadTime:'2026-03-26', inspectionResult:'-', cannotInspect:'建筑不存在' },
+                // 18. 建筑不存在 + 区级审核
+                { id:1008, houseCode:'4403031008', houseName:'罗湖区水闸18号楼', area:'罗湖区', street:'翠竹街道', community:'木头龙社区', grid:'松园社区 1', detailAddress:'莲塘路88号', isSelfBuild:'是', isBusiness:'是', inspectionStatus:'已检查', auditStatus:'区级审核', inspectionTime:'2026-03-24', uploadTime:'2026-03-25', inspectionResult:'-', cannotInspect:'建筑不存在' },
+                // 19. 建筑不存在 + 退回网格
+                { id:1009, houseCode:'4403031009', houseName:'罗湖区吓围19号楼', area:'罗湖区', street:'南湖街道', community:'松园社区', grid:'松园社区 1', detailAddress:'船步街89号', isSelfBuild:'是', isBusiness:'否', inspectionStatus:'已检查', auditStatus:'退回网格', inspectionTime:'2026-03-23', uploadTime:'2026-03-24', inspectionResult:'-', cannotInspect:'建筑不存在' },
+                // 20. 建筑不存在 + 专业核实
+                { id:1010, houseCode:'4403031010', houseName:'罗湖区桂园20号楼', area:'罗湖区', street:'东门街道', community:'新秀社区', grid:'新秀社区 1', detailAddress:'桂园路90号', isSelfBuild:'是', isBusiness:'否', inspectionStatus:'已检查', auditStatus:'专业核实', inspectionTime:'2026-03-22', uploadTime:'2026-03-23', inspectionResult:'-', cannotInspect:'建筑不存在' },
+                // 21. 建筑不存在 + 已通过
+                { id:1011, houseCode:'4403031011', houseName:'罗湖区莲塘21号楼', area:'罗湖区', street:'桂园街道', community:'湖贝社区', grid:'湖贝社区 1', detailAddress:'莲塘路91号', isSelfBuild:'是', isBusiness:'否', inspectionStatus:'已检查', auditStatus:'已通过', inspectionTime:'2026-03-21', uploadTime:'2026-03-22', inspectionResult:'-', cannotInspect:'建筑不存在' },
+                // ===== 非自建房 =====
+                // 22. 非自建房 + 已通过
+                { id:1012, houseCode:'4403031012', houseName:'罗湖区农批市场22号楼', area:'罗湖区', street:'南湖街道', community:'松园社区', grid:'松园社区 1', detailAddress:'布吉路92号', isSelfBuild:'否', isBusiness:'否', inspectionStatus:'已检查', auditStatus:'已通过', inspectionTime:'2026-03-20', uploadTime:'2026-03-21', inspectionResult:'未发现安全隐患', cannotInspect:'-' },
+                // 23. 非自建房 + 街道审核
+                { id:1013, houseCode:'4403031013', houseName:'罗湖区商业中心B栋', area:'罗湖区', street:'黄贝街道', community:'水库社区', grid:'水库社区 2', detailAddress:'桂园路93号', isSelfBuild:'否', isBusiness:'是', inspectionStatus:'已检查', auditStatus:'街道审核', inspectionTime:'2026-03-19', uploadTime:'2026-03-20', inspectionResult:'疑似存在结构安全隐患', cannotInspect:'-' },
+                // 24. 非自建房 + 检查中
+                { id:1014, houseCode:'4403031014', houseName:'罗湖区购物中心C座', area:'罗湖区', street:'翠竹街道', community:'木头龙社区', grid:'松园社区 1', detailAddress:'船步街94号', isSelfBuild:'否', isBusiness:'是', inspectionStatus:'检查中', auditStatus:'-', inspectionTime:'2026-03-18', uploadTime:'2026-03-19', inspectionResult:'-', cannotInspect:'-' },
+            ];
+            ALL_MOCK_DATA.unshift(...EXAMPLES);
+        })();
+
+        // ====== 全局状态 ======
+        let state = {
+            currentPage: 1,
+            pageSize: 10,
+            total: 658,
+            hasMore: true,
+            loading: false,
+            filteredList: [],   // 当前筛选后的完整列表
+            taskList: [],       // 当前页展示的列表
+            currentFilter: 'all',
+            filterForm: {
+                area: '',
+                street: '',
+                community: '',
+                grid: '',
+                isSelfBuild: '',
+                isBusiness: '',
+                inspectionStatus: '',
+                inspectionResult: '',
+                auditStatus: '',
+                dateStart: '',
+                dateEnd: '',
+                uploadDateStart: '',
+                uploadDateEnd: '',
+                cannotInspect: '',
+                hasLogicException: false
+            }
+        };
+
+        let confirmCallback = null;
+
+        // ====== Mock 数据生成 ======
+        function generateMockItem(index) {
+            const r = Math.random();
+            let inspectionStatus;
+            if (r < 0.30) inspectionStatus = '未检查';
+            else if (r < 0.45) inspectionStatus = '检查中';
+            else inspectionStatus = '已检查';
+
+            let auditStatus = '-';
+            if (inspectionStatus !== '未检查') {
+                const a = Math.random();
+                if (a < 0.10) auditStatus = '街道审核';
+                else if (a < 0.18) auditStatus = '待专排接收';
+                else if (a < 0.26) auditStatus = '区级审核';
+                else if (a < 0.34) auditStatus = '退回街道';
+                else if (a < 0.40) auditStatus = '退回网格';
+                else if (a < 0.48) auditStatus = '专业核实';
+                else if (a < 0.80) auditStatus = '已通过';
+            }
+
+            let inspectionResult = '-';
+            if (inspectionStatus === '已检查') {
+                inspectionResult = Math.random() < 0.82 ? '未发现安全隐患' : '疑似存在结构安全隐患';
+            }
+
+            const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+            const area = pick(DICT.areas);
+            const street = pick(DICT.streets);
+            const community = pick(DICT.communities);
+            const grid = pick(DICT.grids);
+            const prefix = pick(DICT.prefixes);
+
+            return {
+                id: index,
+                houseCode: `4403030${String(index).padStart(3, '0')}`,
+                houseName: `${area}${prefix}${index}号楼`,
+                area, street, community, grid,
+                detailAddress: `${pick(['船步街', '布吉路', '桂园路', '莲塘路'])}${70 + index}号`,
+                isSelfBuild: Math.random() > 0.5 ? '是' : '否',
+                isBusiness: Math.random() > 0.5 ? '是' : '否',
+                inspectionStatus,
+                auditStatus,
+                inspectionTime: inspectionStatus !== '未检查' ? `2022-06-${10 + Math.floor(Math.random() * 20)}` : '',
+                uploadTime: `2026-03-${15 + Math.floor(Math.random() * 15)}`,
+                inspectionResult,
+                cannotInspect: Math.random() > 0.92 ? '建筑不存在' : '-'
+            };
+        }
+
+        // ====== 按快捷筛选条件过滤全量数据 ======
+        function applyQuickFilter() {
+            const f = state.currentFilter;
+            let list = [...ALL_MOCK_DATA];
+
+            // 快捷筛选
+            if (f === 'unchecked') list = list.filter(i => i.inspectionStatus === '未检查');
+            else if (f === 'checking') list = list.filter(i => i.inspectionStatus === '检查中');
+            else if (f === 'checked') list = list.filter(i => i.inspectionStatus === '已检查');
+            else if (f === 'risk') list = list.filter(i => i.inspectionResult === '疑似存在结构安全隐患');
+
+            // 筛选面板条件
+            const ff = state.filterForm;
+            if (ff.area) list = list.filter(i => i.area === ff.area);
+            if (ff.street) list = list.filter(i => i.street === ff.street);
+            if (ff.community) list = list.filter(i => i.community === ff.community);
+            if (ff.grid) list = list.filter(i => i.grid === ff.grid);
+            if (ff.isSelfBuild) list = list.filter(i => i.isSelfBuild === ff.isSelfBuild);
+            if (ff.isBusiness) list = list.filter(i => i.isBusiness === ff.isBusiness);
+            if (ff.inspectionStatus) list = list.filter(i => i.inspectionStatus === ff.inspectionStatus);
+            if (ff.inspectionResult) list = list.filter(i => i.inspectionResult === ff.inspectionResult);
+            if (ff.auditStatus) list = list.filter(i => i.auditStatus === ff.auditStatus);
+            if (ff.cannotInspect) list = list.filter(i => i.cannotInspect === ff.cannotInspect);
+            if (ff.dateStart) list = list.filter(i => i.inspectionTime && i.inspectionTime >= ff.dateStart);
+            if (ff.dateEnd) list = list.filter(i => i.inspectionTime && i.inspectionTime <= ff.dateEnd);
+            if (ff.uploadDateStart) list = list.filter(i => i.uploadTime >= ff.uploadDateStart);
+            if (ff.uploadDateEnd) list = list.filter(i => i.uploadTime <= ff.uploadDateEnd);
+
+            state.filteredList = list;
+        }
+
+        // ====== 数据加载（基于 filteredList 分页） ======
+        function loadData(isRefresh = false) {
+            if (state.loading) return;
+
+            // 首次加载或刷新时，重新过滤并重置分页
+            if (isRefresh || state.filteredList.length === 0) {
+                applyQuickFilter();
+                state.currentPage = 1;
+                state.taskList = [];
+            }
+
+            if (!isRefresh && state.filteredList.length > 0 && !state.hasMore) return;
+
+            state.loading = true;
+
+            setTimeout(() => {
+                const start = state.taskList.length;
+                const end = Math.min(start + state.pageSize, state.filteredList.length);
+                const newItems = state.filteredList.slice(start, end);
+
+                state.taskList = [...state.taskList, ...newItems];
+                state.currentPage = Math.ceil(state.taskList.length / state.pageSize);
+                state.hasMore = state.taskList.length < state.filteredList.length;
+                state.loading = false;
+
+                renderList();
+                updateCounts();
+                updatePagination();
+            }, 300);
+        }
+
+        // ====== 渲染列表 ======
+        function renderList() {
+            const container = document.getElementById('taskList');
+
+            if (state.taskList.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            </svg>
+                        </div>
+                        <div class="empty-state-title">暂无待处理房屋</div>
+                        <div class="empty-state-desc">当前筛选条件下没有匹配的数据</div>
+                        <button class="td-btn td-btn-brand" style="width:180px;border-radius:var(--td-radius-round);" onclick="resetFilter()">清空筛选</button>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = state.taskList.map(item => {
+                const statusCls = getStatusClass(item.inspectionStatus);
+                return `
+                <div class="task-card" onclick="onCardClick(${item.id}, '${item.inspectionStatus}')">
+                    <div class="card-top-bar ${statusCls}"></div>
+                    <div class="card-content">
+                        <div class="card-header">
+                            <div class="card-title-area">
+                                <div class="card-title">${item.houseName}</div>
+                                <div class="card-subtitle">${item.houseCode}</div>
+                            </div>
+                            <div class="card-status-area">
+                                <span class="td-tag ${statusCls}">${item.inspectionStatus}</span>
+                                ${getAuditTag(item.auditStatus)}
+                            </div>
+                        </div>
+                        <div class="card-address">
+                            <span class="card-address-icon">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                            </span>
+                            <span class="card-address-text">${item.area}${item.street}${item.community}${item.grid}${item.detailAddress}</span>
+                        </div>
+                        <div class="card-info-grid">
+                            <div class="card-info-item">
+                                <span class="card-info-label">房屋类型</span>
+                                <span class="card-info-value">${item.isSelfBuild === '是' ? '自建房' : '非自建房'}</span>
+                            </div>
+                            <div class="card-info-item">
+                                <span class="card-info-label">经营性质</span>
+                                <span class="card-info-value">${item.isBusiness === '是' ? '经营性' : '非经营性'}</span>
+                            </div>
+                            ${item.inspectionTime ? `
+                            <div class="card-info-item">
+                                <span class="card-info-label">检查时间</span>
+                                <span class="card-info-value">${item.inspectionTime}</span>
+                            </div>` : ''}
+                            <div class="card-info-item">
+                                <span class="card-info-label">上传时间</span>
+                                <span class="card-info-value">${item.uploadTime}</span>
+                            </div>
+                        </div>
+                        ${item.inspectionResult !== '-' ? `
+                            <span class="card-result-tag ${item.inspectionResult === '未发现安全隐患' ? 'safe' : 'risk'}">
+                                ${item.inspectionResult === '未发现安全隐患' ? '&#10003; 未发现安全隐患' : '&#9888; 疑似存在结构安全隐患'}
+                            </span>
+                        ` : ''}
+                    </div>
+                    <div class="card-footer">
+                        ${getActionButtons(item)}
+                    </div>
+                </div>`;
+            }).join('');
+
+            if (state.hasMore) {
+                container.innerHTML += '<div class="loading-tip">上拉加载更多</div>';
+            } else {
+                container.innerHTML += '<div class="no-more-tip">没有更多了</div>';
+            }
+        }
+
+        // ====== 辅助函数 ======
+        function getStatusClass(status) {
+            return { '未检查': 'unchecked', '检查中': 'checking', '已检查': 'checked' }[status] || 'unchecked';
+        }
+
+        function getAuditTag(status) {
+            if (status === '-' || status === '') return '';
+            let cls = 'audit-default';
+            if (status === '已通过') cls = 'audit-pass';
+            if (status === '退回街道' || status === '退回网格') cls = 'audit-reject';
+            return `<span class="td-tag ${cls}">${status}</span>`;
+        }
+
+        function getActionButtons(item) {
+            const auditBtn = (item.auditStatus === '街道审核' || item.auditStatus === '退回街道')
+                ? `<button class="td-btn td-btn-brand" onclick="event.stopPropagation();onAudit(${item.id})">审核</button>`
+                : '';
+            const proVerifyBtn = (item.auditStatus === '专业核实')
+                ? `<button class="td-btn td-btn-brand" onclick="event.stopPropagation();onProVerify(${item.id})">专业核实</button>`
+                : '';
+
+            if (item.inspectionStatus === '未检查') {
+                return `<button class="td-btn td-btn-brand" onclick="event.stopPropagation();onAddInspection(${item.id})">新增检查</button>${auditBtn}${proVerifyBtn}`;
+            }
+            if (item.inspectionStatus === '检查中') {
+                return `
+                    <button class="td-btn td-btn-outline" onclick="event.stopPropagation();onInspectionRecord(${item.id})">检查记录</button>
+                    <button class="td-btn td-btn-outline" onclick="event.stopPropagation();onGridRecord(${item.id})">网格巡查记录</button>
+                    ${auditBtn}${proVerifyBtn}
+                `;
+            }
+            // 已检查
+            return `
+                <button class="td-btn td-btn-outline" onclick="event.stopPropagation();onInspectionRecord(${item.id})">检查记录</button>
+                <button class="td-btn td-btn-outline" onclick="event.stopPropagation();onGridRecord(${item.id})">网格巡查记录</button>
+                ${auditBtn}${proVerifyBtn}
+            `;
+        }
+
+        // ====== 计数更新（基于全量数据池） ======
+        function updateCounts() {
+            const set = (id, v) => document.getElementById(id).textContent = v;
+            set('countAll', ALL_MOCK_DATA.length);
+            set('countUnchecked', ALL_MOCK_DATA.filter(i => i.inspectionStatus === '未检查').length);
+            set('countChecking', ALL_MOCK_DATA.filter(i => i.inspectionStatus === '检查中').length);
+            set('countChecked', ALL_MOCK_DATA.filter(i => i.inspectionStatus === '已检查').length);
+            set('countRisk', ALL_MOCK_DATA.filter(i => i.inspectionResult === '疑似存在结构安全隐患').length);
+        }
+
+        function updatePagination() {
+            const filtered = state.filteredList.length;
+            document.getElementById('paginationInfo').textContent = `共 ${filtered} 项数据 · 第 ${state.currentPage} 页`;
+        }
+
+        // ====== 交互事件 ======
+        function onQuickFilter(type, el) {
+            document.querySelectorAll('.qf-tab').forEach(e => e.classList.remove('active'));
+            el.classList.add('active');
+            state.currentFilter = type;
+            state.taskList = [];
+            loadData(true);
+        }
+
+        function onCardClick(id, status) {
+            if (status === '未检查' || status === '检查中') {
+                onAddInspection(id);
+            } else if (status === '已检查') {
+                onViewDetail(id);
+            }
+        }
+
+        function navigateToPage(tab, params) {
+            if (window.parent !== window) {
+                window.parent.postMessage({ type: 'navigateToPage', tab: tab, params: params || {} }, '*');
+            }
+        }
+
+        function onViewDetail(id) {
+            const item = ALL_MOCK_DATA.find(i => i.id === id);
+            if (!item) return;
+            navigateToPage('detail', {
+                houseName: item.houseName,
+                houseCode: item.houseCode,
+                recordId: id
+            });
+        }
+
+        function onAddInspection(id) {
+            const item = ALL_MOCK_DATA.find(i => i.id === id);
+            if (!item) { showToast('未找到房屋数据'); return; }
+            if (window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'navigateToPage',
+                    tab: 'form',
+                    params: {
+                        houseId: item.id,
+                        houseName: item.houseName,
+                        houseCode: item.houseCode,
+                        area: item.area,
+                        street: item.street,
+                        community: item.community,
+                        grid: item.grid,
+                        detailAddress: item.detailAddress
+                    }
+                }, '*');
+            } else {
+                showToast('跳转至检查表单页：' + item.houseName);
+            }
+        }
+        function onInspectionRecord(id) {
+            const item = ALL_MOCK_DATA.find(i => i.id === id);
+            if (!item) { showToast('未找到房屋数据'); return; }
+            if (window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'navigateToPage',
+                    tab: 'records',
+                    params: {
+                        houseId: item.id,
+                        houseName: item.houseName,
+                        houseCode: item.houseCode,
+                        houseArea: item.area
+                    }
+                }, '*');
+            } else {
+                showToast('查看检查记录：' + item.houseName);
+            }
+        }
+        function onGridRecord(id) { showToast('查看网格巡查记录'); }
+        function onAudit(id) {
+            const item = ALL_MOCK_DATA.find(i => i.id === id);
+            if (!item) { showToast('未找到房屋数据'); return; }
+            const tabKey = item.cannotInspect !== '-' ? 'auditAbnormal' : 'audit';
+            navigateToPage(tabKey, {
+                houseId: item.id,
+                houseName: item.houseName,
+                houseCode: item.houseCode,
+                area: item.area,
+                street: item.street,
+                community: item.community,
+                grid: item.grid,
+                detailAddress: item.detailAddress
+            });
+        }
+        function onProVerify(id) {
+            const item = ALL_MOCK_DATA.find(i => i.id === id);
+            if (!item) { showToast('未找到房屋数据'); return; }
+            navigateToPage('proVerify', {
+                houseId: item.id,
+                houseName: item.houseName,
+                houseCode: item.houseCode,
+                area: item.area,
+                street: item.street,
+                community: item.community,
+                grid: item.grid,
+                detailAddress: item.detailAddress
+            });
+        }
+        function onReturnToGrid(id) { showToast('已退回网格'); loadData(true); }
+        function onReturnToStreet(id) { showToast('已退回街道'); loadData(true); }
+
+        function showConfirm(msg, cb) {
+            document.getElementById('modalContent').textContent = msg;
+            confirmCallback = cb;
+            document.getElementById('modalOverlay').classList.add('show');
+        }
+
+        function hideModal() {
+            document.getElementById('modalOverlay').classList.remove('show');
+            confirmCallback = null;
+        }
+
+        function confirmAction() {
+            if (confirmCallback) confirmCallback();
+            hideModal();
+        }
+
+        let searchTimer;
+        function handleSearch() {
+            clearTimeout(searchTimer);
+            searchTimer = setTimeout(() => {
+                state.taskList = [];
+                loadData(true);
+            }, 500);
+        }
+
+        // ====== 筛选面板 ======
+        function toggleFilter() {
+            document.getElementById('filterOverlay').classList.toggle('show');
+        }
+
+        function selectChip(el, type, value) {
+            el.parentElement.querySelectorAll('.f-chip').forEach(e => e.classList.remove('active'));
+            el.classList.add('active');
+            state.filterForm[type] = value;
+        }
+
+        function toggleSwitch(el) {
+            el.classList.toggle('active');
+            state.filterForm.hasLogicException = el.classList.contains('active');
+        }
+
+        function resetFilter() {
+            state.filterForm = {
+                area: '', street: '', community: '', grid: '',
+                isSelfBuild: '', isBusiness: '',
+                inspectionStatus: '', inspectionResult: '', auditStatus: '',
+                dateStart: '', dateEnd: '',
+                uploadDateStart: '', uploadDateEnd: '',
+                cannotInspect: '', hasLogicException: false
+            };
+
+            // 重置所有 chip
+            document.querySelectorAll('.f-chip').forEach(el => {
+                el.classList.toggle('active', el.textContent.trim() === '全部');
+            });
+
+            // 重置 switch
+            document.getElementById('logicExceptionSwitch').classList.remove('active');
+
+            // 重置输入框
+            ['dateStart', 'dateEnd', 'uploadDateStart', 'uploadDateEnd'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = '';
+            });
+
+            // 重置快捷筛选
+            document.querySelectorAll('.qf-tab').forEach((el, i) => el.classList.toggle('active', i === 0));
+            state.currentFilter = 'all';
+
+            state.taskList = [];
+            loadData(true);
+            toggleFilter();
+            showToast('筛选已重置');
+        }
+
+        function applyFilter() {
+            state.taskList = [];
+            loadData(true);
+            toggleFilter();
+            showToast('筛选条件已应用');
+        }
+
+        // ====== Toast ======
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 2000);
+        }
+
+        // ====== 初始化 ======
+        loadData();
+
+        // ====== iframe 嵌入检测 ======
+        if (window.parent !== window) {
+            document.documentElement.classList.add('in-iframe');
+        }
+    </script>
+</body>
+</html>

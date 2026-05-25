@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>自建房巡查 - 小程序原型</title>
+    <style>
+        :root {
+            --td-brand-color: #0052d9;
+            --td-brand-color-light: #ecf2fe;
+            --td-bg-color-page: #f5f5f5;
+            --td-bg-color-container: #ffffff;
+            --td-border-color: #e7e7e7;
+            --td-text-color-primary: #1a1a1a;
+            --td-text-color-secondary: #444444;
+            --td-text-color-placeholder: #bbbbbb;
+            --td-shadow-1: 0 1px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(160deg, #0b1a3e 0%, #162d6e 40%, #1e3f8f 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ========== 外壳容器 ========== */
+        .shell {
+            width: 100%;
+            max-width: 440px;
+            background: #000;
+            border-radius: 40px;
+            box-shadow: 0 40px 80px rgba(0,0,0,0.4), 0 0 0 3px #222;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 860px;
+            position: relative;
+        }
+
+        /* ========== 顶部导航栏 ========== */
+        .shell-navbar {
+            background: var(--td-brand-color);
+            padding: 10px 20px 12px;
+            padding-top: 36px; /* 刘海/状态栏区域 */
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .shell-navbar::before {
+            content: '';
+            position: absolute;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 28px;
+            background: #000;
+            border-radius: 14px;
+        }
+
+        .shell-navbar-title {
+            font-size: 17px;
+            font-weight: 600;
+            color: #fff;
+            text-align: center;
+        }
+
+        /* ========== iframe 内容区 ========== */
+        .shell-body {
+            flex: 1;
+            overflow: hidden;
+            background: var(--td-bg-color-page);
+            position: relative;
+        }
+
+        .shell-body iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+            background: transparent;
+        }
+
+        /* 页面切换过渡层 */
+        .page-transition-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--td-bg-color-page);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.15s ease;
+            z-index: 10;
+        }
+
+        .page-transition-overlay.active {
+            opacity: 1;
+        }
+
+        /* ========== 转场动画 ========== */
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes slideOut {
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* ========== 状态提示 Toast ========== */
+        .shell-toast {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.75);
+            color: #fff;
+            padding: 10px 24px;
+            border-radius: 6px;
+            font-size: 13px;
+            z-index: 2000;
+            display: none;
+            pointer-events: none;
+        }
+
+        .shell-toast.show {
+            display: block;
+            animation: fadeUp 0.2s ease;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translate(-50%, -40%); }
+            to { opacity: 1; transform: translate(-50%, -50%); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="shell">
+    <!-- 顶部导航栏 -->
+    <div class="shell-navbar">
+        <div class="shell-navbar-title" id="navbarTitle">自建房巡查</div>
+    </div>
+
+    <!-- 内容区 -->
+    <div class="shell-body">
+        <div class="page-transition-overlay" id="transitionOverlay"></div>
+        <iframe id="mainFrame" src="自建房安全检查小程序_任务列表页_原型.html" allow="clipboard-read; clipboard-write"></iframe>
+    </div>
+
+    <!-- Toast -->
+    <div class="shell-toast" id="shellToast"></div>
+</div>
+
+<script>
+    // ====== Tab 配置 ======
+    const TABS = {
+        list: {
+            title: '自建房巡查',
+            src: '自建房安全检查小程序_任务列表页_原型.html',
+            showTab: true
+        },
+        form: {
+            title: '新增安全检查',
+            src: '自建房安全检查小程序_新增检查_原型.html',
+            showTab: true
+        },
+        records: {
+            title: '检查记录',
+            src: '自建房安全检查小程序_检查记录页_原型.html',
+            showTab: false
+        },
+        detail: {
+            title: '检查记录详情',
+            src: '自建房安全检查小程序_检查记录详情页_原型.html',
+            showTab: false
+        },
+        audit: {
+            title: '检查记录审核',
+            src: '自建房安全检查小程序_检查记录审核页（正常）_原型.html',
+            showTab: false
+        },
+        auditAbnormal: {
+            title: '检查记录审核',
+            src: '自建房安全检查小程序_检查记录审核页（不正常）_原型.html',
+            showTab: false
+        },
+        proVerify: {
+            title: '专业核实',
+            src: '自建房安全检查小程序_专业核实_原型.html',
+            showTab: false
+        },
+        more: {
+            title: '更多功能',
+            src: '',  // 预留
+            showTab: true
+        }
+    };
+
+    let currentTab = 'list';
+
+    // ====== 切换 Tab / 页面 ======
+    function switchTab(tabKey, params) {
+        const config = TABS[tabKey];
+        if (!config) return;
+
+        // 拼接 URL 参数
+        let src = config.src;
+        if (params && Object.keys(params).length > 0) {
+            const qs = new URLSearchParams(params).toString();
+            src += (src.includes('?') ? '&' : '?') + qs;
+        }
+
+        // 只有 TabBar 页面才更新选中态
+        if (config.showTab) {
+            document.querySelectorAll('.tabbar-item').forEach(el => {
+                el.classList.toggle('active', el.dataset.tab === tabKey);
+            });
+        }
+
+        // 更新导航栏标题
+        document.getElementById('navbarTitle').textContent = config.title;
+
+        // 转场动画
+        const overlay = document.getElementById('transitionOverlay');
+        overlay.classList.add('active');
+
+        setTimeout(() => {
+            // 切换 iframe
+            document.getElementById('mainFrame').src = src;
+            currentTab = tabKey;
+
+            // 等待新页面加载后移除遮罩
+            document.getElementById('mainFrame').onload = function() {
+                setTimeout(() => {
+                    overlay.classList.remove('active');
+                }, 80);
+            };
+
+            // 兜底：最多 1.5 秒后移除遮罩
+            setTimeout(() => {
+                overlay.classList.remove('active');
+            }, 1500);
+        }, 150);
+    }
+
+    // ====== 监听 iframe 内部消息 ======
+    window.addEventListener('message', function(e) {
+        const data = e.data;
+        if (!data) return;
+
+        // 表单提交成功 → 切回列表页
+        if (data.type === 'formSubmitted') {
+            showToast('提交成功，返回列表');
+            setTimeout(() => switchTab('list'), 800);
+        }
+
+        // 通用返回：回到上一个 TabBar 页面
+        if (data.type === 'navigateBack') {
+            switchTab('list');
+        }
+
+        // 跳转到指定页面（支持带参数）
+        if (data.type === 'navigateToPage') {
+            switchTab(data.tab, data.params || {});
+        }
+    });
+
+    // ====== Toast ======
+    function showToast(msg) {
+        const t = document.getElementById('shellToast');
+        t.textContent = msg;
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 2000);
+    }
+</script>
+
+</body>
+</html>

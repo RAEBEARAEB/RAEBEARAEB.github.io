@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>检查记录审核</title>
+    <style>
+        :root {
+            /* TDesign 主题色 */
+            --td-brand-color: #0052d9;
+            --td-brand-color-hover: #003cab;
+            --td-brand-color-light: #ecf2fe;
+            --td-brand-color-focus: #d9e1ff;
+
+            /* 功能色 */
+            --td-success-color: #2ba471;
+            --td-success-color-light: #e3f9ed;
+            --td-warning-color: #e37318;
+            --td-warning-color-light: #fff1e6;
+            --td-error-color: #d54941;
+            --td-error-color-light: #fff0ed;
+
+            /* 中性色 */
+            --td-text-color-primary: #1a1a1a;
+            --td-text-color-secondary: #444444;
+            --td-text-color-placeholder: #bbbbbb;
+            --td-text-color-disabled: #c0c0c0;
+
+            /* 背景色 */
+            --td-bg-color-page: #f5f5f5;
+            --td-bg-color-container: #ffffff;
+            --td-bg-color-secondary: #f5f5f5;
+
+            /* 边框色 */
+            --td-border-color: #e7e7e7;
+
+            /* 圆角 */
+            --td-radius-default: 6px;
+            --td-radius-large: 12px;
+            --td-radius-round: 999px;
+
+            /* 字体大小 */
+            --td-font-size-xs: 10px;
+            --td-font-size-s: 12px;
+            --td-font-size-base: 14px;
+            --td-font-size-m: 16px;
+            --td-font-size-l: 18px;
+
+            /* 间距 */
+            --td-spacer-1: 4px;
+            --td-spacer-2: 8px;
+            --td-spacer-3: 12px;
+            --td-spacer-4: 16px;
+            --td-spacer-5: 20px;
+            --td-spacer-6: 24px;
+            --td-spacer-8: 32px;
+
+            /* 阴影 */
+            --td-shadow-1: 0 1px 6px rgba(0, 0, 0, 0.05);
+            --td-shadow-2: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(160deg, #0b1a3e 0%, #162d6e 40%, #1e3f8f 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+        }
+
+        /* 手机外壳 */
+        .phone-frame {
+            background: var(--td-bg-color-page);
+            border-radius: var(--td-radius-large);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.3), 0 0 0 6px #111;
+            overflow: hidden;
+            height: 800px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ========== 顶部导航 ========== */
+        .page-header {
+            background: var(--td-brand-color);
+            padding: 10px var(--td-spacer-4);
+            padding-top: 36px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 28px;
+            background: #000;
+            border-radius: 14px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: var(--td-spacer-2);
+        }
+
+        .header-back {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 50%;
+            transition: background 0.2s;
+            color: #fff;
+        }
+
+        .header-back:active {
+            background: rgba(255,255,255,0.15);
+        }
+
+        .header-title {
+            font-size: var(--td-font-size-m);
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+        }
+
+        .header-btn-text {
+            font-size: var(--td-font-size-s);
+            color: rgba(255,255,255,0.9);
+            padding: 6px 14px;
+            background: rgba(255,255,255,0.15);
+            border-radius: var(--td-radius-round);
+            cursor: pointer;
+            transition: background 0.2s;
+            border: none;
+            backdrop-filter: blur(4px);
+        }
+
+        .header-btn-text:active {
+            background: rgba(255,255,255,0.25);
+        }
+
+        /* ========== 内容滚动区 ========== */
+        .page-body {
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: var(--td-spacer-3) var(--td-spacer-4);
+            padding-bottom: 80px;
+        }
+
+        .page-body::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* ========== 通用区块卡片 ========== */
+        .section-card {
+            background: var(--td-bg-color-container);
+            border-radius: var(--td-radius-large);
+            box-shadow: var(--td-shadow-1);
+            margin-bottom: var(--td-spacer-3);
+        }
+
+        .section-header {
+            padding: var(--td-spacer-4) var(--td-spacer-4) 0;
+            display: flex;
+            align-items: center;
+            gap: var(--td-spacer-2);
+        }
+
+        .section-dot {
+            width: 4px;
+            height: 16px;
+            border-radius: 2px;
+            background: var(--td-brand-color);
+            flex-shrink: 0;
+        }
+
+        .section-title {
+            font-size: var(--td-font-size-base);
+            font-weight: 600;
+            color: var(--td-text-color-primary);
+        }
+
+        .section-body {
+            padding: var(--td-spacer-3) var(--td-spacer-4) var(--td-spacer-4);
+            overflow: visible;
+        }
+
+        /* ========== 字段展示行 ========== */
+        .field-row {
+            display: flex;
+            padding: var(--td-spacer-2) 0;
+            border-bottom: 1px solid rgba(0,0,0,0.03);
+        }
+
+        .field-row:last-child {
+            border-bottom: none;
+        }
+
+        .field-label {
+            width: 110px;
+            flex-shrink: 0;
+            font-size: var(--td-font-size-s);
+            color: var(--td-text-color-placeholder);
+            line-height: 1.6;
+            padding-top: 1px;
+        }
+
+        .field-value {
+            flex: 1;
+            font-size: var(--td-font-size-s);
+            color: var(--td-text-color-primary);
+            line-height: 1.6;
+            min-width: 0;
+            word-break: break-all;
+        }
+
+        .field-value .link {
+            color: var(--td-brand-color);
+            cursor: pointer;
+        }
+
+        /* ========== 照片展示 ========== */
+        .photo-list {
+            display: flex;
+            gap: var(--td-spacer-2);
+            flex-wrap: wrap;
+            margin-top: var(--td-spacer-2);
+        }
+
+        .photo-thumb {
+            width: 72px;
+            height: 72px;
+            border-radius: var(--td-radius-default);
+            background: var(--td-bg-color-secondary);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.15s;
+        }
+
+        .photo-thumb:active {
+            transform: scale(0.95);
+        }
+
+        .photo-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .photo-thumb svg {
+            width: 28px;
+            height: 28px;
+            color: var(--td-text-color-placeholder);
+        }
+
+        /* ========== 审核信息表单 ========== */
+        .audit-form .radio-group {
+            display: flex;
+            gap: var(--td-spacer-6);
+            padding: var(--td-spacer-2) 0;
+        }
+
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: var(--td-spacer-2);
+            cursor: pointer;
+            padding: 8px 20px;
+            border-radius: var(--td-radius-round);
+            transition: all 0.2s ease;
+            border: 1.5px solid var(--td-border-color);
+            background: var(--td-bg-color-container);
+        }
+
+        .radio-item:active {
+            opacity: 0.7;
+        }
+
+        .radio-item.selected-pass {
+            border-color: var(--td-success-color);
+            background: var(--td-success-color-light);
+        }
+
+        .radio-item.selected-reject {
+            border-color: var(--td-error-color);
+            background: var(--td-error-color-light);
+        }
+
+        .radio-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid var(--td-border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .radio-item.selected-pass .radio-dot {
+            border-color: var(--td-success-color);
+            background: var(--td-success-color);
+        }
+
+        .radio-item.selected-reject .radio-dot {
+            border-color: var(--td-error-color);
+            background: var(--td-error-color);
+        }
+
+        .radio-dot::after {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #fff;
+            opacity: 0;
+            transition: opacity 0.15s;
+        }
+
+        .radio-item.selected-pass .radio-dot::after,
+        .radio-item.selected-reject .radio-dot::after {
+            opacity: 1;
+        }
+
+        .radio-label {
+            font-size: var(--td-font-size-base);
+            color: var(--td-text-color-primary);
+            font-weight: 500;
+        }
+
+        .radio-item.selected-pass .radio-label {
+            color: var(--td-success-color);
+        }
+
+        .radio-item.selected-reject .radio-label {
+            color: var(--td-error-color);
+        }
+
+        /* 文本域 */
+        .audit-textarea-wrap {
+            margin-top: var(--td-spacer-3);
+        }
+
+        .audit-textarea-label {
+            font-size: var(--td-font-size-s);
+            color: var(--td-text-color-secondary);
+            margin-bottom: var(--td-spacer-2);
+            display: flex;
+            align-items: center;
+            gap: var(--td-spacer-1);
+        }
+
+        .required-star {
+            color: var(--td-error-color);
+            font-weight: 600;
+        }
+
+        .required-star.hidden {
+            visibility: hidden;
+        }
+
+        .audit-textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: var(--td-spacer-3);
+            border: 1.5px solid var(--td-border-color);
+            border-radius: var(--td-radius-default);
+            font-size: var(--td-font-size-base);
+            color: var(--td-text-color-primary);
+            background: var(--td-bg-color-container);
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.2s;
+            font-family: inherit;
+            line-height: 1.6;
+        }
+
+        .audit-textarea:focus {
+            border-color: var(--td-brand-color);
+        }
+
+        .audit-textarea::placeholder {
+            color: var(--td-text-color-placeholder);
+        }
+
+        .audit-textarea.error {
+            border-color: var(--td-error-color);
+        }
+
+        .error-tip {
+            font-size: var(--td-font-size-xs);
+            color: var(--td-error-color);
+            margin-top: var(--td-spacer-1);
+            display: none;
+        }
+
+        .error-tip.show {
+            display: block;
+        }
+
+        /* ========== 底部提交栏 ========== */
+        .submit-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: var(--td-spacer-3) var(--td-spacer-5);
+            padding-bottom: 28px;
+            background: var(--td-bg-color-container);
+            border-top: 1px solid var(--td-border-color);
+            display: flex;
+            gap: var(--td-spacer-3);
+            z-index: 100;
+        }
+
+        .submit-btn {
+            flex: 1;
+            padding: 12px 0;
+            border-radius: var(--td-radius-default);
+            font-size: var(--td-font-size-base);
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: opacity 0.15s;
+            text-align: center;
+        }
+
+        .submit-btn:active {
+            opacity: 0.7;
+        }
+
+        .submit-btn.primary {
+            background: var(--td-brand-color);
+            color: #fff;
+        }
+
+        .submit-btn.secondary {
+            background: var(--td-bg-color-secondary);
+            color: var(--td-text-color-secondary);
+        }
+
+        /* ========== 审核记录弹窗 ========== */
+        .timeline-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1500;
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        .timeline-overlay.show {
+            display: flex;
+        }
+
+        .timeline-panel {
+            width: 100%;
+            max-width: 480px;
+            max-height: 75vh;
+            background: var(--td-bg-color-container);
+            border-radius: var(--td-radius-large) var(--td-radius-large) 0 0;
+            display: flex;
+            flex-direction: column;
+            animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .timeline-panel-header {
+            padding: var(--td-spacer-4) var(--td-spacer-5);
+            border-bottom: 1px solid var(--td-border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .timeline-panel-title {
+            font-size: var(--td-font-size-m);
+            font-weight: 600;
+            color: var(--td-text-color-primary);
+        }
+
+        .timeline-panel-close {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 50%;
+            transition: background 0.2s;
+            color: var(--td-text-color-placeholder);
+        }
+
+        .timeline-panel-close:active {
+            background: var(--td-bg-color-secondary);
+        }
+
+        .timeline-panel-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--td-spacer-5);
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .timeline-panel-body::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* ========== 时间轴样式 ========== */
+        .timeline {
+            position: relative;
+            padding-left: 28px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 9px;
+            top: 6px;
+            bottom: 6px;
+            width: 2px;
+            background: var(--td-border-color);
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-bottom: var(--td-spacer-5);
+        }
+
+        .timeline-item:last-child {
+            padding-bottom: 0;
+        }
+
+        /* 时间轴节点圆点 */
+        .timeline-dot {
+            position: absolute;
+            left: -28px;
+            top: 4px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
+        }
+
+        .timeline-dot.inspected {
+            background: var(--td-brand-color-light);
+            border: 2px solid var(--td-brand-color);
+        }
+
+        .timeline-dot.approved {
+            background: var(--td-success-color-light);
+            border: 2px solid var(--td-success-color);
+        }
+
+        .timeline-dot.rejected {
+            background: var(--td-error-color-light);
+            border: 2px solid var(--td-error-color);
+        }
+
+        .timeline-dot.verified {
+            background: var(--td-warning-color-light);
+            border: 2px solid var(--td-warning-color);
+        }
+
+        .timeline-dot svg {
+            width: 10px;
+            height: 10px;
+        }
+
+        /* 时间轴内容卡片 */
+        .timeline-card {
+            background: var(--td-bg-color-secondary);
+            border-radius: var(--td-radius-default);
+            padding: var(--td-spacer-3) var(--td-spacer-4);
+        }
+
+        .timeline-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--td-spacer-2);
+        }
+
+        .timeline-flow {
+            font-size: var(--td-font-size-base);
+            font-weight: 600;
+            color: var(--td-text-color-primary);
+        }
+
+        .timeline-result-tag {
+            font-size: var(--td-font-size-xs);
+            padding: 2px 10px;
+            border-radius: var(--td-radius-round);
+            font-weight: 500;
+        }
+
+        .timeline-result-tag.pass {
+            background: var(--td-success-color-light);
+            color: var(--td-success-color);
+        }
+
+        .timeline-result-tag.reject {
+            background: var(--td-error-color-light);
+            color: var(--td-error-color);
+        }
+
+        .timeline-result-tag.info {
+            background: var(--td-brand-color-light);
+            color: var(--td-brand-color);
+        }
+
+        .timeline-result-tag.verify {
+            background: var(--td-warning-color-light);
+            color: var(--td-warning-color);
+        }
+
+        .timeline-meta {
+            font-size: var(--td-font-size-xs);
+            color: var(--td-text-color-placeholder);
+            margin-bottom: var(--td-spacer-2);
+        }
+
+        .timeline-meta span {
+            margin-right: var(--td-spacer-3);
+        }
+
+        .timeline-opinion {
+            font-size: var(--td-font-size-s);
+            color: var(--td-text-color-secondary);
+            padding: var(--td-spacer-2) var(--td-spacer-3);
+            background: var(--td-bg-color-container);
+            border-radius: var(--td-radius-default);
+            border-left: 3px solid var(--td-brand-color);
+            margin-top: var(--td-spacer-2);
+            line-height: 1.5;
+        }
+
+        .timeline-changes {
+            font-size: var(--td-font-size-s);
+            color: var(--td-text-color-secondary);
+            padding: var(--td-spacer-2) var(--td-spacer-3);
+            background: var(--td-bg-color-container);
+            border-radius: var(--td-radius-default);
+            border-left: 3px solid var(--td-warning-color);
+            margin-top: var(--td-spacer-2);
+            line-height: 1.5;
+        }
+
+        .timeline-changes .change-item {
+            display: block;
+            margin-bottom: var(--td-spacer-1);
+        }
+
+        .timeline-changes .change-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .change-field {
+            font-weight: 600;
+            color: var(--td-text-color-primary);
+        }
+
+        .change-old {
+            text-decoration: line-through;
+            color: var(--td-error-color);
+            font-size: var(--td-font-size-xs);
+        }
+
+        .change-new {
+            color: var(--td-success-color);
+            font-weight: 500;
+        }
+
+        /* ========== Toast ========== */
+        .td-toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.75);
+            color: #fff;
+            padding: 12px 28px;
+            border-radius: var(--td-radius-default);
+            font-size: var(--td-font-size-base);
+            z-index: 2000;
+            display: none;
+            backdrop-filter: blur(4px);
+        }
+
+        .td-toast.show {
+            display: block;
+            animation: toastFade 0.2s ease;
+        }
+
+        @keyframes toastFade {
+            from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+            to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+
+        /* ========== 问号提示图标 ========== */
+        .verified-icon {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0;
+            background: var(--td-warning-color-light); color: var(--td-warning-color);
+            font-size: 9px; font-weight: 700; cursor: pointer;
+            vertical-align: middle; margin-left: 2px;
+        }
+        .verified-icon::before { content: '?'; }
+
+        .global-tip {
+            position: fixed; z-index: 9999; pointer-events: none;
+            background: var(--td-warning-color); color: #fff;
+            font-size: var(--td-font-size-xs); font-weight: 400;
+            padding: 6px 12px; border-radius: var(--td-radius-default);
+            max-width: 220px; line-height: 1.5;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            opacity: 0; transition: opacity 0.15s;
+        }
+        .global-tip.show { opacity: 1; }
+        .global-tip::after {
+            content: ''; position: absolute;
+            border: 5px solid transparent;
+        }
+        .global-tip.arrow-bottom::after {
+            top: 100%; left: 50%; transform: translateX(-50%);
+            border-top-color: var(--td-warning-color);
+        }
+        .global-tip.arrow-top::after {
+            bottom: 100%; left: 50%; transform: translateX(-50%);
+            border-bottom-color: var(--td-warning-color);
+        }
+
+        /* ====== iframe 嵌入模式适配 ====== */
+        html.in-iframe body {
+            background: var(--td-bg-color-page);
+            padding: 0;
+        }
+        html.in-iframe .phone-frame {
+            border-radius: 0;
+            box-shadow: none;
+            height: 100vh;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="phone-frame">
+            <!-- 顶部导航 -->
+            <div class="page-header">
+                <div class="header-left">
+                    <span class="header-back" onclick="navigateBack()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+                    </span>
+                    <span class="header-title">检查记录审核</span>
+                </div>
+                <div class="header-right">
+                    <button class="header-btn-text" onclick="openTimeline()">审核记录</button>
+                </div>
+            </div>
+
+            <!-- 内容区 -->
+            <div class="page-body" id="pageBody">
+                <!-- 区块1：房屋基础信息 -->
+                <div class="section-card">
+                    <div class="section-header">
+                        <span class="section-dot"></span>
+                        <span class="section-title">房屋基础信息</span>
+                    </div>
+                    <div class="section-body" id="basicInfoBody">
+                        <!-- JS 渲染 -->
+                    </div>
+                </div>
+
+                <!-- 区块2：检查信息 -->
+                <div class="section-card">
+                    <div class="section-header">
+                        <span class="section-dot"></span>
+                        <span class="section-title">检查信息</span>
+                    </div>
+                    <div class="section-body" id="inspectInfoBody">
+                        <!-- JS 渲染 -->
+                    </div>
+                </div>
+
+                <!-- 区块3：审核信息 -->
+                <div class="section-card">
+                    <div class="section-header">
+                        <span class="section-dot"></span>
+                        <span class="section-title">审核信息</span>
+                    </div>
+                    <div class="section-body">
+                        <div class="audit-form">
+                            <div class="radio-group">
+                                <div class="radio-item" id="radioPass" onclick="selectConclusion('pass')">
+                                    <span class="radio-dot"></span>
+                                    <span class="radio-label">通过</span>
+                                </div>
+                                <div class="radio-item" id="radioReject" onclick="selectConclusion('reject')">
+                                    <span class="radio-dot"></span>
+                                    <span class="radio-label">不通过</span>
+                                </div>
+                            </div>
+                            <div class="audit-textarea-wrap">
+                                <div class="audit-textarea-label">
+                                    <span class="required-star hidden" id="requiredStar">*</span>
+                                    <span>审核意见</span>
+                                </div>
+                                <textarea class="audit-textarea" id="auditOpinion" placeholder="请输入审核意见" oninput="onOpinionInput()"></textarea>
+                                <div class="error-tip" id="errorTip">不通过时审核意见为必填项</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 底部提交栏 -->
+            <div class="submit-bar">
+                <button class="submit-btn secondary" onclick="navigateBack()">取消</button>
+                <button class="submit-btn primary" onclick="handleSubmit()">提交审核</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 审核记录弹窗 -->
+    <div class="timeline-overlay" id="timelineOverlay" onclick="closeTimeline()">
+        <div class="timeline-panel" onclick="event.stopPropagation()">
+            <div class="timeline-panel-header">
+                <span class="timeline-panel-title">审核记录</span>
+                <span class="timeline-panel-close" onclick="closeTimeline()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                </span>
+            </div>
+            <div class="timeline-panel-body" id="timelineBody">
+                <!-- JS 渲染时间轴 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="td-toast" id="toast"></div>
+    <div class="global-tip" id="globalTip"></div>
+
+    <script>
+        // ====== URL 参数解析 ======
+        const urlParams = new URLSearchParams(window.location.search);
+        const houseId = urlParams.get('houseId') || '1';
+        const houseName = urlParams.get('houseName') || '细靓北十二巷7号';
+        const houseCode = urlParams.get('houseCode') || '4403070010032700169';
+        const areaName = urlParams.get('area') || '龙岗区';
+        const streetName = urlParams.get('street') || '平湖';
+        const communityName = urlParams.get('community') || '辅城坳';
+        const gridName = urlParams.get('grid') || '辅城坳37';
+        const detailAddr = urlParams.get('detailAddress') || '龙阳光路32-2号';
+
+        // ====== Mock 检查数据 ======
+        const inspectData = {
+            canInspect: '否',
+            houseStatus: '建筑不存在',
+            inspector: '李网格',
+            photos: [1]
+        };
+
+        // ====== Mock 审核记录数据 ======
+        const auditRecords = [
+            {
+                flow: '网格检查',
+                result: '已检查',
+                opinion: '',
+                changes: [],
+                auditor: '李网格',
+                unit: 'aa网格',
+                time: '2025-12-12 12:45:17'
+            },
+            {
+                flow: '街道审批',
+                result: '不通过',
+                opinion: '已核实房屋当前仍存在未灭失，需进行进一步核查',
+                changes: [
+                    { field: '可否正常开展安全检查', oldVal: '否', newVal: '是' }
+                ],
+                auditor: '王街道',
+                unit: 'A街道',
+                time: '2025-12-11 17:54:17'
+            },
+            {
+                flow: '专业核实',
+                result: '已核实',
+                opinion: '',
+                changes: [
+                    { field: '结构类型', oldVal: '混杂结构', newVal: '钢筋混凝土结构' },
+                    { field: '房屋改扩建次数', oldVal: '1', newVal: '2' }
+                ],
+                auditor: '郑专业',
+                unit: 'XXX检测鉴定有限公司',
+                time: '2025-12-10 17:54:17'
+            },
+            {
+                flow: '网格检查',
+                result: '已检查',
+                opinion: '',
+                changes: [],
+                auditor: '李网格',
+                unit: 'aa网格',
+                time: '2025-12-09 17:54:17'
+            }
+        ];
+
+        // ====== 渲染：房屋基础信息 ======
+        function renderBasicInfo() {
+            const fields = [
+                ['房屋名称', houseName],
+                ['建筑物编码', houseCode],
+                ['所属区域', areaName],
+                ['所属街道', streetName],
+                ['所属社区', communityName],
+                ['所属网格', gridName],
+                ['详细地址', detailAddr],
+            ];
+
+            document.getElementById('basicInfoBody').innerHTML = fields.map(([label, value]) => `
+                <div class="field-row">
+                    <span class="field-label">${label}</span>
+                    <span class="field-value">${value}</span>
+                </div>
+            `).join('') + `
+                <div class="field-row">
+                    <span class="field-label">位置</span>
+                    <span class="field-value"><span class="link" onclick="showToast('跳转地图查看')">查看地图定位</span></span>
+                </div>
+            `;
+        }
+
+        // ====== 渲染：检查信息 ======
+        function renderInspectInfo() {
+            const canInspectLabel = inspectData.canInspect === '是' ? '是' : '否';
+            const canInspectColor = inspectData.canInspect === '是'
+                ? 'var(--td-success-color)' : 'var(--td-error-color)';
+
+            let html = `
+                <div class="field-row">
+                    <span class="field-label">可否正常开展安全检查</span>
+                    <span class="field-value" style="color:${canInspectColor};font-weight:500">${canInspectLabel}</span>
+                </div>
+            `;
+
+            if (inspectData.canInspect === '否') {
+                html += `
+                    <div class="field-row">
+                        <span class="field-label">房屋状态</span>
+                        <span class="field-value" style="color:var(--td-warning-color)">${inspectData.houseStatus}</span>
+                    </div>
+                `;
+            }
+
+            html += `
+                <div class="field-row">
+                    <span class="field-label">检查人</span>
+                    <span class="field-value">${inspectData.inspector}</span>
+                </div>
+                <div class="field-row">
+                    <span class="field-label">现场照片</span>
+                    <span class="field-value">
+                        <div class="photo-list">
+                            ${inspectData.photos.map((_, i) => `
+                                <div class="photo-thumb" onclick="showToast('查看大图')">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                        <rect x="3" y="3" width="18" height="18" rx="2"/>
+                                        <circle cx="8.5" cy="8.5" r="1.5"/>
+                                        <path d="M21 15l-5-5L5 21"/>
+                                    </svg>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </span>
+                </div>
+            `;
+
+            document.getElementById('inspectInfoBody').innerHTML = html;
+        }
+
+        // ====== 渲染：审核记录时间轴 ======
+        function renderTimeline() {
+            document.getElementById('timelineBody').innerHTML = `
+                <div class="timeline">
+                    ${auditRecords.map((rec, i) => {
+                        const dotCls = getTimelineDotClass(rec.result);
+                        const tagCls = getTimelineTagClass(rec.result);
+                        const icon = getTimelineIcon(rec.result);
+
+                        return `
+                            <div class="timeline-item">
+                                <div class="timeline-dot ${dotCls}">${icon}</div>
+                                <div class="timeline-card">
+                                    <div class="timeline-card-header">
+                                        <span class="timeline-flow">${rec.flow}</span>
+                                        <span class="timeline-result-tag ${tagCls}">${rec.result}</span>
+                                    </div>
+                                    <div class="timeline-meta">
+                                        <span>${rec.auditor}</span>
+                                        <span>${rec.unit}</span>
+                                    </div>
+                                    <div class="timeline-meta">${rec.time}</div>
+                                    ${rec.opinion ? `
+                                        <div class="timeline-opinion">${rec.opinion}</div>
+                                    ` : ''}
+                                    ${rec.changes && rec.changes.length > 0 ? `
+                                        <div class="timeline-changes">
+                                            ${rec.changes.map(c => `
+                                                <span class="change-item">
+                                                    <span class="change-field">"${c.field}"</span>
+                                                    由 <span class="change-old">${c.oldVal}</span>
+                                                    修改为 <span class="change-new">${c.newVal}</span>
+                                                </span>
+                                            `).join('')}
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        }
+
+        function getTimelineDotClass(result) {
+            if (result === '已检查') return 'inspected';
+            if (result === '不通过' || result === '退回') return 'rejected';
+            if (result === '已核实') return 'verified';
+            if (result === '通过' || result === '已通过') return 'approved';
+            return 'inspected';
+        }
+
+        function getTimelineTagClass(result) {
+            if (result === '已检查') return 'info';
+            if (result === '不通过' || result === '退回') return 'reject';
+            if (result === '已核实') return 'verify';
+            if (result === '通过' || result === '已通过') return 'pass';
+            return 'info';
+        }
+
+        function getTimelineIcon(result) {
+            if (result === '已检查') {
+                return '<svg viewBox="0 0 24 24" fill="none" stroke="#0052d9" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>';
+            }
+            if (result === '不通过' || result === '退回') {
+                return '<svg viewBox="0 0 24 24" fill="none" stroke="#d54941" stroke-width="3"><path d="M18 6L6 18M6 6l12 12"/></svg>';
+            }
+            if (result === '已核实') {
+                return '<svg viewBox="0 0 24 24" fill="none" stroke="#e37318" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>';
+            }
+            if (result === '通过' || result === '已通过') {
+                return '<svg viewBox="0 0 24 24" fill="none" stroke="#2ba471" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>';
+            }
+            return '';
+        }
+
+        // ====== 审核结论选择 ======
+        let auditConclusion = ''; // 'pass' | 'reject' | ''
+
+        function selectConclusion(type) {
+            auditConclusion = type;
+            const passEl = document.getElementById('radioPass');
+            const rejectEl = document.getElementById('radioReject');
+            const starEl = document.getElementById('requiredStar');
+
+            passEl.className = 'radio-item' + (type === 'pass' ? ' selected-pass' : '');
+            rejectEl.className = 'radio-item' + (type === 'reject' ? ' selected-reject' : '');
+
+            // 通过时非必填，不通过时必填
+            starEl.classList.toggle('hidden', type !== 'reject');
+
+            // 清除错误状态
+            document.getElementById('auditOpinion').classList.remove('error');
+            document.getElementById('errorTip').classList.remove('show');
+        }
+
+        function onOpinionInput() {
+            const textarea = document.getElementById('auditOpinion');
+            textarea.classList.remove('error');
+            document.getElementById('errorTip').classList.remove('show');
+        }
+
+        // ====== 弹窗控制 ======
+        function openTimeline() {
+            renderTimeline();
+            document.getElementById('timelineOverlay').classList.add('show');
+        }
+
+        function closeTimeline() {
+            document.getElementById('timelineOverlay').classList.remove('show');
+        }
+
+        // ====== 提交审核 ======
+        function handleSubmit() {
+            if (!auditConclusion) {
+                showToast('请选择审核结论');
+                return;
+            }
+
+            const opinion = document.getElementById('auditOpinion').value.trim();
+
+            if (auditConclusion === 'reject' && !opinion) {
+                document.getElementById('auditOpinion').classList.add('error');
+                document.getElementById('errorTip').classList.add('show');
+                return;
+            }
+
+            const conclusionText = auditConclusion === 'pass' ? '通过' : '不通过';
+
+            if (window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'formSubmitted',
+                    data: {
+                        houseId: houseId,
+                        conclusion: conclusionText,
+                        opinion: opinion
+                    }
+                }, '*');
+            } else {
+                showToast('审核已提交：' + conclusionText);
+            }
+        }
+
+        // ====== 导航 ======
+        function navigateBack() {
+            if (window.parent !== window) {
+                window.parent.postMessage({ type: 'navigateBack' }, '*');
+            } else {
+                window.history.back();
+            }
+        }
+
+        // ====== Toast ======
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 2000);
+        }
+
+        // ====== 全局提示浮层 ======
+        let tipTimer = null;
+        function showGlobalTip(el) {
+            clearTimeout(tipTimer);
+            const tip = document.getElementById('globalTip');
+            const text = el.getAttribute('data-tip');
+            if (!text) return;
+            tip.textContent = text;
+            tip.className = 'global-tip';
+
+            const rect = el.getBoundingClientRect();
+            const gap = 8;
+
+            // 先临时显示以获取尺寸
+            tip.style.visibility = 'hidden';
+            tip.className = 'global-tip show';
+            const tipH = tip.offsetHeight;
+            const tipW = tip.offsetWidth;
+
+            // 判断上方空间是否足够
+            const showAbove = rect.top > tipH + gap + 10;
+
+            let left = rect.left + rect.width / 2 - tipW / 2;
+            if (left < 8) left = 8;
+            if (left + tipW > window.innerWidth - 8) left = window.innerWidth - tipW - 8;
+
+            const top = showAbove ? rect.top - tipH - gap : rect.bottom + gap;
+            const arrow = showAbove ? 'arrow-bottom' : 'arrow-top';
+
+            tip.style.left = left + 'px';
+            tip.style.top = top + 'px';
+            tip.style.visibility = '';
+            tip.className = 'global-tip show ' + arrow;
+
+            tipTimer = setTimeout(() => { tip.className = 'global-tip'; }, 2500);
+        }
+
+        document.addEventListener('click', function(e) {
+            if (!e.target.classList.contains('verified-icon')) {
+                const tip = document.getElementById('globalTip');
+                if (tip) tip.className = 'global-tip';
+            }
+        }, true);
+
+        // ====== 初始化 ======
+        renderBasicInfo();
+        renderInspectInfo();
+
+        // ====== iframe 检测 ======
+        if (window.parent !== window) {
+            document.documentElement.classList.add('in-iframe');
+        }
+    </script>
+</body>
+</html>
