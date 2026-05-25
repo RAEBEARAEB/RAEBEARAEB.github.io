@@ -1,0 +1,2206 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>自建房安全检查小程序 - 演示原型</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* 手机外壳模拟 */
+        .phone-frame {
+            background: #fff;
+            border-radius: 40px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3), 0 0 0 8px #2d3436;
+            overflow: hidden;
+            max-width: 400px;
+            margin: 0 auto;
+            position: relative;
+            min-height: 800px;
+        }
+
+        /* 顶部状态栏 */
+        .status-bar {
+            background: #fff;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #333;
+        }
+
+        /* 导航栏 */
+        .navbar {
+            background: #fff;
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .navbar h2 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        /* 步骤条 */
+        .steps-container {
+            background: #fff;
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .steps {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .steps::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            right: 20px;
+            height: 2px;
+            background: #e0e0e0;
+            z-index: 0;
+        }
+
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+            flex: 1;
+        }
+
+        .step-circle {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #fff;
+            transition: all 0.3s ease;
+        }
+
+        .step.active .step-circle {
+            background: #1890ff;
+            transform: scale(1.1);
+        }
+
+        .step.completed .step-circle {
+            background: #52c41a;
+        }
+
+        .step-label {
+            font-size: 12px;
+            color: #999;
+            margin-top: 8px;
+        }
+
+        .step.active .step-label {
+            color: #1890ff;
+            font-weight: 600;
+        }
+
+        /* 主内容区 */
+        .content-area {
+            background: #f5f5f5;
+            min-height: 500px;
+            padding-bottom: 80px;
+        }
+
+        /* 单元格组 */
+        .cell-group {
+            background: #fff;
+            margin-bottom: 12px;
+        }
+
+        .cell-group-title {
+            padding: 12px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            background: #fafafa;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .cell {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            border-bottom: 1px solid #f0f0f0;
+            min-height: 50px;
+        }
+
+        .cell:last-child {
+            border-bottom: none;
+        }
+
+        .cell-title {
+            flex-shrink: 1;
+            font-size: 14px;
+            color: #333;
+            padding-right: 12px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            max-width: 180px;
+            line-height: 1.5;
+        }
+
+        .cell-title.required::before {
+            content: '*';
+            color: #ff4d4f;
+            margin-right: 4px;
+        }
+
+        .cell-content {
+            flex: 1;
+            text-align: right;
+            min-width: 0;
+        }
+
+        /* 输入控件样式 */
+        input[type="text"],
+        input[type="number"],
+        input[type="tel"],
+        input[type="date"],
+        select {
+            width: 100%;
+            border: none;
+            outline: none;
+            font-size: 14px;
+            color: #333;
+            background: transparent;
+        }
+
+        input::placeholder,
+        select:invalid {
+            color: #bfbfbf;
+        }
+
+        /* 单选按钮组 */
+        .radio-group {
+            display: flex;
+            gap: 16px;
+        }
+
+        .radio-item {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .radio-item input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            margin-right: 6px;
+            accent-color: #1890ff;
+        }
+
+        .radio-item span {
+            font-size: 14px;
+            color: #333;
+        }
+
+        /* 下拉选择器按钮 */
+        .picker-btn {
+            background: #fafafa;
+            border: 1px solid #d9d9d9;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 14px;
+            color: #333;
+            cursor: pointer;
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .picker-btn.empty {
+            color: #bfbfbf;
+        }
+
+        /* 上传组件 */
+        .upload-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: flex-start;
+        }
+
+        .upload-add {
+            width: 80px;
+            height: 80px;
+            border: 2px dashed #d9d9d9;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upload-add:hover {
+            border-color: #1890ff;
+            background: #f0f5ff;
+        }
+
+        .upload-add-icon {
+            font-size: 24px;
+            color: #999;
+        }
+
+        .upload-add-text {
+            font-size: 12px;
+            color: #999;
+            margin-top: 4px;
+        }
+
+        .upload-file {
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .upload-file img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .upload-delete {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            width: 18px;
+            height: 18px;
+            background: rgba(0,0,0,0.5);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        /* 底部操作栏 */
+        .footer-actions {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 400px;
+            background: #fff;
+            padding: 12px 16px;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 12px;
+            z-index: 100;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .btn-primary {
+            background: #1890ff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #40a9ff;
+        }
+
+        .btn-default {
+            background: #fff;
+            color: #333;
+            border: 1px solid #d9d9d9;
+        }
+
+        .btn-default:hover {
+            background: #fafafa;
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #666;
+            border: 1px solid #d9d9d9;
+        }
+
+        /* 提示信息 */
+        .info-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            margin: 12px;
+            border-radius: 12px;
+        }
+
+        .info-row {
+            display: flex;
+            margin-bottom: 10px;
+        }
+
+        .info-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-label {
+            width: 100px;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .info-value {
+            flex: 1;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* 警告提示 */
+        .warning-tip {
+            background: #fff7e6;
+            border: 1px solid #ffd591;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .warning-tip-icon {
+            font-size: 24px;
+        }
+
+        .warning-tip-text {
+            flex: 1;
+            font-size: 14px;
+            color: #d48806;
+        }
+
+        /* 结论卡片 */
+        .conclusion-card {
+            background: #fff;
+            margin: 12px;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .conclusion-header {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 12px;
+        }
+
+        .conclusion-content {
+            text-align: center;
+            padding: 16px;
+            background: #fafafa;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .conclusion-tag {
+            display: inline-block;
+            padding: 8px 24px;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .conclusion-tag.safe {
+            background: #f6ffed;
+            color: #52c41a;
+            border: 1px solid #b7eb8f;
+        }
+
+        .conclusion-tag.risk {
+            background: #fff2f0;
+            color: #ff4d4f;
+            border: 1px solid #ffccc7;
+        }
+
+        .conclusion-note {
+            font-size: 12px;
+            color: #999;
+            text-align: center;
+        }
+
+        /* 风险等级标签 */
+        .risk-tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-top: 8px;
+        }
+
+        .risk-tag-a { background: #f6ffed; color: #52c41a; }
+        .risk-tag-b { background: #fff7e6; color: #faad14; }
+        .risk-tag-c { background: #fff2f0; color: #ff4d4f; }
+        .risk-tag-d { background: #3f1d1d; color: #ff4d4f; }
+
+        /* 模态框 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 360px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-footer {
+            padding: 12px 20px;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            gap: 12px;
+        }
+
+        /* Toast 提示 */
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.75);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 2000;
+            display: none;
+        }
+
+        .toast.show {
+            display: block;
+        }
+
+        /* 地址定位按钮 */
+        .address-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .locate-btn {
+            background: #1890ff;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        /* 隐藏元素 */
+        .hidden {
+            display: none !important;
+        }
+
+        /* 页面切换动画 */
+        .page {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* 外挑阳台特殊样式 */
+        .balcony-warning {
+            background: #fffbe6;
+            border: 1px solid #ffe58f;
+            border-radius: 6px;
+            padding: 12px;
+            margin-top: 8px;
+            font-size: 12px;
+            color: #d48806;
+        }
+
+        /* 危险项高亮 */
+        .danger-field {
+            background: #fff2f0;
+        }
+
+        /* ====== iframe 嵌入模式适配 ====== */
+        html.in-iframe body {
+            background: #f5f5f5;
+            padding: 0;
+            min-height: 100vh;
+        }
+        html.in-iframe .container {
+            max-width: none;
+            margin: 0;
+            min-height: 100vh;
+        }
+        html.in-iframe .phone-frame {
+            border-radius: 0;
+            box-shadow: none;
+            max-width: none;
+            margin: 0;
+            min-height: 100vh;
+            overflow: visible;
+        }
+        html.in-iframe .status-bar {
+            display: none;
+        }
+        html.in-iframe .footer-actions {
+            max-width: none;
+            left: 0;
+            transform: none;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="phone-frame">
+            <!-- 状态栏 -->
+            <div class="status-bar">
+                <span>9:41</span>
+                <span>📶 📡 🔋</span>
+            </div>
+
+            <!-- 导航栏 -->
+            <div class="navbar">
+                <button class="nav-btn" onclick="goBack()">←</button>
+                <h2>新增安全检查</h2>
+                <button class="nav-btn">···</button>
+            </div>
+
+            <!-- 步骤条 -->
+            <div class="steps-container">
+                <div class="steps">
+                    <div class="step active" id="step1-indicator">
+                        <div class="step-circle">1</div>
+                        <div class="step-label">基础信息</div>
+                    </div>
+                    <div class="step" id="step2-indicator">
+                        <div class="step-circle">2</div>
+                        <div class="step-label">使用信息</div>
+                    </div>
+                    <div class="step" id="step3-indicator">
+                        <div class="step-circle">3</div>
+                        <div class="step-label">周边环境</div>
+                    </div>
+                    <div class="step" id="step4-indicator">
+                        <div class="step-circle">4</div>
+                        <div class="step-label">整治情况</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 主内容区 -->
+            <div class="content-area">
+                <!-- 步骤 1：房屋基础信息 -->
+                <div id="page-step1" class="page active">
+                    <!-- 顶部只读信息 -->
+                    <div class="info-card">
+                        <div class="info-row">
+                            <span class="info-label">检查人：</span>
+                            <span class="info-value">张三（安全巡查员）</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">检查日期：</span>
+                            <span class="info-value">2026 年 04 月 10 日</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">检查单位：</span>
+                            <span class="info-value">XX 街道安全办</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">检查区域：</span>
+                            <span class="info-value">XX 社区</span>
+                        </div>
+                    </div>
+
+                    <!-- 基本信息 -->
+                    <div class="cell-group">
+                        <div class="cell-group-title">是否为自建房</div>
+                        <div class="cell">
+                            <div class="cell-title required"></div>
+                            <div class="cell-content radio-group">
+                                <label class="radio-item">
+                                    <input type="radio" name="isSelfBuild" value="是" checked onchange="updateForm('basic', 'isSelfBuild', '是')">
+                                    <span>是</span>
+                                </label>
+                                <label class="radio-item">
+                                    <input type="radio" name="isSelfBuild" value="否" onchange="updateForm('basic', 'isSelfBuild', '否'); updateBusinessSelfBuild()">
+                                    <span>否</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 房屋信息 -->
+                    <div class="cell-group">
+                        <div class="cell-group-title">房屋基本信息</div>
+                        <div class="cell">
+                            <div class="cell-title required">房屋名称</div>
+                            <div class="cell-content">
+                                <input type="text" placeholder="请输入房屋名称" id="houseName" oninput="updateForm('basic', 'houseName', this.value)">
+                            </div>
+                        </div>
+                        <div class="cell">
+                            <div class="cell-title required">所属区域</div>
+                            <div class="cell-content">
+                                <input type="text" placeholder="请输入所属区域" id="belongArea" oninput="updateForm('basic', 'belongArea', this.value)">
+                            </div>
+                        </div>
+                        <div class="cell">
+                            <div class="cell-title required">房屋地址</div>
+                            <div class="cell-content address-wrapper">
+                                <input type="text" placeholder="手动输入地址" id="houseAddress" style="flex:1;" oninput="updateForm('basic', 'houseAddress', this.value)">
+                                <button class="locate-btn" onclick="simulateLocate()">📍定位</button>
+                            </div>
+                        </div>
+                        <div class="cell">
+                            <div class="cell-title required">可否正常开展安全检查</div>
+                            <div class="cell-content">
+                                <select id="canInspect" onchange="updateForm('basic', 'canInspect', this.value); handleCanInspectChange(this.value)">
+                                    <option value="">请选择</option>
+                                    <option value="是">是</option>
+                                    <option value="否">否</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 责任人信息 -->
+                    <div class="cell-group">
+                        <div class="cell-group-title">房屋安全责任人信息</div>
+                        <div class="cell">
+                            <div class="cell-title required">房屋安全责任人</div>
+                            <div class="cell-content">
+                                <input type="text" placeholder="姓名" id="safetyResponsible" oninput="updateForm('basic', 'safetyResponsible', this.value)">
+                            </div>
+                        </div>
+                        <div class="cell">
+                            <div class="cell-title required">责任人联系电话</div>
+                            <div class="cell-content">
+                                <input type="tel" placeholder="请输入 11 位手机号" maxlength="11" id="safetyPhone" oninput="updateForm('basic', 'safetyPhone', this.value)">
+                            </div>
+                        </div>
+                        <div class="cell">
+                            <div class="cell-title required">行业主管部门及联系方式</div>
+                            <div class="cell-content">
+                                <input type="text" placeholder="请输入" id="industryDept" oninput="updateForm('basic', 'industryDept', this.value)">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 产权信息 -->
+                    <div class="cell-group">
+                        <div class="cell-group-title">产权信息</div>
+                        <div class="cell">
+                            <div class="cell-title required">有无产权登记</div>
+                            <div class="cell-content radio-group">
+                                <label class="radio-item">
+                                    <input type="radio" name="hasPropertyReg" value="是" onchange="updateForm('basic', 'hasPropertyReg', '是')">
+                                    <span>是</span>
+                                </label>
+                                <label class="radio-item">
+                                    <input type="radio" name="hasPropertyReg" value="否" onchange="updateForm('basic', 'hasPropertyReg', '否')">
+                                    <span>否</span>
+                                </label>
+                                <label class="radio-item">
+                                    <input type="radio" name="hasPropertyReg" value="其他" onchange="updateForm('basic', 'hasPropertyReg', '其他')">
+                                    <span>其他</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="cell">
+                            <div class="cell-title required">产权人（使用人）姓名</div>
+                            <div class="cell-content">
+                                <input type="text" placeholder="姓名" id="ownerName" oninput="updateForm('basic', 'ownerName', this.value)">
+                            </div>
+                        </div>
+                        <div class="cell">
+                            <div class="cell-title required">身份证号</div>
+                            <div class="cell-content">
+                                <input type="text" placeholder="请输入身份证号" maxlength="18" id="ownerIdCard" oninput="updateForm('basic', 'ownerIdCard', this.value)">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 建筑信息 -->
+                    <div class="cell-group">
+                        <div class="cell-group-title">建筑信息</div>
+                        <div class="cell">
+                            <div class="cell-title required">土地性质</div>
+                            <div class="cell-content radio-group">
+                                <label class="radio-item">
+                                    <input type="radio" name="landNature" value="国有用地" onchange="updateForm('basic', 'landNature', '国有用地')">
+                                    <span>国有用地</span>
+                                </label>
+                                <label class="radio-item">
+                                    <input type="radio" name="landNature" value="集体用地" onchange="updateForm('basic', 'landNature', '集体用地')">
+                                    <span>集体用地</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="cell">
+                            <div class="cell-title required">所在区域</div>
+                            <div class="cell-content">
+                                <select id="locationArea" onchange="updateForm('basic', 'locationArea', this.value)">
+                                    <option value="">请选择</option>
+                                    <option value="城区">城区</option>
+                                    <option value="郊区">郊区</option>
+                                    <option value="农村">农村</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="cell">
+                            <div class="cell-title required">建造方式</div>
+                            <div class="cell-content">
+                                <select id="buildMethod" onchange="updateForm('basic', 'buildMethod', this.value)">
+                                    <option value="">请选择</option>
+                                    <option value="自建">自建</option>
+                                    <option value="委托建设">委托建设</option>
+                                    <option value="其他">其他</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="cell">
+                            <div class="cell-title required">设计方式</div>
+                            <div class="cell-content">
+                                <select id="designMethod" onchange="updateForm('basic', 'designMethod', this.value)">
+                                    <option value="">请选择</option>
+                                    <option value="自行设计">自行设计</option>
+                                    <option value="委托设计">委托设计</option>
+                                    <option value="无设计">无设计</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="cell">
+                            <div class="cell-title required">结构类型</div>
+                            <div class="cell-content">
+                                <select id="structureType" onchange="updateForm('basic', 'structureType', this.value)">
+                                    <option value="">请选择</option>
+                                    <option value="砖混结构">砖混结构</option>
+                                    <option value="框架结构">框架结构</option>
+                                    <option value="钢结构">钢结构</option>
+                                    <option value="砖木结构">砖木结构</option>
+                                    <option value="土木结构">土木结构</option>
+                                    <option value="其他">其他</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="cell">
+                            <div class="cell-title required">使用功能</div>
+                            <div class="cell-content">
+                                <select id="usageFunction" onchange="updateForm('basic', 'usageFunction', this.value)">
+                                    <option value="">请选择</option>
+                                    <option value="住宅">住宅</option>
+                                    <option value="商业">商业</option>
+                                    <option value="办公">办公</option>
+                                    <option value="仓储">仓储</option>
+                                    <option value="其他">其他</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="cell">
+                            <div class="cell-title required">房屋地上层数</div>
+                            <div class="cell-content">
+                                <input type="number" placeholder="请输入" id="groundFloors" oninput="updateForm('basic', 'groundFloors', this.value)">
+                            </div>
+                        </div>
+                        <div class="cell">
+                            <div class="cell-title">房屋地下层数</div>
+                            <div class="cell-content">
+                                <input type="number" placeholder="可选填" id="undergroundFloors" oninput="updateForm('basic', 'undergroundFloors', this.value)">
+                            </div>
+                        </div>
+                        <div class="cell">
+                            <div class="cell-title required">建筑面积 (平方米)</div>
+                            <div class="cell-content">
+                                <input type="number" placeholder="请输入" id="buildingArea" oninput="updateForm('basic', 'buildingArea', this.value)">
+                            </div>
+                        </div>
+                        <div class="cell">
+                            <div class="cell-title required">建筑高度 (米)</div>
+                            <div class="cell-content">
+                                <input type="number" placeholder="请输入" id="buildingHeight" oninput="updateForm('basic', 'buildingHeight', this.value)">
+                            </div>
+                        </div>
+                        <div class="cell">
+                            <div class="cell-title required">栋数</div>
+                            <div class="cell-content">
+                                <input type="number" placeholder="请输入" id="buildingCount" oninput="updateForm('basic', 'buildingCount', this.value)">
+                            </div>
+                        </div>
+                        <div class="cell">
+                            <div class="cell-title required">楼层数</div>
+                            <div class="cell-content">
+                                <input type="number" placeholder="请输入" id="floorCount" oninput="updateForm('basic', 'floorCount', this.value)">
+                            </div>
+                        </div>
+                        <div class="cell">
+                            <div class="cell-title required">使用人数</div>
+                            <div class="cell-content">
+                                <input type="number" placeholder="请输入" id="userCount" oninput="updateForm('basic', 'userCount', this.value)">
+                            </div>
+                        </div>
+                        <div class="cell">
+                            <div class="cell-title required">户数</div>
+                            <div class="cell-content">
+                                <input type="number" placeholder="请输入" id="householdCount" oninput="updateForm('basic', 'householdCount', this.value)">
+                            </div>
+                        </div>
+                        <div class="cell">
+                            <div class="cell-title">套数</div>
+                            <div class="cell-content">
+                                <input type="number" placeholder="可选填" id="suiteCount" oninput="updateForm('basic', 'suiteCount', this.value)">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 建设信息 -->
+                    <div class="cell-group">
+                        <div class="cell-group-title">建设信息</div>
+                        <div class="cell">
+                            <div class="cell-title required">建成日期</div>
+                            <div class="cell-content">
+                                <input type="date" id="buildDate" oninput="updateForm('basic', 'buildDate', this.value)">
+                            </div>
+                        </div>
+                        <div class="cell">
+                            <div class="cell-title">设计时间</div>
+                            <div class="cell-content">
+                                <input type="date" id="designDate" oninput="updateForm('basic', 'designDate', this.value)">
+                            </div>
+                        </div>
+                        <div class="cell">
+                            <div class="cell-title">设计单位</div>
+                            <div class="cell-content">
+                                <input type="text" placeholder="可选填" id="designUnit" oninput="updateForm('basic', 'designUnit', this.value)">
+                            </div>
+                        </div>
+                        <div class="cell">
+                            <div class="cell-title">施工单位</div>
+                            <div class="cell-content">
+                                <input type="text" placeholder="可选填" id="constructionUnit" oninput="updateForm('basic', 'constructionUnit', this.value)">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 物业信息 -->
+                    <div class="cell-group">
+                        <div class="cell-group-title">物业管理信息</div>
+                        <div class="cell">
+                            <div class="cell-title">物业管理单位</div>
+                            <div class="cell-content">
+                                <input type="text" placeholder="可选填" id="propertyUnit" oninput="updateForm('basic', 'propertyUnit', this.value)">
+                            </div>
+                        </div>
+                        <div class="cell">
+                            <div class="cell-title">物业联系人</div>
+                            <div class="cell-content">
+                                <input type="text" placeholder="可选填" id="propertyContact" oninput="updateForm('basic', 'propertyContact', this.value)">
+                            </div>
+                        </div>
+                        <div class="cell">
+                            <div class="cell-title">物业联系方式</div>
+                            <div class="cell-content">
+                                <input type="tel" placeholder="可选填" maxlength="11" id="propertyPhone" oninput="updateForm('basic', 'propertyPhone', this.value)">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 资料信息 -->
+                    <div class="cell-group">
+                        <div class="cell-group-title">资料信息</div>
+                        <div class="cell">
+                            <div class="cell-title">设计图纸</div>
+                            <div class="cell-content">
+                                <select id="hasDrawing" onchange="updateForm('basic', 'hasDrawing', this.value)">
+                                    <option value="">请选择</option>
+                                    <option value="有">有</option>
+                                    <option value="无">无</option>
+                                    <option value="部分">部分</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="cell">
+                            <div class="cell-title">建设资料</div>
+                            <div class="cell-content">
+                                <div class="upload-area" id="constructionFiles">
+                                    <div class="upload-add" onclick="handleFileUpload('constructionFiles', event)">
+                                        <span class="upload-add-icon">＋</span>
+                                        <span class="upload-add-text">上传资料</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cell">
+                            <div class="cell-title">其他资料</div>
+                            <div class="cell-content">
+                                <div class="upload-area" id="otherFiles">
+                                    <div class="upload-add" onclick="handleFileUpload('otherFiles', event)">
+                                        <span class="upload-add-icon">＋</span>
+                                        <span class="upload-add-text">上传资料</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cell">
+                            <div class="cell-title required">消防审批手续是否办理</div>
+                            <div class="cell-content radio-group">
+                                <label class="radio-item">
+                                    <input type="radio" name="hasFireApproval" value="是" onchange="updateForm('basic', 'hasFireApproval', '是')">
+                                    <span>是</span>
+                                </label>
+                                <label class="radio-item">
+                                    <input type="radio" name="hasFireApproval" value="否" onchange="updateForm('basic', 'hasFireApproval', '否')">
+                                    <span>否</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 步骤 2：房屋使用信息 -->
+                <div id="page-step2" class="page">
+                    <div id="cannotInspectWarning" class="warning-tip hidden">
+                        <span class="warning-tip-icon">⚠️</span>
+                        <span class="warning-tip-text">无法正常开展安全检查，以下步骤无需填写</span>
+                    </div>
+
+                    <div id="step2Content">
+                        <!-- 房屋使用情况 -->
+                        <div class="cell-group">
+                            <div class="cell-group-title">房屋使用情况</div>
+                            <div class="cell">
+                                <div class="cell-title required">1、房屋是否业主自用</div>
+                                <div class="cell-content radio-group">
+                                    <label class="radio-item">
+                                        <input type="radio" name="isOwnerUse" value="是" onchange="updateForm('usage', 'isOwnerUse', '是')">
+                                        <span>是</span>
+                                    </label>
+                                    <label class="radio-item">
+                                        <input type="radio" name="isOwnerUse" value="否" onchange="updateForm('usage', 'isOwnerUse', '否'); updateBusinessSelfBuild()">
+                                        <span>否</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="cell">
+                                <div class="cell-title required">是否为经营性自建房</div>
+                                <div class="cell-content radio-group">
+                                    <label class="radio-item" id="businessYesItem">
+                                        <input type="radio" name="isBusinessSelfBuild" value="是" onchange="updateForm('usage', 'isBusinessSelfBuild', '是')" disabled>
+                                        <span>是</span>
+                                    </label>
+                                    <label class="radio-item">
+                                        <input type="radio" name="isBusinessSelfBuild" value="否" checked onchange="updateForm('usage', 'isBusinessSelfBuild', '否')">
+                                        <span>否</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="cell">
+                                <div class="cell-title required">2、房屋用途是否发生改变</div>
+                                <div class="cell-content radio-group">
+                                    <label class="radio-item">
+                                        <input type="radio" name="usageChanged" value="是" onchange="updateForm('usage', 'usageChanged', '是'); toggleField('changedUsageSection')">
+                                        <span>是</span>
+                                    </label>
+                                    <label class="radio-item">
+                                        <input type="radio" name="usageChanged" value="否" checked onchange="updateForm('usage', 'usageChanged', '否'); toggleField('changedUsageSection'); recalculateConclusion()">
+                                        <span>否</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <!-- 改变后用途（联动显示） -->
+                            <div class="cell hidden" id="changedUsageSection">
+                                <div class="cell-title required">改变后用途</div>
+                                <div class="cell-content">
+                                    <select id="changedUsage" onchange="updateForm('usage', 'changedUsage', this.value); recalculateConclusion()">
+                                        <option value="">请选择</option>
+                                        <option value="商业经营">商业经营</option>
+                                        <option value="仓储物流">仓储物流</option>
+                                        <option value="餐饮服务">餐饮服务</option>
+                                        <option value="住宿服务">住宿服务</option>
+                                        <option value="其他">其他</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 改扩建信息 -->
+                        <div class="cell-group">
+                            <div class="cell-group-title">改扩建情况</div>
+                            <div class="cell">
+                                <div class="cell-title required">3、房屋是否改扩建</div>
+                                <div class="cell-content radio-group">
+                                    <label class="radio-item">
+                                        <input type="radio" name="hasExtension" value="是" onchange="updateForm('usage', 'hasExtension', '是'); toggleField('extensionSection')">
+                                        <span>是</span>
+                                    </label>
+                                    <label class="radio-item">
+                                        <input type="radio" name="hasExtension" value="否" checked onchange="updateForm('usage', 'hasExtension', '否'); toggleField('extensionSection')">
+                                        <span>否</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <!-- 改扩建详情（联动显示） -->
+                            <div class="cell hidden" id="extensionSection">
+                                <div class="cell-title required">房屋改扩建次数</div>
+                                <div class="cell-content">
+                                    <input type="number" placeholder="请输入" id="extensionCount" oninput="updateForm('usage', 'extensionCount', this.value)">
+                                </div>
+                            </div>
+                            <div class="cell hidden" id="extensionSection">
+                                <div class="cell-title required">改扩建内容</div>
+                                <div class="cell-content">
+                                    <select id="extensionContent" onchange="updateForm('usage', 'extensionContent', this.value)">
+                                        <option value="">请选择</option>
+                                        <option value="加层">加层</option>
+                                        <option value="扩建">扩建</option>
+                                        <option value="改建">改建</option>
+                                        <option value="其他">其他</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="cell hidden" id="extensionSection">
+                                <div class="cell-title required">现场拍照（改扩建）</div>
+                                <div class="cell-content">
+                                    <div class="upload-area" id="extensionPhotos">
+                                        <div class="upload-add" onclick="handleFileUpload('extensionPhotos', event)">
+                                            <span class="upload-add-icon">＋</span>
+                                            <span class="upload-add-text">拍摄照片</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 结构损伤 -->
+                        <div class="cell-group">
+                            <div class="cell-group-title">结构损伤情况</div>
+                            <div class="cell">
+                                <div class="cell-title required">4、房屋主要构件是否有明显裂缝</div>
+                                <div class="cell-content radio-group">
+                                    <label class="radio-item">
+                                        <input type="radio" name="hasCrack" value="是" onchange="updateForm('usage', 'hasCrack', '是')">
+                                        <span>是</span>
+                                    </label>
+                                    <label class="radio-item">
+                                        <input type="radio" name="hasCrack" value="否" checked onchange="updateForm('usage', 'hasCrack', '否')">
+                                        <span>否</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="cell">
+                                <div class="cell-title required">5、是否有结构损伤情况</div>
+                                <div class="cell-content radio-group">
+                                    <label class="radio-item">
+                                        <input type="radio" name="hasDamage" value="有变形损伤" onchange="updateForm('usage', 'hasDamage', '有变形损伤'); toggleField('damageSection'); recalculateConclusion()">
+                                        <span>有变形损伤</span>
+                                    </label>
+                                    <label class="radio-item">
+                                        <input type="radio" name="hasDamage" value="无变形损伤" checked onchange="updateForm('usage', 'hasDamage', '无变形损伤'); toggleField('damageSection'); recalculateConclusion()">
+                                        <span>无变形损伤</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <!-- 损伤详情（联动显示） -->
+                            <div class="cell hidden" id="damageSection">
+                                <div class="cell-title required">损伤部位</div>
+                                <div class="cell-content">
+                                    <select id="damageLocation" onchange="updateForm('usage', 'damageLocation', this.value)">
+                                        <option value="">请选择</option>
+                                        <option value="墙体">墙体</option>
+                                        <option value="梁柱">梁柱</option>
+                                        <option value="楼板">楼板</option>
+                                        <option value="屋面">屋面</option>
+                                        <option value="其他">其他</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="cell hidden" id="damageSection">
+                                <div class="cell-title">问题类型（损伤）</div>
+                                <div class="cell-content">
+                                    <select id="damageType" onchange="updateForm('usage', 'damageType', this.value)">
+                                        <option value="">请选择</option>
+                                        <option value="裂缝">裂缝</option>
+                                        <option value="变形">变形</option>
+                                        <option value="剥落">剥落</option>
+                                        <option value="其他">其他</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="cell hidden" id="damageSection">
+                                <div class="cell-title required">现场拍照（损伤）</div>
+                                <div class="cell-content">
+                                    <div class="upload-area" id="damagePhotos">
+                                        <div class="upload-add" onclick="handleFileUpload('damagePhotos', event)">
+                                            <span class="upload-add-icon">＋</span>
+                                            <span class="upload-add-text">拍摄照片</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="cell hidden" id="damageSection">
+                                <div class="cell-title">现场拍照（损伤补充）</div>
+                                <div class="cell-content">
+                                    <div class="upload-area" id="damagePhotosExtra">
+                                        <div class="upload-add" onclick="handleFileUpload('damagePhotosExtra', event)">
+                                            <span class="upload-add-icon">＋</span>
+                                            <span class="upload-add-text">补充拍照</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 安全判定 -->
+                        <div class="cell-group">
+                            <div class="cell-group-title">安全判定</div>
+                            <div class="cell">
+                                <div class="cell-title required">6、初步判定</div>
+                                <div class="cell-content">
+                                    <select id="preliminaryJudge" onchange="updateForm('usage', 'preliminaryJudge', this.value)">
+                                        <option value="">请选择</option>
+                                        <option value="暂未发现安全隐患">暂未发现安全隐患</option>
+                                        <option value="存在安全隐患">存在安全隐患</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="cell">
+                                <div class="cell-title required">7、安全鉴定</div>
+                                <div class="cell-content radio-group">
+                                    <label class="radio-item">
+                                        <input type="radio" name="hasSafetyInspection" value="是" onchange="updateForm('usage', 'hasSafetyInspection', '是'); toggleField('inspectionSection')">
+                                        <span>是</span>
+                                    </label>
+                                    <label class="radio-item">
+                                        <input type="radio" name="hasSafetyInspection" value="否" checked onchange="updateForm('usage', 'hasSafetyInspection', '否'); toggleField('inspectionSection')">
+                                        <span>否</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <!-- 鉴定详情（联动显示） -->
+                            <div class="cell hidden" id="inspectionSection">
+                                <div class="cell-title required">鉴定结论</div>
+                                <div class="cell-content">
+                                    <select id="inspectionResult" onchange="updateForm('usage', 'inspectionResult', this.value); showRiskTag()">
+                                        <option value="">请选择</option>
+                                        <option value="A">A 级（安全）</option>
+                                        <option value="B">B 级（基本安全）</option>
+                                        <option value="C">C 级（限制使用）</option>
+                                        <option value="D">D 级（危险）</option>
+                                    </select>
+                                    <div id="riskTagDisplay"></div>
+                                </div>
+                            </div>
+                            <div class="cell hidden" id="inspectionSection">
+                                <div class="cell-title required">鉴定机构名称</div>
+                                <div class="cell-content">
+                                    <input type="text" placeholder="请输入" id="inspectionOrg" oninput="updateForm('usage', 'inspectionOrg', this.value)">
+                                </div>
+                            </div>
+                            <div class="cell hidden" id="inspectionSection">
+                                <div class="cell-title required">鉴定时间</div>
+                                <div class="cell-content">
+                                    <input type="date" id="inspectionTime" oninput="updateForm('usage', 'inspectionTime', this.value)">
+                                </div>
+                            </div>
+                            <div class="cell">
+                                <div class="cell-title required">8、整栋房屋是否有倾斜沉降等异常</div>
+                                <div class="cell-content radio-group">
+                                    <label class="radio-item">
+                                        <input type="radio" name="hasTiltSettlement" value="是" onchange="updateForm('usage', 'hasTiltSettlement', '是'); toggleField('tiltSection'); recalculateConclusion()">
+                                        <span>是</span>
+                                    </label>
+                                    <label class="radio-item">
+                                        <input type="radio" name="hasTiltSettlement" value="否" checked onchange="updateForm('usage', 'hasTiltSettlement', '否'); toggleField('tiltSection'); recalculateConclusion()">
+                                        <span>否</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <!-- 倾斜详情（联动显示） -->
+                            <div class="cell hidden" id="tiltSection">
+                                <div class="cell-title">问题类型（倾斜）</div>
+                                <div class="cell-content">
+                                    <select id="tiltType" onchange="updateForm('usage', 'tiltType', this.value)">
+                                        <option value="">请选择</option>
+                                        <option value="整体倾斜">整体倾斜</option>
+                                        <option value="局部倾斜">局部倾斜</option>
+                                        <option value="沉降">沉降</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="cell hidden" id="tiltSection">
+                                <div class="cell-title required">现场拍照（倾斜）</div>
+                                <div class="cell-content">
+                                    <div class="upload-area" id="tiltPhotos">
+                                        <div class="upload-add" onclick="handleFileUpload('tiltPhotos', event)">
+                                            <span class="upload-add-icon">＋</span>
+                                            <span class="upload-add-text">拍摄照片</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 装修与结构 -->
+                        <div class="cell-group">
+                            <div class="cell-group-title">装修与结构改动</div>
+                            <div class="cell">
+                                <div class="cell-title required">9、房屋是否正进行装修</div>
+                                <div class="cell-content radio-group">
+                                    <label class="radio-item">
+                                        <input type="radio" name="isDecorating" value="是" onchange="updateForm('usage', 'isDecorating', '是'); toggleField('decorationSection')">
+                                        <span>是</span>
+                                    </label>
+                                    <label class="radio-item">
+                                        <input type="radio" name="isDecorating" value="否" checked onchange="updateForm('usage', 'isDecorating', '否'); toggleField('decorationSection'); recalculateConclusion()">
+                                        <span>否</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <!-- 装修详情（联动显示） -->
+                            <div class="cell hidden" id="decorationSection">
+                                <div class="cell-title required">装修是否改变主体结构</div>
+                                <div class="cell-content radio-group">
+                                    <label class="radio-item">
+                                        <input type="radio" name="decorationChangeStructure" value="是" onchange="updateForm('usage', 'decorationChangeStructure', '是'); recalculateConclusion()">
+                                        <span>是</span>
+                                    </label>
+                                    <label class="radio-item">
+                                        <input type="radio" name="decorationChangeStructure" value="否" onchange="updateForm('usage', 'decorationChangeStructure', '否'); recalculateConclusion()">
+                                        <span>否</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="cell hidden" id="decorationSection">
+                                <div class="cell-title required">现场拍照（装修）</div>
+                                <div class="cell-content">
+                                    <div class="upload-area" id="decorationPhotos">
+                                        <div class="upload-add" onclick="handleFileUpload('decorationPhotos', event)">
+                                            <span class="upload-add-icon">＋</span>
+                                            <span class="upload-add-text">拍摄照片</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="cell">
+                                <div class="cell-title required">10、房屋是否有外挑阳台</div>
+                                <div class="cell-content radio-group">
+                                    <label class="radio-item">
+                                        <input type="radio" name="hasBalcony" value="是" onchange="updateForm('usage', 'hasBalcony', '是'); toggleField('balconySection'); recalculateConclusion()">
+                                        <span>是</span>
+                                    </label>
+                                    <label class="radio-item">
+                                        <input type="radio" name="hasBalcony" value="否" checked onchange="updateForm('usage', 'hasBalcony', '否'); toggleField('balconySection'); recalculateConclusion()">
+                                        <span>否</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <!-- 阳台详情（联动显示） -->
+                            <div class="cell hidden" id="balconySection">
+                                <div class="cell-title required">阳台类型</div>
+                                <div class="cell-content">
+                                    <select id="balconyType" onchange="updateForm('usage', 'balconyType', this.value); recalculateConclusion()">
+                                        <option value="">请选择</option>
+                                        <option value="挑板式阳台">⚠️ 挑板式阳台（高风险）</option>
+                                        <option value="悬挑梁阳台">悬挑梁阳台</option>
+                                        <option value="其他">其他</option>
+                                    </select>
+                                    <div id="balconyWarning" class="balcony-warning hidden">
+                                        ⚠️ 挑板式阳台属于高风险结构，请重点检查！
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="cell hidden" id="balconySection">
+                                <div class="cell-title required">阳台照片</div>
+                                <div class="cell-content">
+                                    <div class="upload-area" id="balconyPhotos">
+                                        <div class="upload-add" onclick="handleFileUpload('balconyPhotos', event)">
+                                            <span class="upload-add-icon">＋</span>
+                                            <span class="upload-add-text">拍摄照片</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 行政许可与违法建设 -->
+                        <div class="cell-group">
+                            <div class="cell-group-title">行政许可与违法建设</div>
+                            <div class="cell">
+                                <div class="cell-title required">11、已取得的行政许可</div>
+                                <div class="cell-content">
+                                    <select id="adminLicense" onchange="updateForm('usage', 'adminLicense', this.value)">
+                                        <option value="">请选择</option>
+                                        <option value="建设工程规划许可证">建设工程规划许可证</option>
+                                        <option value="施工许可证">施工许可证</option>
+                                        <option value="无">无</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="cell">
+                                <div class="cell-title required">12、是否违法建设和违法审批</div>
+                                <div class="cell-content radio-group">
+                                    <label class="radio-item">
+                                        <input type="radio" name="isIllegalBuild" value="是" onchange="updateForm('usage', 'isIllegalBuild', '是'); toggleField('illegalSection'); recalculateConclusion()">
+                                        <span>是</span>
+                                    </label>
+                                    <label class="radio-item">
+                                        <input type="radio" name="isIllegalBuild" value="否" checked onchange="updateForm('usage', 'isIllegalBuild', '否'); toggleField('illegalSection'); recalculateConclusion()">
+                                        <span>否</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <!-- 违法建设详情（联动显示） -->
+                            <div class="cell hidden danger-field" id="illegalSection">
+                                <div class="cell-title">问题类型（违法）</div>
+                                <div class="cell-content">
+                                    <select id="illegalType" onchange="updateForm('usage', 'illegalType', this.value)">
+                                        <option value="">请选择</option>
+                                        <option value="违法建设">违法建设</option>
+                                        <option value="违法审批">违法审批</option>
+                                        <option value="两者均有">两者均有</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="cell hidden danger-field" id="illegalSection">
+                                <div class="cell-title required">是否违法审批</div>
+                                <div class="cell-content radio-group">
+                                    <label class="radio-item">
+                                        <input type="radio" name="isIllegalApproval" value="是" onchange="updateForm('usage', 'isIllegalApproval', '是')">
+                                        <span>是</span>
+                                    </label>
+                                    <label class="radio-item">
+                                        <input type="radio" name="isIllegalApproval" value="否" onchange="updateForm('usage', 'isIllegalApproval', '否')">
+                                        <span>否</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 群众反映与构件问题 -->
+                        <div class="cell-group">
+                            <div class="cell-group-title">群众反映与构件问题</div>
+                            <div class="cell">
+                                <div class="cell-title required">13、房屋使用过程中是否有群众反映房屋结构安全问题</div>
+                                <div class="cell-content radio-group">
+                                    <label class="radio-item">
+                                        <input type="radio" name="hasPublicReport" value="是" onchange="updateForm('usage', 'hasPublicReport', '是'); recalculateConclusion()">
+                                        <span>是</span>
+                                    </label>
+                                    <label class="radio-item">
+                                        <input type="radio" name="hasPublicReport" value="否" checked onchange="updateForm('usage', 'hasPublicReport', '否'); recalculateConclusion()">
+                                        <span>否</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="cell">
+                                <div class="cell-title required">14、房屋主要构件是否有混凝土剥落/钢筋外露或锈蚀等问题</div>
+                                <div class="cell-content radio-group">
+                                    <label class="radio-item">
+                                        <input type="radio" name="hasConcreteIssue" value="是" onchange="updateForm('usage', 'hasConcreteIssue', '是'); toggleField('concreteSection'); recalculateConclusion()">
+                                        <span>是</span>
+                                    </label>
+                                    <label class="radio-item">
+                                        <input type="radio" name="hasConcreteIssue" value="否" checked onchange="updateForm('usage', 'hasConcreteIssue', '否'); toggleField('concreteSection'); recalculateConclusion()">
+                                        <span>否</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <!-- 混凝土问题详情（联动显示） -->
+                            <div class="cell hidden" id="concreteSection">
+                                <div class="cell-title">问题类型（混凝土）</div>
+                                <div class="cell-content">
+                                    <select id="concreteType" onchange="updateForm('usage', 'concreteType', this.value)">
+                                        <option value="">请选择</option>
+                                        <option value="混凝土剥落">混凝土剥落</option>
+                                        <option value="钢筋外露">钢筋外露</option>
+                                        <option value="钢筋锈蚀">钢筋锈蚀</option>
+                                        <option value="其他">其他</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="cell hidden" id="concreteSection">
+                                <div class="cell-title required">现场拍照（混凝土）</div>
+                                <div class="cell-content">
+                                    <div class="upload-area" id="concretePhotos">
+                                        <div class="upload-add" onclick="handleFileUpload('concretePhotos', event)">
+                                            <span class="upload-add-icon">＋</span>
+                                            <span class="upload-add-text">拍摄照片</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 加建与墙体变化 -->
+                        <div class="cell-group">
+                            <div class="cell-group-title">加建与墙体变化</div>
+                            <div class="cell">
+                                <div class="cell-title required">15、房屋顶部是否有加建</div>
+                                <div class="cell-content radio-group">
+                                    <label class="radio-item">
+                                        <input type="radio" name="hasTopAddition" value="是" onchange="updateForm('usage', 'hasTopAddition', '是'); toggleField('topAdditionSection'); recalculateConclusion()">
+                                        <span>是</span>
+                                    </label>
+                                    <label class="radio-item">
+                                        <input type="radio" name="hasTopAddition" value="否" checked onchange="updateForm('usage', 'hasTopAddition', '否'); toggleField('topAdditionSection'); recalculateConclusion()">
+                                        <span>否</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="cell hidden" id="topAdditionSection">
+                                <div class="cell-title required">现场拍照（顶部加建）</div>
+                                <div class="cell-content">
+                                    <div class="upload-area" id="topAdditionPhotos">
+                                        <div class="upload-add" onclick="handleFileUpload('topAdditionPhotos', event)">
+                                            <span class="upload-add-icon">＋</span>
+                                            <span class="upload-add-text">拍摄照片</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="cell">
+                                <div class="cell-title required">16、房屋底层是否有加建</div>
+                                <div class="cell-content radio-group">
+                                    <label class="radio-item">
+                                        <input type="radio" name="hasBottomAddition" value="是" onchange="updateForm('usage', 'hasBottomAddition', '是'); toggleField('bottomAdditionSection'); recalculateConclusion()">
+                                        <span>是</span>
+                                    </label>
+                                    <label class="radio-item">
+                                        <input type="radio" name="hasBottomAddition" value="否" checked onchange="updateForm('usage', 'hasBottomAddition', '否'); toggleField('bottomAdditionSection'); recalculateConclusion()">
+                                        <span>否</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="cell hidden" id="bottomAdditionSection">
+                                <div class="cell-title required">现场拍照（底层加建）</div>
+                                <div class="cell-content">
+                                    <div class="upload-area" id="bottomAdditionPhotos">
+                                        <div class="upload-add" onclick="handleFileUpload('bottomAdditionPhotos', event)">
+                                            <span class="upload-add-icon">＋</span>
+                                            <span class="upload-add-text">拍摄照片</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="cell">
+                                <div class="cell-title required">17、房屋是否增加或减少墙体</div>
+                                <div class="cell-content radio-group">
+                                    <label class="radio-item">
+                                        <input type="radio" name="hasWallChange" value="是" onchange="updateForm('usage', 'hasWallChange', '是'); toggleField('wallChangeSection'); recalculateConclusion()">
+                                        <span>是</span>
+                                    </label>
+                                    <label class="radio-item">
+                                        <input type="radio" name="hasWallChange" value="否" checked onchange="updateForm('usage', 'hasWallChange', '否'); toggleField('wallChangeSection'); recalculateConclusion()">
+                                        <span>否</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="cell hidden" id="wallChangeSection">
+                                <div class="cell-title required">现场拍照（墙体变化）</div>
+                                <div class="cell-content">
+                                    <div class="upload-area" id="wallChangePhotos">
+                                        <div class="upload-add" onclick="handleFileUpload('wallChangePhotos', event)">
+                                            <span class="upload-add-icon">＋</span>
+                                            <span class="upload-add-text">拍摄照片</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="cell">
+                                <div class="cell-title required">18、房屋是否改变墙体位置</div>
+                                <div class="cell-content radio-group">
+                                    <label class="radio-item">
+                                        <input type="radio" name="hasWallPositionChange" value="是" onchange="updateForm('usage', 'hasWallPositionChange', '是'); toggleField('wallPositionSection'); recalculateConclusion()">
+                                        <span>是</span>
+                                    </label>
+                                    <label class="radio-item">
+                                        <input type="radio" name="hasWallPositionChange" value="否" checked onchange="updateForm('usage', 'hasWallPositionChange', '否'); toggleField('wallPositionSection'); recalculateConclusion()">
+                                        <span>否</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="cell hidden" id="wallPositionSection">
+                                <div class="cell-title required">现场拍照（墙体位置）</div>
+                                <div class="cell-content">
+                                    <div class="upload-area" id="wallPositionPhotos">
+                                        <div class="upload-add" onclick="handleFileUpload('wallPositionPhotos', event)">
+                                            <span class="upload-add-icon">＋</span>
+                                            <span class="upload-add-text">拍摄照片</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="cell">
+                                <div class="cell-title required">19、房屋墙体、楼板是否有新开的洞</div>
+                                <div class="cell-content radio-group">
+                                    <label class="radio-item">
+                                        <input type="radio" name="hasNewHole" value="是" onchange="updateForm('usage', 'hasNewHole', '是'); toggleField('newHoleSection'); recalculateConclusion()">
+                                        <span>是</span>
+                                    </label>
+                                    <label class="radio-item">
+                                        <input type="radio" name="hasNewHole" value="否" checked onchange="updateForm('usage', 'hasNewHole', '否'); toggleField('newHoleSection'); recalculateConclusion()">
+                                        <span>否</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="cell hidden" id="newHoleSection">
+                                <div class="cell-title required">现场拍照（新洞）</div>
+                                <div class="cell-content">
+                                    <div class="upload-area" id="newHolePhotos">
+                                        <div class="upload-add" onclick="handleFileUpload('newHolePhotos', event)">
+                                            <span class="upload-add-icon">＋</span>
+                                            <span class="upload-add-text">拍摄照片</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="cell">
+                                <div class="cell-title required">20、房屋是否受过火灾等外力损害</div>
+                                <div class="cell-content radio-group">
+                                    <label class="radio-item">
+                                        <input type="radio" name="hasFireDamage" value="是" onchange="updateForm('usage', 'hasFireDamage', '是'); recalculateConclusion()">
+                                        <span>是</span>
+                                    </label>
+                                    <label class="radio-item">
+                                        <input type="radio" name="hasFireDamage" value="否" checked onchange="updateForm('usage', 'hasFireDamage', '否'); recalculateConclusion()">
+                                        <span>否</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="cell">
+                                <div class="cell-title required">21、房屋是否被拆除</div>
+                                <div class="cell-content radio-group">
+                                    <label class="radio-item">
+                                        <input type="radio" name="isDemolished" value="是" onchange="updateForm('usage', 'isDemolished', '是')">
+                                        <span>是</span>
+                                    </label>
+                                    <label class="radio-item">
+                                        <input type="radio" name="isDemolished" value="否" checked onchange="updateForm('usage', 'isDemolished', '否')">
+                                        <span>否</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 步骤 3：房屋周边环境 -->
+                <div id="page-step3" class="page">
+                    <div id="step3Warning" class="warning-tip hidden">
+                        <span class="warning-tip-icon">⚠️</span>
+                        <span class="warning-tip-text">无法正常开展安全检查，以下步骤无需填写</span>
+                    </div>
+
+                    <div id="step3Content">
+                        <div class="cell-group">
+                            <div class="cell-group-title">房屋周边环境检查</div>
+                            <div class="cell">
+                                <div class="cell-title required">22、房屋周边是否有开挖土方</div>
+                                <div class="cell-content radio-group">
+                                    <label class="radio-item">
+                                        <input type="radio" name="hasEarthDigging" value="是" onchange="updateForm('environment', 'hasEarthDigging', '是')">
+                                        <span>是</span>
+                                    </label>
+                                    <label class="radio-item">
+                                        <input type="radio" name="hasEarthDigging" value="否" checked onchange="updateForm('environment', 'hasEarthDigging', '否')">
+                                        <span>否</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="cell">
+                                <div class="cell-title required">23、房屋周边是否有地铁、管廊、隧道等工程施工</div>
+                                <div class="cell-content radio-group">
+                                    <label class="radio-item">
+                                        <input type="radio" name="hasMetroConstruction" value="是" onchange="updateForm('environment', 'hasMetroConstruction', '是')">
+                                        <span>是</span>
+                                    </label>
+                                    <label class="radio-item">
+                                        <input type="radio" name="hasMetroConstruction" value="否" checked onchange="updateForm('environment', 'hasMetroConstruction', '否')">
+                                        <span>否</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="cell">
+                                <div class="cell-title required">24、房屋周边是否有山体或边坡</div>
+                                <div class="cell-content radio-group">
+                                    <label class="radio-item">
+                                        <input type="radio" name="hasMountainSlope" value="是" onchange="updateForm('environment', 'hasMountainSlope', '是')">
+                                        <span>是</span>
+                                    </label>
+                                    <label class="radio-item">
+                                        <input type="radio" name="hasMountainSlope" value="否" checked onchange="updateForm('environment', 'hasMountainSlope', '否')">
+                                        <span>否</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="cell">
+                                <div class="cell-title required">25、房屋周边地面是否有塌陷</div>
+                                <div class="cell-content radio-group">
+                                    <label class="radio-item">
+                                        <input type="radio" name="hasGroundCollapse" value="是" onchange="updateForm('environment', 'hasGroundCollapse', '是')">
+                                        <span>是</span>
+                                    </label>
+                                    <label class="radio-item">
+                                        <input type="radio" name="hasGroundCollapse" value="否" checked onchange="updateForm('environment', 'hasGroundCollapse', '否')">
+                                        <span>否</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="cell-group">
+                            <div class="cell-group-title">周边地域情况</div>
+                            <div class="cell">
+                                <div class="cell-title required">房屋周边地域情况</div>
+                                <div class="cell-content">
+                                    <select id="surroundingAreaType" onchange="updateForm('environment', 'surroundingAreaType', this.value)">
+                                        <option value="">请选择</option>
+                                        <option value="平原">平原</option>
+                                        <option value="山地">山地</option>
+                                        <option value="丘陵">丘陵</option>
+                                        <option value="河边">河边</option>
+                                        <option value="其他">其他</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 步骤 4：现场整治情况 -->
+                <div id="page-step4" class="page">
+                    <div id="step4Warning" class="warning-tip hidden">
+                        <span class="warning-tip-icon">⚠️</span>
+                        <span class="warning-tip-text">无法正常开展安全检查，以下步骤无需填写</span>
+                    </div>
+
+                    <div id="step4Content">
+                        <div class="cell-group">
+                            <div class="cell-group-title">现场整治情况</div>
+                            <div class="cell">
+                                <div class="cell-title required">现场是否有采取整治措施</div>
+                                <div class="cell-content radio-group">
+                                    <label class="radio-item">
+                                        <input type="radio" name="hasRectifyMeasure" value="是" onchange="updateForm('rectify', 'hasRectifyMeasure', '是')">
+                                        <span>是</span>
+                                    </label>
+                                    <label class="radio-item">
+                                        <input type="radio" name="hasRectifyMeasure" value="否" checked onchange="updateForm('rectify', 'hasRectifyMeasure', '否')">
+                                        <span>否</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="cell">
+                                <div class="cell-title required">巡查现场建筑图片</div>
+                                <div class="cell-content">
+                                    <div class="upload-area" id="inspectionPhotos">
+                                        <div class="upload-add" onclick="handleFileUpload('inspectionPhotos', event)">
+                                            <span class="upload-add-icon">＋</span>
+                                            <span class="upload-add-text">拍摄现场</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 自动生成的结论 -->
+                        <div class="conclusion-card">
+                            <div class="conclusion-header">综合判定结论（自动生成）：</div>
+                            <div class="conclusion-content">
+                                <span id="conclusionText" class="conclusion-tag safe">暂未发现安全隐患</span>
+                            </div>
+                            <div class="conclusion-note">
+                                * 结论根据以下风险项自动判定：用途变更、结构损伤、倾斜沉降、装修改结构、挑板阳台、违法建设、群众举报、混凝土问题、各类加建、墙体改动、新开洞、火灾损害等
+                            </div>
+                        </div>
+
+                        <!-- 风险提示列表 -->
+                        <div class="cell-group">
+                            <div class="cell-group-title">⚠️ 疑似隐患项明细</div>
+                            <div id="riskItemsList" style="padding: 16px; font-size: 13px; color: #666;">
+                                <p style="color: #999; text-align: center;">暂无风险项</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 底部操作栏 -->
+            <div class="footer-actions">
+                <button id="prevBtn" class="btn btn-default hidden" onclick="prevStep()">上一步</button>
+                <button id="nextBtn" class="btn btn-primary" onclick="nextStep()">下一步</button>
+                <button id="saveDraftBtn" class="btn btn-secondary" onclick="saveDraft()">存草稿</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast 提示框 -->
+    <div id="toast" class="toast"></div>
+
+    <script>
+        // 当前步骤
+        let currentStep = 1;
+
+        // 表单数据存储
+        const formData = {
+            basic: {},
+            usage: {},
+            environment: {},
+            rectify: {}
+        };
+
+        // 初始化
+        function init() {
+            updateStepIndicator();
+        }
+
+        // 更新表单数据
+        function updateForm(section, field, value) {
+            formData[section][field] = value;
+
+            // 重新计算结论（某些关键字段变化时）
+            if (section === 'usage') {
+                recalculateConclusion();
+            }
+        }
+
+        // 处理"可否正常开展安全检查"的变化
+        function handleCanInspectChange(value) {
+            if (value === '否') {
+                // 在步骤 2/3/4 显示警告提示
+                document.getElementById('cannotInspectWarning').classList.remove('hidden');
+                document.getElementById('step3Warning').classList.remove('hidden');
+                document.getElementById('step4Warning').classList.remove('hidden');
+
+                // 禁用步骤 2/3/4 的表单内容
+                disableSection('step2Content');
+                disableSection('step3Content');
+                disableSection('step4Content');
+            } else {
+                document.getElementById('cannotInspectWarning').classList.add('hidden');
+                document.getElementById('step3Warning').classList.add('hidden');
+                document.getElementById('step4Warning').classList.add('hidden');
+
+                enableSection('step2Content');
+                enableSection('step3Content');
+                enableSection('step4Content');
+            }
+        }
+
+        // 禁用整个区域的输入
+        function disableSection(elementId) {
+            const section = document.getElementById(elementId);
+            if (section) {
+                const inputs = section.querySelectorAll('input:not([disabled]), select:not([disabled])');
+                inputs.forEach(input => {
+                    if (input.type !== 'radio' || !input.checked) {
+                        input.disabled = true;
+                    }
+                });
+            }
+        }
+
+        // 启用整个区域的输入
+        function enableSection(elementId) {
+            const section = document.getElementById(elementId);
+            if (section) {
+                const inputs = section.querySelectorAll('input[disabled], select[disabled]');
+                inputs.forEach(input => input.disabled = false);
+            }
+        }
+
+        // 更新经营性自建房选项
+        function updateBusinessSelfBuild() {
+            const isSelfBuild = document.querySelector('input[name="isSelfBuild"]:checked')?.value;
+            const isOwnerUse = document.querySelector('input[name="isOwnerUse"]')?.closest('.page.active')
+                ? document.querySelector('#page-step2 input[name="isOwnerUse"]:checked')?.value
+                : null;
+
+            // 如果是非自建房或不是业主自用，则只能选"否"
+            const shouldDisable = isSelfBuild === '否' || isOwnerUse === '否';
+            const yesItem = document.getElementById('businessYesItem');
+            if (yesItem) {
+                const radio = yesItem.querySelector('input');
+                radio.disabled = shouldDisable;
+                if (shouldDisable && radio.checked) {
+                    yesItem.nextElementSibling.querySelector('input').checked = true;
+                }
+            }
+        }
+
+        // 切换联动字段的显示/隐藏
+        function toggleField(sectionId) {
+            const section = document.getElementById(sectionId);
+            if (section) {
+                if (section.classList.contains('hidden')) {
+                    section.classList.remove('hidden');
+                } else {
+                    section.classList.add('hidden');
+                }
+            }
+        }
+
+        // 显示风险等级标签
+        function showRiskTag() {
+            const level = document.getElementById('inspectionResult')?.value;
+            const container = document.getElementById('riskTagDisplay');
+            if (level && container) {
+                const colors = {
+                    'A': 'risk-tag-a',
+                    'B': 'risk-tag-b',
+                    'C': 'risk-tag-c',
+                    'D': 'risk-tag-d'
+                };
+                const labels = {
+                    'A': '安全',
+                    'B': '基本安全',
+                    'C': '限制使用',
+                    'D': '危险'
+                };
+                container.innerHTML = `<span class="risk-tag ${colors[level]}">${level}级 - ${labels[level]}</span>`;
+            } else if (container) {
+                container.innerHTML = '';
+            }
+        }
+
+        // 处理阳台类型选择
+        function handleBalconyTypeChange() {
+            const type = document.getElementById('balconyType')?.value;
+            const warning = document.getElementById('balconyWarning');
+            if (type === '挑板式阳台' && warning) {
+                warning.classList.remove('hidden');
+            } else if (warning) {
+                warning.classList.add('hidden');
+            }
+        }
+
+        // 重新计算结论
+        function recalculateConclusion() {
+            const u = formData.usage;
+            let riskItems = [];
+
+            // 14 项风险判定规则
+            if (u.usageChanged === '是') riskItems.push('房屋用途发生改变');
+            if (u.hasDamage === '有变形损伤') riskItems.push('存在结构变形损伤');
+            if (u.hasTiltSettlement === '是') riskItems.push('房屋有倾斜沉降异常');
+            if (u.isDecorating === '是' && u.decorationChangeStructure === '是') riskItems.push('装修改变主体结构');
+            if (u.hasBalcony === '是' && u.balconyType === '挑板式阳台') riskItems.push('存在挑板式阳台（高风险）');
+            if (u.isIllegalBuild === '是') riskItems.push('涉及违法建设/审批');
+            if (u.hasPublicReport === '是') riskItems.push('有群众反映结构安全问题');
+            if (u.hasConcreteIssue === '是') riskItems.push('存在混凝土剥落/钢筋问题');
+            if (u.hasTopAddition === '是') riskItems.push('房屋顶部有加建');
+            if (u.hasBottomAddition === '是') riskItems.push('房屋底层有加建');
+            if (u.hasWallChange === '是') riskItems.push('墙体有增减改动');
+            if (u.hasWallPositionChange === '是') riskItems.push('墙体位置发生改变');
+            if (u.hasNewHole === '是') riskItems.push('墙体/楼板有新开洞');
+            if (u.hasFireDamage === '是') riskItems.push('房屋受过火灾等外力损害');
+
+            // 更新结论显示
+            const conclusionEl = document.getElementById('conclusionText');
+            const riskListEl = document.getElementById('riskItemsList');
+
+            if (riskItems.length > 0) {
+                conclusionEl.className = 'conclusion-tag risk';
+                conclusionEl.textContent = '⚠️ 疑似隐患';
+                riskListEl.innerHTML = riskItems.map(item => `<div style="padding: 4px 0; border-bottom: 1px dashed #eee;">❗ ${item}</div>`).join('');
+            } else {
+                conclusionEl.className = 'conclusion-tag safe';
+                conclusionEl.textContent = '✓ 暂未发现安全隐患';
+                riskListEl.innerHTML = '<p style="color: #999; text-align: center;">暂无风险项</p>';
+            }
+        }
+
+        // 切换到上一页
+        function prevStep() {
+            if (currentStep > 1) {
+                document.getElementById(`page-step${currentStep}`).classList.remove('active');
+                currentStep--;
+                document.getElementById(`page-step${currentStep}`).classList.add('active');
+                updateStepIndicator();
+                updateFooterButtons();
+                window.scrollTo(0, 0);
+            }
+        }
+
+        // 切换到下一页
+        function nextStep() {
+            if (currentStep < 4) {
+                // 演示模式：跳过必填验证，方便开发查看
+
+                document.getElementById(`page-step${currentStep}`).classList.remove('active');
+                currentStep++;
+                document.getElementById(`page-step${currentStep}`).classList.add('active');
+                updateStepIndicator();
+                updateFooterButtons();
+                window.scrollTo(0, 0);
+            } else {
+                handleSubmit();
+            }
+        }
+
+        // 验证当前步骤（保留但不使用）
+        function validateCurrentStep() {
+            return true;  // 演示模式直接通过
+        }
+
+        // 更新步骤指示器
+        function updateStepIndicator() {
+            for (let i = 1; i <= 4; i++) {
+                const indicator = document.getElementById(`step${i}-indicator`);
+                indicator.classList.remove('active', 'completed');
+                if (i === currentStep) {
+                    indicator.classList.add('active');
+                } else if (i < currentStep) {
+                    indicator.classList.add('completed');
+                }
+            }
+        }
+
+        // 更新底部按钮
+        function updateFooterButtons() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+
+            if (currentStep === 1) {
+                prevBtn.classList.add('hidden');
+            } else {
+                prevBtn.classList.remove('hidden');
+            }
+
+            if (currentStep === 4) {
+                nextBtn.textContent = '提交检查';
+            } else {
+                nextBtn.textContent = '下一步';
+            }
+        }
+
+        // 提交表单（演示模式）
+        function handleSubmit() {
+            // 演示模式：跳过验证直接提交
+
+            // 确保结论已更新
+            recalculateConclusion();
+
+            // 收集所有表单数据
+            const submissionData = JSON.parse(JSON.stringify(formData));
+            submissionData.submissionTime = new Date().toISOString();
+            submissionData.conclusion = document.getElementById('conclusionText').textContent;
+
+            console.log('提交数据:', submissionData);
+
+            showToast('提交成功！');
+
+            // 模拟跳转
+            setTimeout(() => {
+                // 通知父页面（index.html 主控外壳）切换回列表页
+                if (window.parent !== window) {
+                    window.parent.postMessage({ type: 'formSubmitted', data: submissionData }, '*');
+                } else {
+                    alert('✅ 检查数据已提交成功！\n\n您可以在控制台查看提交的完整数据。');
+                }
+            }, 500);
+        }
+
+        // 保存草稿
+        function saveDraft() {
+            const draftData = {
+                currentStep: currentStep,
+                formData: JSON.parse(JSON.stringify(formData)),
+                saveTime: new Date().toISOString()
+            };
+
+            localStorage.setItem('inspection_draft', JSON.stringify(draftData));
+            showToast('草稿已保存');
+            console.log('草稿数据:', draftData);
+        }
+
+        // 加载草稿
+        function loadDraft() {
+            const saved = localStorage.getItem('inspection_draft');
+            if (saved) {
+                try {
+                    const draft = JSON.parse(saved);
+                    Object.assign(formData, draft.formData);
+                    showToast(`已从草稿恢复（创建于${new Date(draft.saveTime).toLocaleString()}）`);
+                } catch (e) {
+                    console.error('加载草稿失败:', e);
+                }
+            }
+        }
+
+        // 模拟定位
+        function simulateLocate() {
+            showToast('正在定位...');
+            setTimeout(() => {
+                document.getElementById('houseAddress').value = 'XX 市 XX 区 XX 街道 XX 社区 XX 号';
+                updateForm('basic', 'houseAddress', document.getElementById('houseAddress').value);
+                showToast('定位成功');
+            }, 1000);
+        }
+
+        // 处理文件上传
+        function handleFileUpload(containerId, event) {
+            event.stopPropagation();
+            const container = document.getElementById(containerId);
+
+            // 生成模拟的图片
+            const fileDiv = document.createElement('div');
+            fileDiv.className = 'upload-file';
+            fileDiv.innerHTML = `
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect fill='%23e0e0e0' width='80' height='80'/%3E%3Ctext fill='%23999' font-size='12' x='50%25' y='50%25' text-anchor='middle' dy='.3em'%3E照片%n预览%3C/text%3E%3C/svg%3E" alt="照片">
+                <div class="upload-delete" onclick="removeFile(this)">×</div>
+            `;
+
+            container.insertBefore(fileDiv, container.firstElementChild);
+
+            // 记录到表单中（简化处理）
+            if (!fileUploads[containerId]) fileUploads[containerId] = [];
+            fileUploads[containerId].push(Date.now());
+
+            showToast('图片已添加');
+        }
+
+        // 文件上传记录
+        const fileUploads = {};
+
+        // 移除文件
+        function removeFile(element) {
+            element.parentElement.remove();
+            showToast('已删除');
+        }
+
+        // 显示 Toast
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        // 返回按钮
+        function goBack() {
+            if (Object.keys(formData.basic).length > 0 || Object.keys(formData.usage).length > 0) {
+                if (confirm('当前有未保存的表单数据，确定要离开吗？')) {
+                    navigateBack();
+                }
+            } else {
+                navigateBack();
+            }
+        }
+
+        function navigateBack() {
+            if (window.parent !== window) {
+                window.parent.postMessage({ type: 'navigateBack' }, '*');
+            } else {
+                window.history.back();
+            }
+        }
+
+        // 为阳台类型添加事件监听
+        document.addEventListener('DOMContentLoaded', function() {
+            const balconySelect = document.getElementById('balconyType');
+            if (balconySelect) {
+                balconySelect.onchange = function() {
+                    updateForm('usage', 'balconyType', this.value);
+                    handleBalconyTypeChange();
+                    recalculateConclusion();
+                };
+            }
+
+            // 尝试加载草稿
+            loadDraft();
+        });
+
+        // 初始化
+        init();
+
+        // ====== iframe 嵌入检测 ======
+        if (window.parent !== window) {
+            document.documentElement.classList.add('in-iframe');
+        }
+    </script>
+</body>
+</html>

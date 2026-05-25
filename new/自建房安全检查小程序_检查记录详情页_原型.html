@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>检查记录详情</title>
+    <style>
+        :root {
+            --td-brand-color: #0052d9;
+            --td-brand-color-light: #ecf2fe;
+            --td-success-color: #2ba471;
+            --td-success-color-light: #e3f9ed;
+            --td-warning-color: #e37318;
+            --td-warning-color-light: #fff1e6;
+            --td-error-color: #d54941;
+            --td-error-color-light: #fff0ed;
+            --td-text-color-primary: #1a1a1a;
+            --td-text-color-secondary: #444444;
+            --td-text-color-placeholder: #bbbbbb;
+            --td-text-color-disabled: #c0c0c0;
+            --td-bg-color-page: #f5f5f5;
+            --td-bg-color-container: #ffffff;
+            --td-bg-color-secondary: #f5f5f5;
+            --td-border-color: #e7e7e7;
+            --td-radius-default: 6px;
+            --td-radius-large: 12px;
+            --td-radius-round: 999px;
+            --td-font-size-xs: 10px;
+            --td-font-size-s: 12px;
+            --td-font-size-base: 14px;
+            --td-font-size-m: 16px;
+            --td-font-size-l: 18px;
+            --td-spacer-1: 4px;
+            --td-spacer-2: 8px;
+            --td-spacer-3: 12px;
+            --td-spacer-4: 16px;
+            --td-spacer-5: 20px;
+            --td-spacer-6: 24px;
+            --td-spacer-8: 32px;
+            --td-shadow-1: 0 1px 6px rgba(0,0,0,0.05);
+            --td-shadow-2: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(160deg, #0b1a3e 0%, #162d6e 40%, #1e3f8f 100%);
+            min-height: 100vh; display: flex; align-items: center; justify-content: center;
+        }
+        .container { width: 100%; max-width: 480px; }
+
+        /* 手机外壳 */
+        .phone-frame {
+            background: var(--td-bg-color-page); border-radius: var(--td-radius-large);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.3), 0 0 0 6px #111;
+            overflow: hidden; height: 800px; display: flex; flex-direction: column;
+        }
+
+        /* ====== 导航栏 ====== */
+        .nav-bar { background: var(--td-brand-color); flex-shrink: 0; }
+        .nav-status { padding: 8px var(--td-spacer-5); display: flex; justify-content: space-between; font-size: var(--td-font-size-s); color: rgba(255,255,255,0.85); }
+        .nav-content { padding: var(--td-spacer-3) var(--td-spacer-5); display: flex; align-items: center; gap: var(--td-spacer-3); }
+        .nav-back { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 50%; cursor: pointer; color: #fff; }
+        .nav-back:active { background: rgba(255,255,255,0.15); }
+        .nav-back svg { width: 22px; height: 22px; stroke: #fff; stroke-width: 2.2; fill: none; }
+        .nav-title { font-size: var(--td-font-size-m); font-weight: 600; color: #fff; flex: 1; }
+
+        /* ====== 房屋摘要条 ====== */
+        .house-bar {
+            background: var(--td-bg-color-container); padding: var(--td-spacer-3) var(--td-spacer-5);
+            border-bottom: 1px solid var(--td-border-color); flex-shrink: 0;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .house-bar-name { font-size: var(--td-font-size-base); font-weight: 600; color: var(--td-text-color-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+        .house-bar-code { font-size: var(--td-font-size-xs); color: var(--td-text-color-placeholder); margin-left: var(--td-spacer-2); flex-shrink: 0; }
+
+        /* ====== 顶部 Tab 切换 ====== */
+        .tab-bar {
+            background: var(--td-bg-color-container); display: flex; flex-shrink: 0;
+            border-bottom: 1px solid var(--td-border-color); position: relative;
+        }
+        .tab-item {
+            flex: 1; text-align: center; padding: var(--td-spacer-3) 0; font-size: var(--td-font-size-base);
+            color: var(--td-text-color-placeholder); cursor: pointer; transition: color 0.2s; position: relative;
+        }
+        .tab-item.active { color: var(--td-brand-color); font-weight: 600; }
+        .tab-item.active::after {
+            content: ''; position: absolute; bottom: 0; left: 30%; right: 30%; height: 3px;
+            background: var(--td-brand-color); border-radius: 2px;
+        }
+
+        /* ====== 内容区 ====== */
+        .content-area { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; background: var(--td-bg-color-page); }
+        .content-area::-webkit-scrollbar { display: none; }
+        .tab-page { display: none; padding: var(--td-spacer-3) var(--td-spacer-5) var(--td-spacer-6); }
+        .tab-page.active { display: block; }
+
+        /* ====== 分组 ====== */
+        .section { background: var(--td-bg-color-container); border-radius: var(--td-radius-large); margin-bottom: var(--td-spacer-3); overflow: hidden; }
+        .section-title {
+            padding: var(--td-spacer-3) var(--td-spacer-5); font-size: var(--td-font-size-s); font-weight: 600;
+            color: var(--td-text-color-placeholder); background: var(--td-bg-color-secondary);
+            border-bottom: 1px solid var(--td-border-color);
+        }
+
+        /* ====== 只读字段行 ====== */
+        .field-row {
+            display: flex; align-items: center; padding: var(--td-spacer-3) var(--td-spacer-5);
+            border-bottom: 1px solid rgba(0,0,0,0.04); min-height: 44px;
+        }
+        .field-row:last-child { border-bottom: none; }
+        .field-label {
+            font-size: var(--td-font-size-s); color: var(--td-text-color-secondary);
+            flex-shrink: 0; max-width: 55%; padding-right: var(--td-spacer-2); line-height: 1.5;
+            display: flex; align-items: center; gap: var(--td-spacer-1);
+        }
+        .field-value {
+            flex: 1; text-align: right; font-size: var(--td-font-size-s);
+            color: var(--td-text-color-primary); font-weight: 500; overflow: hidden;
+            text-overflow: ellipsis; white-space: nowrap;
+        }
+        .field-value.empty { color: var(--td-text-color-placeholder); font-weight: 400; }
+
+        /* 状态标签 */
+        .td-tag {
+            display: inline-flex; align-items: center; font-size: var(--td-font-size-xs);
+            padding: 3px 10px; border-radius: var(--td-radius-round); font-weight: 500; white-space: nowrap;
+        }
+        .td-tag.safe { background: var(--td-success-color-light); color: var(--td-success-color); }
+        .td-tag.risk { background: var(--td-error-color-light); color: var(--td-error-color); }
+        .td-tag.neutral { background: var(--td-bg-color-secondary); color: var(--td-text-color-secondary); }
+        .td-tag.warning { background: var(--td-warning-color-light); color: var(--td-warning-color); }
+
+        /* ====== 机构已核实 标记 ====== */
+        .verified-icon {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 16px; height: 16px; border-radius: 50%; flex-shrink: 0;
+            background: var(--td-warning-color-light); color: var(--td-warning-color);
+            font-size: 10px; font-weight: 700; cursor: pointer; position: relative;
+        }
+        .verified-icon::before { content: '!'; }
+        .verified-tip {
+            display: none; position: absolute; left: calc(100% + 6px); top: 50%; transform: translateY(-50%);
+            background: var(--td-warning-color); color: #fff; font-size: var(--td-font-size-xs);
+            padding: 4px 10px; border-radius: var(--td-radius-default); white-space: nowrap; z-index: 10;
+            font-weight: 400; pointer-events: none;
+        }
+        .verified-tip::before {
+            content: ''; position: absolute; right: 100%; top: 50%; transform: translateY(-50%);
+            border: 4px solid transparent; border-right-color: var(--td-warning-color);
+        }
+        .verified-icon:active .verified-tip,
+        .verified-icon:hover .verified-tip { display: block; }
+
+        /* ====== 结论卡片 ====== */
+        .conclusion-card {
+            background: var(--td-bg-color-container); border-radius: var(--td-radius-large);
+            padding: var(--td-spacer-4) var(--td-spacer-5); margin-bottom: var(--td-spacer-3);
+            text-align: center;
+        }
+        .conclusion-label { font-size: var(--td-font-size-s); color: var(--td-text-color-placeholder); margin-bottom: var(--td-spacer-2); }
+        .conclusion-tag { display: inline-block; padding: 6px 20px; border-radius: var(--td-radius-round); font-size: var(--td-font-size-base); font-weight: 600; }
+        .conclusion-tag.safe { background: var(--td-success-color-light); color: var(--td-success-color); }
+        .conclusion-tag.risk { background: var(--td-error-color-light); color: var(--td-error-color); }
+
+        /* ====== 空照片位 ====== */
+        .photo-row { display: flex; gap: var(--td-spacer-2); padding: var(--td-spacer-3) var(--td-spacer-5); flex-wrap: wrap; }
+        .photo-placeholder {
+            width: 60px; height: 60px; border-radius: var(--td-radius-default); background: var(--td-bg-color-secondary);
+            display: flex; align-items: center; justify-content: center;
+            font-size: var(--td-font-size-xs); color: var(--td-text-color-placeholder);
+        }
+
+        /* ====== Toast ====== */
+        .td-toast {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%);
+            background: rgba(0,0,0,0.75); color: #fff; padding: 12px 28px;
+            border-radius: var(--td-radius-default); font-size: var(--td-font-size-base);
+            z-index: 2000; display: none; backdrop-filter: blur(4px);
+        }
+        .td-toast.show { display: block; animation: fadeIn .2s ease; }
+        @keyframes fadeIn { from { opacity:0; transform: translate(-50%,-50%) scale(.9); } to { opacity:1; transform: translate(-50%,-50%) scale(1); } }
+
+        /* ====== iframe 适配 ====== */
+        html.in-iframe body { background: var(--td-bg-color-page); padding: 0; }
+        html.in-iframe .phone-frame { border-radius: 0; box-shadow: none; max-width: none; margin: 0; min-height: 100vh; overflow: visible; }
+        html.in-iframe .nav-status { display: none; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="phone-frame">
+        <!-- 导航栏 -->
+        <div class="nav-bar">
+            <div class="nav-status"><span>9:41</span><span style="letter-spacing:4px">&#9679;&#9679;&#9679;</span></div>
+            <div class="nav-content">
+                <div class="nav-back" onclick="goBack()"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></div>
+                <span class="nav-title">检查记录详情</span>
+            </div>
+        </div>
+
+        <!-- 房屋摘要 -->
+        <div class="house-bar">
+            <span class="house-bar-name" id="barName">罗湖区莲塘1号楼</span>
+            <span class="house-bar-code" id="barCode">4403030001</span>
+        </div>
+
+        <!-- 顶部 Tab -->
+        <div class="tab-bar" id="tabBar">
+            <div class="tab-item active" onclick="switchTab(0)">基础信息</div>
+            <div class="tab-item" onclick="switchTab(1)">使用信息</div>
+            <div class="tab-item" onclick="switchTab(2)">周边环境</div>
+            <div class="tab-item" onclick="switchTab(3)">整治情况</div>
+        </div>
+
+        <!-- 内容区 -->
+        <div class="content-area" id="contentArea">
+            <div class="tab-page active" id="tabPage0"></div>
+            <div class="tab-page" id="tabPage1"></div>
+            <div class="tab-page" id="tabPage2"></div>
+            <div class="tab-page" id="tabPage3"></div>
+        </div>
+    </div>
+</div>
+<div class="td-toast" id="toast"></div>
+
+<script>
+// ====== 通用 ======
+function showToast(m,d=2000){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),d)}
+function goBack(){if(window.parent!==window)window.parent.postMessage({type:'navigateBack'},'*');else window.history.back()}
+
+// ====== URL 参数 ======
+function getParams(){const p=new URLSearchParams(location.search);return{houseName:p.get('houseName')||'罗湖区莲塘1号楼',houseCode:p.get('houseCode')||'4403030001',recordId:p.get('recordId')||'1'}}
+
+// ====== 机构已核实图标 ======
+const V = '<span class="verified-icon"><span class="verified-tip">机构已核实</span></span>';
+
+// ====== Mock 数据 ======
+function getMockData(){
+    return {
+        // Step1
+        isSelfBuild:'是', houseName:'罗湖区莲塘1号楼', belongArea:'罗湖区',
+        houseAddress:'罗湖区黄贝街道水库社区船步街71号', canInspect:'是',
+        safetyResponsible:'张三', safetyPhone:'13800138000', industryDept:'住建局 0755-88888888',
+        hasPropertyReg:'是', ownerName:'李四', ownerIdCard:'440300199001011234',
+        landNature:'集体用地', locationArea:'城区', buildMethod:'自建', designMethod:'无设计',
+        structureType:'砖混结构', usageFunction:'住宅', groundFloors:'6', undergroundFloors:'0',
+        buildingArea:'480', buildingHeight:'18', buildingCount:'1', floorCount:'6',
+        userCount:'24', householdCount:'6', suiteCount:'6',
+        buildDate:'2010-05-20', designDate:'', designUnit:'', constructionUnit:'',
+        propertyUnit:'', propertyContact:'', propertyPhone:'',
+        hasDrawing:'部分', hasFireApproval:'否',
+        // Step2
+        isOwnerUse:'是', isBusinessSelfBuild:'否', usageChanged:'否', changedUsage:'',
+        hasExtension:'否', extensionCount:'', extensionContent:'',
+        hasCrack:'否', hasDamage:'无变形损伤', damageLocation:'', damageType:'',
+        preliminaryJudge:'暂未发现安全隐患',
+        hasSafetyInspection:'是', inspectionResult:'B', inspectionOrg:'深圳市房屋安全鉴定中心', inspectionTime:'2022-06-15',
+        hasTiltSettlement:'否', tiltType:'',
+        isDecorating:'否', decorationChangeStructure:'',
+        hasBalcony:'否', balconyType:'',
+        adminLicense:'无', isIllegalBuild:'否', illegalType:'', isIllegalApproval:'',
+        hasPublicReport:'否', hasConcreteIssue:'否', concreteType:'',
+        hasTopAddition:'否', hasBottomAddition:'否', hasWallChange:'否',
+        hasWallPositionChange:'否', hasNewHole:'否', hasFireDamage:'否', isDemolished:'否',
+        // Step3
+        hasEarthDigging:'否', hasMetroConstruction:'否', hasMountainSlope:'否', hasGroundCollapse:'否',
+        surroundingAreaType:'平原',
+        // Step4
+        hasRectifyMeasure:'否', conclusion:'暂未发现安全隐患'
+    }
+}
+
+// ====== 字段定义（按Tab分区） ======
+const TAB_SECTIONS = [
+    // Tab0: 基础信息
+    [
+        { title:'基本信息', fields:[
+            ['是否为自建房','isSelfBuild'],['房屋名称','houseName'],['所属区域','belongArea'],
+            ['房屋地址','houseAddress'],['可否正常开展安全检查','canInspect']
+        ]},
+        { title:'房屋安全责任人信息', fields:[
+            ['房屋安全责任人','safetyResponsible'],['责任人联系电话','safetyPhone'],['行业主管部门及联系方式','industryDept']
+        ]},
+        { title:'产权信息', fields:[
+            ['有无产权登记','hasPropertyReg'],['产权人（使用人）姓名','ownerName'],['身份证号','ownerIdCard']
+        ]},
+        { title:'建筑信息', fields:[
+            ['土地性质','landNature'],['所在区域','locationArea'],['建造方式','buildMethod'],
+            ['设计方式','designMethod'],['结构类型','structureType'],['使用功能','usageFunction'],
+            ['房屋地上层数','groundFloors'],['房屋地下层数','undergroundFloors'],
+            ['建筑面积（平方米）','buildingArea'],['建筑高度（米）','buildingHeight'],
+            ['栋数','buildingCount'],['楼层数','floorCount'],['使用人数','userCount'],
+            ['户数','householdCount'],['套数','suiteCount']
+        ]},
+        { title:'建设信息', fields:[
+            ['建成日期','buildDate'],['设计时间','designDate'],['设计单位','designUnit'],['施工单位','constructionUnit']
+        ]},
+        { title:'物业管理信息', fields:[
+            ['物业管理单位','propertyUnit'],['物业联系人','propertyContact'],['物业联系方式','propertyPhone']
+        ]},
+        { title:'资料信息', fields:[
+            ['设计图纸','hasDrawing'],['消防审批手续是否办理','hasFireApproval']
+        ]}
+    ],
+    // Tab1: 使用信息
+    [
+        { title:'房屋使用情况', fields:[
+            ['1、房屋是否业主自用','isOwnerUse'],['是否为经营性自建房','isBusinessSelfBuild'],
+            ['2、房屋用途是否发生改变','usageChanged'],['改变后用途','changedUsage']
+        ]},
+        { title:'改扩建情况', fields:[
+            ['3、房屋是否改扩建','hasExtension',true],['房屋改扩建次数','extensionCount'],['改扩建内容','extensionContent']
+        ]},
+        { title:'结构损伤情况', fields:[
+            ['4、房屋主要构件是否有明显裂缝','hasCrack',true],
+            ['5、是否有结构损伤情况','hasDamage',true],['损伤部位','damageLocation'],['问题类型（损伤）','damageType']
+        ]},
+        { title:'安全判定', fields:[
+            ['6、初步判定','preliminaryJudge',true],
+            ['7、安全鉴定','hasSafetyInspection',true],['鉴定结论','inspectionResult'],['鉴定机构名称','inspectionOrg'],['鉴定时间','inspectionTime'],
+            ['8、整栋房屋是否有倾斜沉降等异常','hasTiltSettlement',true],['问题类型（倾斜）','tiltType']
+        ]},
+        { title:'装修与结构改动', fields:[
+            ['9、房屋是否正进行装修','isDecorating'],['装修是否改变主体结构','decorationChangeStructure'],
+            ['10、房屋是否有外挑阳台','hasBalcony'],['阳台类型','balconyType']
+        ]},
+        { title:'行政许可与违法建设', fields:[
+            ['11、已取得的行政许可','adminLicense'],
+            ['12、是否违法建设和违法审批','isIllegalBuild'],['问题类型（违法）','illegalType'],['是否违法审批','isIllegalApproval']
+        ]},
+        { title:'群众反映与构件问题', fields:[
+            ['13、是否有群众反映房屋结构安全问题','hasPublicReport'],
+            ['14、主要构件是否有混凝土剥落/钢筋外露或锈蚀等问题','hasConcreteIssue',true],['问题类型（混凝土）','concreteType']
+        ]},
+        { title:'加建与墙体变化', fields:[
+            ['15、房屋顶部是否有加建','hasTopAddition',true],
+            ['16、房屋底层是否有加建','hasBottomAddition',true],
+            ['17、房屋是否增加或减少墙体','hasWallChange',true],
+            ['18、房屋是否改变墙体位置','hasWallPositionChange',true],
+            ['19、墙体/楼板是否有新开的洞','hasNewHole',true],
+            ['20、房屋是否受过火灾等外力损害','hasFireDamage',true],
+            ['21、房屋是否被拆除','isDemolished']
+        ]}
+    ],
+    // Tab2: 周边环境
+    [
+        { title:'房屋周边环境检查', fields:[
+            ['22、房屋周边是否有开挖土方','hasEarthDigging'],
+            ['23、周边是否有地铁、管廊、隧道等工程施工','hasMetroConstruction'],
+            ['24、房屋周边是否有山体或边坡','hasMountainSlope'],
+            ['25、房屋周边地面是否有塌陷','hasGroundCollapse']
+        ]},
+        { title:'周边地域情况', fields:[
+            ['房屋周边地域情况','surroundingAreaType']
+        ]}
+    ],
+    // Tab3: 整治情况
+    [
+        { title:'现场整治情况', fields:[
+            ['现场是否有采取整治措施','hasRectifyMeasure',true]
+        ]}
+    ]
+];
+
+// ====== 渲染 ======
+function renderValue(key, data) {
+    let v = data[key];
+    if (v === undefined || v === null || v === '') return '<span class="field-value empty">-</span>';
+
+    // 鉴定结论特殊处理
+    if (key === 'inspectionResult') {
+        const map = {A:'A级（安全）',B:'B级（基本安全）',C:'C级（限制使用）',D:'D级（危险）'};
+        const cls = {A:'safe',B:'neutral',C:'warning',D:'risk'};
+        return `<span class="td-tag ${cls[v]||'neutral'}">${map[v]||v}</span>`;
+    }
+    // 布尔类字段美化
+    if (v === '是') return '<span class="td-tag safe">&#10003; 是</span>';
+    if (v === '否') return '<span class="td-tag neutral">否</span>';
+
+    return `<span class="field-value">${v}</span>`;
+}
+
+function render() {
+    const params = getParams();
+    document.getElementById('barName').textContent = params.houseName;
+    document.getElementById('barCode').textContent = params.houseCode;
+
+    const data = getMockData();
+
+    TAB_SECTIONS.forEach((sections, tabIdx) => {
+        let html = '';
+
+        // Tab3 顶部放结论卡
+        if (tabIdx === 3) {
+            const isRisk = data.conclusion && data.conclusion.includes('隐患');
+            html += `<div class="conclusion-card">
+                <div class="conclusion-label">综合判定结论</div>
+                <span class="conclusion-tag ${isRisk?'risk':'safe'}">${isRisk?'&#9888; 疑似隐患':'&#10003; '+data.conclusion}</span>
+            </div>`;
+        }
+
+        sections.forEach(sec => {
+            html += `<div class="section"><div class="section-title">${sec.title}</div>`;
+            sec.fields.forEach(f => {
+                const label = f[0], key = f[1], verified = f[2];
+                html += `<div class="field-row">
+                    <span class="field-label">${label}${verified ? ' '+V : ''}</span>
+                    ${renderValue(key, data)}
+                </div>`;
+            });
+            html += '</div>';
+        });
+
+        document.getElementById('tabPage' + tabIdx).innerHTML = html;
+    });
+}
+
+// ====== Tab 切换 ======
+function switchTab(idx) {
+    document.querySelectorAll('.tab-item').forEach((el,i) => el.classList.toggle('active', i===idx));
+    document.querySelectorAll('.tab-page').forEach((el,i) => el.classList.toggle('active', i===idx));
+}
+
+// ====== 初始化 ======
+render();
+if (window.parent !== window) document.documentElement.classList.add('in-iframe');
+</script>
+</body>
+</html>
