@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>检查记录</title>
+    <style>
+        :root {
+            /* 品牌主色 */
+            --td-brand-color: #0052d9;
+            --td-brand-color-hover: #003cab;
+            --td-brand-color-light: #ecf2fe;
+            --td-brand-color-focus: #d9e1ff;
+
+            /* 功能色 */
+            --td-success-color: #2ba471;
+            --td-success-color-light: #e3f9ed;
+            --td-warning-color: #e37318;
+            --td-warning-color-light: #fff1e6;
+            --td-error-color: #d54941;
+            --td-error-color-light: #fff0ed;
+
+            /* 文字色 */
+            --td-text-color-primary: #1a1a1a;
+            --td-text-color-secondary: #444444;
+            --td-text-color-placeholder: #bbbbbb;
+            --td-text-color-disabled: #c0c0c0;
+
+            /* 背景色 */
+            --td-bg-color-page: #f5f5f5;
+            --td-bg-color-container: #ffffff;
+            --td-bg-color-secondary: #f5f5f5;
+
+            /* 边框 */
+            --td-border-color: #e7e7e7;
+
+            /* 圆角 */
+            --td-radius-default: 6px;
+            --td-radius-large: 12px;
+            --td-radius-round: 999px;
+
+            /* 字号 */
+            --td-font-size-xs: 10px;
+            --td-font-size-s: 12px;
+            --td-font-size-base: 14px;
+            --td-font-size-m: 16px;
+            --td-font-size-l: 18px;
+
+            /* 间距 */
+            --td-spacer-1: 4px;
+            --td-spacer-2: 8px;
+            --td-spacer-3: 12px;
+            --td-spacer-4: 16px;
+            --td-spacer-5: 20px;
+            --td-spacer-6: 24px;
+            --td-spacer-8: 32px;
+
+            /* 阴影 */
+            --td-shadow-1: 0 1px 6px rgba(0, 0, 0, 0.05);
+            --td-shadow-2: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(160deg, #0b1a3e 0%, #162d6e 40%, #1e3f8f 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+        }
+
+        /* ========== 手机外壳 ========== */
+        .phone-frame {
+            background: var(--td-bg-color-page);
+            border-radius: var(--td-radius-large);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.3), 0 0 0 6px #111;
+            overflow: hidden;
+            height: 800px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ========== 顶部导航栏 ========== */
+        .nav-bar {
+            background: var(--td-brand-color);
+            flex-shrink: 0;
+        }
+
+        .nav-status-bar {
+            padding: 8px var(--td-spacer-5);
+            display: flex;
+            justify-content: space-between;
+            font-size: var(--td-font-size-s);
+            color: rgba(255,255,255,0.85);
+        }
+
+        .nav-content {
+            padding: var(--td-spacer-3) var(--td-spacer-5);
+            display: flex;
+            align-items: center;
+            gap: var(--td-spacer-3);
+        }
+
+        .nav-back {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background 0.2s;
+            color: #fff;
+        }
+
+        .nav-back:active {
+            background: rgba(255,255,255,0.15);
+        }
+
+        .nav-back svg {
+            width: 22px;
+            height: 22px;
+            stroke: #fff;
+            stroke-width: 2.2;
+            fill: none;
+        }
+
+        .nav-title {
+            font-size: var(--td-font-size-m);
+            font-weight: 600;
+            color: #fff;
+            flex: 1;
+        }
+
+        /* ========== 房屋信息头部 ========== */
+        .house-header {
+            background: var(--td-bg-color-container);
+            padding: var(--td-spacer-4) var(--td-spacer-5);
+            border-bottom: 1px solid var(--td-border-color);
+            flex-shrink: 0;
+        }
+
+        .house-name-row {
+            display: flex;
+            align-items: center;
+            gap: var(--td-spacer-2);
+            margin-bottom: var(--td-spacer-2);
+        }
+
+        .house-name {
+            font-size: var(--td-font-size-m);
+            font-weight: 600;
+            color: var(--td-text-color-primary);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .house-code-tag {
+            font-size: var(--td-font-size-xs);
+            padding: 2px 8px;
+            border-radius: var(--td-radius-round);
+            background: var(--td-brand-color-light);
+            color: var(--td-brand-color);
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .house-address {
+            font-size: var(--td-font-size-s);
+            color: var(--td-text-color-placeholder);
+            display: flex;
+            align-items: center;
+            gap: var(--td-spacer-1);
+            margin-bottom: var(--td-spacer-3);
+        }
+
+        .house-address svg {
+            width: 12px;
+            height: 12px;
+            stroke: var(--td-text-color-placeholder);
+            stroke-width: 2;
+            fill: none;
+            flex-shrink: 0;
+        }
+
+        .house-stats {
+            display: flex;
+            gap: var(--td-spacer-4);
+            padding-top: var(--td-spacer-3);
+            border-top: 1px dashed var(--td-border-color);
+        }
+
+        .house-stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+        }
+
+        .house-stat-num {
+            font-size: var(--td-font-size-l);
+            font-weight: 700;
+            color: var(--td-brand-color);
+            line-height: 1.2;
+        }
+
+        .house-stat-num.risk {
+            color: var(--td-error-color);
+        }
+
+        .house-stat-label {
+            font-size: var(--td-font-size-xs);
+            color: var(--td-text-color-placeholder);
+            margin-top: 2px;
+        }
+
+        /* ========== 记录列表 ========== */
+        .record-list {
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: var(--td-spacer-3) var(--td-spacer-5);
+        }
+
+        .record-list::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* 记录卡片 */
+        .record-card {
+            background: var(--td-bg-color-container);
+            border-radius: var(--td-radius-large);
+            margin-bottom: var(--td-spacer-3);
+            box-shadow: var(--td-shadow-1);
+            overflow: hidden;
+            transition: transform 0.15s ease;
+        }
+
+        .record-card:active {
+            transform: scale(0.985);
+        }
+
+        /* 卡片内容统一区域 */
+        .record-card-content {
+            padding: var(--td-spacer-4) var(--td-spacer-5);
+        }
+
+        /* 第一行：时间 + 结论标签 */
+        .record-row-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--td-spacer-3);
+        }
+
+        .record-time {
+            font-size: var(--td-font-size-base);
+            font-weight: 600;
+            color: var(--td-text-color-primary);
+        }
+
+        /* 第二行：信息网格（区域、审核状态、检查人员） */
+        .record-info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--td-spacer-3);
+        }
+
+        .record-info-item {
+            display: flex;
+            align-items: baseline;
+            gap: var(--td-spacer-2);
+        }
+
+        .record-info-label {
+            font-size: var(--td-font-size-xs);
+            color: var(--td-text-color-placeholder);
+            flex-shrink: 0;
+            min-width: 52px;
+        }
+
+        .record-info-value {
+            font-size: var(--td-font-size-s);
+            color: var(--td-text-color-secondary);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* 卡片左侧色条 */
+        .record-card.safe-card {
+            border-left: 3px solid var(--td-success-color);
+        }
+        .record-card.risk-card {
+            border-left: 3px solid var(--td-error-color);
+        }
+        .record-card.none-card {
+            border-left: 3px solid var(--td-text-color-placeholder);
+        }
+
+        /* ========== 状态标签 ========== */
+        .td-tag {
+            display: inline-flex;
+            align-items: center;
+            font-size: var(--td-font-size-xs);
+            padding: 3px 10px;
+            border-radius: var(--td-radius-round);
+            font-weight: 500;
+            white-space: nowrap;
+            line-height: 1.6;
+        }
+
+        .td-tag.safe {
+            background: var(--td-success-color-light);
+            color: var(--td-success-color);
+        }
+
+        .td-tag.risk {
+            background: var(--td-error-color-light);
+            color: var(--td-error-color);
+        }
+
+        .td-tag.audit-pass {
+            background: var(--td-success-color-light);
+            color: var(--td-success-color);
+            border: 1px solid rgba(43,164,113,0.3);
+        }
+
+        .td-tag.audit-default {
+            background: var(--td-bg-color-secondary);
+            color: var(--td-text-color-secondary);
+            border: 1px solid var(--td-border-color);
+        }
+
+        .td-tag.audit-reject {
+            background: var(--td-error-color-light);
+            color: var(--td-error-color);
+            border: 1px solid rgba(213,73,65,0.3);
+        }
+
+        /* ========== 空状态 ========== */
+        .empty-state {
+            padding: 80px var(--td-spacer-6);
+            text-align: center;
+        }
+
+        .empty-state-icon {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto var(--td-spacer-5);
+            background: var(--td-bg-color-secondary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .empty-state-icon svg {
+            width: 44px;
+            height: 44px;
+            color: var(--td-text-color-placeholder);
+        }
+
+        .empty-state-title {
+            font-size: var(--td-font-size-base);
+            color: var(--td-text-color-secondary);
+            margin-bottom: var(--td-spacer-2);
+        }
+
+        .empty-state-desc {
+            font-size: var(--td-font-size-s);
+            color: var(--td-text-color-placeholder);
+        }
+
+        /* ========== 底部 ========== */
+        .list-footer {
+            flex-shrink: 0;
+            text-align: center;
+            padding: var(--td-spacer-3);
+            font-size: var(--td-font-size-xs);
+            color: var(--td-text-color-placeholder);
+            background: var(--td-bg-color-container);
+            border-top: 1px solid var(--td-border-color);
+        }
+
+        .no-more-tip {
+            text-align: center;
+            padding: var(--td-spacer-4) 0;
+            font-size: var(--td-font-size-s);
+            color: var(--td-text-color-placeholder);
+        }
+
+        /* ========== Toast ========== */
+        .td-toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.75);
+            color: #fff;
+            padding: 12px 28px;
+            border-radius: var(--td-radius-default);
+            font-size: var(--td-font-size-base);
+            z-index: 2000;
+            display: none;
+            backdrop-filter: blur(4px);
+        }
+
+        .td-toast.show {
+            display: block;
+            animation: toastFade 0.2s ease;
+        }
+
+        @keyframes toastFade {
+            from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+            to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+
+        /* ========== iframe 嵌入适配 ========== */
+        html.in-iframe body {
+            background: var(--td-bg-color-page);
+            padding: 0;
+        }
+        html.in-iframe .phone-frame {
+            border-radius: 0;
+            box-shadow: none;
+            max-width: none;
+            margin: 0;
+            min-height: 100vh;
+            overflow: visible;
+        }
+        html.in-iframe .nav-status-bar {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="phone-frame">
+            <!-- 导航栏 -->
+            <div class="nav-bar">
+                <div class="nav-status-bar">
+                    <span>9:41</span>
+                    <span style="letter-spacing: 4px;">&#9679;&#9679;&#9679;</span>
+                </div>
+                <div class="nav-content">
+                    <div class="nav-back" onclick="goBack()">
+                        <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+                    </div>
+                    <span class="nav-title">检查记录</span>
+                </div>
+            </div>
+
+            <!-- 房屋信息头部 -->
+            <div class="house-header">
+                <div class="house-name-row">
+                    <span class="house-name" id="houseName">罗湖区莲塘1号楼</span>
+                    <span class="house-code-tag" id="houseCode">4403030001</span>
+                </div>
+                <div class="house-address">
+                    <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    <span id="houseArea">罗湖区</span>
+                </div>
+                <div class="house-stats">
+                    <div class="house-stat">
+                        <span class="house-stat-num" id="totalCount">0</span>
+                        <span class="house-stat-label">检查记录</span>
+                    </div>
+                    <div class="house-stat">
+                        <span class="house-stat-num" id="safeCount">0</span>
+                        <span class="house-stat-label">未发现隐患</span>
+                    </div>
+                    <div class="house-stat">
+                        <span class="house-stat-num risk" id="riskCount">0</span>
+                        <span class="house-stat-label">疑似隐患</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 记录列表 -->
+            <div class="record-list" id="recordList">
+                <!-- 由 JS 动态渲染 -->
+            </div>
+
+            <!-- 底部统计 -->
+            <div class="list-footer" id="footerInfo">共 0 条记录</div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="td-toast" id="toast"></div>
+
+    <script>
+        // ====== 通用函数 ======
+        function showToast(msg, duration = 2000) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), duration);
+        }
+
+        function goBack() {
+            if (window.parent !== window) {
+                window.parent.postMessage({ type: 'navigateBack' }, '*');
+            } else {
+                window.history.back();
+            }
+        }
+
+        // ====== 从 URL 参数获取房屋信息 ======
+        function getUrlParams() {
+            const params = new URLSearchParams(window.location.search);
+            return {
+                houseId: params.get('houseId') || '1',
+                houseName: params.get('houseName') || '罗湖区莲塘1号楼',
+                houseCode: params.get('houseCode') || '4403030001',
+                houseArea: params.get('houseArea') || '罗湖区'
+            };
+        }
+
+        // ====== Mock 数据生成 ======
+        function generateMockRecords(houseId) {
+            const count = 3 + Math.floor(Math.random() * 5); // 3~7 条记录
+            const records = [];
+            const areas = ['罗湖区', '福田区', '南山区'];
+            const inspectors = ['张三', '李四', '王五', '赵六'];
+            const auditStatuses = ['已通过', '街道审核', '待专排接收', '区级审核', '退回街道', '退回网格'];
+            const conclusions = ['未发现安全隐患', '疑似存在结构安全隐患'];
+
+            for (let i = 0; i < count; i++) {
+                const year = 2024 + Math.floor(i / 3);
+                const month = String(Math.floor(Math.random() * 12) + 1).padStart(2, '0');
+                const day = String(Math.floor(Math.random() * 28) + 1).padStart(2, '0');
+
+                const hasConclusion = i > 0; // 最旧一条可能是未检查
+                const conclusion = hasConclusion
+                    ? (Math.random() > 0.8 ? conclusions[1] : conclusions[0])
+                    : null;
+
+                const auditStatus = hasConclusion
+                    ? auditStatuses[Math.floor(Math.random() * auditStatuses.length)]
+                    : '-';
+
+                records.push({
+                    seq: i + 1,
+                    inspectionTime: `${year}-${month}-${day}`,
+                    conclusion: conclusion,
+                    area: areas[Math.floor(Math.random() * areas.length)],
+                    auditStatus: auditStatus,
+                    inspector: inspectors[Math.floor(Math.random() * inspectors.length)]
+                });
+            }
+
+            // 按时间倒序
+            records.sort((a, b) => b.inspectionTime.localeCompare(a.inspectionTime));
+            records.forEach((r, i) => r.seq = i + 1);
+
+            return records;
+        }
+
+        // ====== 渲染 ======
+        function renderHeader() {
+            const params = getUrlParams();
+            document.getElementById('houseName').textContent = params.houseName;
+            document.getElementById('houseCode').textContent = params.houseCode;
+            document.getElementById('houseArea').textContent = params.houseArea;
+        }
+
+        function renderList() {
+            const params = getUrlParams();
+            const records = generateMockRecords(params.houseId);
+            const container = document.getElementById('recordList');
+
+            // 统计
+            const safeNum = records.filter(r => r.conclusion === '未发现安全隐患').length;
+            const riskNum = records.filter(r => r.conclusion === '疑似存在结构安全隐患').length;
+            document.getElementById('totalCount').textContent = records.length;
+            document.getElementById('safeCount').textContent = safeNum;
+            document.getElementById('riskCount').textContent = riskNum;
+            document.getElementById('footerInfo').textContent = `共 ${records.length} 条记录`;
+
+            if (records.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
+                                <rect x="9" y="3" width="6" height="4" rx="1"/>
+                            </svg>
+                        </div>
+                        <div class="empty-state-title">暂无检查记录</div>
+                        <div class="empty-state-desc">该房屋尚未产生检查记录</div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = records.map(record => {
+                const conclusionTag = getConclusionTag(record.conclusion);
+                const auditTag = getAuditTag(record.auditStatus);
+                const cardCls = record.conclusion === '疑似存在结构安全隐患' ? 'risk-card'
+                    : record.conclusion === '未发现安全隐患' ? 'safe-card' : 'none-card';
+
+                return `
+                <div class="record-card ${cardCls}" onclick="onRecordClick(${record.seq})">
+                    <div class="record-card-content">
+                        <div class="record-row-top">
+                            <span class="record-time">${record.inspectionTime}</span>
+                            ${conclusionTag}
+                        </div>
+                        <div class="record-info-grid">
+                            <div class="record-info-item">
+                                <span class="record-info-label">所属区域</span>
+                                <span class="record-info-value">${record.area}</span>
+                            </div>
+                            <div class="record-info-item">
+                                <span class="record-info-label">审核状态</span>
+                                <span class="record-info-value">${auditTag}</span>
+                            </div>
+                            <div class="record-info-item">
+                                <span class="record-info-label">检查人员</span>
+                                <span class="record-info-value">${record.inspector}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+
+            container.innerHTML += '<div class="no-more-tip">没有更多了</div>';
+        }
+
+        function getConclusionTag(conclusion) {
+            if (!conclusion) return '<span class="td-tag audit-default">未检查</span>';
+            if (conclusion === '未发现安全隐患') {
+                return '<span class="td-tag safe">&#10003; 未发现隐患</span>';
+            }
+            return '<span class="td-tag risk">&#9888; 疑似隐患</span>';
+        }
+
+        function getAuditTag(status) {
+            if (status === '-') return '-';
+            if (status === '已通过') return `<span class="td-tag audit-pass">${status}</span>`;
+            if (status === '退回街道' || status === '退回网格') return `<span class="td-tag audit-reject">${status}</span>`;
+            return `<span class="td-tag audit-default">${status}</span>`;
+        }
+
+        function onRecordClick(seq) {
+            const params = getUrlParams();
+            if (window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'navigateToPage',
+                    tab: 'detail',
+                    params: {
+                        houseName: params.houseName,
+                        houseCode: params.houseCode,
+                        recordId: params.houseId + '_' + seq
+                    }
+                }, '*');
+            } else {
+                showToast('查看第 ' + seq + ' 条检查详情');
+            }
+        }
+
+        // ====== 初始化 ======
+        renderHeader();
+        renderList();
+
+        // ====== iframe 嵌入检测 ======
+        if (window.parent !== window) {
+            document.documentElement.classList.add('in-iframe');
+        }
+    </script>
+</body>
+</html>

@@ -1,145 +1,291 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>深圳市建设施工围挡数字化管理系统</title>
-<style>
-/* ═══ Design Token ═══ */
-:root{
-  --color-primary-50:#EBF2FF;--color-primary-100:#C6D9FF;--color-primary-200:#9DBEFF;
-  --color-primary-300:#6B9EF5;--color-primary-400:#3D7FED;--color-primary-500:#1862D4;
-  --color-primary-600:#104FAD;--color-primary-700:#0A3C86;--color-primary-800:#062A60;--color-primary-900:#031940;
-  --color-gray-0:#FFFFFF;--color-gray-50:#F7F8FA;--color-gray-100:#F0F1F5;--color-gray-200:#E3E6ED;
-  --color-gray-300:#C6CBD8;--color-gray-400:#9CA3B0;--color-gray-500:#6B7280;--color-gray-600:#4B5563;
-  --color-gray-700:#374151;--color-gray-800:#1F2937;--color-gray-900:#111827;
-  --color-success:#1A9042;--color-warning:#D48A00;
-  --text-title:var(--color-gray-900);--text-primary:var(--color-gray-800);--text-secondary:var(--color-gray-600);
-  --text-tertiary:var(--color-gray-400);
-  --border-color-light:var(--color-gray-200);
-  --border-radius-sm:2px;--border-radius-md:4px;--border-radius-lg:6px;
-  --bg-page:var(--color-gray-50);--bg-card:var(--color-gray-0);
-  --shadow-sm:0 1px 2px rgba(0,0,0,0.06);--shadow-md:0 2px 8px rgba(0,0,0,0.08);
-  --shadow-lg:0 4px 16px rgba(0,0,0,0.10);
-  --space-2:8px;--space-3:12px;--space-4:16px;--space-5:20px;
-  --space-6:24px;--space-8:32px;--space-10:40px;--space-12:48px;--space-16:64px;
-  --font-family:"PingFang SC","Microsoft YaHei","Helvetica Neue",Arial,sans-serif;
-  --font-size-xs:12px;--font-size-sm:13px;--font-size-md:14px;--font-size-lg:16px;
-  --font-size-xl:18px;--font-size-2xl:20px;--font-size-3xl:24px;
-  --font-weight-regular:400;--font-weight-medium:500;--font-weight-bold:600;
-  --line-height-normal:1.6;
-  --transition-fast:0.1s ease;--transition-normal:0.2s ease;
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>自建房巡查 - 小程序原型</title>
+    <style>
+        :root {
+            --td-brand-color: #0052d9;
+            --td-brand-color-light: #ecf2fe;
+            --td-bg-color-page: #f5f5f5;
+            --td-bg-color-container: #ffffff;
+            --td-border-color: #e7e7e7;
+            --td-text-color-primary: #1a1a1a;
+            --td-text-color-secondary: #444444;
+            --td-text-color-placeholder: #bbbbbb;
+            --td-shadow-1: 0 1px 6px rgba(0, 0, 0, 0.05);
+        }
 
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html,body{font-family:var(--font-family);font-size:var(--font-size-md);color:var(--text-primary);background:var(--bg-page);line-height:var(--line-height-normal);-webkit-font-smoothing:antialiased;height:100%}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-body{background:linear-gradient(180deg,#EBF2FF 0%,#F7F8FA 100%)}
-.portal-wrapper{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:var(--space-8)}
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(160deg, #0b1a3e 0%, #162d6e 40%, #1e3f8f 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-.portal-header{text-align:center;margin-bottom:var(--space-12)}
-.portal-logo{width:64px;height:64px;background:var(--color-primary-500);border-radius:var(--border-radius-lg);display:flex;align-items:center;justify-content:center;margin:0 auto var(--space-6)}
-.portal-logo svg{width:36px;height:36px;color:#fff}
-.portal-title{font-size:28px;font-weight:var(--font-weight-bold);color:var(--text-title);letter-spacing:0.02em;margin-bottom:var(--space-2)}
-.portal-subtitle{font-size:var(--font-size-lg);color:var(--text-secondary);font-weight:var(--font-weight-regular)}
+        /* ========== 外壳容器 ========== */
+        .shell {
+            width: 100%;
+            max-width: 440px;
+            background: #000;
+            border-radius: 40px;
+            box-shadow: 0 40px 80px rgba(0,0,0,0.4), 0 0 0 3px #222;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 860px;
+            position: relative;
+        }
 
-.portal-cards{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-6);max-width:900px;width:100%}
-@media(max-width:600px){.portal-cards{grid-template-columns:1fr}}
-.portal-card{flex:1;background:var(--bg-card);border:1px solid var(--border-color-light);border-radius:var(--border-radius-lg);padding:var(--space-10) var(--space-8);text-align:center;cursor:pointer;transition:all var(--transition-normal);text-decoration:none;color:var(--text-primary);display:flex;flex-direction:column;align-items:center;box-shadow:var(--shadow-sm)}
-.portal-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg);border-color:var(--color-primary-300)}
-.portal-card:hover .portal-card-icon{background:var(--color-primary-500);color:#fff;transform:scale(1.05)}
-.portal-card-icon{width:56px;height:56px;background:var(--color-primary-50);border-radius:var(--border-radius-lg);display:flex;align-items:center;justify-content:center;margin-bottom:var(--space-5);transition:all var(--transition-normal);color:var(--color-primary-500)}
-.portal-card-icon svg{width:28px;height:28px}
-.portal-card-title{font-size:var(--font-size-xl);font-weight:var(--font-weight-bold);margin-bottom:var(--space-2)}
-.portal-card-desc{font-size:var(--font-size-sm);color:var(--text-tertiary);line-height:var(--line-height-normal);margin-bottom:var(--space-4)}
-.portal-card-roles{display:flex;flex-wrap:wrap;gap:4px;justify-content:center}
-.portal-card-role{font-size:var(--font-size-xs);color:var(--text-tertiary);background:var(--color-gray-100);padding:2px 8px;border-radius:var(--border-radius-sm)}
+        /* ========== 顶部导航栏 ========== */
+        .shell-navbar {
+            background: var(--td-brand-color);
+            padding: 10px 20px 12px;
+            padding-top: 36px; /* 刘海/状态栏区域 */
+            flex-shrink: 0;
+            position: relative;
+        }
 
-.portal-footer{margin-top:var(--space-12);text-align:center;font-size:var(--font-size-xs);color:var(--text-tertiary)}
-</style>
+        .shell-navbar::before {
+            content: '';
+            position: absolute;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 28px;
+            background: #000;
+            border-radius: 14px;
+        }
+
+        .shell-navbar-title {
+            font-size: 17px;
+            font-weight: 600;
+            color: #fff;
+            text-align: center;
+        }
+
+        /* ========== iframe 内容区 ========== */
+        .shell-body {
+            flex: 1;
+            overflow: hidden;
+            background: var(--td-bg-color-page);
+            position: relative;
+        }
+
+        .shell-body iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+            background: transparent;
+        }
+
+        /* 页面切换过渡层 */
+        .page-transition-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--td-bg-color-page);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.15s ease;
+            z-index: 10;
+        }
+
+        .page-transition-overlay.active {
+            opacity: 1;
+        }
+
+        /* ========== 转场动画 ========== */
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes slideOut {
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* ========== 状态提示 Toast ========== */
+        .shell-toast {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.75);
+            color: #fff;
+            padding: 10px 24px;
+            border-radius: 6px;
+            font-size: 13px;
+            z-index: 2000;
+            display: none;
+            pointer-events: none;
+        }
+
+        .shell-toast.show {
+            display: block;
+            animation: fadeUp 0.2s ease;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translate(-50%, -40%); }
+            to { opacity: 1; transform: translate(-50%, -50%); }
+        }
+    </style>
 </head>
 <body>
-<div class="portal-wrapper">
 
-  <div class="portal-header">
-    <div class="portal-logo">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
-        <polyline points="9 22 9 12 15 12 15 22"/>
-      </svg>
+<div class="shell">
+    <!-- 顶部导航栏 -->
+    <div class="shell-navbar">
+        <div class="shell-navbar-title" id="navbarTitle">自建房巡查</div>
     </div>
-    <h1 class="portal-title">深圳市建设施工围挡数字化管理系统</h1>
-    <p class="portal-subtitle">请选择要查看的原型端（点击在新窗口打开）</p>
-  </div>
 
-  <div class="portal-cards">
-    <a href="supervisor-pc/index_v2.html" target="_blank" class="portal-card">
-      <div class="portal-card-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="2" y="3" width="20" height="14" rx="2"/>
-          <line x1="8" y1="21" x2="16" y2="21"/>
-          <line x1="12" y1="17" x2="12" y2="21"/>
-        </svg>
-      </div>
-      <div class="portal-card-title">监管端（PC）</div>
-      <div class="portal-card-desc">面向街道办、住建局等政府监管单位</div>
-      <div class="portal-card-roles">
-        <span class="portal-card-role">街道办</span>
-        <span class="portal-card-role">住建局</span>
-        <span class="portal-card-role">城管局</span>
-      </div>
-    </a>
+    <!-- 内容区 -->
+    <div class="shell-body">
+        <div class="page-transition-overlay" id="transitionOverlay"></div>
+        <iframe id="mainFrame" src="自建房安全检查小程序_任务列表页_原型.html" allow="clipboard-read; clipboard-write"></iframe>
+    </div>
 
-    <a href="supervisor-app/app_prototype.html" target="_blank" class="portal-card">
-      <div class="portal-card-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="5" y="2" width="14" height="20" rx="2"/>
-          <line x1="12" y1="18" x2="12.01" y2="18"/>
-        </svg>
-      </div>
-      <div class="portal-card-title">监管端（APP）</div>
-      <div class="portal-card-desc">移动端巡检、校核、围挡管理</div>
-      <div class="portal-card-roles">
-        <span class="portal-card-role">巡检人员</span>
-        <span class="portal-card-role">监管人员</span>
-      </div>
-    </a>
-
-    <a href="project-pc/index_v2_project.html" target="_blank" class="portal-card">
-      <div class="portal-card-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="2" y="3" width="20" height="14" rx="2"/>
-          <line x1="8" y1="21" x2="16" y2="21"/>
-          <line x1="12" y1="17" x2="12" y2="21"/>
-        </svg>
-      </div>
-      <div class="portal-card-title">项目端（PC）</div>
-      <div class="portal-card-desc">面向建设单位、施工单位等项目参建单位</div>
-      <div class="portal-card-roles">
-        <span class="portal-card-role">建设单位</span>
-        <span class="portal-card-role">施工单位</span>
-        <span class="portal-card-role">监理单位</span>
-      </div>
-    </a>
-
-    <a href="project-app/app_prototype.html" target="_blank" class="portal-card">
-      <div class="portal-card-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="5" y="2" width="14" height="20" rx="2"/>
-          <line x1="12" y1="18" x2="12.01" y2="18"/>
-        </svg>
-      </div>
-      <div class="portal-card-title">项目端（APP）</div>
-      <div class="portal-card-desc">移动端围挡登记、变更、日常管理</div>
-      <div class="portal-card-roles">
-        <span class="portal-card-role">项目负责人</span>
-        <span class="portal-card-role">施工人员</span>
-      </div>
-    </a>
-  </div>
-
-  <div class="portal-footer">v2.0.0 · 2026.05 · 内部原型演示系统</div>
-
+    <!-- Toast -->
+    <div class="shell-toast" id="shellToast"></div>
 </div>
+
+<script>
+    // ====== Tab 配置 ======
+    const TABS = {
+        list: {
+            title: '自建房巡查',
+            src: '自建房安全检查小程序_任务列表页_原型.html',
+            showTab: true
+        },
+        form: {
+            title: '新增安全检查',
+            src: '自建房安全检查小程序_新增检查_原型.html',
+            showTab: true
+        },
+        records: {
+            title: '检查记录',
+            src: '自建房安全检查小程序_检查记录页_原型.html',
+            showTab: false
+        },
+        detail: {
+            title: '检查记录详情',
+            src: '自建房安全检查小程序_检查记录详情页_原型.html',
+            showTab: false
+        },
+        audit: {
+            title: '检查记录审核',
+            src: '自建房安全检查小程序_检查记录审核页（正常）_原型.html',
+            showTab: false
+        },
+        auditAbnormal: {
+            title: '检查记录审核',
+            src: '自建房安全检查小程序_检查记录审核页（不正常）_原型.html',
+            showTab: false
+        },
+        proVerify: {
+            title: '专业核实',
+            src: '自建房安全检查小程序_专业核实_原型.html',
+            showTab: false
+        },
+        more: {
+            title: '更多功能',
+            src: '',  // 预留
+            showTab: true
+        }
+    };
+
+    let currentTab = 'list';
+
+    // ====== 切换 Tab / 页面 ======
+    function switchTab(tabKey, params) {
+        const config = TABS[tabKey];
+        if (!config) return;
+
+        // 拼接 URL 参数
+        let src = config.src;
+        if (params && Object.keys(params).length > 0) {
+            const qs = new URLSearchParams(params).toString();
+            src += (src.includes('?') ? '&' : '?') + qs;
+        }
+
+        // 只有 TabBar 页面才更新选中态
+        if (config.showTab) {
+            document.querySelectorAll('.tabbar-item').forEach(el => {
+                el.classList.toggle('active', el.dataset.tab === tabKey);
+            });
+        }
+
+        // 更新导航栏标题
+        document.getElementById('navbarTitle').textContent = config.title;
+
+        // 转场动画
+        const overlay = document.getElementById('transitionOverlay');
+        overlay.classList.add('active');
+
+        setTimeout(() => {
+            // 切换 iframe
+            document.getElementById('mainFrame').src = src;
+            currentTab = tabKey;
+
+            // 等待新页面加载后移除遮罩
+            document.getElementById('mainFrame').onload = function() {
+                setTimeout(() => {
+                    overlay.classList.remove('active');
+                }, 80);
+            };
+
+            // 兜底：最多 1.5 秒后移除遮罩
+            setTimeout(() => {
+                overlay.classList.remove('active');
+            }, 1500);
+        }, 150);
+    }
+
+    // ====== 监听 iframe 内部消息 ======
+    window.addEventListener('message', function(e) {
+        const data = e.data;
+        if (!data) return;
+
+        // 表单提交成功 → 切回列表页
+        if (data.type === 'formSubmitted') {
+            showToast('提交成功，返回列表');
+            setTimeout(() => switchTab('list'), 800);
+        }
+
+        // 通用返回：回到上一个 TabBar 页面
+        if (data.type === 'navigateBack') {
+            switchTab('list');
+        }
+
+        // 跳转到指定页面（支持带参数）
+        if (data.type === 'navigateToPage') {
+            switchTab(data.tab, data.params || {});
+        }
+    });
+
+    // ====== Toast ======
+    function showToast(msg) {
+        const t = document.getElementById('shellToast');
+        t.textContent = msg;
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 2000);
+    }
+</script>
+
 </body>
 </html>
