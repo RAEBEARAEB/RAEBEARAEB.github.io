@@ -124,15 +124,27 @@ a:hover{color:var(--text-link-hover)}
 .selector-select:focus{border-color:var(--border-color-focus);box-shadow:0 0 0 2px var(--color-primary-50)}
 .selector-actions{margin-left:auto;display:flex;gap:var(--space-2);align-items:center}
 .hidden-project{display:none!important}
+/* 项目信息字段 */
+.selector-info{display:flex;align-items:center;gap:var(--space-6);margin-left:var(--space-4);padding-left:var(--space-4);border-left:1px solid var(--color-gray-200)}
+.selector-info-item{display:flex;flex-direction:column;gap:2px}
+.selector-info-label{font-size:11px;color:var(--text-tertiary);letter-spacing:0.02em}
+.selector-info-value{font-size:var(--font-size-sm);color:var(--text-primary);font-weight:var(--font-weight-medium)}
+.selector-info-value.status-tag{display:inline-flex;padding:1px 6px;border-radius:var(--border-radius-tag);font-size:var(--font-size-xs);font-weight:var(--font-weight-medium)}
+.info-tag-success{color:var(--color-success);background:var(--color-success-light)}
+.info-tag-warning{color:var(--color-warning-dark);background:var(--color-warning-light)}
+.info-tag-danger{color:var(--color-danger);background:var(--color-danger-light)}
+.info-tag-gray{color:var(--text-tertiary);background:var(--color-gray-100)}
 /* ═══ 表格 ═══ */
 .table-wrapper{width:100%;overflow-x:auto}
-.table{width:100%;min-width:1050px;border-collapse:collapse;font-size:var(--font-size-sm);table-layout:fixed}
-.table th{background:var(--bg-table-head);color:var(--text-secondary);font-weight:var(--font-weight-medium);font-size:var(--font-size-xs);letter-spacing:0.03em;text-align:left;padding:10px var(--space-3);border-bottom:1px solid var(--border-color-light);white-space:nowrap}
-.table td{padding:12px var(--space-3);border-bottom:1px solid var(--border-color-light);color:var(--text-primary);vertical-align:middle;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.table tbody tr:nth-child(even):not(.shared-main):not(.shared-sub) td{background:var(--bg-table-stripe)}
+.table{width:100%;min-width:980px;border-collapse:collapse;font-size:13px;table-layout:fixed;color:#1F2937}
+.table th{background:#F7F8FA;color:#6B7280;font-weight:500;font-size:11px;letter-spacing:0.04em;text-align:left;padding:10px;border-bottom:1px solid var(--border-color-light);white-space:nowrap}
+.table td{padding:0 10px;height:52px;border-bottom:1px solid #F0F1F5;color:#1F2937;vertical-align:middle;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.table tbody tr:nth-child(odd) td{background:#FFFFFF}
+.table tbody tr:nth-child(even) td{background:#FAFAFA}
 .table tbody tr{transition:background var(--transition-fast)}
-.table tbody tr:not(.shared-main):not(.shared-sub):hover td{background:var(--color-primary-50)}
+.table tbody tr:hover td{background:#EBF2FF!important}
 .table tbody tr.hidden-row{display:none}
+.td-num{text-align:right}
 
 /* ═══ 共用围挡分组（主行+子行） ═══ */
 .shared-main{background:#EFF5FC}
@@ -208,28 +220,35 @@ a:hover{color:var(--text-link-hover)}
 
 /* 新增状态 */
 .text-empty{color:var(--text-tertiary)}
-/* 围挡状态 */
-.status-setting{color:var(--color-primary-500)!important;background:var(--color-primary-50);padding:2px 8px;border-radius:var(--border-radius-tag);font-size:var(--font-size-xs)!important;font-weight:var(--font-weight-medium)}
-.status-soon{color:var(--color-warning-dark)!important;background:var(--color-warning-light);padding:2px 8px;border-radius:var(--border-radius-tag);font-size:var(--font-size-xs)!important;font-weight:var(--font-weight-medium)}
-.status-overdue{color:var(--color-danger-dark)!important;background:var(--color-danger-light);padding:2px 8px;border-radius:var(--border-radius-tag);font-size:var(--font-size-xs)!important;font-weight:var(--font-weight-medium)}
-.status-demolished{color:var(--text-tertiary)!important;background:var(--color-gray-100);padding:2px 8px;border-radius:var(--border-radius-tag);font-size:var(--font-size-xs)!important;font-weight:var(--font-weight-medium)}
-/* 问题状态 — 纯文字 */
-.status-success{color:var(--text-primary)}
-.status-wait{color:var(--color-warning-dark)}
-.status-alert{color:var(--color-danger)}
-/* 共用围挡行内状态标签增强对比 */
-.shared-main .status-setting{background:#D6E4F7}
-.shared-main .status-demolished{background:var(--color-gray-200)}
-.table-action-link.primary{color:var(--color-primary-500);font-weight:var(--font-weight-medium)}
-/* 操作列允许换行 */
-.actions-cell{white-space:normal!important;min-width:200px}
-.actions-cell .table-action-link{padding:3px 5px}
-/* tooltip */
-.th-tip{position:relative;cursor:help;display:inline-flex;align-items:center;gap:2px}
-.th-tip-icon{width:14px;height:14px;color:var(--text-tertiary);vertical-align:middle}
-.th-tip:hover .th-tip-content{display:block}
-.th-tip-content{display:none;position:absolute;left:50%;top:100%;transform:translateX(-50%);margin-top:6px;background:var(--color-gray-800);color:#fff;font-size:12px;font-weight:400;padding:8px 12px;border-radius:4px;white-space:normal;width:240px;line-height:1.5;z-index:50;box-shadow:0 4px 12px rgba(0,0,0,0.2)}
-.th-tip-content::before{content:'';position:absolute;top:-4px;left:50%;transform:translateX(-50%);border-left:5px solid transparent;border-right:5px solid transparent;border-bottom:5px solid var(--color-gray-800)}
+/* ═══ 统一标签基础 ═══ */
+.tag{display:inline-flex;align-items:center;justify-content:center;height:20px;padding:0 6px;border-radius:2px;font-size:12px;font-weight:var(--font-weight-medium);line-height:1;white-space:nowrap}
+/* 围挡状态 — 线框标签（空心） */
+.tag-setting{color:#1862D4;background:#EBF2FF;border:1px solid #1862D4}
+.tag-soon{color:#C47D00;background:#FEF6E6;border:1px solid #C47D00}
+.tag-overdue{color:#D13B2F;background:#FFF0EF;border:1px solid #D13B2F}
+.tag-expired{color:#9CA3B0;background:#F7F8FA;border:1px solid #9CA3B0}
+/* 问题状态 — 实心标签 */
+.tag-ok{background:#1A9042;color:#FFF}
+.tag-warn{background:#D48A00;color:#FFF}
+.tag-error{background:#D13B2F;color:#FFF}
+/* 是否待校核 */
+.verify-yes{color:#E65100}
+.verify-no{color:#9CA3B0}
+/* 工程状态 — 小圆点+文字 */
+.eng-dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:5px;vertical-align:middle}
+.eng-dot-gray{background:#9CA3B0}
+.eng-dot-orange{background:#D48A00}
+.eng-dot-green{background:#1A9042}
+/* 管护期限两行 */
+.custody-cell{text-align:center;line-height:1.5}
+.custody-date{font-size:13px;color:#1F2937}
+.custody-tag{margin-top:2px}
+/* 操作列 */
+.actions-cell{white-space:nowrap!important}
+.actions-cell .table-action-link{padding:3px 6px}
+.action-disabled{color:#C6CBD8!important;cursor:not-allowed!important;position:relative}
+.action-disabled:hover::after{content:attr(data-tip);position:absolute;bottom:100%;left:50%;transform:translateX(-50%);margin-bottom:6px;background:var(--color-gray-800);color:#fff;font-size:12px;font-weight:400;padding:6px 10px;border-radius:4px;white-space:nowrap;z-index:50;pointer-events:none}
+.action-disabled:hover::before{content:'';position:absolute;bottom:calc(100% - 4px);left:50%;transform:translateX(-50%);border-left:4px solid transparent;border-right:4px solid transparent;border-top:4px solid var(--color-gray-800);z-index:50;pointer-events:none}
 /* ═══ 选择弹窗 radio ═══ */
 .choice-modal .modal-body{padding:var(--space-6) var(--space-8)}
 .radio-group{display:flex;flex-direction:column;gap:var(--space-4)}
@@ -264,8 +283,90 @@ a:hover{color:var(--text-link-hover)}
 .assoc-empty{text-align:center;padding:var(--space-8) var(--space-4);color:var(--text-tertiary);font-size:var(--font-size-sm)}
 .assoc-item-projects{display:flex;flex-wrap:wrap;gap:4px;margin-top:3px}
 .assoc-proj-tag{font-size:10px;color:var(--text-tertiary);background:var(--color-gray-100);padding:1px 6px;border-radius:2px;white-space:nowrap}
+/* ═══ 下载二维码弹窗 ═══ */
+.qrcode-body-row{display:flex;gap:var(--space-4);min-height:320px}
+.qrcode-left-panel{flex:1;min-width:0;display:flex;flex-direction:column}
+.qrcode-check-list{display:flex;flex-direction:column;gap:var(--space-1);max-height:320px;overflow-y:auto;padding:0 var(--space-1)}
+.qrcode-check-item{display:flex;align-items:center;gap:var(--space-2);padding:var(--space-2) var(--space-2);border:1px solid var(--border-color-light);border-radius:var(--border-radius-md);cursor:pointer;transition:all var(--transition-fast);background:var(--color-gray-0)}
+.qrcode-check-item:hover{border-color:var(--color-primary-300);background:var(--color-primary-50)}
+.qrcode-check-item.selected{border-color:var(--color-primary-500);background:var(--color-primary-50)}
+.qrcode-check-item.active{border-color:var(--color-primary-500);background:var(--color-primary-50);box-shadow:0 0 0 2px rgba(24,98,212,0.15)}
+.qrcode-check-item input[type="checkbox"]{width:15px;height:15px;accent-color:var(--color-primary-500);cursor:pointer;flex-shrink:0}
+.qrcode-check-body{flex:1;min-width:0;overflow:hidden}
+.qrcode-check-title{font-size:var(--font-size-sm);color:var(--text-primary);font-weight:var(--font-weight-medium);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qrcode-check-meta{font-size:var(--font-size-xs);color:var(--text-tertiary);margin-top:1px;display:flex;align-items:center;gap:var(--space-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qrcode-select-all{padding:0 var(--space-2) var(--space-2);border-bottom:1px solid var(--border-color-light);margin-bottom:var(--space-2);display:flex;align-items:center;gap:var(--space-2);font-size:var(--font-size-sm);color:var(--text-secondary);cursor:pointer;user-select:none}
+.qrcode-select-all input[type="checkbox"]{width:15px;height:15px;accent-color:var(--color-primary-500);cursor:pointer}
+.qrcode-right-panel{width:165px;flex-shrink:0;border-left:1px solid var(--border-color-light);padding-left:var(--space-3);display:flex;flex-direction:column;align-items:center;justify-content:center}
+.qrcode-preview-area{text-align:center;width:100%}
+.qrcode-preview-placeholder{color:var(--text-tertiary);font-size:var(--font-size-sm);line-height:var(--line-height-normal)}
+
+/* ═══ 视图切换控件 ═══ */
+.page-header{display:flex;align-items:center;justify-content:space-between}
+.view-switch{display:inline-flex;border:1px solid var(--border-color-default);border-radius:var(--border-radius-md);overflow:hidden;height:var(--height-md)}
+.view-switch-btn{display:inline-flex;align-items:center;gap:4px;padding:0 12px;height:100%;font-size:var(--font-size-sm);color:var(--text-secondary);background:transparent;border:none;cursor:pointer;font-family:var(--font-family);font-weight:var(--font-weight-regular);transition:all var(--transition-fast);white-space:nowrap}
+.view-switch-btn svg{width:14px;height:14px;flex-shrink:0}
+.view-switch-btn:hover{color:var(--text-primary);background:var(--color-gray-50)}
+.view-switch-btn.active{color:var(--color-primary-600);background:var(--color-gray-0);font-weight:var(--font-weight-medium);box-shadow:var(--shadow-sm)}
+
+/* ═══ 地图视图 ═══ */
+.map-view{display:none;height:calc(100vh - var(--header-height) - 180px);min-height:400px}
+.map-view.visible{display:flex;gap:var(--space-4);animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.map-left{flex:7;border-radius:var(--border-radius-lg);position:relative;overflow:hidden;min-height:100%}
+.leaflet-container{font-family:var(--font-family)!important;background:#1a1a2e!important}
+.map-legend{z-index:400}
+.map-legend{position:absolute;right:12px;bottom:12px;background:var(--color-gray-0);border-radius:var(--border-radius-lg);padding:10px 14px;box-shadow:var(--shadow-md);font-size:var(--font-size-xs);color:var(--text-secondary);display:flex;flex-direction:column;gap:6px}
+.map-legend-item{display:flex;align-items:center;gap:8px}
+.map-legend-line{width:24px;height:3px;border-radius:1px;flex-shrink:0}
+.map-legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.map-zoom{position:absolute;left:12px;top:12px;display:flex;flex-direction:column;gap:2px}
+.map-zoom-btn{width:30px;height:30px;display:flex;align-items:center;justify-content:center;background:var(--color-gray-0);border:1px solid var(--color-gray-200);border-radius:var(--border-radius-md);cursor:pointer;font-size:16px;color:var(--text-secondary);font-weight:var(--font-weight-bold);transition:all var(--transition-fast)}
+.map-zoom-btn:hover{background:var(--color-gray-50);color:var(--text-primary)}
+/* Leaflet 序号徽章 */
+.map-fence-badge{display:flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--color-primary-500);color:#FFF;font-size:11px;font-weight:var(--font-weight-bold);border:2px solid #FFF;box-shadow:0 1px 4px rgba(0,0,0,0.3);cursor:pointer;transition:all var(--transition-fast)}
+.map-fence-badge.highlight{transform:scale(1.3);box-shadow:0 0 0 3px rgba(24,98,212,0.4)}
+.map-entrance-tooltip{background:none!important;border:none!important;box-shadow:none!important;font-size:12px;color:#1A9042;font-weight:var(--font-weight-bold);text-shadow:0 0 3px #FFF,0 0 5px #FFF}
+
+/* 右侧围挡卡片列表 */
+.map-right{flex:3;display:flex;flex-direction:column;min-width:260px;max-width:340px}
+.map-card-header{display:flex;align-items:center;gap:var(--space-2);padding:var(--space-3) var(--space-4);background:var(--bg-card);border:1px solid var(--border-color-light);border-radius:var(--border-radius-lg) var(--border-radius-lg) 0 0;border-bottom:none}
+.map-card-title{font-size:var(--font-size-md);font-weight:var(--font-weight-bold);color:var(--text-title)}
+.map-card-count{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:18px;padding:0 5px;background:var(--color-primary-500);color:#FFF;font-size:11px;font-weight:var(--font-weight-bold);border-radius:9px}
+.map-card-list{flex:1;overflow-y:auto;background:var(--bg-card);border:1px solid var(--border-color-light);border-radius:0 0 var(--border-radius-lg) var(--border-radius-lg);padding:var(--space-2)}
+.map-card{padding:var(--space-3) var(--space-4);border:1px solid var(--border-color-light);border-radius:var(--border-radius-md);margin-bottom:var(--space-2);cursor:pointer;transition:all var(--transition-fast);position:relative;background:var(--color-gray-0)}
+.map-card:last-child{margin-bottom:0}
+.map-card:hover{background:var(--color-primary-50);border-color:var(--color-primary-200)}
+.map-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:0;background:var(--color-primary-500);border-radius:var(--border-radius-md) 0 0 var(--border-radius-md);transition:width var(--transition-fast)}
+.map-card:hover::before{width:3px}
+.map-card.highlight{background:var(--color-primary-50);border-color:var(--color-primary-300);box-shadow:0 0 0 2px rgba(24,98,212,0.1)}
+.map-card.highlight::before{width:3px}
+.map-card-top{display:flex;align-items:center;gap:var(--space-2);margin-bottom:var(--space-2)}
+.map-card-badge{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--color-primary-500);color:#FFF;font-size:11px;font-weight:var(--font-weight-bold);flex-shrink:0}
+.map-card-period{font-size:var(--font-size-xs);color:var(--text-secondary)}
+.map-card-status{margin-left:auto}
+.map-card-divider{border:none;border-top:1px dashed var(--color-gray-200);margin:var(--space-2) 0}
+.map-card-row{display:flex;align-items:center;gap:var(--space-2);font-size:var(--font-size-xs);color:var(--text-secondary);margin-top:3px}
+.map-card-row-label{color:var(--text-tertiary);flex-shrink:0}
+.map-card-row-value{color:var(--text-primary);font-weight:var(--font-weight-medium);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.qrcode-preview-placeholder svg{display:block;margin:0 auto var(--space-2);color:var(--color-gray-300)}
+.qrcode-preview-img{width:135px;height:135px;border-radius:var(--border-radius-md);border:1px solid var(--border-color-light);cursor:pointer;transition:box-shadow var(--transition-fast)}
+.qrcode-preview-img:hover{box-shadow:0 2px 16px rgba(24,98,212,0.3)}
+.qrcode-preview-label{font-size:var(--font-size-xs);color:var(--text-primary);font-weight:var(--font-weight-medium);margin-top:var(--space-2);margin-bottom:2px}
+.qrcode-preview-sub{font-size:var(--font-size-xs);color:var(--text-tertiary);margin-bottom:var(--space-3)}
+.qrcode-empty{text-align:center;padding:var(--space-8) var(--space-4);color:var(--text-tertiary);font-size:var(--font-size-sm)}
+/* 小屏适配：左右分栏改为上下 */
+@media(max-width:700px){
+  .qrcode-body-row{flex-direction:column;min-height:auto}
+  .qrcode-left-panel{padding-right:0}
+  .qrcode-right-panel{width:100%;border-left:none;border-top:1px solid var(--border-color-light);padding:var(--space-4) 0 0;margin-top:var(--space-4);flex-direction:row;justify-content:center;gap:var(--space-4)}
+  .qrcode-preview-img{width:100px;height:100px}
+}
 </style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="../shared_data.js"></script>
+<script src="../mock-data.js"></script>
 </head>
 <body>
 <div class="layout-wrapper">
@@ -302,26 +403,42 @@ a:hover{color:var(--text-link-hover)}
     </aside>
     <main class="layout-main">
       <div class="breadcrumb"><a href="#" class="breadcrumb-item">首页</a><span class="breadcrumb-sep">/</span><span class="breadcrumb-item">围挡管理</span><span class="breadcrumb-sep">/</span><span class="breadcrumb-item">围挡档案管理</span></div>
-      <div class="page-header"><h1 class="page-title"><span class="page-title-accent"></span>围挡档案管理</h1></div>
+      <div class="page-header"><h1 class="page-title"><span class="page-title-accent"></span>围挡档案管理</h1>
+        <div class="view-switch">
+          <button class="view-switch-btn active" data-view="list" onclick="switchView('list')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>列表</button>
+          <button class="view-switch-btn" data-view="map" onclick="switchView('map')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>地图</button>
+        </div>
+      </div>
       <div class="selector-bar">
         <div class="selector-item">
           <span class="selector-label">项目名称</span>
           <select class="selector-select" id="selProject" onchange="onProjectChange()">
           </select>
         </div>
+        <div class="selector-info" id="selectorInfo">
+          <div class="selector-info-item"><span class="selector-info-label">行政区划</span><span class="selector-info-value" id="infoDistrict">—</span></div>
+          <div class="selector-info-item"><span class="selector-info-label">项目状态</span><span class="selector-info-value" id="infoProjectStatus">—</span></div>
+          <div class="selector-info-item"><span class="selector-info-label">行业类型</span><span class="selector-info-value" id="infoIndustry">—</span></div>
+          <div class="selector-info-item"><span class="selector-info-label">红线状态</span><span class="selector-info-value" id="infoRedline">—</span></div>
+          <div class="selector-info-item"><span class="selector-info-label">围挡计划拆除时间</span><span class="selector-info-value" id="infoPlanDemolish">—</span></div>
+        </div>
         <div class="selector-actions" id="selectorActions">
-          <button class="btn btn-primary btn-sm" id="btnAddFenceFromSelector" onclick="addFenceForProject()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>新增围挡</button>
+          <button class="btn btn-primary btn-sm" id="btnAddFenceFromSelector" onclick="addFenceForProject()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>新增围挡记录</button>
         </div>
       </div>
 
+      <div id="listViewContainer">
       <div class="card">
         <div class="card-toolbar">
           <div class="status-tabs">
-            <button class="status-tab active" data-status="全部" onclick="filterByStatus(this)">全部 <span class="status-tab-num">8</span></button>
-            <button class="status-tab" data-status="已建档" onclick="filterByStatus(this)">已建档 <span class="status-tab-num">5</span></button>
-            <button class="status-tab" data-status="未建档" onclick="filterByStatus(this)">未建档 <span class="status-tab-num">3</span></button>
+            <button class="status-tab active" data-status="全部" onclick="filterByTab(this)">全部 <span class="status-tab-num" id="tabNumAll">0</span></button>
+            <button class="status-tab" data-status="设置中" onclick="filterByTab(this)">设置中 <span class="status-tab-num" id="tabNumSetting">0</span></button>
+            <button class="status-tab" data-status="即将到期" onclick="filterByTab(this)">即将到期 <span class="status-tab-num" id="tabNumSoon">0</span></button>
+            <button class="status-tab" data-status="已超期" onclick="filterByTab(this)">已超期 <span class="status-tab-num" id="tabNumOverdue">0</span></button>
+            <button class="status-tab" data-status="已到期" onclick="filterByTab(this)">已到期 <span class="status-tab-num" id="tabNumExpired">0</span></button>
           </div>
           <div class="card-toolbar-right">
+            <button class="btn btn-ghost btn-sm" onclick="showQrCodeModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>下载二维码</button>
             <button class="btn btn-ghost btn-sm" onclick="showModal('importModal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>批量导入</button>
             <button class="btn btn-ghost btn-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>导出</button>
           </div>
@@ -331,167 +448,21 @@ a:hover{color:var(--text-link-hover)}
           <table class="table">
             <thead>
               <tr>
-                <th style="width:110px;text-align:center;">围挡编号</th>
-                <th style="width:22%">项目工程</th>
-                <th style="width:18%">地址</th>
-                <th style="width:6%;text-align:center;">行业类型</th>
-                <th style="width:7%;text-align:center;"><span class="th-tip">围挡状态<svg class="th-tip-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg><span class="th-tip-content">按关联围挡的所有项目工程中最晚的工期时间计算，距离拆除不足30天时为即将拆除，超过计划工期时为超期未拆除</span></span></th>
-                <th style="width:8%;text-align:center;">围挡长度(m)</th><th style="width:8%;text-align:center;">占道面积(m²)</th>
-                <th style="width:7%;text-align:center;">问题状态</th>
-                <th style="width:9%;text-align:center;">计划拆除日期</th>
-                <th style="width:9%;text-align:center;">更新时间</th>
-                <th style="width:18%;text-align:center;">操作</th>
+                <th style="width:38px;text-align:center;">序号</th>
+                <th style="width:13%;text-align:center;">围挡管护期限</th>
+                <th style="width:80px;text-align:center;">围挡状态</th>
+                <th style="width:80px;text-align:center;">是否待校核</th>
+                <th style="width:14%">责任单位</th>
+                <th style="width:7%">关联工程</th>
+                <th style="width:8%;text-align:center;">工程状态</th>
+                <th style="width:78px;text-align:center;">围挡长度(m)</th>
+                <th style="width:78px;text-align:center;">占道面积(㎡)</th>
+                <th style="width:72px;text-align:center;">问题状态</th>
+                <th style="width:140px;text-align:center;">操作</th>
               </tr>
             </thead>
             <tbody id="fenceTableBody">
-              <!-- ═══ 1 普通围挡：设置中+正常 ═══ -->
-              <tr data-project="南山区科技园综合体项目" data-archived="yes">
-                <td class="td-fid">WD-2026-0001</td>
-                <td><span class="proj-name">南山区科技园综合体项目</span><span class="eng-name"> · 基坑围护工程</span></td>
-                <td class="addr-cell">南山区粤海街道科技南路18号</td>
-                <td class="text-center">住建</td>
-                <td class="text-center"><span class="status-text status-setting">设置中</span></td>
-                <td class="text-center">320</td><td class="text-center">156.8</td>
-                <td class="text-center"><span class="status-text status-success">正常</span></td>
-                <td class="text-center">2027-06-30</td>
-                <td class="text-center">2026-04-28</td>
-                <td class="text-center actions-cell">
-                  <a href="javascript:void(0)" class="table-action-link" onclick="handleViewDetail(this)" data-project="南山区科技园综合体项目" data-engineering="基坑围护工程">详情</a>
-                  <a href="javascript:void(0)" class="table-action-link" onclick="handleViewPatrol(this)" data-project="南山区科技园综合体项目" data-engineering="基坑围护工程">巡检记录</a>
-                  <a href="javascript:void(0)" class="table-action-link" onclick="handleChangeFence(this)" data-project="南山区科技园综合体项目" data-engineering="基坑围护工程" data-address="南山区粤海街道科技南路18号">变更</a>
-                  <a href="javascript:void(0)" class="table-action-link" onclick="showQrCode('南山区科技园综合体项目-基坑围护工程围挡')">二维码</a>
-                  <a href="javascript:void(0)" class="table-action-link danger" onclick="showDeleteConfirm('南山区科技园综合体项目 · 基坑围护工程','包含：南山区科技园综合体项目 - 基坑围护工程')">删除</a>
-                </td>
-              </tr>
-
-              <!-- ═══ 2 共用围挡：即将拆除+待整改 ═══ -->
-              <tr data-project="福田中心区市政管网改造工程" data-archived="yes" class="shared-main">
-                <td class="td-fid-main">WD-2026-0002</td>
-                <td colspan="3" class="fence-title">管道铺设工程 · 道路恢复工程</td>
-                <td class="text-center"><span class="status-text status-soon">即将拆除</span></td>
-                <td class="text-center">180</td><td class="text-center">85.2</td>
-                <td class="text-center"><span class="status-text status-wait">待整改</span></td>
-                <td class="text-center">2025-09-30</td>
-                <td class="text-center">2026-05-02</td>
-                <td class="text-center actions-cell">
-                  <a href="javascript:void(0)" class="table-action-link" onclick="handleViewDetail(this)" data-project="福田中心区市政管网改造工程" data-engineering="管道铺设工程">详情</a>
-                  <a href="javascript:void(0)" class="table-action-link" onclick="handleViewPatrol(this)" data-project="福田中心区市政管网改造工程" data-engineering="管道铺设工程">巡检记录</a>
-                  <a href="javascript:void(0)" class="table-action-link" onclick="handleChangeFence(this)" data-project="福田中心区市政管网改造工程" data-engineering="管道铺设工程" data-address="福田区福华三路与金田路交汇处">变更</a>
-                  <a href="javascript:void(0)" class="table-action-link" onclick="showQrCode('福田中心区市政管网改造工程-共用围挡')">二维码</a>
-                  <a href="javascript:void(0)" class="table-action-link danger" onclick="showDeleteConfirm('福田中心区市政管网改造工程 共用围挡','包含项目工程：\n· 福田中心区市政管网改造工程 - 管道铺设工程\n· 福田中心区市政管网改造工程 - 道路恢复工程')">删除</a>
-                </td>
-              </tr>
-              <tr data-project="福田中心区市政管网改造工程" data-archived="yes" class="shared-sub sub-row-top">
-                <td class="td-fid" rowspan="2" style="vertical-align:top;padding-top:12px !important"></td>
-                <td><span class="sub-dot"></span><span class="sub-proj">福田中心区市政管网改造工程</span><span class="sub-eng"> · 管道铺设工程</span></td>
-                <td class="sub-addr">福田区福华三路与金田路交汇处</td>
-                <td class="text-center">水务</td>
-                <td colspan="7" rowspan="2"></td>
-              </tr>
-              <tr data-project="福田中心区市政管网改造工程" data-archived="yes" class="shared-sub sub-row-bot">
-                <td><span class="sub-dot"></span><span class="sub-proj">福田中心区市政管网改造工程</span><span class="sub-eng"> · 道路恢复工程</span></td>
-                <td class="sub-addr">福田区福华三路与金田路交汇处</td>
-                <td class="text-center">水务</td>
-              </tr>
-              <!-- ═══ 3 普通围挡：超期未拆除+整改逾期 ═══ -->
-              <tr data-project="龙华区民治街道城市更新项目" data-archived="yes">
-                <td class="td-fid">WD-2026-0003</td>
-                <td><span class="proj-name">龙华区民治街道城市更新项目</span><span class="eng-name"> · 主体结构工程</span></td>
-                <td class="addr-cell">龙华区民治街道民康路与民塘路交汇处</td>
-                <td class="text-center">住建</td>
-                <td class="text-center"><span class="status-text status-overdue">超期未拆除</span></td>
-                <td class="text-center">560</td><td class="text-center">312.0</td>
-                <td class="text-center"><span class="status-text status-alert">整改逾期</span></td>
-                <td class="text-center">2027-06-30</td>
-                <td class="text-center">2026-05-05</td>
-                <td class="text-center actions-cell">
-                  <a href="javascript:void(0)" class="table-action-link" onclick="handleViewDetail(this)" data-project="龙华区民治街道城市更新项目" data-engineering="主体结构工程">详情</a>
-                  <a href="javascript:void(0)" class="table-action-link" onclick="handleViewPatrol(this)" data-project="龙华区民治街道城市更新项目" data-engineering="主体结构工程">巡检记录</a>
-                  <a href="javascript:void(0)" class="table-action-link" onclick="handleChangeFence(this)" data-project="龙华区民治街道城市更新项目" data-engineering="主体结构工程" data-address="龙华区民治街道民康路与民塘路交汇处">变更</a>
-                  <a href="javascript:void(0)" class="table-action-link" onclick="showQrCode('龙华区民治街道城市更新项目-主体结构工程围挡')">二维码</a>
-                  <a href="javascript:void(0)" class="table-action-link danger" onclick="showDeleteConfirm('龙华区民治街道城市更新项目 · 主体结构工程','包含：龙华区民治街道城市更新项目 - 主体结构工程')">删除</a>
-                </td>
-              </tr>
-
-              <!-- ═══ 4 共用围挡：设置中+正常 ═══ -->
-              <tr data-project="宝安区新安街道住宅楼项目" data-archived="yes" class="shared-main">
-                <td class="td-fid-main">WD-2026-0004</td>
-                <td colspan="3" class="fence-title">土方开挖工程 · 基础工程</td>
-                <td class="text-center"><span class="status-text status-setting">设置中</span></td>
-                <td class="text-center">240</td><td class="text-center">112.6</td>
-                <td class="text-center"><span class="status-text status-success">正常</span></td>
-                <td class="text-center">2028-06-30</td>
-                <td class="text-center">2026-04-15</td>
-                <td class="text-center actions-cell">
-                  <a href="javascript:void(0)" class="table-action-link" onclick="handleViewDetail(this)" data-project="宝安区新安街道住宅楼项目" data-engineering="土方开挖工程">详情</a>
-                  <a href="javascript:void(0)" class="table-action-link" onclick="handleViewPatrol(this)" data-project="宝安区新安街道住宅楼项目" data-engineering="土方开挖工程">巡检记录</a>
-                  <a href="javascript:void(0)" class="table-action-link" onclick="handleChangeFence(this)" data-project="宝安区新安街道住宅楼项目" data-engineering="土方开挖工程" data-address="宝安区新安街道兴华路南侧">变更</a>
-                  <a href="javascript:void(0)" class="table-action-link" onclick="showQrCode('宝安区新安街道住宅楼项目-共用围挡')">二维码</a>
-                  <a href="javascript:void(0)" class="table-action-link danger" onclick="showDeleteConfirm('宝安区新安街道住宅楼项目 共用围挡','包含项目工程：\n· 宝安区新安街道住宅楼项目 - 土方开挖工程\n· 宝安区新安街道住宅楼项目 - 基础工程')">删除</a>
-                </td>
-              </tr>
-              <tr data-project="宝安区新安街道住宅楼项目" data-archived="yes" class="shared-sub sub-row-top">
-                <td class="td-fid" rowspan="2" style="vertical-align:top;padding-top:12px !important"></td>
-                <td><span class="sub-dot"></span><span class="sub-proj">宝安区新安街道住宅楼项目</span><span class="sub-eng"> · 土方开挖工程</span></td>
-                <td class="sub-addr">宝安区新安街道兴华路南侧</td>
-                <td class="text-center">住建</td>
-                <td colspan="7" rowspan="2"></td>
-              </tr>
-              <tr data-project="宝安区新安街道住宅楼项目" data-archived="yes" class="shared-sub sub-row-bot">
-                <td><span class="sub-dot"></span><span class="sub-proj">宝安区新安街道住宅楼项目</span><span class="sub-eng"> · 基础工程</span></td>
-                <td class="sub-addr">宝安区新安街道兴华路南侧</td>
-                <td class="text-center">住建</td>
-              </tr>
-              <!-- ═══ 5 普通围挡：已拆除+正常 ═══ -->
-              <tr data-project="罗湖区湖贝旧村改造项目" data-archived="yes">
-                <td class="td-fid">WD-2026-0005</td>
-                <td><span class="proj-name">罗湖区湖贝旧村改造项目</span><span class="eng-name"> · 桩基工程</span></td>
-                <td class="addr-cell">罗湖区湖贝路与文锦中路交汇处</td>
-                <td class="text-center">住建</td>
-                <td class="text-center"><span class="status-text status-demolished">已拆除</span></td>
-                <td class="text-center">410</td><td class="text-center">198.3</td>
-                <td class="text-center"><span class="status-text status-success">正常</span></td>
-                <td class="text-center">2025-06-30</td>
-                <td class="text-center">2026-03-10</td>
-                <td class="text-center actions-cell">
-                  <a href="javascript:void(0)" class="table-action-link" onclick="handleViewDetail(this)" data-project="罗湖区湖贝旧村改造项目" data-engineering="桩基工程">详情</a>
-                  <a href="javascript:void(0)" class="table-action-link" onclick="handleViewPatrol(this)" data-project="罗湖区湖贝旧村改造项目" data-engineering="桩基工程">巡检记录</a>
-                  <a href="javascript:void(0)" class="table-action-link" onclick="handleChangeFence(this)" data-project="罗湖区湖贝旧村改造项目" data-engineering="桩基工程" data-address="罗湖区湖贝路与文锦中路交汇处">变更</a>
-                  <a href="javascript:void(0)" class="table-action-link" onclick="showQrCode('罗湖区湖贝旧村改造项目-桩基工程围挡')">二维码</a>
-                  <a href="javascript:void(0)" class="table-action-link danger" onclick="showDeleteConfirm('罗湖区湖贝旧村改造项目 · 桩基工程','包含：罗湖区湖贝旧村改造项目 - 桩基工程')">删除</a>
-                </td>
-              </tr>
-
-              <!-- ═══ 未建档 — 有红线可正常新增 ═══ -->
-              <tr data-project="宝安区新安街道住宅楼项目" data-archived="no">
-                <td class="td-fid" style="color:var(--text-tertiary)">—</td>
-                <td><span class="proj-name">宝安区新安街道住宅楼项目</span><span class="eng-name"> · 基础工程</span></td>
-                <td class="addr-cell">宝安区新安街道兴华路南侧</td>
-                <td class="text-center">住建</td>
-                <td class="text-center"><span class="text-empty">-</span></td><td class="text-center"><span class="text-empty">-</span></td>
-                <td class="text-center"><span class="text-empty">-</span></td><td class="text-center"><span class="text-empty">-</span></td><td class="text-center"><span class="text-empty">-</span></td><td class="text-center"><span class="text-empty">-</span></td>
-                <td class="text-center actions-cell"><a href="javascript:void(0)" class="table-action-link primary" onclick="handleAddFence(this)" data-project="宝安区新安街道住宅楼项目" data-engineering="基础工程" data-address="宝安区新安街道兴华路南侧">新增围挡</a></td>
-              </tr>
-              <!-- ═══ 未建档 — 无红线需先完善 ═══ -->
-              <tr data-project="宝安区新安街道住宅楼项目" data-archived="no">
-                <td class="td-fid" style="color:var(--text-tertiary)">—</td>
-                <td><span class="proj-name">宝安区新安街道住宅楼项目</span><span class="eng-name"> · 外墙装饰工程</span></td>
-                <td class="addr-cell">宝安区新安街道兴华路南侧</td>
-                <td class="text-center">住建</td>
-                <td class="text-center"><span class="text-empty">-</span></td><td class="text-center"><span class="text-empty">-</span></td>
-                <td class="text-center"><span class="text-empty">-</span></td><td class="text-center"><span class="text-empty">-</span></td><td class="text-center"><span class="text-empty">-</span></td><td class="text-center"><span class="text-empty">-</span></td>
-                <td class="text-center actions-cell"><a href="javascript:void(0)" class="table-action-link primary" onclick="handleAddFence(this)" data-project="宝安区新安街道住宅楼项目" data-engineering="外墙装饰工程" data-address="宝安区新安街道兴华路南侧">新增围挡</a></td>
-              </tr>
-              <!-- ═══ 未建档 — 无红线需先完善 ═══ -->
-              <tr data-project="光明区凤凰城道路工程" data-archived="no">
-                <td class="td-fid" style="color:var(--text-tertiary)">—</td>
-                <td><span class="proj-name">光明区凤凰城道路工程</span><span class="eng-name"> · 路基施工工程</span></td>
-                <td class="addr-cell">光明区凤凰城街道光明大道北侧</td>
-                <td class="text-center">交通</td>
-                <td class="text-center"><span class="text-empty">-</span></td><td class="text-center"><span class="text-empty">-</span></td>
-                <td class="text-center"><span class="text-empty">-</span></td><td class="text-center"><span class="text-empty">-</span></td><td class="text-center"><span class="text-empty">-</span></td><td class="text-center"><span class="text-empty">-</span></td>
-                <td class="text-center actions-cell"><a href="javascript:void(0)" class="table-action-link primary" onclick="handleAddFence(this)" data-project="光明区凤凰城道路工程" data-engineering="路基施工工程" data-address="光明区凤凰城街道光明大道北侧">新增围挡</a></td>
-              </tr>
+              <!-- JS动态渲染 -->
             </tbody>
           </table>
         </div>
@@ -503,6 +474,30 @@ a:hover{color:var(--text-link-hover)}
             <button class="page-btn active">1</button>
             <button class="page-btn" disabled>&gt;</button>
           </div>
+        </div>
+      </div>
+      </div>
+
+      <!-- ═══ 地图视图 ═══ -->
+      <div id="mapViewContainer" class="map-view">
+        <div class="map-left" id="mapLeft">
+          <div id="fenceMapContainer" style="position:absolute;inset:0;z-index:0"></div>
+          <div class="map-zoom">
+            <button class="map-zoom-btn" onclick="mapZoom(1)">+</button>
+            <button class="map-zoom-btn" onclick="mapZoom(-1)">−</button>
+          </div>
+          <div class="map-legend">
+            <div class="map-legend-item"><span class="map-legend-line" style="background:#D13B2F"></span><span>项目红线</span></div>
+            <div class="map-legend-item"><span class="map-legend-line" style="background:#1862D4;border-top:2px dashed #1862D4;height:0"></span><span>围挡范围</span></div>
+            <div class="map-legend-item"><span class="map-legend-dot" style="background:#1A9042"></span><span>出入口</span></div>
+          </div>
+        </div>
+        <div class="map-right">
+          <div class="map-card-header">
+            <span class="map-card-title">围挡记录</span>
+            <span class="map-card-count" id="mapCardCount">0</span>
+          </div>
+          <div class="map-card-list" id="mapCardList"></div>
         </div>
       </div>
     </main>
@@ -639,349 +634,679 @@ a:hover{color:var(--text-link-hover)}
   </div>
 </div>
 
+<!-- ═══ 下载二维码弹窗 ═══ -->
+<div class="modal-overlay" id="qrCodeModal">
+  <div class="modal" style="width:640px;max-width:95vw">
+    <div class="modal-header">
+      <span class="modal-title">下载围挡二维码</span>
+      <button class="modal-close" onclick="hideModal('qrCodeModal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="qrcode-body-row">
+        <div class="qrcode-left-panel">
+          <div class="qrcode-select-all" onclick="toggleAllQrCheckboxes(event)">
+            <input type="checkbox" id="qrSelectAll" onchange="toggleAllQrCheckboxes(event)"> <span>全选</span>
+          </div>
+          <div class="qrcode-check-list" id="qrCodeCheckList"></div>
+          <div class="qrcode-empty" id="qrCodeEmpty" style="display:none">暂无可下载的围挡记录</div>
+        </div>
+        <div class="qrcode-right-panel" id="qrPreviewPanel">
+          <div class="qrcode-preview-area" id="qrPreviewArea">
+            <div class="qrcode-preview-placeholder">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+              <div>悬停左侧列表<br>查看二维码预览</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost btn-sm" onclick="hideModal('qrCodeModal')">取消</button>
+      <button class="btn btn-primary btn-sm" onclick="downloadSelectedQrCodes()">确认下载</button>
+    </div>
+  </div>
+</div>
+
 <script>
 
-/* ═══ 从SD动态渲染表格 ═══ */
+/* ═══ 从 MOCK_DATA 生成围挡块数据 ═══ */
+function buildFenceBlocks(){
+  var selProject=document.getElementById('selProject').value||'';
+  var all=MOCK_DATA.getHoardings();
+  if(selProject) all=all.filter(function(h){return h.projectName===selProject;});
+  return all.map(function(h){
+    return{
+      blockId:h.id,
+      projectName:h.projectName,
+      engineerName:h.engineerName,
+      unitName:h.constructUnit,
+      address:h.address,
+      fenceStatus:h.fenceStatus,
+      length:h.length,
+      area:h.area,
+      issueStatus:h.issueStatus,
+      needVerify:h.needVerify||'否',
+      engStatus:h.engStatus,
+      custodyStart:h.custodyStart,
+      custodyEnd:h.custodyEnd,
+      hasPermission:h.fenceStatus==='设置中'||h.fenceStatus==='即将到期',
+      gpsShape:h.gpsShape,
+      gpsEntrances:(h.entrances||[]).map(function(e){return{lat:e.lat,lng:e.lng,name:e.name}})
+    };
+  });
+}
+var MOCK_FENCE_BLOCKS=buildFenceBlocks();
+/* 地图红线 — 取当前选中项目的红线，若无则取第一个项目 */
+function getMapRedline(){
+  var selName=document.getElementById('selProject').value||'';
+  var proj=MOCK_DATA.getProjects().find(function(p){return p.name===selName});
+  if(proj&&proj.redlineGeo&&proj.redlineGeo.length>=3)return proj.redlineGeo;
+  var p0=MOCK_DATA.getProjects()[0];
+  return p0&&p0.redlineGeo?p0.redlineGeo:[];
+}
+var MAP_REDLINE_GPS=getMapRedline();
+
+var _currentTab='全部';
+
+/* ═══ 渲染表格 ═══ */
 function renderTableFromSD(){
   var tbody=document.getElementById('fenceTableBody');
   if(!tbody)return;
-  SD.init();
+  var blocks=MOCK_FENCE_BLOCKS.slice();
+  if(_currentTab!=='全部'){
+    blocks=blocks.filter(function(b){return b.fenceStatus===_currentTab;});
+  }
+  var sortOrder={'已超期':0,'即将到期':1,'设置中':2,'已到期':3};
+  blocks.sort(function(a,b){var sa=sortOrder[a.fenceStatus];var sb=sortOrder[b.fenceStatus];if(sa===undefined)sa=99;if(sb===undefined)sb=99;return sa-sb;});
   var html='';
-  var statusCls={'设置中':'status-setting','即将拆除':'status-soon','超期未拆除':'status-overdue','已拆除':'status-demolished'};
-  var issueCls={'正常':'status-success','待整改':'status-wait','整改逾期':'status-alert'};
-  var groups=SD.getAllFencesGrouped();
-  groups.forEach(function(g){
-    var fenceId=g.fenceId;
-    var data=g.data;
-    var proj=g.project;
-    var eng0=data[0].engineer;
-    var fStatus=eng0.fenceStatus||'设置中';
-    var fStatusCls=statusCls[fStatus]||'status-setting';
-    var iStatus=eng0.issueStatus||'正常';
-    var iStatusCls=issueCls[iStatus]||'status-success';
-    var len=eng0.length||0;
-    var area=eng0.area||0;
-    var planRemove=eng0.planRemoveDate||'-';
-    var updateTime=SD.getData().updatedAt?SD.getData().updatedAt.slice(0,10):'2026-05-18';
-    if(data.length===1){
-      var p=proj.name;var e=eng0.name;var addr=eng0.address||proj.address;
-      html+='<tr data-project="'+p+'" data-archived="yes">';
-      html+='<td class="td-fid">'+fenceId+'</td>';
-      html+='<td><span class="proj-name">'+p+'</span><span class="eng-name"> · '+e+'</span></td>';
-      html+='<td class="addr-cell">'+addr+'</td>';
-      html+='<td class="text-center">住建</td>';
-      html+='<td class="text-center"><span class="status-text '+fStatusCls+'">'+fStatus+'</span></td>';
-      html+='<td class="text-center">'+len+'</td><td class="text-center">'+area+'</td>';
-      html+='<td class="text-center"><span class="status-text '+iStatusCls+'">'+iStatus+'</span></td>';
-      html+='<td class="text-center">'+planRemove+'</td><td class="text-center">'+updateTime+'</td>';
-      html+='<td class="text-center actions-cell">';
-      html+='<a href="javascript:void(0)" class="table-action-link" onclick="handleViewDetail(this)" data-project="'+p+'" data-engineering="'+e+'">详情</a> ';
-      html+='<a href="javascript:void(0)" class="table-action-link" onclick="handleViewPatrol(this)" data-project="'+p+'" data-engineering="'+e+'">巡检记录</a> ';
-      html+='<a href="javascript:void(0)" class="table-action-link" onclick="handleChangeFence(this)" data-project="'+p+'" data-engineering="'+e+'" data-address="'+addr+'">变更</a> ';
-      html+='<a href="javascript:void(0)" class="table-action-link" onclick="showQrCode(\''+p+'-'+e+'围挡\')">二维码</a> ';
-      html+='<a href="javascript:void(0)" class="table-action-link danger" onclick="showDeleteConfirm(\''+p+' · '+e+'\',\'包含：'+p+' - '+e+'\')">删除</a>';
-      html+='</td></tr>';
-    }else{
-      var engNames=data.map(function(item){return item.engineer.name}).join(' · ');
-      var firstP=data[0].project.name;var firstE=data[0].engineer.name;
-      var firstAddr=data[0].engineer.address||data[0].project.address;
-      html+='<tr data-project="'+firstP+'" data-archived="yes" class="shared-main">';
-      html+='<td class="td-fid-main">'+fenceId+'</td>';
-      html+='<td colspan="3" class="fence-title">'+engNames+'</td>';
-      html+='<td class="text-center"><span class="status-text '+fStatusCls+'">'+fStatus+'</span></td>';
-      html+='<td class="text-center">'+len+'</td><td class="text-center">'+area+'</td>';
-      html+='<td class="text-center"><span class="status-text '+iStatusCls+'">'+iStatus+'</span></td>';
-      html+='<td class="text-center">'+planRemove+'</td><td class="text-center">'+updateTime+'</td>';
-      html+='<td class="text-center actions-cell">';
-      html+='<a href="javascript:void(0)" class="table-action-link" onclick="handleViewDetail(this)" data-project="'+firstP+'" data-engineering="'+firstE+'">详情</a> ';
-      html+='<a href="javascript:void(0)" class="table-action-link" onclick="handleViewPatrol(this)" data-project="'+firstP+'" data-engineering="'+firstE+'">巡检记录</a> ';
-      html+='<a href="javascript:void(0)" class="table-action-link" onclick="handleChangeFence(this)" data-project="'+firstP+'" data-engineering="'+firstE+'" data-address="'+firstAddr+'">变更</a> ';
-      html+='<a href="javascript:void(0)" class="table-action-link" onclick="showQrCode(\''+firstP+'-共用围挡\')">二维码</a> ';
-      var delDetail='包含项目工程：\\n'+data.map(function(item){return'· '+item.project.name+' - '+item.engineer.name}).join('\\n');
-      html+='<a href="javascript:void(0)" class="table-action-link danger" onclick="showDeleteConfirm(\''+firstP+' 共用围挡\',\''+delDetail+'\')">删除</a>';
-      html+='</td></tr>';
-      var rc=data.length;
-      data.forEach(function(item,idx){
-        var cls=idx===0?'shared-sub sub-row-top':'shared-sub'+(idx===rc-1?' sub-row-bot':'');
-        html+='<tr data-project="'+item.project.name+'" data-archived="yes" class="'+cls+'">';
-        if(idx===0)html+='<td class="td-fid" rowspan="'+rc+'" style="vertical-align:top;padding-top:12px !important"></td>';
-        html+='<td><span class="sub-dot"></span><span class="sub-proj">'+item.project.name+'</span><span class="sub-eng"> · '+item.engineer.name+'</span></td>';
-        html+='<td class="sub-addr">'+(item.engineer.address||item.project.address)+'</td>';
-        html+='<td class="text-center">住建</td>';
-        if(idx===0)html+='<td colspan="7" rowspan="'+rc+'"></td>';
-        html+='</tr>';
-      });
-    }
+  blocks.forEach(function(b,idx){
+    var sCls=getStatusCls(b.fenceStatus);
+    var iCls=getIssueCls(b.issueStatus);
+    html+='<tr data-status="'+b.fenceStatus+'">';
+    html+='<td class="text-center">'+(idx+1)+'</td>';
+    html+='<td class="text-center" style="font-size:13px">'+b.custodyStart+' ~ '+b.custodyEnd+'</td>';
+    html+='<td class="text-center"><span class="tag '+getFenceTagCls(b.fenceStatus)+'">'+b.fenceStatus+'</span></td>';
+    var nv=b.needVerify||'否';
+    html+='<td class="text-center">'+(nv==='是'?'<span class="verify-yes">是</span>':'<span class="verify-no">否</span>')+'</td>';
+    html+='<td class="addr-cell" style="font-size:13px">'+b.unitName+'</td>';
+    html+='<td><span class="proj-name">'+b.engineerName+'</span></td>';
+    html+='<td class="text-center">'+getEngDot(b.engStatus)+'</td>';
+    html+='<td class="text-center">'+b.length+'</td>';
+    html+='<td class="text-center">'+b.area+'</td>';
+    html+='<td class="text-center"><span class="tag '+getIssueTagCls(b.issueStatus)+'">'+b.issueStatus+'</span></td>';
+    html+='<td class="text-center actions-cell">'+buildActions(b)+'</td>';
+    html+='</tr>';
   });
-  SD.getProjects().forEach(function(p){
-    (p.engineers||[]).forEach(function(e){
-      if(!e.fenceId){
-        html+='<tr data-project="'+p.name+'" data-archived="no">';
-        html+='<td class="td-fid" style="color:var(--text-tertiary)">—</td>';
-        html+='<td><span class="proj-name">'+p.name+'</span><span class="eng-name"> · '+e.name+'</span></td>';
-        html+='<td class="addr-cell">'+(e.address||p.address)+'</td>';
-        html+='<td class="text-center">住建</td>';
-        for(var i=0;i<6;i++)html+='<td class="text-center"><span class="text-empty">-</span></td>';
-        html+='<td class="text-center actions-cell"><a href="javascript:void(0)" class="table-action-link primary" onclick="handleAddFence(this)" data-project="'+p.name+'" data-engineering="'+e.name+'" data-address="'+(e.address||p.address)+'">新增围挡</a></td>';
-        html+='</tr>';
-      }
-    });
-  });
+  if(!blocks.length){
+    html+='<tr><td colspan="11" class="text-center" style="padding:40px;color:var(--text-tertiary)">暂无数据</td></tr>';
+  }
   tbody.innerHTML=html;
+  refreshMapView();
+}
+
+function getStatusCls(s){
+  return({'设置中':'status-setting','即将到期':'status-soon','已超期':'status-overdue','已到期':'status-demolished'})[s]||'status-setting';
+}
+function getFenceTagCls(s){
+  return({'设置中':'tag-setting','即将到期':'tag-soon','已超期':'tag-overdue','已到期':'tag-expired'})[s]||'tag-setting';
+}
+function getIssueTagCls(s){
+  return({'正常':'tag-ok','待整改':'tag-warn','整改逾期':'tag-error'})[s]||'tag-ok';
+}
+function getEngDot(s){
+  var cls='eng-dot-gray';
+  if(s==='停工')cls='eng-dot-orange';
+  else if(s==='竣工验收'||s==='完工备案')cls='eng-dot-green';
+  return'<span class="eng-dot '+cls+'"></span>'+s;
+}
+function getStatusColor(s){
+  return({'设置中':'#1862D4','即将到期':'#C47D00','已超期':'#D13B2F','已到期':'#9CA3B0'})[s]||'#1F2937';
+}
+function getIssueCls(s){
+  return({'正常':'status-success','待整改':'status-wait','整改逾期':'status-alert'})[s]||'status-success';
+}
+
+function buildActions(b){
+  var h='<a href="javascript:void(0)" class="table-action-link" onclick="handleViewDetail(this)" data-project="'+b.projectName+'" data-engineering="'+b.engineerName+'">详情</a> ';
+  if(b.hasPermission){
+    h+='<a href="javascript:void(0)" class="table-action-link" onclick="handleChangeFence(this)" data-project="'+b.projectName+'" data-engineering="'+b.engineerName+'" data-address="'+b.address+'">变更</a> ';
+    h+='<a href="javascript:void(0)" class="table-action-link" onclick="handleViewPatrol(this)" data-project="'+b.projectName+'" data-engineering="'+b.engineerName+'">巡检记录</a>';
+  }
+  return h;
+}
+
+/* ═══ Tab筛选 ═══ */
+function filterByTab(tab){
+  document.querySelectorAll('.status-tab').forEach(function(t){t.classList.remove('active')});
+  tab.classList.add('active');
+  _currentTab=tab.getAttribute('data-status');
+  renderTableFromSD();
+  updatePagination();
+  refreshMapView();
+}
+
+function updateStatusCounts(){
+  var blocks=MOCK_FENCE_BLOCKS;
+  var counts={'全部':blocks.length,'设置中':0,'即将到期':0,'已超期':0,'已到期':0};
+  blocks.forEach(function(b){if(counts.hasOwnProperty(b.fenceStatus))counts[b.fenceStatus]++;});
+  var map={'全部':'tabNumAll','设置中':'tabNumSetting','即将到期':'tabNumSoon','已超期':'tabNumOverdue','已到期':'tabNumExpired'};
+  for(var k in map){var el=document.getElementById(map[k]);if(el)el.textContent=counts[k];}
+}
+
+function updatePagination(){
+  var tbody=document.getElementById('fenceTableBody');
+  var rows=tbody?tbody.querySelectorAll('tr[data-status]').length:0;
+  var info=document.querySelector('.pagination-info');
+  if(info)info.innerHTML='共 <strong>'+rows+'</strong> 条';
 }
 
 /* ═══ 项目选择器 ═══ */
 function initProjectSelector(){
   var sel=document.getElementById('selProject');
-  SD.getProjects().forEach(function(p){
-    var opt=document.createElement('option');
-    opt.value=p.name;
-    opt.textContent=p.name;
-    sel.appendChild(opt);
-  });
-  // URL 参数自动选中，否则默认选中第一个项目
+  MOCK_DATA.getProjects().forEach(function(p){var opt=document.createElement('option');opt.value=p.name;opt.textContent=p.name;sel.appendChild(opt);});
   var m=window.location.search.match(/project=([^&]+)/);
-  if(m){
-    var p=decodeURIComponent(m[1]);
-    sel.value=p;
-  }else if(sel.options.length>1){
-    sel.selectedIndex=1;
-  }
+  if(m) sel.value=decodeURIComponent(m[1]);
+  else if(sel.options.length>1) sel.selectedIndex=1;
   onProjectChange();
 }
 
 function onProjectChange(){
-  var project=document.getElementById('selProject').value;
-  var rows=document.querySelectorAll('.table tbody tr');
-  rows.forEach(function(row){
-    if(!project||row.getAttribute('data-project')===project){
-      row.classList.remove('hidden-project');
-    }else{
-      row.classList.add('hidden-project');
-    }
-  });
-  updateStatusCounts(project);
-  updatePagination(project);
+  var projectName=document.getElementById('selProject').value;
+  updateProjectInfo(projectName);
+  MOCK_FENCE_BLOCKS=buildFenceBlocks();
+  MAP_REDLINE_GPS=getMapRedline();
+  renderTableFromSD();
+  updateStatusCounts();
+  updatePagination();
+  refreshMapView();
 }
 
-function updateStatusCounts(project){
-  var rows=document.querySelectorAll('.table tbody tr');
-  var total=0,archived=0,notArchived=0;
-  rows.forEach(function(row){
-    if(project&&row.getAttribute('data-project')!==project) return;
-    if(row.classList.contains('shared-sub')) return;
-    total++;
-    if(row.getAttribute('data-archived')==='yes') archived++;
-    else notArchived++;
+var PROJECT_EXT_INFO=(function(){
+  var info={};
+  MOCK_DATA.getProjects().forEach(function(p){
+    info[p.name]={district:p.district,projectStatus:p.status,industry:'住建',redline:p.redlineGeo&&p.redlineGeo.length>=3?'已绘制':'未绘制',planDemolish:(p.hoardings||[]).length?p.hoardings[0].planRemoveDate:'—'};
   });
-  var tabs=document.querySelectorAll('.status-tab');
-  if(tabs[0]) tabs[0].innerHTML='全部 <span class="status-tab-num">'+total+'</span>';
-  if(tabs[1]) tabs[1].innerHTML='已建档 <span class="status-tab-num">'+archived+'</span>';
-  if(tabs[2]) tabs[2].innerHTML='未建档 <span class="status-tab-num">'+notArchived+'</span>';
-}
+  return info;
+})();
 
-function updatePagination(project){
-  var rows=document.querySelectorAll('.table tbody tr');
-  var count=0;
-  rows.forEach(function(row){
-    if(row.classList.contains('shared-sub')) return;
-    if(project&&row.getAttribute('data-project')!==project) return;
-    count++;
-  });
-  var info=document.querySelector('.pagination-info');
-  if(info) info.innerHTML='共 <strong>'+count+'</strong> 条';
+function updateProjectInfo(projectName){
+  var info=PROJECT_EXT_INFO[projectName]||{district:'—',projectStatus:'—',industry:'—',redline:'—',planDemolish:'—'};
+  document.getElementById('infoDistrict').textContent=info.district;
+  document.getElementById('infoProjectStatus').textContent=info.projectStatus;
+  document.getElementById('infoIndustry').textContent=info.industry;
+  document.getElementById('infoPlanDemolish').textContent=info.planDemolish||'—';
+  var rlEl=document.getElementById('infoRedline');
+  rlEl.textContent=info.redline;
+  rlEl.className='selector-info-value status-tag '+(info.redline==='已绘制'?'info-tag-success':'info-tag-gray');
 }
 
 function addFenceForProject(){
   var project=document.getElementById('selProject').value;
-  if(project){
-    window.open('detail_v2_project.html?project='+encodeURIComponent(project),'_self');
-  }else{
-    window.open('detail_v2_project.html','_self');
-  }
+  if(project) window.open('detail_v2_project.html?project='+encodeURIComponent(project),'_self');
+  else window.open('detail_v2_project.html','_self');
 }
-
 
 function showModal(id){document.getElementById(id).classList.add('visible')}
 function hideModal(id){document.getElementById(id).classList.remove('visible')}
-document.querySelectorAll('.modal-overlay').forEach(function(o){o.addEventListener('click',function(e){if(e.target===o)o.classList.remove('visible')})});
-function showDeleteConfirm(n,detail){document.getElementById('deleteTargetName').textContent=n;var detailEl=document.getElementById('deleteTargetDetail');if(detail&&detailEl){detailEl.textContent=detail;detailEl.style.display='block'}else if(detailEl){detailEl.style.display='none'};showModal('deleteModal')}
-function showQrCode(t){document.getElementById('qrcodeTitle').textContent=t;showModal('qrcodeModal')}
-document.getElementById('fileInput').addEventListener('change',function(e){var f=e.target.files[0];if(f){var r=document.getElementById('uploadResult');document.getElementById('uploadFileName').textContent='已选择文件：'+f.name;r.style.display='block'}});
-function filterByStatus(tab){
-  document.querySelectorAll('.status-tab').forEach(function(t){t.classList.remove('active')});
-  tab.classList.add('active');
-  var status=tab.getAttribute('data-status');
-  var rows=document.querySelectorAll('.table tbody tr');
-  rows.forEach(function(row){
-    if(status==='全部'){row.classList.remove('hidden-row')}
-    else if(status==='已建档'&&row.getAttribute('data-archived')==='yes'){row.classList.remove('hidden-row')}
-    else if(status==='未建档'&&row.getAttribute('data-archived')==='no'){row.classList.remove('hidden-row')}
-    else{row.classList.add('hidden-row')}
+
+/* ═══ 下载二维码 ═══ */
+var _qrCache={};
+function buildQrPageUrl(blockId){
+  var block=MOCK_FENCE_BLOCKS.find(function(b){return b.blockId===blockId});
+  if(!block)return window.location.origin+'/public-miniapp/qrcode.html';
+  return window.location.origin+'/public-miniapp/qrcode.html?blockId='+encodeURIComponent(blockId)+'&name='+encodeURIComponent(block.engineerName)+'&project='+encodeURIComponent(block.projectName);
+}
+function showQrPreview(blockId){
+  var panel=document.getElementById('qrPreviewArea');
+  if(!panel)return;
+  var block=MOCK_FENCE_BLOCKS.find(function(b){return b.blockId===blockId});
+  if(!block)return;
+  if(!_qrCache[blockId]){
+    _qrCache[blockId]='https://api.qrserver.com/v1/create-qr-code/?size=135x135&data='+encodeURIComponent(buildQrPageUrl(blockId));
+  }
+  panel.innerHTML=
+    '<img class="qrcode-preview-img" src="'+_qrCache[blockId]+'" alt="二维码" onclick="event.stopPropagation();window.open(\'../public-miniapp/qrcode.html?blockId='+encodeURIComponent(blockId)+'&name='+encodeURIComponent(block.engineerName)+'&project='+encodeURIComponent(block.projectName)+'\',\'_blank\')" title="点击跳转小程序示例页面">'+
+    '<div class="qrcode-preview-label">'+block.projectName+'</div>'+
+    '<div class="qrcode-preview-sub">'+block.engineerName+'</div>';
+  var items=document.querySelectorAll('#qrCodeCheckList .qrcode-check-item');
+  items.forEach(function(item){item.classList.remove('active')});
+  var activeItem=document.querySelector('#qrCodeCheckList .qrcode-check-item[data-block-id="'+blockId+'"]');
+  if(activeItem)activeItem.classList.add('active');
+}
+function resetQrPreview(){
+  var panel=document.getElementById('qrPreviewArea');
+  if(!panel)return;
+  panel.innerHTML='<div class="qrcode-preview-placeholder"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><div>悬停左侧列表<br>查看二维码预览</div></div>';
+  var items=document.querySelectorAll('#qrCodeCheckList .qrcode-check-item');
+  items.forEach(function(item){item.classList.remove('active')});
+}
+function showQrCodeModal(){
+  var listEl=document.getElementById('qrCodeCheckList');
+  var emptyEl=document.getElementById('qrCodeEmpty');
+  var allowed=MOCK_FENCE_BLOCKS.filter(function(b){return b.hasPermission});
+  if(!allowed.length){
+    if(listEl)listEl.innerHTML='';
+    if(emptyEl)emptyEl.style.display='block';
+  }else{
+    if(emptyEl)emptyEl.style.display='none';
+    if(listEl){
+      listEl.innerHTML=allowed.map(function(b,i){
+        return '<label class="qrcode-check-item" data-block-id="'+b.blockId+'" onmouseenter="showQrPreview(\''+b.blockId+'\')">'+
+          '<input type="checkbox" value="'+b.blockId+'" onchange="onQrItemChange()">'+
+          '<div class="qrcode-check-body">'+
+            '<div class="qrcode-check-title">'+b.blockId+' — '+b.projectName+' / '+b.engineerName+'</div>'+
+            '<div class="qrcode-check-meta"><span>'+b.unitName+'</span><span>'+b.address+'</span></div>'+
+          '</div>'+
+        '</label>';
+      }).join('');
+    }
+  }
+  var selAll=document.getElementById('qrSelectAll');
+  if(selAll)selAll.checked=false;
+  resetQrPreview();
+  showModal('qrCodeModal');
+}
+function onQrItemChange(){
+  var items=document.querySelectorAll('#qrCodeCheckList .qrcode-check-item');
+  var cbs=document.querySelectorAll('#qrCodeCheckList input[type="checkbox"]');
+  var allChecked=true;
+  cbs.forEach(function(cb){if(!cb.checked)allChecked=false});
+  document.getElementById('qrSelectAll').checked=allChecked;
+  items.forEach(function(item){
+    var cb=item.querySelector('input[type="checkbox"]');
+    item.classList.toggle('selected',cb.checked);
+  });
+}
+function toggleAllQrCheckboxes(e){
+  var selAll=document.getElementById('qrSelectAll');
+  // 如果点击的是外层div（非checkbox本身），先切换checkbox状态
+  if(e&&e.target&&e.target.tagName!=='INPUT'){
+    selAll.checked=!selAll.checked;
+  }
+  var checked=selAll.checked;
+  var cbs=document.querySelectorAll('#qrCodeCheckList input[type="checkbox"]');
+  cbs.forEach(function(cb){cb.checked=checked});
+  var items=document.querySelectorAll('#qrCodeCheckList .qrcode-check-item');
+  items.forEach(function(item){item.classList.toggle('selected',checked)});
+}
+function downloadSelectedQrCodes(){
+  var cbs=document.querySelectorAll('#qrCodeCheckList input[type="checkbox"]:checked');
+  if(!cbs.length){alert('请至少选择一个围挡记录');return}
+  var ids=[];
+  cbs.forEach(function(cb){ids.push(cb.value)});
+  hideModal('qrCodeModal');
+  ids.forEach(function(id,i){
+    setTimeout(function(){
+      downloadPolishedQr(id);
+    },i*500);
+  });
+}
+function roundRect(ctx,x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);
+  ctx.arcTo(x+w,y,x+w,y+h,r);
+  ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r);
+  ctx.arcTo(x,y,x+r,y,r);
+  ctx.closePath();
+}
+function downloadPolishedQr(blockId){
+  var block=MOCK_FENCE_BLOCKS.find(function(b){return b.blockId===blockId});
+  if(!block)return;
+  var qrUrl='https://api.qrserver.com/v1/create-qr-code/?size=300x300&data='+encodeURIComponent(buildQrPageUrl(blockId));
+  fetch(qrUrl).then(function(resp){
+    if(!resp.ok)throw new Error('fetch fail');
+    return resp.blob();
+  }).then(function(blob){
+    var img=new Image();
+    img.onload=function(){
+      var W=420,H=550,R=12;
+      var canvas=document.createElement('canvas');
+      canvas.width=W;canvas.height=H;
+      var ctx=canvas.getContext('2d');
+      // shadow
+      ctx.save();
+      ctx.shadowColor='rgba(0,0,0,0.12)';
+      ctx.shadowBlur=20;
+      ctx.shadowOffsetX=0;
+      ctx.shadowOffsetY=4;
+      roundRect(ctx,2,2,W-4,H-4,R);
+      ctx.fillStyle='#FFFFFF';
+      ctx.fill();
+      ctx.restore();
+      // card border
+      roundRect(ctx,2,2,W-4,H-4,R);
+      ctx.strokeStyle='#E3E6ED';
+      ctx.lineWidth=1;
+      ctx.stroke();
+      // header bg
+      ctx.beginPath();
+      ctx.moveTo(2+R,2);
+      ctx.arcTo(2+W-4,2,2+W-4,2+56,R);
+      ctx.arcTo(2+W-4,2+56,2,2+56,0);
+      ctx.arcTo(2,2+56,2,2,0);
+      ctx.arcTo(2,2,2+R,2,R);
+      ctx.closePath();
+      ctx.fillStyle='#1862D4';
+      ctx.fill();
+      ctx.fillStyle='#FFFFFF';
+      ctx.font='bold 17px "PingFang SC","Microsoft YaHei","Helvetica Neue",sans-serif';
+      ctx.textAlign='center';
+      ctx.textBaseline='middle';
+      ctx.fillText('深圳市建设施工围挡数字化管理系统',W/2,30);
+      // QR code
+      var qrSize=300,qrX=(W-qrSize)/2,qrY=80;
+      roundRect(ctx,qrX-4,qrY-4,qrSize+8,qrSize+8,8);
+      ctx.fillStyle='#FFFFFF';
+      ctx.fill();
+      roundRect(ctx,qrX-4,qrY-4,qrSize+8,qrSize+8,8);
+      ctx.strokeStyle='#E3E6ED';
+      ctx.lineWidth=1;
+      ctx.stroke();
+      ctx.drawImage(img,qrX,qrY,qrSize,qrSize);
+      // labels
+      var labelY=396;
+      ctx.fillStyle='#374151';
+      ctx.font='500 15px "PingFang SC","Microsoft YaHei","Helvetica Neue",sans-serif';
+      ctx.fillText(block.projectName,W/2,labelY);
+      ctx.fillStyle='#1862D4';
+      ctx.font='bold 17px "PingFang SC","Microsoft YaHei","Helvetica Neue",sans-serif';
+      ctx.fillText(block.engineerName,W/2,labelY+28);
+      // divider
+      ctx.beginPath();
+      ctx.moveTo(W/2-50,labelY+50);
+      ctx.lineTo(W/2+50,labelY+50);
+      ctx.strokeStyle='#C6CBD8';
+      ctx.lineWidth=1;
+      ctx.stroke();
+      // hint
+      ctx.fillStyle='#9CA3B0';
+      ctx.font='13px "PingFang SC","Microsoft YaHei","Helvetica Neue",sans-serif';
+      ctx.fillText('微信扫码查看围挡详情',W/2,labelY+76);
+      // footer
+      ctx.fillStyle='#9CA3B0';
+      ctx.font='11px "PingFang SC","Microsoft YaHei","Helvetica Neue",sans-serif';
+      ctx.fillText(block.blockId+' · '+block.unitName,W/2,labelY+100);
+      // download
+      canvas.toBlob(function(b){
+        var a=document.createElement('a');
+        a.href=URL.createObjectURL(b);
+        a.download=block.projectName+'_'+block.engineerName+'_二维码.png';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(a.href);
+      },'image/png');
+    };
+    img.src=URL.createObjectURL(blob);
+  }).catch(function(){
+    window.open('../public-miniapp/qrcode.html?blockId='+blockId+'&name='+encodeURIComponent(block.engineerName)+'&project='+encodeURIComponent(block.projectName),'_blank');
   });
 }
 
-/* ═══ 新增围挡选择流程 ═══ */
-var _pendingRow=null;
-var _selectedAssocId=null;
+document.querySelectorAll('.modal-overlay').forEach(function(o){o.addEventListener('click',function(e){if(e.target===o)o.classList.remove('visible')})});
+function showDeleteConfirm(n,detail){document.getElementById('deleteTargetName').textContent=n;var d=document.getElementById('deleteTargetDetail');if(detail&&d){d.textContent=detail;d.style.display='block'}else if(d){d.style.display='none'}showModal('deleteModal')}
+function showQrCode(t){document.getElementById('qrcodeTitle').textContent=t;showModal('qrcodeModal')}
+document.getElementById('fileInput').addEventListener('change',function(e){var f=e.target.files[0];if(f){document.getElementById('uploadFileName').textContent='已选择文件：'+f.name;document.getElementById('uploadResult').style.display='block'}});
+
+/* ═══ 新增围挡流程 ═══ */
+var _pendingRow=null,_selectedAssocId=null;
 
 (function(){
   var key='redlineMockData_v2';
-  try{
-    if(!localStorage.getItem(key)){
-      var defaults=[{no:1,project:'南山区科技园综合体项目',district:'南山区',industry:'住建',status:'已绘制',time:'2026-04-21 10:32',area:'2,340',geo:[[[22.538,113.952],[22.544,113.960],[22.534,113.968],[22.528,113.954]]]},{no:2,project:'福田中心区市政管网改造工程',district:'福田区',industry:'水务',status:'已绘制',time:'2026-04-18 14:05',area:'1,860',geo:[[[22.548,114.055],[22.556,114.063],[22.548,114.070],[22.540,114.058]]]},{no:3,project:'宝安区新安街道住宅楼项目',district:'宝安区',industry:'住建',status:'已绘制',time:'2026-04-15 09:45',area:'2,850',geo:[[[22.570,113.895],[22.578,113.905],[22.572,113.915],[22.562,113.900]]]},{no:4,project:'龙华区民治街道城市更新项目',district:'龙华区',industry:'住建',status:'已绘制',time:'2026-04-10 16:28',area:'1,950',geo:[[[22.620,114.035],[22.628,114.045],[22.618,114.052],[22.612,114.038]]]},{no:5,project:'光明区凤凰城道路工程',district:'光明区',industry:'交通',status:'未绘制',time:'—',area:'—',geo:null},{no:6,project:'盐田区港口配套基础设施项目',district:'盐田区',industry:'交通',status:'未绘制',time:'—',area:'—',geo:null},{no:7,project:'罗湖区湖贝旧村改造项目',district:'罗湖区',industry:'住建',status:'已绘制',time:'2026-05-10 09:15',area:'2,120',geo:[[[22.543,114.126],[22.551,114.132],[22.545,114.138],[22.538,114.130]]]}];
-      localStorage.setItem(key,JSON.stringify(defaults));
-    }
-  }catch(e){}
+  try{if(!localStorage.getItem(key)){
+    var defaults=[{no:1,project:'南山区科技园综合体项目',district:'南山区',industry:'住建',status:'已绘制',time:'2026-04-21 10:32',area:'2,340',geo:[[[22.538,113.952],[22.544,113.960],[22.534,113.968],[22.528,113.954]]]},{no:2,project:'福田中心区市政管网改造工程',district:'福田区',industry:'水务',status:'已绘制',time:'2026-04-18 14:05',area:'1,860',geo:[[[22.548,114.055],[22.556,114.063],[22.548,114.070],[22.540,114.058]]]},{no:3,project:'宝安区新安街道住宅楼项目',district:'宝安区',industry:'住建',status:'已绘制',time:'2026-04-15 09:45',area:'2,850',geo:[[[22.570,113.895],[22.578,113.905],[22.572,113.915],[22.562,113.900]]]},{no:4,project:'龙华区民治街道城市更新项目',district:'龙华区',industry:'住建',status:'已绘制',time:'2026-04-10 16:28',area:'1,950',geo:[[[22.620,114.035],[22.628,114.045],[22.618,114.052],[22.612,114.038]]]},{no:5,project:'光明区凤凰城道路工程',district:'光明区',industry:'交通',status:'未绘制',time:'—',area:'—',geo:null},{no:6,project:'盐田区港口配套基础设施项目',district:'盐田区',industry:'交通',status:'未绘制',time:'—',area:'—',geo:null},{no:7,project:'罗湖区湖贝旧村改造项目',district:'罗湖区',industry:'住建',status:'已绘制',time:'2026-05-10 09:15',area:'2,120',geo:[[[22.543,114.126],[22.551,114.132],[22.545,114.138],[22.538,114.130]]]}];
+    localStorage.setItem(key,JSON.stringify(defaults));
+  }}catch(e){}
 })();
-function checkRedline(project, engineering){
-  var p=SD.getProjects().find(function(pr){return pr.name===project});
-  if(p){return {complete: p.redlineStatus==='已绘制', idx: -1}}
+
+function checkRedline(project){
   var key='redlineMockData_v2';
-  try{
-    var stored=localStorage.getItem(key);
-    if(stored){
-      var data=JSON.parse(stored);
-      for(var i=0;i<data.length;i++){
-        if(data[i].project===project){
-          return {complete: data[i].status==='已绘制', idx: i};
-        }
-      }
-    }
-  }catch(e){}
-  return {complete: false, idx: -1};
+  try{var stored=localStorage.getItem(key);if(stored){var data=JSON.parse(stored);for(var i=0;i<data.length;i++){if(data[i].project===project)return{complete:data[i].status==='已绘制',idx:i};}}}catch(e){}
+  return{complete:false,idx:-1};
 }
 
 function handleAddFence(el){
-  var project=el.getAttribute('data-project');
-  var engineering=el.getAttribute('data-engineering');
-  var redline=checkRedline(project, engineering);
+  var project=el.getAttribute('data-project'),engineering=el.getAttribute('data-engineering');
+  var redline=checkRedline(project);
   if(!redline.complete){
     document.getElementById('redlineWarningInfo').textContent='项目：'+project+' / 工程：'+engineering;
     var linkBtn=document.getElementById('redlineWarningLinkBtn');
-    linkBtn.onclick=function(){
-      hideModal('redlineWarningModal');
-      if(redline.idx>=0){
-        window.open('redline-draw.html?idx='+redline.idx,'_self');
-      }else{
-        window.open('redline-draw.html','_self');
-      }
-    };
-    showModal('redlineWarningModal');
-    return;
+    linkBtn.onclick=function(){hideModal('redlineWarningModal');window.open('redline-draw.html'+(redline.idx>=0?'?idx='+redline.idx:''),'_self');};
+    showModal('redlineWarningModal');return;
   }
-  _pendingRow={
-    project:project,
-    engineering:engineering,
-    address:el.getAttribute('data-address')
-  };
+  _pendingRow={project:project,engineering:engineering,address:el.getAttribute('data-address')};
   showModal('choiceModal');
 }
 
-function choiceNew(){
-  hideModal('choiceModal');
-  var p=encodeURIComponent(_pendingRow.project);
-  var e=encodeURIComponent(_pendingRow.engineering);
-  var a=encodeURIComponent(_pendingRow.address);
-  window.open('detail_v2_project.html?project='+p+'&engineering='+e+'&address='+a,'_self');
-}
+function choiceNew(){hideModal('choiceModal');var p=encodeURIComponent(_pendingRow.project),e=encodeURIComponent(_pendingRow.engineering),a=encodeURIComponent(_pendingRow.address);window.open('detail_v2_project.html?project='+p+'&engineering='+e+'&address='+a,'_self');}
+function choiceAssoc(){hideModal('choiceModal');showAssocModal();}
 
-function choiceAssoc(){
-  hideModal('choiceModal');
-  showAssocModal();
-}
-function handleViewDetail(el){
-  var p=encodeURIComponent(el.getAttribute('data-project'));
-  var e=encodeURIComponent(el.getAttribute('data-engineering'));
-  window.open('detail_info_v2_project.html?project='+p+'&engineering='+e,'_self');
-}
-function handleViewPatrol(el){
-  var p=encodeURIComponent(el.getAttribute('data-project'));
-  var e=encodeURIComponent(el.getAttribute('data-engineering'));
-  window.open('detail_info_v2_project.html?project='+p+'&engineering='+e+'#sec-inspect','_self');
-}
-function handleChangeFence(el){
-  var p=encodeURIComponent(el.getAttribute('data-project'));
-  var e=encodeURIComponent(el.getAttribute('data-engineering'));
-  var a=encodeURIComponent(el.getAttribute('data-address'));
-  window.open('change_v2_project.html?project='+p+'&engineering='+e+'&address='+a,'_self');
-}
+function handleViewDetail(el){var p=encodeURIComponent(el.getAttribute('data-project')),e=encodeURIComponent(el.getAttribute('data-engineering'));window.open('detail_info_v2_project.html?project='+p+'&engineering='+e,'_self');}
+function handleViewPatrol(el){var p=encodeURIComponent(el.getAttribute('data-project')),e=encodeURIComponent(el.getAttribute('data-engineering'));window.open('detail_info_v2_project.html?project='+p+'&engineering='+e+'#sec-inspect','_self');}
+function handleChangeFence(el){var p=encodeURIComponent(el.getAttribute('data-project')),e=encodeURIComponent(el.getAttribute('data-engineering')),a=encodeURIComponent(el.getAttribute('data-address'));window.open('change_v2_project.html?project='+p+'&engineering='+e+'&address='+a,'_self');}
 
 /* ═══ 关联现有围挡 ═══ */
-var mockFenceData=(function(){
-  return SD.getAllFencesGrouped().map(function(g){
-    var e0=g.data[0].engineer;
-    return{id:g.fenceId,addr:e0.address||g.data[0].project.address,status:e0.fenceStatus||'设置中',statusClass:SD.getStatusClass(e0.fenceStatus),length:e0.length||0,projects:g.data.map(function(item){return item.project.name+' · '+item.engineer.name})};
-  });
-})();
+var mockFenceData=MOCK_DATA.getHoardings().map(function(h){return{id:h.id,addr:h.address,status:h.fenceStatus,statusClass:getStatusCls(h.fenceStatus),length:h.length,projects:[h.engineerName]};});
 
 function showAssocModal(){
   document.getElementById('assocProject').textContent=_pendingRow.project;
   document.getElementById('assocEngineering').textContent=_pendingRow.engineering;
-  _selectedAssocId=null;
-  document.getElementById('assocSearchInput').value='';
-  renderAssocList(mockFenceData);
-  showModal('assocModal');
+  _selectedAssocId=null;document.getElementById('assocSearchInput').value='';
+  renderAssocList(mockFenceData);showModal('assocModal');
 }
 
 function renderAssocList(data){
   var list=document.getElementById('assocList');
   if(!data.length){list.innerHTML='<div class="assoc-empty">没有找到匹配的围挡</div>';return}
-  var addr=_pendingRow?_pendingRow.address:'';
-  var html='';
+  var addr=_pendingRow?_pendingRow.address:'',html='';
   data.forEach(function(f){
     var isRec=addr&&f.addr&&(f.addr===addr||f.addr.indexOf(addr.substring(0,6))!==-1);
-    var sel=_selectedAssocId===f.id?' selected':'';
-    var chk=_selectedAssocId===f.id?' checked':'';
+    var sel=_selectedAssocId===f.id?' selected':'',chk=_selectedAssocId===f.id?' checked':'';
     html+='<div class="assoc-item'+sel+'" onclick="selectAssocItem(\''+f.id+'\')">'
       +'<input type="radio" name="assocRadio" class="assoc-item-radio"'+chk+'>'
-      +'<div class="assoc-item-body">'
-        +'<div class="assoc-item-top">'
-          +'<span class="assoc-item-id">'+f.id+'</span>'
-          +(isRec?'<span class="recommend-tag">推荐</span>':'')
-        +'</div>'
-        +'<div class="assoc-item-addr">'+f.addr+'</div>'
-        +'<div class="assoc-item-meta">'
-          +'<span class="'+f.statusClass+'">'+f.status+'</span>'
-          +'<span>长度 '+f.length+'m</span>'
-          +'<span class="assoc-item-count">已关联'+f.projects.length+'个工程</span>'
-        +'</div>'
-        +'<div class="assoc-item-projects">'
-          +f.projects.map(function(p){return'<span class="assoc-proj-tag">'+p+'</span>'}).join('')
-        +'</div>'
-        +'</div>'
-      +'</div>'
-    +'</div>';
+      +'<div class="assoc-item-body"><div class="assoc-item-top"><span class="assoc-item-id">'+f.id+'</span>'
+      +(isRec?'<span class="recommend-tag">推荐</span>':'')+'</div>'
+      +'<div class="assoc-item-addr">'+f.addr+'</div>'
+      +'<div class="assoc-item-meta"><span class="'+f.statusClass+'">'+f.status+'</span><span>长度 '+f.length+'m</span></div>'
+      +'</div></div>';
   });
   list.innerHTML=html;
 }
 
-function selectAssocItem(id){
-  _selectedAssocId=id;
-  var kw=document.getElementById('assocSearchInput').value.trim().toLowerCase();
-  renderAssocList(filterFenceData(kw));
+function selectAssocItem(id){_selectedAssocId=id;renderAssocList(filterFenceData(document.getElementById('assocSearchInput').value.trim().toLowerCase()));}
+function filterAssocList(){renderAssocList(filterFenceData(document.getElementById('assocSearchInput').value.trim().toLowerCase()));}
+function filterFenceData(kw){if(!kw)return mockFenceData;return mockFenceData.filter(function(f){return(f.id+' '+f.addr+' '+f.projects.join(' ')).toLowerCase().indexOf(kw)!==-1;});}
+function confirmAssoc(){if(!_selectedAssocId){alert('请选择一个围挡进行关联');return}var fence=mockFenceData.find(function(f){return f.id===_selectedAssocId});hideModal('assocModal');alert('原型演示：已将「'+_pendingRow.engineering+'」关联到围挡 '+fence.id);}
+
+/* ═══ 地图视图逻辑（Leaflet 卫星影像） ═══ */
+var _fenceMapView=null;
+var _mapFenceLayers={};
+var _mapBadges={};
+var _mapRedlineLayer=null;
+
+function switchView(view){
+  document.querySelectorAll('.view-switch-btn').forEach(function(b){b.classList.toggle('active',b.getAttribute('data-view')===view)});
+  var lv=document.getElementById('listViewContainer');
+  var mv=document.getElementById('mapViewContainer');
+  if(view==='list'){
+    lv.style.display='';mv.classList.remove('visible');
+  }else{
+    lv.style.display='none';mv.classList.add('visible');
+    renderMapView();
+  }
 }
 
-function filterAssocList(){
-  var kw=document.getElementById('assocSearchInput').value.trim().toLowerCase();
-  renderAssocList(filterFenceData(kw));
+/* ═══ 属地化边界校验 ═══ */
+var _currentBoundaryName='';
+var _currentBoundaryPoly=null;
+
+function isPointInPolygon(lat,lng,polygon){
+  var inside=false;
+  for(var i=0,j=polygon.length-1;i<polygon.length;j=i++){
+    var latI=polygon[i][0],lngI=polygon[i][1];
+    var latJ=polygon[j][0],lngJ=polygon[j][1];
+    if(((lngI>lng)!==(lngJ>lng))&&(lat<(latJ-latI)*(lng-lngI)/(lngJ-lngI)+latI)){inside=!inside;}
+  }
+  return inside;
 }
 
-function filterFenceData(kw){
-  if(!kw)return mockFenceData;
-  return mockFenceData.filter(function(f){
-    return(f.id+' '+f.addr+' '+f.projects.join(' ')).toLowerCase().indexOf(kw)!==-1;
+function validateBlockBoundary(block,boundaryPoly){
+  var result={valid:true,invalidShapeIdx:[],invalidEntranceIdx:[]};
+  if(!boundaryPoly||!block.gpsShape)return result;
+  for(var i=0;i<block.gpsShape.length;i++){
+    if(!isPointInPolygon(block.gpsShape[i][0],block.gpsShape[i][1],boundaryPoly)){
+      result.valid=false;result.invalidShapeIdx.push(i);
+    }
+  }
+  if(block.gpsEntrances){
+    for(var j=0;j<block.gpsEntrances.length;j++){
+      if(!isPointInPolygon(block.gpsEntrances[j].lat,block.gpsEntrances[j].lng,boundaryPoly)){
+        result.valid=false;result.invalidEntranceIdx.push(j);
+      }
+    }
+  }
+  return result;
+}
+
+function validateCoordinate(lat,lng){
+  if(!_currentBoundaryPoly)return true;
+  return isPointInPolygon(lat,lng,_currentBoundaryPoly);
+}
+
+function getCurrentSubdistrict(){
+  return null;
+}
+
+function initFenceMap(){
+  if(_fenceMapView){_fenceMapView.remove();_fenceMapView=null}
+  _mapFenceLayers={};_mapBadges={};_mapRedlineLayer=null;
+  _fenceMapView=L.map('fenceMapContainer',{zoomControl:false,attributionControl:false}).setView([22.570,114.010],11);
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'Esri',maxZoom:19}).addTo(_fenceMapView);
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}).addTo(_fenceMapView);
+  L.control.zoom({position:'topleft'}).addTo(_fenceMapView);
+}
+
+function renderMapView(){
+  if(!_fenceMapView)initFenceMap();
+  else{_fenceMapView.eachLayer(function(l){if(!(l instanceof L.TileLayer))_fenceMapView.removeLayer(l)});_mapFenceLayers={};_mapBadges={};_mapRedlineLayer=null}
+  var allBounds=[];
+  /* 项目红线 */
+  _mapRedlineLayer=L.polygon(MAP_REDLINE_GPS,{color:'#D13B2F',weight:2,fillColor:'rgba(209,59,47,0.15)',fillOpacity:0.5,dashArray:null,interactive:false}).addTo(_fenceMapView);
+  allBounds.push(_mapRedlineLayer.getBounds());
+  /* 围挡图斑（排除已到期） */
+  var seq=0;
+  MOCK_FENCE_BLOCKS.forEach(function(b){
+    if(b.fenceStatus==='已到期')return;
+    seq++;
+    if(!b.gpsShape||b.gpsShape.length<3)return;
+    var fg=L.featureGroup().addTo(_fenceMapView);
+    var poly=L.polygon(b.gpsShape,{color:'#1862D4',weight:2.5,dashArray:'8 4',fillColor:'rgba(24,98,212,0.08)',fillOpacity:0.5,interactive:true}).addTo(fg);
+    allBounds.push(poly.getBounds());
+    var center=poly.getBounds().getCenter();
+    var badgeIcon=L.divIcon({className:'',html:'<div class="map-fence-badge" data-badge="'+b.blockId+'">'+seq+'</div>',iconSize:[22,22],iconAnchor:[11,11]});
+    var badge=L.marker(center,{icon:badgeIcon,interactive:true}).addTo(fg);
+    if(b.gpsEntrances){
+      b.gpsEntrances.forEach(function(en){
+        L.circleMarker([en.lat,en.lng],{radius:5,fillColor:'#1A9042',fillOpacity:1,weight:1.5,color:'#FFF'}).addTo(fg)
+          .bindTooltip(en.name,{permanent:false,direction:'right',className:'map-entrance-tooltip',offset:[6,0]});
+      });
+    }
+    (function(bid){
+      poly.on('mouseover',function(){highlightFence(bid)});
+      poly.on('mouseout',function(){unhighlightFence(bid)});
+      badge.on('mouseover',function(){highlightFence(bid)});
+      badge.on('mouseout',function(){unhighlightFence(bid)});
+      poly.on('click',function(){
+        var p=encodeURIComponent(b.projectName);var e=encodeURIComponent(b.engineerName);
+        window.open('detail_info_v2_project.html?project='+p+'&engineering='+e,'_self');
+      });
+    })(b.blockId);
+    _mapFenceLayers[b.blockId]={group:fg,polygon:poly,badge:badge,seq:seq};
   });
+  if(allBounds.length){
+    var combined=allBounds[0];
+    for(var bi=1;bi<allBounds.length;bi++)combined.extend(allBounds[bi]);
+    _fenceMapView.fitBounds(combined,{padding:[20,20]});
+  }
+  renderMapCards();
 }
 
-function confirmAssoc(){
-  if(!_selectedAssocId){alert('请选择一个围挡进行关联');return}
-  var fence=mockFenceData.find(function(f){return f.id===_selectedAssocId});
-  hideModal('assocModal');
-  alert('原型演示：已将「'+_pendingRow.engineering+'」关联到围挡 '+fence.id);
+function renderMapCards(){
+  var list=document.getElementById('mapCardList');
+  var countEl=document.getElementById('mapCardCount');
+  var statusTagMap={'设置中':'tag-setting','即将到期':'tag-soon','已超期':'tag-overdue'};
+  var engDotMap={'工程监督':'eng-dot-gray','停工':'eng-dot-orange','竣工验收':'eng-dot-green'};
+  var html='';
+  var count=0;
+  MOCK_FENCE_BLOCKS.forEach(function(b){
+    if(b.fenceStatus==='已到期')return;
+    count++;
+    var cls=statusTagMap[b.fenceStatus]||'tag-setting';
+    var dotCls=engDotMap[b.engStatus]||'eng-dot-gray';
+    var info=_mapFenceLayers[b.blockId];
+    var seq=info?info.seq:count;
+    html+='<div class="map-card" data-card="'+b.blockId+'" onmouseenter="highlightFence(\''+b.blockId+'\')" onmouseleave="unhighlightFence(\''+b.blockId+'\')" onclick="handleMapCardClick(\''+b.blockId+'\')">';
+    html+='<div class="map-card-top">';
+    html+='<span class="map-card-badge">'+seq+'</span>';
+    html+='<span class="map-card-period">'+b.custodyStart+' ~ '+b.custodyEnd+'</span>';
+    html+='<span class="map-card-status"><span class="tag '+cls+'">'+b.fenceStatus+'</span></span>';
+    html+='</div>';
+    html+='<hr class="map-card-divider">';
+    html+='<div class="map-card-row"><span class="map-card-row-label">责任单位</span><span class="map-card-row-value">'+b.unitName+'</span></div>';
+    html+='<div class="map-card-row"><span class="map-card-row-label">关联工程</span><span class="map-card-row-value">'+b.engineerName+'</span></div>';
+    html+='<div class="map-card-row"><span class="map-card-row-label">工程状态</span><span class="map-card-row-value"><span class="eng-dot '+dotCls+'"></span>'+b.engStatus+'</span></div>';
+    html+='</div>';
+  });
+  list.innerHTML=html;
+  countEl.textContent=count;
 }
-renderTableFromSD();
+
+function highlightFence(blockId){
+  var info=_mapFenceLayers[blockId];
+  if(info){
+    info.polygon.setStyle({weight:5,fillOpacity:0.25});
+    var badgeEl=info.badge.getElement();
+    if(badgeEl){var bd=badgeEl.querySelector('.map-fence-badge');if(bd)bd.classList.add('highlight')}
+  }
+  var card=document.querySelector('.map-card[data-card="'+blockId+'"]');
+  if(card){card.classList.add('highlight');card.scrollIntoView({behavior:'smooth',block:'nearest'})}
+}
+function unhighlightFence(blockId){
+  var info=_mapFenceLayers[blockId];
+  if(info){
+    info.polygon.setStyle({weight:2.5,fillOpacity:0.5});
+    var badgeEl=info.badge.getElement();
+    if(badgeEl){var bd=badgeEl.querySelector('.map-fence-badge');if(bd)bd.classList.remove('highlight')}
+  }
+  var card=document.querySelector('.map-card[data-card="'+blockId+'"]');
+  if(card)card.classList.remove('highlight');
+}
+
+function handleMapCardClick(blockId){
+  var b=MOCK_FENCE_BLOCKS.find(function(d){return d.blockId===blockId});
+  if(!b)return;
+  var p=encodeURIComponent(b.projectName);var e=encodeURIComponent(b.engineerName);
+  window.open('detail_info_v2_project.html?project='+p+'&engineering='+e,'_self');
+}
+
+function mapZoom(dir){
+  if(!_fenceMapView)return;
+  if(dir>0)_fenceMapView.zoomIn();else _fenceMapView.zoomOut();
+}
+
+/* 数据联动：列表变化时刷新地图 */
+function refreshMapView(){
+  if(!_fenceMapView||!document.getElementById('mapViewContainer').classList.contains('visible'))return;
+  renderMapView();
+}
+
 initProjectSelector();
 </script>
+<!-- 开发调试：重置演示数据 -->
+<div style="position:fixed;bottom:8px;right:12px;z-index:9999;opacity:0.3;transition:opacity .2s" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.3'">
+  <button onclick="if(confirm('确定重置所有演示数据？'))MOCK_DATA.reset()" style="font-size:11px;padding:3px 8px;background:#fff;border:1px solid #ccc;border-radius:3px;cursor:pointer;color:#999">重置数据</button>
+</div>
+
 </body>
 </html>
