@@ -194,63 +194,68 @@ a:hover{color:var(--text-link-hover)}
 .eng-info-summary-text{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
 /* ═══ 记录时间线 ═══ */
-.record-timeline{position:relative;padding-left:32px;max-width:860px;margin:0 auto}
-.record-timeline::before{content:'';position:absolute;left:4px;top:6px;bottom:6px;width:2px;background:#E3E6ED}
+.record-timeline{position:relative;padding-left:48px;max-width:860px;margin:0 auto}
+.record-timeline::before{content:'';position:absolute;left:20px;top:6px;bottom:6px;width:2px;background:#E8EAF0}
 .record-item{position:relative;margin-bottom:24px}
 .record-item:last-child{margin-bottom:0}
-.record-dot{position:absolute;left:-32px;top:14px;width:10px;height:10px;border-radius:50%;z-index:1}
-.record-dot.pass{background:#1A9042;border:2px solid #FFFFFF;box-shadow:0 0 0 2px #FFFFFF,0 0 0 4px #1A9042}
-.record-dot.pending{background:#FFFFFF;border:2px solid #D48A00}
-.record-dot.reject{background:#FFFFFF;border:2px solid #D13B2F}
-.record-card{background:#FFFFFF;border:1px solid #E8EAF0;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.04);transition:box-shadow 0.2s ease}
-.record-card:hover{box-shadow:0 4px 12px rgba(0,0,0,0.08)}
-.card-head{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;border-bottom:1px solid #F0F1F5}
-.card-head-left{display:flex;align-items:center;gap:10px}
+.record-item:last-child::after{content:'';position:absolute;left:20px;top:26px;bottom:-6px;width:0;background:#fff;z-index:0}
+.record-dot{position:absolute;left:-28px;top:14px;width:12px;height:12px;border-radius:50%;z-index:2}
+.record-dot.pass{background:#1A9042;border:none;box-shadow:0 0 0 3px #FFF,0 0 0 5px #1A9042}
+.record-dot.pending{background:#FFFFFF;border:2px solid #D48A00;box-shadow:0 0 0 3px #FFF,0 0 0 4px #D48A00}
+.record-dot.reject{background:#FFFFFF;border:2px solid #D13B2F;box-shadow:0 0 0 3px #FFF,0 0 0 4px #D13B2F}
+.record-card{background:#FFFFFF;border:1px solid #E8EAF0;border-radius:10px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.06)}
+/* card head */
+.card-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:#F7F8FA;border-bottom:1px solid #EAECF0}
+.card-head-left{display:flex;align-items:flex-start;gap:10px}
 .avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;flex-shrink:0}
-.avatar.change{background:#EBF2FF;color:#0C447C}
-.avatar.verify{background:#EAF3DE;color:#27500A}
-.card-head-name{font-size:14px;font-weight:500;color:#1F2937}
-.card-head-org{font-size:13px;font-weight:400;color:#9CA3B0}
-.card-head-right{display:flex;align-items:center;gap:14px;flex-shrink:0}
+.avatar.project{background:#EBF2FF;color:#0C447C}
+.avatar.supervisor{background:#EAF3DE;color:#27500A}
+.card-head-info{display:flex;flex-direction:column;gap:0}
+.card-head-name-row{font-size:14px;font-weight:500;color:#1F2937;line-height:1.4}
+.card-head-org{font-size:12px;color:#9CA3B0;margin-top:3px}
+.card-head-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0}
 .card-time{font-size:12px;color:#9CA3B0;white-space:nowrap}
-.card-status{font-size:11px;padding:3px 10px;border-radius:3px;font-weight:500;white-space:nowrap}
-.card-status.done{background:#E6F4EA;color:#1A9042}
-.card-status.pending{background:#FEF3CD;color:#D48A00}
-.card-status.reject{background:#FFF0EF;color:#D13B2F}
-.card-body-inner{padding:24px}
-.content-block{margin-bottom:24px}
-.content-block:last-child{margin-bottom:0}
-.block-label{display:flex;align-items:center;gap:8px;margin-bottom:12px}
-.block-label-bar{width:3px;height:16px;border-radius:2px;flex-shrink:0}
-.block-label-bar.change{background:#1862D4}
-.block-label-bar.verify{background:#1A9042}
-.block-label-bar.verify.reject{background:#D13B2F}
-.block-label-text{font-size:13px;font-weight:500;color:#1F2937}
-.block-label-time{font-size:12px;color:#9CA3B0;margin-left:auto}
-.change-action{font-size:13px;color:#1862D4;font-weight:500;margin-bottom:14px}
-.record-field{display:flex;align-items:baseline;gap:8px;padding:6px 0;font-size:13px}
-.record-field+.record-field{border-top:1px solid #F8F9FA}
-.record-field-label{color:#6B7280;font-size:12px;white-space:nowrap;min-width:90px}
-.record-field-old{color:#9CA3B0;text-decoration:line-through}
-.record-field-arrow{color:#D6D9E0}
+.card-status{display:inline-flex;align-items:center;height:20px;padding:0 7px;border-radius:3px;font-size:11px;font-weight:500;white-space:nowrap;background:transparent}
+.card-status.done{color:#1A9042;border:1px solid #1A9042}
+.card-status.pending{color:#D48A00;border:1px solid #D48A00}
+.card-status.reject{color:#D13B2F;border:1px solid #D13B2F}
+/* change body */
+.change-body{padding:16px 20px;background:#FFFFFF}
+.change-section-title{font-size:12px;color:#9CA3B0;font-weight:500;letter-spacing:0.04em;margin-bottom:6px}
+.record-field{display:flex;align-items:baseline;gap:0;padding:4px 0;font-size:13px}
+.record-field+.record-field{margin-top:4px}
+.record-field-label{color:#6B7280;font-size:12px;white-space:nowrap;min-width:100px}
+.record-field-old{color:#C6CBD8;text-decoration:line-through;margin:0 8px}
+.record-field-arrow{color:#D6D9E0;margin:0 8px}
 .record-field-new{color:#1862D4;font-weight:500}
-.record-field-label-row{font-size:12px;color:#6B7280;margin:12px 0 8px}
+/* map comparison */
+.record-map-wrap{margin-top:12px;border:1px solid #E8EAF0;border-radius:8px;overflow:hidden}
+.record-field-label-row{font-size:12px;color:#6B7280;padding:6px 8px;background:#F7F8FA;margin:0}
 .record-map-comparison{display:flex;gap:0;align-items:stretch}
-.record-map-panel{flex:1;border:1px solid #E3E6ED;border-radius:4px;overflow:hidden;background:#FFF}
-.record-map-panel-title{text-align:center;font-size:11px;background:#F7F8FA;padding:6px;border-bottom:1px solid #E3E6ED}
+.record-map-panel{flex:1;position:relative}
+.record-map-panel+.record-map-panel{border-left:1px solid #E8EAF0}
+.record-map-panel-title{text-align:center;font-size:12px;background:#F7F8FA;padding:0 4px;height:28px;line-height:28px;border-bottom:1px solid #E8EAF0}
 .record-map-panel:first-child .record-map-panel-title{color:#9CA3B0}
 .record-map-panel:last-child .record-map-panel-title{color:#1862D4;font-weight:500}
-.record-map-divider{width:1px;background:#E3E6ED;flex-shrink:0}
-.record-map-mini{width:100%;aspect-ratio:4/3}
-.verify-person{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.verify-person .avatar{width:28px;height:28px;font-size:12px}
-.verify-person-name{font-size:14px;font-weight:500;color:#1F2937}
-.verify-person-org{font-size:13px;font-weight:400;color:#9CA3B0}
-.verify-opinion{font-size:13px;color:#374151;line-height:1.6;padding-left:38px}
-.verify-opinion .vresult{font-weight:500}
-.verify-opinion .vresult.pass{color:#1A9042}
-.verify-opinion .vresult.reject{color:#D13B2F}
-.verify-pending{padding:8px 0;font-size:13px;color:#9CA3B0}
+.record-map-mini{width:100%;height:120px;background:#1e2a35}
+/* verify body */
+.verify-body{border-top:1px solid #F3F4F6;padding:16px 20px;background:#FAFBFC}
+.verify-body.pending-body{background:#FFFBF5}
+.verify-section-title-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.verify-section-title{font-size:12px;color:#9CA3B0;font-weight:500;letter-spacing:0.04em}
+.verify-section-time{font-size:12px;color:#9CA3B0}
+.verify-person-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:13px;color:#374151}
+.verify-person-row .avatar{width:24px;height:24px;font-size:12px}
+.verify-result-row{display:flex;align-items:baseline;gap:4px;padding:8px 12px;border-radius:4px;font-size:13px;color:#374151;line-height:1.5}
+.verify-result-row svg{flex-shrink:0;position:relative;top:2px}
+.verify-result-row.pass{background:#F0FBF4;border-left:3px solid #1A9042}
+.verify-result-row.pass svg{color:#1A9042}
+.verify-result-row.reject{background:#FFF5F5;border-left:3px solid #D13B2F}
+.verify-result-row.reject svg{color:#D13B2F}
+.verify-result-label{font-weight:500}
+.verify-result-row.pass .verify-result-label{color:#1A9042}
+.verify-result-row.reject .verify-result-label{color:#D13B2F}
+.verify-pending-text{display:flex;align-items:center;justify-content:center;height:48px;font-size:14px;color:#D48A00}
 /* ═══ 巡查记录占位 ═══ */
 .empty-placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:var(--space-10) var(--space-4);color:var(--text-tertiary)}
 .empty-placeholder svg{width:40px;height:40px;margin-bottom:var(--space-3);opacity:0.4}
@@ -554,48 +559,45 @@ textarea.form-input{height:80px;padding:var(--space-2) var(--space-3);resize:ver
                   <div class="record-card">
                     <div class="card-head">
                       <div class="card-head-left">
-                        <div class="avatar change">李</div>
-                        <div class="card-head-name">李xx<span class="card-head-org"> · 中建三局集团有限公司 · 施工单位</span></div>
+                        <div class="avatar project">李</div>
+                        <div class="card-head-info">
+                          <div class="card-head-name-row">李xx   提交围挡变更申请</div>
+                          <div class="card-head-org">中建三局集团有限公司 · 施工单位</div>
+                        </div>
                       </div>
                       <div class="card-head-right">
                         <span class="card-status done">已校核</span>
                         <span class="card-time">2026-04-21 14:30</span>
                       </div>
                     </div>
-                    <div class="card-body-inner">
-                      <div class="content-block">
-                        <div class="block-label">
-                          <span class="block-label-bar change"></span>
-                          <span class="block-label-text">变更内容</span>
-                        </div>
-                        <div class="change-action">提交围挡变更申请</div>
-                        <div class="record-field"><span class="record-field-label">围挡长度</span><span class="record-field-old">320 m</span><span class="record-field-arrow">→</span><span class="record-field-new">356 m</span></div>
+                    <div class="change-body">
+                      <div class="change-section-title">变更内容</div>                      <div class="record-field"><span class="record-field-label">围挡长度</span><span class="record-field-old">320 m</span><span class="record-field-arrow">→</span><span class="record-field-new">356 m</span></div>
+                      <div class="record-map-wrap">
                         <div class="record-field-label-row">围挡范围 · 出入口</div>
                         <div class="record-map-comparison">
                           <div class="record-map-panel">
                             <div class="record-map-panel-title">变更前</div>
                             <div class="record-map-mini" id="rec1BeforeMap"></div>
                           </div>
-                          <div class="record-map-divider"></div>
                           <div class="record-map-panel">
                             <div class="record-map-panel-title">变更后</div>
                             <div class="record-map-mini" id="rec1AfterMap"></div>
                           </div>
                         </div>
                       </div>
-                      <div class="content-block">
-                        <div class="block-label">
-                          <span class="block-label-bar verify"></span>
-                          <span class="block-label-text">校核结果</span>
-                          <span class="block-label-time">2026-04-22 10:15</span>
-                        </div>
-                        <div class="verify-person">
-                          <div class="avatar verify">张</div>
-                          <div class="verify-person-name">张xx<span class="verify-person-org"> · 深圳市南山区住房和建设局 · 监管单位</span></div>
-                        </div>
-                        <div class="verify-opinion">
-                          <span class="vresult pass">校核通过</span>——围挡长度、围挡范围图斑、出入口变更信息核实无误，予以通过
-                        </div>
+                    </div>
+                    <div class="verify-body">
+                      <div class="verify-section-title-row">
+                        <span class="verify-section-title">校核结果</span>
+                        <span class="verify-section-time">2026-04-22 10:15</span>
+                      </div>
+                      <div class="verify-person-row">
+                        <div class="avatar supervisor">张</div>
+                        <span class="verify-person-info">张xx · 深圳市南山区住房和建设局 · 监管单位</span>
+                      </div>
+                      <div class="verify-result-row pass">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg>
+                        <span class="verify-result-label">校核通过：</span>围挡长度、围挡范围图斑、出入口变更信息核实无误，予以通过
                       </div>
                     </div>
                   </div>
@@ -607,36 +609,32 @@ textarea.form-input{height:80px;padding:var(--space-2) var(--space-3);resize:ver
                   <div class="record-card">
                     <div class="card-head">
                       <div class="card-head-left">
-                        <div class="avatar change">赵</div>
-                        <div class="card-head-name">赵xx<span class="card-head-org"> · 中建三局集团有限公司 · 施工单位</span></div>
+                        <div class="avatar project">赵</div>
+                        <div class="card-head-info">
+                          <div class="card-head-name-row">赵xx   提交围挡变更申请</div>
+                          <div class="card-head-org">中建三局集团有限公司 · 施工单位</div>
+                        </div>
                       </div>
                       <div class="card-head-right">
-                        <span class="card-status reject">已驳回</span>
+                        <span class="card-status reject">校核不通过</span>
                         <span class="card-time">2026-05-10 11:20</span>
                       </div>
                     </div>
-                    <div class="card-body-inner">
-                      <div class="content-block">
-                        <div class="block-label">
-                          <span class="block-label-bar change"></span>
-                          <span class="block-label-text">变更内容</span>
-                        </div>
-                        <div class="change-action">提交围挡变更申请</div>
-                        <div class="record-field"><span class="record-field-label">围挡长度</span><span class="record-field-old">356 m</span><span class="record-field-arrow">→</span><span class="record-field-new">400 m</span></div>
+                    <div class="change-body">
+                      <div class="change-section-title">变更内容</div>                      <div class="record-field"><span class="record-field-label">围挡长度</span><span class="record-field-old">356 m</span><span class="record-field-arrow">→</span><span class="record-field-new">400 m</span></div>
+                    </div>
+                    <div class="verify-body">
+                      <div class="verify-section-title-row">
+                        <span class="verify-section-title">校核结果</span>
+                        <span class="verify-section-time">2026-05-11 15:40</span>
                       </div>
-                      <div class="content-block">
-                        <div class="block-label">
-                          <span class="block-label-bar verify reject"></span>
-                          <span class="block-label-text">校核结果</span>
-                          <span class="block-label-time">2026-05-11 15:40</span>
-                        </div>
-                        <div class="verify-person">
-                          <div class="avatar verify">刘</div>
-                          <div class="verify-person-name">刘xx<span class="verify-person-org"> · 深圳市南山区住房和建设局 · 监管单位</span></div>
-                        </div>
-                        <div class="verify-opinion">
-                          <span class="vresult reject">校核不通过</span>——围挡长度变更超出合理范围，请重新核实测量数据后重新提交
-                        </div>
+                      <div class="verify-person-row">
+                        <div class="avatar supervisor">刘</div>
+                        <span class="verify-person-info">刘xx · 深圳市南山区住房和建设局 · 监管单位</span>
+                      </div>
+                      <div class="verify-result-row reject">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6"/><path d="M9 9l6 6"/></svg>
+                        <span class="verify-result-label">校核不通过：</span>围挡长度变更超出合理范围，请重新核实测量数据后重新提交
                       </div>
                     </div>
                   </div>
@@ -648,42 +646,38 @@ textarea.form-input{height:80px;padding:var(--space-2) var(--space-3);resize:ver
                   <div class="record-card">
                     <div class="card-head">
                       <div class="card-head-left">
-                        <div class="avatar change">王</div>
-                        <div class="card-head-name">王xx<span class="card-head-org"> · 中建三局集团有限公司 · 施工单位</span></div>
+                        <div class="avatar project">王</div>
+                        <div class="card-head-info">
+                          <div class="card-head-name-row">王xx   提交围挡变更申请</div>
+                          <div class="card-head-org">中建三局集团有限公司 · 施工单位</div>
+                        </div>
                       </div>
                       <div class="card-head-right">
                         <span class="card-status pending">待校核</span>
                         <span class="card-time">2026-05-06 09:20</span>
                       </div>
                     </div>
-                    <div class="card-body-inner">
-                      <div class="content-block">
-                        <div class="block-label">
-                          <span class="block-label-bar change"></span>
-                          <span class="block-label-text">变更内容</span>
-                        </div>
-                        <div class="change-action">提交围挡变更申请</div>
-                        <div class="record-field"><span class="record-field-label">计划拆除时间</span><span class="record-field-old">2026-09-30</span><span class="record-field-arrow">→</span><span class="record-field-new">2026-12-31</span></div>
+                    <div class="change-body">
+                      <div class="change-section-title">变更内容</div>                      <div class="record-field"><span class="record-field-label">计划拆除时间</span><span class="record-field-old">2026-09-30</span><span class="record-field-arrow">→</span><span class="record-field-new">2026-12-31</span></div>
+                      <div class="record-map-wrap">
                         <div class="record-field-label-row">出入口分布</div>
                         <div class="record-map-comparison">
                           <div class="record-map-panel">
                             <div class="record-map-panel-title">变更前</div>
                             <div class="record-map-mini" id="rec2BeforeMap"></div>
                           </div>
-                          <div class="record-map-divider"></div>
                           <div class="record-map-panel">
                             <div class="record-map-panel-title">变更后</div>
                             <div class="record-map-mini" id="rec2AfterMap"></div>
                           </div>
                         </div>
                       </div>
-                      <div class="content-block">
-                        <div class="block-label">
-                          <span class="block-label-bar verify"></span>
-                          <span class="block-label-text">校核结果</span>
-                        </div>
-                        <div class="verify-pending">待监管单位校核</div>
+                    </div>
+                    <div class="verify-body pending-body">
+                      <div class="verify-section-title-row">
+                        <span class="verify-section-title">校核结果</span>
                       </div>
+                      <div class="verify-pending-text">待监管单位校核</div>
                     </div>
                   </div>
                 </div>
