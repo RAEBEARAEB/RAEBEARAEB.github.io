@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>新增围挡(v2) - 深圳市建设施工围挡数字化管理系统</title>
+<title>围挡变更校核 - 深圳市建设施工围挡数字化管理系统</title>
 <style>
 /* ═══ Design Token ═══ */
 :root{
@@ -111,6 +111,20 @@ a:hover{color:var(--text-link-hover)}
 
 /* ═══ 表单 ═══ */
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 var(--space-8);max-width:860px;margin:0 auto}
+/* 日期范围组件 */
+.date-range-wrap{display:flex;align-items:center;border:1px solid var(--border-color-default);border-radius:var(--border-radius-md);overflow:hidden;background:#fff;transition:border-color var(--transition-fast),box-shadow var(--transition-fast)}
+.date-range-wrap:focus-within{border-color:var(--border-color-focus);box-shadow:0 0 0 2px var(--color-primary-50)}
+.date-range-input{border:none!important;outline:none!important;box-shadow:none!important;width:100%;min-width:0;padding:0 var(--space-3);height:var(--height-md);font-size:var(--font-size-sm);font-family:var(--font-family);color:var(--text-primary);background:transparent;cursor:pointer}
+.date-range-input::placeholder{color:var(--text-tertiary)}
+.flatpickr-calendar{border-radius:var(--border-radius-md);box-shadow:0 4px 16px rgba(0,0,0,0.12);border:1px solid var(--border-color-light);font-family:var(--font-family)}
+.flatpickr-day.selected,.flatpickr-day.startRange,.flatpickr-day.endRange,.flatpickr-day.selected.inRange{background:var(--color-primary);border-color:var(--color-primary)}
+.flatpickr-day.inRange{background:var(--color-primary-50);border-color:var(--color-primary-50)}
+.flatpickr-months .flatpickr-month{background:var(--color-primary);color:#fff}
+.flatpickr-current-month .flatpickr-monthDropdown-months,.flatpickr-current-month input.cur-year{color:#fff}
+.flatpickr-months .flatpickr-prev-month,.flatpickr-months .flatpickr-next-month{color:#fff}
+.flatpickr-months .flatpickr-prev-month:hover,.flatpickr-months .flatpickr-next-month:hover{color:var(--color-primary-100)}
+span.flatpickr-weekday{color:var(--text-secondary)}
+.flatpickr-day:hover{background:var(--color-primary-50)}
 .form-item{display:flex;flex-direction:column;gap:var(--space-1);margin-bottom:var(--space-5)}
 .form-item.full{grid-column:1/-1}
 .form-item.full-map{grid-column:1/-1;max-width:none}
@@ -125,6 +139,24 @@ a:hover{color:var(--text-link-hover)}
 .form-textarea{height:auto;padding:var(--space-3);resize:vertical;min-height:72px;line-height:var(--line-height-normal)}
 .form-input-group{display:flex;align-items:center;gap:var(--space-2)}
 .form-input-group .form-input{flex:1}
+/* ═══ 工程信息卡片 ═══ */
+.eng-info-card{display:flex;margin-top:var(--space-4);background:var(--color-primary-50,#EBF2FF);border-radius:6px;box-shadow:0 1px 4px rgba(0,0,0,0.06);overflow:hidden;max-height:300px;transition:max-height 0.2s ease,opacity 0.2s ease,margin-top 0.2s ease,padding 0.2s ease;opacity:1}
+.eng-info-card.collapsed{max-height:0;opacity:0;margin-top:0;pointer-events:none}
+.eng-info-bar{width:3px;background:var(--color-primary-500);flex-shrink:0}
+.eng-info-body{flex:1;padding:12px 16px;min-width:0}
+.eng-info-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.eng-info-title{font-size:12px;font-weight:var(--font-weight-bold);color:var(--color-primary-700,#1D4ED8)}
+.eng-info-toggle{font-size:12px;color:var(--text-tertiary);background:none;border:none;cursor:pointer;font-family:var(--font-family);padding:0;transition:color var(--transition-fast)}
+.eng-info-toggle:hover{color:var(--color-primary-500)}
+.eng-info-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:0}
+.eng-info-field{padding:4px 12px;border-right:1px solid rgba(24,98,212,0.1)}
+.eng-info-field:nth-child(5n){border-right:none}
+.eng-info-field:nth-child(n+6){border-top:1px solid rgba(24,98,212,0.1)}
+.eng-info-field-label{font-size:11px;color:var(--text-tertiary);letter-spacing:0.04em;margin-bottom:2px;white-space:nowrap}
+.eng-info-field-value{font-size:13px;color:var(--text-primary);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.eng-info-summary{display:none;align-items:center;justify-content:space-between;padding:8px 16px;background:var(--color-primary-50,#EBF2FF);border-radius:6px;margin-top:var(--space-4);font-size:13px;color:var(--text-secondary);transition:all 0.2s ease}
+.eng-info-summary.show{display:flex}
+.eng-info-summary-text{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .form-input-suffix{font-size:var(--font-size-sm);color:var(--text-secondary);flex-shrink:0;white-space:nowrap}
 .form-hint{font-size:var(--font-size-xs);color:var(--text-tertiary);margin-top:2px}
 
@@ -220,9 +252,10 @@ a:hover{color:var(--text-link-hover)}
 .fence-scope-summary{display:flex;align-items:center;gap:var(--space-3);padding:var(--space-3) var(--space-4);background:var(--color-gray-50);border-bottom:1px solid var(--border-color-light);font-size:var(--font-size-sm);color:var(--text-secondary)}
 .fence-scope-summary strong{color:var(--color-primary-500);font-weight:var(--font-weight-bold)}
 .fence-scope-summary .sep{color:var(--color-gray-300);margin:0 var(--space-1)}
-.fence-scope-map-thumb{width:100%;height:350px;background:#2B2B2B;position:relative;overflow:hidden}
-.fence-scope-map-thumb #thumbLeafletMap{position:absolute;top:0;left:0;width:100%;height:100%;z-index:0}
-.fence-scope-map-thumb svg{position:relative;z-index:1;width:100%;height:100%;display:block}
+.map-view-container{position:relative;width:100%;max-width:100%;border:1px solid var(--border-color-light);border-radius:var(--border-radius-md);overflow:hidden;background:var(--color-gray-100)}
+#fenceMap{width:100%;height:500px;z-index:1}
+.map-view-info{display:flex;align-items:center;gap:var(--space-2);padding:var(--space-2) var(--space-3);background:var(--bg-card);border-top:1px solid var(--border-color-light);font-size:var(--font-size-xs);color:var(--text-tertiary)}
+.map-view-info strong{color:var(--color-primary-500);font-weight:var(--font-weight-bold)}
 .thumb-empty{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:var(--color-gray-400);font-size:var(--font-size-sm);text-align:center}
 .fence-scope-actions{display:flex;align-items:center;gap:var(--space-2);padding:var(--space-3) var(--space-4);border-top:1px solid var(--border-color-light)}
 .fence-scope-actions .btn{font-size:var(--font-size-sm)}
@@ -231,10 +264,10 @@ a:hover{color:var(--text-link-hover)}
 .import-btn-wrap:hover .tooltip-text{visibility:visible;opacity:1}
 .import-progress-bar{height:3px;background:var(--color-gray-200);overflow:hidden;display:none}
 .import-progress-bar .bar{height:100%;width:0;background:var(--color-primary-500);transition:width 0.3s ease}
-.map-legend-overlay{position:absolute;top:var(--space-2);left:var(--space-2);background:rgba(255,255,255,0.92);border-radius:var(--border-radius-md);padding:var(--space-2) var(--space-3);font-size:11px;color:var(--text-secondary);z-index:5;box-shadow:var(--shadow-sm);line-height:1.8;pointer-events:none}
-.map-legend-overlay .lgd-item{display:flex;align-items:center;gap:var(--space-1);white-space:nowrap}
-.map-legend-overlay .lgd-swatch{width:12px;height:12px;border-radius:2px;flex-shrink:0}
-.map-legend-overlay .lgd-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.map-legend{position:absolute;bottom:38px;right:8px;z-index:1000;background:rgba(255,255,255,0.94);border-radius:var(--border-radius-md);padding:6px 10px;font-size:11px;line-height:1.7;box-shadow:0 1px 4px rgba(0,0,0,0.12);pointer-events:none}
+.map-legend-item{display:flex;align-items:center;gap:6px;color:var(--text-secondary)}
+.map-legend-line{width:22px;height:0;border-top:2.5px solid;flex-shrink:0;border-radius:1px}
+.map-legend-line.dashed{border-top-style:dashed}
 /* 绘制弹窗 */
 .draw-modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:var(--bg-overlay);z-index:9990;display:none;align-items:center;justify-content:center}
 .draw-modal-overlay.open{display:flex}
@@ -245,38 +278,42 @@ a:hover{color:var(--text-link-hover)}
 .draw-modal-close{width:32px;height:32px;display:flex;align-items:center;justify-content:center;border:none;background:none;color:var(--text-tertiary);cursor:pointer;border-radius:var(--border-radius-md);font-size:18px;transition:all var(--transition-fast)}
 .draw-modal-close:hover{background:var(--color-gray-100);color:var(--text-primary)}
 .draw-modal-body{flex:1;display:flex;min-height:0;overflow:hidden}
-.draw-modal-map{flex:65%;background:#2B2B2B;position:relative;display:flex;flex-direction:column}
-.modal-map-toolbar{display:flex;align-items:center;gap:var(--space-2);padding:var(--space-2) var(--space-3);background:rgba(0,0,0,0.6);position:relative;z-index:2;flex-wrap:wrap}
-.draw-tool-btn{display:inline-flex;align-items:center;gap:var(--space-1);height:28px;padding:0 var(--space-3);font-size:var(--font-size-xs);font-weight:var(--font-weight-medium);border:1px solid rgba(255,255,255,0.2);border-radius:var(--border-radius-md);background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.8);cursor:pointer;font-family:var(--font-family);transition:all var(--transition-fast)}
-.draw-tool-btn:hover{background:rgba(255,255,255,0.15);color:#fff}
-.draw-tool-btn.active{background:var(--color-primary-500);color:var(--text-inverse);border-color:var(--color-primary-500)}
-.draw-tool-btn svg{width:12px;height:12px}
-.draw-aux-btn{display:inline-flex;align-items:center;gap:var(--space-1);height:28px;padding:0 var(--space-3);font-size:var(--font-size-xs);border:1px solid rgba(255,255,255,0.15);border-radius:var(--border-radius-md);background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.6);cursor:pointer;font-family:var(--font-family);transition:all var(--transition-fast)}
-.draw-aux-btn:hover{background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.9)}
-.draw-aux-btn svg{width:12px;height:12px}
-.toolbar-sep{width:1px;height:20px;background:rgba(255,255,255,0.15);margin:0 var(--space-1)}
-.map-area{flex:1;position:relative;overflow:hidden;background:#1a2744}
-.map-area #drawLeafletMap{position:absolute;top:0;left:0;width:100%;height:100%;z-index:0}
-.map-area>svg{position:relative;z-index:1;width:100%;height:100%;display:block}
-.zoom-controls{position:absolute;bottom:var(--space-4);right:var(--space-4);display:flex;flex-direction:column;gap:2px}
-.zoom-btn{width:32px;height:32px;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.8);cursor:pointer;font-size:16px;border-radius:var(--border-radius-md);transition:all var(--transition-fast)}
-.zoom-btn:hover{background:rgba(0,0,0,0.8);color:#fff}
-.draw-modal-sidebar{flex:35%;border-left:1px solid var(--border-color-light);display:flex;flex-direction:column;overflow:hidden}
-.sidebar-section{padding:var(--space-4);border-bottom:1px solid var(--border-color-light)}
-.sidebar-section-title{font-size:var(--font-size-sm);font-weight:var(--font-weight-bold);color:var(--text-primary);margin-bottom:var(--space-3)}
-.draw-modal-list-item{display:flex;align-items:center;gap:var(--space-2);padding:var(--space-2) var(--space-3);border-radius:var(--border-radius-md);margin-bottom:2px;cursor:pointer;transition:background var(--transition-fast);font-size:var(--font-size-sm)}
-.draw-modal-list-item:hover{background:var(--color-gray-50)}
-.draw-modal-list-item .item-icon{width:8px;height:8px;border-radius:2px;flex-shrink:0}
-.draw-modal-list-item .item-name{flex:1;color:var(--text-primary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.draw-modal-list-item .item-actions{display:flex;gap:2px;opacity:0;transition:opacity var(--transition-fast)}
-.draw-modal-list-item:hover .item-actions{opacity:1}
-.item-action-btn{width:24px;height:24px;display:flex;align-items:center;justify-content:center;border:none;background:none;color:var(--text-tertiary);cursor:pointer;border-radius:var(--border-radius-sm);font-size:14px;transition:all var(--transition-fast)}
-.item-action-btn:hover{background:var(--color-gray-100);color:var(--text-primary)}
-.item-action-btn.danger:hover{color:var(--color-danger);background:var(--color-danger-light)}
-.source-tag{display:inline-flex;align-items:center;padding:1px 6px;border-radius:var(--border-radius-tag);font-size:10px;font-weight:var(--font-weight-medium);line-height:1.5}
-.source-tag.manual{background:rgba(24,144,255,0.1);color:#1890FF}
-.source-tag.import{background:rgba(82,196,26,0.1);color:#52C41A}
+.draw-modal-map{flex:65%;position:relative;display:flex;flex-direction:column;gap:var(--space-2);padding:var(--space-3);min-width:0}
+.map-status-tip{padding:var(--space-2) var(--space-4);background:var(--color-info-light);border:1px solid var(--color-primary-100);border-radius:var(--border-radius-md);font-size:var(--font-size-sm);color:var(--color-primary-700);flex-shrink:0}
+.map-draw-container{flex:1;position:relative;border:1px solid var(--border-color-light);border-radius:var(--border-radius-md);overflow:hidden;background:var(--color-gray-100);display:flex;flex-direction:column;min-height:0}
+.map-draw-layer{flex:1;position:relative;min-height:0}
+.map-draw-layer #drawLeafletMap{position:absolute;top:0;left:0;width:100%;height:100%;z-index:0}
+.map-draw-layer>svg{position:absolute;top:0;left:0;z-index:10;width:100%;height:100%;display:block;pointer-events:none}
+.map-draw-layer>svg .vertex-handle,.map-draw-layer>svg .entrance-handle{pointer-events:auto}
+.map-draw-layer .map-legend{bottom:44px}
+.map-toolbar{display:flex;align-items:center;gap:var(--space-2);padding:var(--space-2) var(--space-3);background:var(--bg-card);border-top:1px solid var(--border-color-light);position:relative;z-index:2;flex-shrink:0}
+.map-toolbar-btn{display:inline-flex;align-items:center;gap:var(--space-1);height:26px;padding:0 var(--space-3);font-size:var(--font-size-xs);font-weight:var(--font-weight-medium);border:1px solid var(--border-color-default);border-radius:var(--border-radius-md);background:var(--bg-card);color:var(--text-primary);cursor:pointer;font-family:var(--font-family);transition:all var(--transition-fast)}
+.map-toolbar-btn:hover{border-color:var(--color-primary-300);color:var(--color-primary-500)}
+.map-toolbar-btn.active{background:var(--color-primary-500);color:var(--text-inverse);border-color:var(--color-primary-500)}
+.map-toolbar-btn.danger{color:var(--color-danger)}
+.map-toolbar-btn.danger:hover{border-color:var(--color-danger);color:var(--color-danger-dark)}
+.map-toolbar-btn svg{width:12px;height:12px}
+.map-toolbar-info{margin-left:auto;font-size:var(--font-size-xs);color:var(--text-tertiary)}
+.map-toolbar-info strong{color:var(--color-primary-500);font-weight:var(--font-weight-bold)}
+.range-sidebar{width:280px;flex-shrink:0;display:flex;flex-direction:column;border:1px solid var(--border-color-light);border-radius:var(--border-radius-lg);background:var(--bg-card);box-shadow:var(--shadow-card);overflow:hidden}
+.range-sidebar-section{flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden}
+.range-sidebar-section+.range-sidebar-section{border-top:1px solid var(--border-color-light)}
+.range-sidebar-header{padding:var(--space-3) var(--space-4);font-size:var(--font-size-sm);font-weight:var(--font-weight-bold);color:var(--text-title);border-bottom:1px solid var(--border-color-light);flex-shrink:0;display:flex;align-items:center;gap:var(--space-2)}
+.range-sidebar-header .rs-count{font-size:11px;font-weight:var(--font-weight-regular);color:var(--text-tertiary);margin-left:auto}
+.range-sidebar-list{flex:1;overflow-y:auto;padding:var(--space-2)}
+.range-sidebar-empty{text-align:center;padding:var(--space-10) var(--space-3);color:var(--text-tertiary);font-size:var(--font-size-xs);line-height:1.8}
+.range-card{display:flex;align-items:center;gap:var(--space-2);padding:var(--space-2) var(--space-3);border:1px solid var(--border-color-light);border-radius:var(--border-radius-md);margin-bottom:var(--space-1);cursor:pointer;transition:all var(--transition-fast);background:var(--bg-card)}
+.range-card:hover{border-color:var(--color-primary-300)}
+.range-card.active{border-color:var(--color-primary-500);background:var(--color-primary-50)}
+.range-card-dot{width:8px;height:8px;border-radius:2px;background:var(--color-primary-500);flex-shrink:0}
+.range-card.active .range-card-dot{box-shadow:0 0 0 3px rgba(24,144,255,0.18)}
+.range-card-body{flex:1;min-width:0}
+.range-card-title{font-size:var(--font-size-xs);font-weight:var(--font-weight-medium);color:var(--text-primary);line-height:1.3}
+.range-card-info{font-size:11px;color:var(--text-tertiary);margin-top:1px}
+.range-card-del{width:20px;height:20px;display:flex;align-items:center;justify-content:center;border:none;background:transparent;color:var(--text-tertiary);cursor:pointer;border-radius:var(--border-radius-sm);font-size:14px;flex-shrink:0;transition:all var(--transition-fast);line-height:1}
+.range-card-del:hover{background:var(--color-danger-light);color:var(--color-danger)}
 .entrance-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,0.1)}
+.map-area{flex:1;position:relative;overflow:hidden;background:#1a2744}
 .draw-modal-footer{display:flex;justify-content:flex-end;gap:var(--space-3);padding:var(--space-4) var(--space-6);border-top:1px solid var(--border-color-light)}
 
 .date-range{display:flex;align-items:center;gap:var(--space-2)}
@@ -294,14 +331,38 @@ a:hover{color:var(--text-link-hover)}
 .btn-ghost:hover{background:var(--color-gray-50);color:var(--text-primary);border-color:var(--color-gray-300)}
 .btn-sm{height:var(--height-sm);padding:0 var(--space-3);font-size:var(--font-size-sm)}
 .btn-sm svg{width:12px;height:12px}
+.btn-success{background:#10B981;color:#fff;border-color:#10B981;box-shadow:0 1px 3px rgba(16,185,129,0.2)}
+.btn-success:hover{background:#059669;border-color:#059669;box-shadow:0 2px 6px rgba(16,185,129,0.3)}
+.btn-danger{background:#EF4444;color:#fff;border-color:#EF4444;box-shadow:0 1px 3px rgba(239,68,68,0.2)}
+.btn-danger:hover{background:#DC2626;border-color:#DC2626;box-shadow:0 2px 6px rgba(239,68,68,0.3)}
 
 .form-footer{flex-shrink:0;background:var(--bg-card);border-top:1px solid var(--border-color-light);padding:var(--space-4) var(--space-6);display:flex;justify-content:flex-end;gap:var(--space-3);z-index:10;box-shadow:0 -2px 8px rgba(0,0,0,0.08)}
 .text-center{text-align:center}
 .text-right{text-align:right}
+/* ═══ 沿用围挡信息弹窗 ═══ */
+.reuse-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:10000;display:none;align-items:center;justify-content:center}
+.reuse-overlay.show{display:flex}
+.reuse-dialog{background:#fff;border-radius:8px;box-shadow:0 8px 32px rgba(0,0,0,0.18);width:440px;max-width:90vw;overflow:hidden}
+.reuse-dialog-header{padding:20px 24px 0}
+.reuse-dialog-title{font-size:18px;font-weight:600;color:#1F2937}
+.reuse-dialog-body{padding:16px 24px 24px;font-size:14px;color:#4B5563;line-height:1.6}
+.reuse-dialog-body strong{color:#1862D4}
+.reuse-dialog-footer{padding:0 24px 20px;display:flex;justify-content:flex-end;gap:12px}
+.reuse-btn{height:34px;padding:0 20px;border-radius:6px;font-size:13px;font-family:var(--font-family);cursor:pointer;transition:all 0.15s ease;border:1px solid}
+.reuse-btn-no{background:#fff;color:#4B5563;border-color:#D1D5DB}
+.reuse-btn-no:hover{background:#F9FAFB;border-color:#9CA3B0}
+.reuse-btn-yes{background:#1862D4;color:#fff;border-color:#1862D4}
+.reuse-btn-yes:hover{background:#104FAD}
+.other-fence-tooltip{background:rgba(107,114,128,0.92)!important;color:#fff!important;border:none!important;font-size:12px!important;font-weight:600!important;border-radius:4px!important;padding:4px 10px!important;box-shadow:0 2px 8px rgba(0,0,0,0.15)!important}
+.other-fence-tooltip::before{border-right-color:rgba(107,114,128,0.92)!important}
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/zh.js"></script>
 <script src="../shared_data.js"></script>
+<script src="../mock-data.js"></script>
 </head>
 <body>
 <div class="layout-wrapper">
@@ -349,21 +410,22 @@ a:hover{color:var(--text-link-hover)}
         <span class="breadcrumb-sep">/</span>
         <a href="index_v2.html" class="breadcrumb-item">围挡档案管理</a>
         <span class="breadcrumb-sep">/</span>
-        <span class="breadcrumb-item">新增围挡</span>
+        <span class="breadcrumb-item">围挡变更校核</span>
       </div>
       <div class="page-header page-header-fixed">
-        <h1 class="page-title"><span class="page-title-accent"></span>围挡校核</h1>
+        <h1 class="page-title"><span class="page-title-accent"></span>围挡变更校核</h1>
         <div class="page-header-actions">
-          <button type="button" class="btn btn-ghost" onclick="window.open('index_v2.html','_self')">取消</button>
-          <button type="button" class="btn btn-primary" onclick="handleSave()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>保存</button>
+          <button type="button" class="btn btn-ghost" onclick="window.open('index_v2.html','_self')">返回列表</button>
+          <button type="button" class="btn btn-success" onclick="submitVerify('pass')">通过</button>
+          <button type="button" class="btn btn-danger" onclick="submitVerify('reject')">不通过</button>
         </div>
       </div>
       <div class="main-body">
       <!-- 章节导航分栏 -->
       <nav class="section-nav" id="sectionNav">
         <div class="section-nav-title">章节导航</div>
-        <a href="#sec-project" class="section-nav-item active" data-sec="sec-project"><span class="section-nav-num">1</span>所属项目工程</a>
-        <a href="#sec-plan" class="section-nav-item" data-sec="sec-plan"><span class="section-nav-num">2</span>计划信息</a>
+        <a href="#sec-project" class="section-nav-item active" data-sec="sec-project"><span class="section-nav-num">1</span>关联项目工程</a>
+        <a href="#sec-plan" class="section-nav-item" data-sec="sec-plan"><span class="section-nav-num">2</span>项目围挡计划信息</a>
         <a href="#sec-fence" class="section-nav-item" data-sec="sec-fence"><span class="section-nav-num">3</span>围挡本体信息</a>
         <a href="#sec-road" class="section-nav-item" data-sec="sec-road"><span class="section-nav-num">4</span>围挡占道信息</a>
       </nav>
@@ -375,64 +437,76 @@ a:hover{color:var(--text-link-hover)}
         <div id="sec-project">
         <div class="card">
           <div class="card-header">
-            <div class="card-title"><span class="card-title-dot"></span>所属项目工程</div>
+            <div class="card-title"><span class="card-title-dot"></span>关联项目工程</div>
           </div>
-          <div class="card-body">
-            <div class="pair-section">
-              <!-- 选择器 -->
-              <div class="pair-selector">
-                <div class="form-item">
-                  <label class="form-label"><span class="required">*</span>项目名称</label>
-                  <div class="search-select" id="projectSearchWrap">
-                    <input type="text" class="form-input" id="pairProjectInput" placeholder="请输入关键字搜索项目" autocomplete="off" oninput="filterProjectList()" onfocus="showProjectDropdown()">
-                    <svg class="search-select-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <div class="search-dropdown" id="projectDropdown"></div>
-                  </div>
-                </div>
-                <div class="form-item">
-                  <label class="form-label"><span class="required">*</span>工程名称（可多选）</label>
-                  <div class="eng-check-list" id="engineerCheckList">
-                    <div class="eng-check-empty">请先选择项目</div>
-                  </div>
-                </div>
-                <button type="button" class="btn btn-primary pair-add-btn" onclick="addPair()">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                  添加
-                </button>
-              </div>
-              <!-- 已选列表头部 -->
-              <div id="pairListHeader" class="pair-list-header" style="display:none">
-                <span class="pair-list-title">已添加的项目工程</span>
-                <span class="pair-list-count" id="pairCount">0</span>
-              </div>
-              <!-- 已选列表 -->
-              <div id="pairList">
-                <div class="pair-list-empty">请选择项目和工程后点击"添加"按钮</div>
-              </div>
-
-            </div>
-          </div>
-        </div>
-
-        <!-- ═══ 2. 计划信息 ═══ -->
-        <div id="sec-plan">
-        <div class="card">
-          <div class="card-header"><div class="card-title"><span class="card-title-dot"></span>计划信息</div></div>
           <div class="card-body">
             <div class="form-grid">
               <div class="form-item">
-                <label class="form-label"><span class="required">*</span>计划拆除日期</label>
+                <label class="form-label"><span class="required">*</span>项目名称</label>
+                <input type="text" class="form-input" id="pairProjectInput" value="" readonly style="background:#F7F8FA;cursor:default">
+              </div>
+              <div class="form-item">
+                <label class="form-label"><span class="required">*</span>工程名称</label>
+                <select class="form-select" id="engineerSelect" onchange="onEngineerChange()">
+                  <option value="">请选择工程</option>
+                </select>
+              </div>
+              <div class="form-item">
+                <label class="form-label"><span class="required">*</span>责任单位</label>
+                <select class="form-select" id="unitSelect">
+                  <option value="">请先选择工程</option>
+                </select>
+              </div>
+              <div class="form-item">
+                <label class="form-label"><span class="required">*</span>围挡管护期限</label>
+                <div class="date-range-wrap">
+                  <input type="text" class="form-input date-range-input" id="custodyDateRange" placeholder="请选择管护期限" readonly style="border:none;outline:none;box-shadow:none;background:transparent;cursor:pointer">
+                </div>
+                <input type="hidden" id="custodyStartDate">
+                <input type="hidden" id="custodyEndDate">
+              </div>
+              <div class="form-item">
+                <label class="form-label"><span class="required">*</span>围挡责任人</label>
+                <input type="text" class="form-input" id="fencePersonName" placeholder="请输入围挡责任人姓名" value="王强">
+              </div>
+              <div class="form-item">
+                <label class="form-label"><span class="required">*</span>围挡责任人联系电话</label>
+                <input type="tel" class="form-input" id="fencePersonPhone" placeholder="请输入联系电话" value="13900139001">
+              </div>
+            </div>
+            <div class="eng-info-card" id="engInfoCard">
+              <div class="eng-info-bar"></div>
+              <div class="eng-info-body">
+                <div class="eng-info-header">
+                  <span class="eng-info-title">工程信息</span>
+                  <button type="button" class="eng-info-toggle" onclick="toggleEngInfo()">收起</button>
+                </div>
+                <div class="eng-info-grid" id="engInfoGrid"></div>
+              </div>
+            </div>
+            <div class="eng-info-summary" id="engInfoSummary">
+              <span class="eng-info-summary-text" id="engInfoSummaryText">已选：— / —</span>
+              <button type="button" class="eng-info-toggle" onclick="toggleEngInfo()">展开</button>
+            </div>
+          </div>
+        </div>
+        <div id="sec-plan">
+        <div class="card">
+          <div class="card-header"><div class="card-title"><span class="card-title-dot"></span>项目围挡计划信息</div></div>
+          <div class="card-body">
+            <div class="form-grid">
+              <div class="form-item">
+                <label class="form-label"><span class="required">*</span>围挡设置时间</label>
+                <input type="date" class="form-input" id="fenceSetDate" value="2025-09-15">
+              </div>
+              <div class="form-item">
+                <label class="form-label"><span class="required">*</span>计划拆除时间</label>
                 <input type="date" class="form-input" id="planDemolishDate" value="">
               </div>
               <div class="form-item">
                 <label class="form-label">围挡变更计划</label>
                 <div class="file-upload">
-                  <input type="file" id="changeFile">
-                  <button type="button" class="file-upload-btn" onclick="document.getElementById('changeFile').click()">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                    选择文件
-                  </button>
-                  <span class="file-upload-name" id="changeFileName">围挡变更计划.pdf</span>
+                  <span class="file-upload-name">围挡变更计划.pdf</span>
                 </div>
                 <div class="form-hint">支持 .pdf、.doc、.docx 格式，文件大小不超过 20MB</div>
               </div>
@@ -450,40 +524,12 @@ a:hover{color:var(--text-link-hover)}
                 <label class="form-label"><span class="required">*</span>围挡范围</label>
                 <!-- 围挡范围紧凑模块 -->
                 <div class="fence-scope-module" id="fenceScopeModule">
-                  <div class="fence-scope-summary">
-                    <span>围挡范围 <strong id="fenceShapeCount">0</strong> 段（手绘 <strong id="fenceManualCount">0</strong> 段 · 导入 <strong id="fenceImportCount">0</strong> 段）</span>
-                    <span class="sep">|</span>
-                    <span>出入口 <strong id="fenceEntranceCount">0</strong> 个</span>
+                  <div class="map-view-container">
+                    <div class="map-legend"><div class="map-legend-item"><span class="map-legend-line" style="border-color:#1862D4"></span>围挡范围</div><div class="map-legend-item"><span class="map-legend-line" style="border-color:#D13B2F"></span>项目红线</div><div class="map-legend-item"><span class="map-legend-line" style="border-color:#9CA3B0;border-top:2px dashed #9CA3B0;height:0"></span>同项目其他围挡（参照）</div><div class="map-legend-item"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;border:2px solid #9CA3B0;background:#fff;flex-shrink:0;margin-right:6px"></span>其他围挡出入口（参照）</div></div>
+                    <div id="fenceMap"></div>
+                    <div class="map-view-info">已绘制 <strong id="fenceMapShapeCount">0</strong> 段围挡，<strong id="fenceMapEntranceCount">0</strong> 个出入口</div>
                   </div>
-                  <div class="fence-scope-map-thumb">
-                    <div id="thumbLeafletMap"></div>
-                    <div class="map-legend-overlay">
-                      <div class="lgd-item"><span class="lgd-swatch" style="background:rgba(24,144,255,0.25);border:1.5px solid #1890FF"></span>手动绘制范围</div>
-                      <div class="lgd-item"><span class="lgd-swatch" style="background:rgba(82,196,26,0.25)"></span>导入范围（SHP）</div>
-                      <div class="lgd-item"><span class="lgd-dot" style="background:#52C41A"></span>出入口位置</div>
-                    </div>
-                    <svg id="thumbSvg" viewBox="0 0 800 200" preserveAspectRatio="xMidYMid meet"></svg>
-                    <div class="thumb-empty" id="thumbEmpty" style="display:none">
-                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="12" cy="12" r="3"/></svg>
-                      <div style="margin-top:6px">暂无围挡范围数据</div>
-                    </div>
-                  </div>
-                  <div class="fence-scope-actions">
-                    <button type="button" class="btn btn-primary" onclick="openDrawModal()">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                      打开地图绘制
-                    </button>
-                    <div class="import-btn-wrap">
-                      <button type="button" class="btn btn-secondary" onclick="triggerImport()">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                        导入范围
-                      </button>
-                      <span class="tooltip-text">支持 .zip 格式的 SHP 文件</span>
-                    </div>
-                  </div>
-                  <div class="import-progress-bar" id="importProgress"><div class="bar" id="importProgressBar"></div></div>
                 </div>
-                <input type="file" id="importFileInput" accept=".zip,.shp" style="display:none" onchange="handleImportFile(this)">
                 <!-- 绘制弹窗 -->
                 <div class="draw-modal-overlay" id="drawModalOverlay">
                   <div class="draw-modal">
@@ -493,51 +539,50 @@ a:hover{color:var(--text-link-hover)}
                     </div>
                     <div class="draw-modal-body">
                       <div class="draw-modal-map">
-                        <div class="modal-map-toolbar">
-                          <button type="button" class="draw-tool-btn active" id="toolPolygon" onclick="setModalTool('polygon')">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"/></svg>
-                            绘制多边形
-                          </button>
-                          <button type="button" class="draw-tool-btn" id="toolLine" onclick="setModalTool('line')">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="20" x2="20" y2="4"/></svg>
-                            绘制线段
-                          </button>
-                          <button type="button" class="draw-tool-btn" id="toolEntrance" onclick="setModalTool('entrance')">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
-                            标记出入口
-                          </button>
-                          <span class="toolbar-sep"></span>
-                          <button type="button" class="draw-aux-btn" onclick="modalUndo()">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
-                            撤销
-                          </button>
-                          <button type="button" class="draw-aux-btn" onclick="modalClearCurrent()">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
-                            全部清除
-                          </button>
-                        </div>
-                        <div class="map-area">
-                          <div id="drawLeafletMap"></div>
-                          <div class="map-legend-overlay" style="z-index:5">
-                            <div class="lgd-item"><span class="lgd-swatch" style="background:rgba(24,144,255,0.25);border:1.5px solid #1890FF"></span>手动绘制范围</div>
-                            <div class="lgd-item"><span class="lgd-swatch" style="background:rgba(82,196,26,0.25)"></span>导入范围（SHP）</div>
-                            <div class="lgd-item"><span class="lgd-dot" style="background:#52C41A"></span>出入口位置</div>
+                        <div class="map-status-tip" id="modalStatusTip">单击地图添加围挡顶点，双击即可完成绘制</div>
+                        <div class="map-draw-container">
+                          <div class="map-draw-layer">
+                            <div id="drawLeafletMap"></div>
+                            <div class="map-legend"><div class="map-legend-item"><span class="map-legend-line" style="border-color:#1862D4"></span>围挡范围</div><div class="map-legend-item"><span class="map-legend-line" style="border-color:#D13B2F"></span>项目红线</div><div class="map-legend-item"><span class="map-legend-line" style="border-color:#9CA3B0;border-top:2px dashed #9CA3B0;height:0"></span>同项目其他围挡（参照）</div><div class="map-legend-item"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;border:2px solid #9CA3B0;background:#fff;flex-shrink:0;margin-right:6px"></span>其他围挡出入口（参照）</div></div>
+                            <svg id="modalSvg" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid meet"></svg>
                           </div>
-                          <svg id="modalSvg" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid meet"></svg>
-                        </div>
-                        <div class="zoom-controls">
-                          <button class="zoom-btn" onclick="modalZoom(1)">+</button>
-                          <button class="zoom-btn" onclick="modalZoom(-1)">-</button>
+                          <div class="map-toolbar">
+                            <button type="button" class="map-toolbar-btn active" id="toolLine" onclick="setModalTool('line')">
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="20" x2="20" y2="4"/></svg>
+                              绘制线段
+                            </button>
+                            <button type="button" class="map-toolbar-btn" id="toolPolygon" onclick="setModalTool('polygon')">
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"/></svg>
+                              绘制多边形
+                            </button>
+                            <button type="button" class="map-toolbar-btn" id="toolEntrance" onclick="setModalTool('entrance')">
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                              标记出入口
+                            </button>
+                            <button type="button" class="map-toolbar-btn" onclick="modalUndo()">
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+                              撤销
+                            </button>
+                            <button type="button" class="map-toolbar-btn danger" onclick="modalClearCurrent()">
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                              全范围清除
+                            </button>
+                            <span class="map-toolbar-info" id="modalMapInfo">顶点 <strong>0</strong></span>
+                          </div>
                         </div>
                       </div>
-                      <div class="draw-modal-sidebar">
-                        <div class="sidebar-section">
-                          <div class="sidebar-section-title">围挡范围列表</div>
-                          <div id="modalRangeList"></div>
+                      <div class="range-sidebar">
+                        <div class="range-sidebar-section">
+                          <div class="range-sidebar-header">围挡范围列表<span class="rs-count" id="modalShapeCount">共 0 处</span></div>
+                          <div class="range-sidebar-list" id="modalShapeList">
+                            <div class="range-sidebar-empty">暂无围挡范围</div>
+                          </div>
                         </div>
-                        <div class="sidebar-section" style="border-bottom:none;flex:1;overflow:hidden;display:flex;flex-direction:column">
-                          <div class="sidebar-section-title">出入口列表</div>
-                          <div id="modalEntranceList" style="flex:1;overflow-y:auto"></div>
+                        <div class="range-sidebar-section">
+                          <div class="range-sidebar-header">出入口列表<span class="rs-count" id="modalEntranceCount">共 0 处</span></div>
+                          <div class="range-sidebar-list" id="modalEntranceList">
+                            <div class="range-sidebar-empty">暂无出入口</div>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -547,16 +592,13 @@ a:hover{color:var(--text-link-hover)}
                     </div>
                   </div>
                 </div>
-              <div class="form-item"><label class="form-label"><span class="required">*</span>围挡长度</label><div class="form-input-group"><input type="number" class="form-input" placeholder="请输入围挡长度" value="320"><span class="form-input-suffix">m</span></div></div>
-              <div class="form-item"><label class="form-label"><span class="required">*</span>围挡高度</label><div class="form-input-group"><input type="number" class="form-input" placeholder="请输入围挡高度" value="2.5"><span class="form-input-suffix">m</span></div></div>
-              <div class="form-item"><label class="form-label"><span class="required">*</span>围挡设置时间</label><input type="date" class="form-input" value="2025-09-15"></div>
-              <div class="form-item"><label class="form-label">围挡拆除时间</label><input type="date" class="form-input" id="fenceDemolishDate" value="2026-03-15"></div>
-              <div class="form-item"><label class="form-label"><span class="required">*</span>围挡材质</label><input type="text" class="form-input" placeholder="如：彩钢板、PVC围挡等" value="彩钢板"></div>
-              <div class="form-item"><label class="form-label"><span class="required">*</span>所属街道</label><select class="form-select"><option value="">请选择所属街道</option><option>桂园街道</option><option>黄贝街道</option><option>东门街道</option><option>南湖街道</option><option>笋岗街道</option><option>清水河街道</option><option>翠竹街道</option><option>东湖街道</option><option>莲塘街道</option><option selected>粤海街道</option><option>南头街道</option><option>沙河街道</option><option>西丽街道</option><option>桃源街道</option><option>福田街道</option><option>香蜜湖街道</option><option>民治街道</option><option>龙华街道</option><option>新安街道</option><option>西乡街道</option></select></div>
-              <div class="form-item"><label class="form-label"><span class="required">*</span>围挡责任人</label><input type="text" class="form-input" placeholder="请输入围挡责任人姓名" value="王强"></div>
-              <div class="form-item"><label class="form-label"><span class="required">*</span>围挡责任人联系电话</label><input type="tel" class="form-input" placeholder="请输入联系电话" value="13900139001"></div>
-              <div class="form-item"><label class="form-label">围挡风格</label><input type="text" class="form-input" placeholder="如：仿真绿篱、公益广告型等" value="仿真绿篱"></div>
-              <div class="form-item"><label class="form-label">宣传画/公益广告</label><input type="text" class="form-input" placeholder="请输入宣传画或公益广告描述" value="文明城市公益宣传画面"></div>
+              </div>
+              <div class="form-item"><label class="form-label"><span class="required">*</span>所属街道</label><select class="form-select" id="fenceStreet"><option value="">请选择所属街道</option><option>桂园街道</option><option>黄贝街道</option><option>东门街道</option><option>南湖街道</option><option>笋岗街道</option><option>清水河街道</option><option>翠竹街道</option><option>东湖街道</option><option>莲塘街道</option><option selected>粤海街道</option><option>南头街道</option><option>沙河街道</option><option>西丽街道</option><option>桃源街道</option><option>福田街道</option><option>香蜜湖街道</option><option>民治街道</option><option>龙华街道</option><option>新安街道</option><option>西乡街道</option></select></div>
+              <div class="form-item"><label class="form-label"><span class="required">*</span>围挡材质</label><input type="text" class="form-input" id="fenceMaterial" placeholder="如：彩钢板、PVC围挡等" value="彩钢板"></div>
+              <div class="form-item"><label class="form-label"><span class="required">*</span>围挡长度</label><div class="form-input-group"><input type="number" class="form-input" id="fenceLength" placeholder="请输入围挡长度" value="320"><span class="form-input-suffix">m</span></div></div>
+              <div class="form-item"><label class="form-label"><span class="required">*</span>围挡高度</label><div class="form-input-group"><input type="number" class="form-input" id="fenceHeight" placeholder="请输入围挡高度" value="2.5"><span class="form-input-suffix">m</span></div></div>
+              <div class="form-item"><label class="form-label">围挡风格</label><input type="text" class="form-input" id="fenceStyle" placeholder="如：仿真绿篱、公益广告型等" value="仿真绿篱"></div>
+              <div class="form-item"><label class="form-label">宣传画/公益广告</label><input type="text" class="form-input" id="fencePoster" placeholder="请输入宣传画或公益广告描述" value="文明城市公益宣传画面"></div>
             </div>
           </div>
         </div>
@@ -569,7 +611,7 @@ a:hover{color:var(--text-link-hover)}
             <div class="form-grid">
               <div class="form-item full"><label class="form-label">占道范围</label><input type="text" class="form-input" placeholder="请描述占道范围，如：人行道占用宽度2m" value="人行道占用宽度2m"></div>
               <div class="form-item"><label class="form-label"><span class="required">*</span>占道面积</label><div class="form-input-group"><input type="number" class="form-input" placeholder="请输入占道面积" value="156.8"><span class="form-input-suffix">㎡</span></div></div>
-              <div class="form-item full"><label class="form-label">交通组织方案</label><div class="file-upload"><input type="file" id="trafficFile"><button type="button" class="file-upload-btn" onclick="document.getElementById('trafficFile').click()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>选择文件</button><span class="file-upload-name" id="trafficFileName">交通组织方案_v2.pdf</span></div><div class="form-hint">支持 .pdf、.doc、.docx 格式，文件大小不超过 20MB</div></div>
+              <div class="form-item full"><label class="form-label">交通组织方案</label><div class="file-upload"><span class="file-upload-name">交通组织方案_v2.pdf</span></div><div class="form-hint">支持 .pdf、.doc、.docx 格式，文件大小不超过 20MB</div></div>
             </div>
           </div>
         </div>
@@ -585,8 +627,35 @@ a:hover{color:var(--text-link-hover)}
 </div>
 
 <script>
-/* ═══ 项目数据 ═══ */
-var projectData=SD.toProjectData();
+/* ═══ 从 MOCK_DATA 构建项目数据 ═══ */
+var projectData=(function(){
+  var pd={};
+  MOCK_DATA.getProjects().forEach(function(p,i){
+    pd[String(i+1)]={name:p.name,lat:p.lat,lng:p.lng,
+      engineers:(p.hoardings||[]).map(function(h){
+        return{name:h.engineerName,planPeriod:h.custodyStart+' 至 '+h.custodyEnd,
+          region:p.district,street:p.street,address:h.address||p.address,
+          buildUnit:p.buildUnit,buildContact:p.buildContact,
+          constructUnit:p.constructUnit,constructContact:p.constructContact,
+          supervisorUnit:p.supervisorUnit,regulateUnit:p.regulatorUnit,designUnit:p.designUnit,
+          fenceId:h.id,fenceStatus:h.fenceStatus,issueStatus:h.issueStatus,
+          length:h.length,height:h.height,area:h.area,material:h.material,
+          setupDate:h.setupDate,planRemoveDate:h.planRemoveDate,
+          address:h.address};
+      })
+    };
+  });
+  return pd;
+})();
+
+/* ═══ URL参数 → 提取项目名（供后续 redline/reuse 逻辑使用） ═══ */
+var _urlProjectName='';
+(function(){
+  try{
+    var m=window.location.search.match(/project=([^&]+)/);
+    if(m) _urlProjectName=decodeURIComponent(m[1]);
+  }catch(e){}
+})();
 
 /* ═══ 多选逻辑 ═══ */
 var selectedPairs=[{pid:'1',eid:'0'},{pid:'1',eid:'1'}];
@@ -618,6 +687,34 @@ function checkRedline(projectName, engineeringName){
   return {complete: false, idx: -1};
 }
 
+function populateEngineerSelect(pid){
+  var engSel=document.getElementById('engineerSelect');
+  if(!pid||!engSel||!projectData[pid])return;
+  engSel.innerHTML='<option value="">请选择工程</option>';
+  var engineers=projectData[pid].engineers||[];
+  var pn=projectData[pid].name;
+  var existingMap={};
+  try{
+    var fd=localStorage.getItem('fenceData_v4');
+    if(fd){var allData=JSON.parse(fd);for(var k in allData){existingMap[k]=true}}
+  }catch(e){}
+  try{
+    var projs=SD.getProjects();
+    for(var pi=0;pi<projs.length;pi++){
+      if(projs[pi].name===pn){
+        var engs=projs[pi].engineers||[];
+        for(var ei=0;ei<engs.length;ei++){if(engs[ei].fenceId)existingMap[pn+'|||'+engs[ei].name]=true}
+      }
+    }
+  }catch(e){}
+  engineers.forEach(function(e){
+    var opt=document.createElement('option');
+    opt.value=e.name;
+    if(existingMap[pn+'|||'+e.name]){opt.textContent=e.name+'（已添加）';opt.disabled=true}
+    else opt.textContent=e.name;
+    engSel.appendChild(opt);
+  });
+}
 function onPairProjectChange(){
   var input=document.getElementById('pairProjectInput');
   var pid=input?input.dataset.pid:'';
@@ -703,13 +800,14 @@ function renderPairs(){
   var header=document.getElementById('pairListHeader');
   var list=document.getElementById('pairList');
   var count=document.getElementById('pairCount');
+  if(!header||!list) return;
   if(selectedPairs.length===0){
     header.style.display='none';
     list.innerHTML='<div class="pair-list-empty">请选择项目和工程后点击"添加"按钮</div>';
     return;
   }
   header.style.display='flex';
-  count.textContent=selectedPairs.length;
+  if(count) count.textContent=selectedPairs.length;
 
   var groups={};
   selectedPairs.forEach(function(p){
@@ -767,9 +865,9 @@ function renderPairs(){
 }
 
 
-/* 文件上传 */
-document.getElementById('trafficFile').addEventListener('change',function(e){document.getElementById('trafficFileName').textContent=e.target.files[0]?e.target.files[0].name:'未选择文件'});
-document.getElementById('changeFile').addEventListener('change',function(e){document.getElementById('changeFileName').textContent=e.target.files[0]?e.target.files[0].name:'未选择文件'});
+/* 文件上传（监管端只读，文件上传控件可能不存在） */
+var _tf=document.getElementById('trafficFile'); if(_tf)_tf.addEventListener('change',function(e){document.getElementById('trafficFileName').textContent=e.target.files[0]?e.target.files[0].name:'未选择文件'});
+var _cf=document.getElementById('changeFile'); if(_cf)_cf.addEventListener('change',function(e){document.getElementById('changeFileName').textContent=e.target.files[0]?e.target.files[0].name:'未选择文件'});
 
 
 /* ═══ 围挡范围数据 ═══ */
@@ -779,19 +877,34 @@ function getMinPoints(type){return type==='line'?2:3}
 var ENTRANCE_TYPES={vehicle:'车辆出入口',pedestrian:'行人出入口',temporary:'临时出入口',other:'其他'};
 var ENTRANCE_COLORS={vehicle:'#1890FF',pedestrian:'#52C41A',temporary:'#FAAD14',other:'#FF4D4F'};
 
-/* ═══ 演示数据 ═══ */
-var DEMO_SHAPES=[
-  {type:'polygon',points:[[200,80],[350,60],[380,180],[280,200],[180,160]],label:'围挡范围 1',source:'manual'},
-  {type:'polygon',points:[[420,40],[560,50],[580,150],[500,180],[400,130]],label:'围挡范围 2',source:'import'},
-  {type:'polygon',points:[[600,100],[720,80],[740,170],[680,200],[590,170]],label:'围挡范围 3',source:'import'}
-];
-var DEMO_ENTRANCES=[
-  {name:'主入口',type:'vehicle',color:'#1890FF',x:260,y:130},
-  {name:'次入口',type:'pedestrian',color:'#52C41A',x:520,y:110},
-  {name:'车行口',type:'vehicle',color:'#1890FF',x:680,y:160}
-];
-shapes=DEMO_SHAPES.slice();
-entrances=DEMO_ENTRANCES.slice();
+/* ═══ 从 MOCK_DATA 获取默认演示围挡数据 ═══ */
+var _defaultHoard=(function(){
+  var m=window.location.search.match(/project=([^&]+)/);
+  var pn=m?decodeURIComponent(m[1]):'';
+  var en='';
+  try{var m2=window.location.search.match(/engineering=([^&]+)/);if(m2)en=decodeURIComponent(m2[1])}catch(e){}
+  if(pn&&en){var h=MOCK_DATA.findByProjectAndEngineer(pn,en);if(h)return h}
+  return MOCK_DATA.getDefaultDemo();
+})();
+var _gpsToSvg=function(lat,lng,clat,clng){return[Math.round((lng-clng)*100000+400),Math.round(300-(lat-clat)*75000)]};
+var DEMO_SHAPES=(function(){
+  if(!_defaultHoard||!_defaultHoard.gpsShape||_defaultHoard.gpsShape.length<3)return[];
+  var clat=_defaultHoard.projectLat||22.536,clng=_defaultHoard.projectLng||113.958;
+  var pts=_defaultHoard.gpsShape.map(function(g){return _gpsToSvg(g[0],g[1],clat,clng)});
+  return[{type:'polygon',points:pts,label:_defaultHoard.engineerName||'围挡范围',source:'manual',gpsPoints:_defaultHoard.gpsShape.map(function(g){return[g[0],g[1]]})}];
+})();
+var DEMO_ENTRANCES=(function(){
+  if(!_defaultHoard||!_defaultHoard.entrances)return[];
+  var clat=_defaultHoard.projectLat||22.536,clng=_defaultHoard.projectLng||113.958;
+  return _defaultHoard.entrances.map(function(en){
+    var svg=_gpsToSvg(en.lat,en.lng,clat,clng);
+    return{name:en.name||'',type:en.type||'vehicle',color:ENTRANCE_COLORS[en.type]||'#1890FF',x:svg[0],y:svg[1],lat:en.lat,lng:en.lng};
+  });
+})();
+/* 用 DEMO 数据初始化 shapes / entrances（与项目端保持一致） */
+if(DEMO_SHAPES.length>0) shapes=DEMO_SHAPES.slice();
+if(DEMO_ENTRANCES.length>0) entrances=DEMO_ENTRANCES.slice();
+console.log('[DEBUG] DEMO_SHAPES:',DEMO_SHAPES.length,'shapes:',shapes.length,'_defaultHoard:',_defaultHoard&&_defaultHoard.id,'L:',typeof L);
 
 /* ═══ SVG 渲染 ═══ */
 function escHtml(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML}
@@ -800,13 +913,9 @@ function buildSvgContent(shapesList,entrancesList){
   shapesList.forEach(function(sh,si){
     var pts=sh.points.map(function(p){return p[0]+','+p[1]}).join(' ');
     if(sh.type==='line'){
-      s+='<polyline points="'+pts+'" fill="none" stroke="#1890FF" stroke-width="2"/>';
+      s+='<polyline points="'+pts+'" fill="none" stroke="#1862D4" stroke-width="2"/>';
     } else {
-      if(sh.source==='import'){
-        s+='<polygon points="'+pts+'" fill="rgba(82,196,26,0.25)" stroke="none"/>';
-      } else {
-        s+='<polygon points="'+pts+'" fill="none" stroke="#1890FF" stroke-width="2" stroke-dasharray="6 3"/>';
-      }
+      s+='<polygon points="'+pts+'" fill="none" stroke="#1862D4" stroke-width="2"/>';
     }
     // Label: 范围 N at centroid
     if(sh.points.length>=3){
@@ -826,15 +935,13 @@ function buildSvgContent(shapesList,entrancesList){
 }
 function buildModalSvgContent(shapesList,entrancesList){
   var s='';
-  // Background shapes
+  // Background shapes - unified blue dashed style
   shapesList.forEach(function(sh,si){
     var pts=sh.points.map(function(p){return p[0]+','+p[1]}).join(' ');
     if(sh.type==='line'){
-      s+='<polyline points="'+pts+'" fill="none" stroke="#1890FF" stroke-width="3" class="shape-gfx" data-shape="'+si+'"/>';
-    } else if(sh.source==='import'){
-      s+='<polygon points="'+pts+'" fill="rgba(82,196,26,0.25)" stroke="#52C41A" stroke-width="2" class="shape-gfx" data-shape="'+si+'"/>';
+      s+='<polyline points="'+pts+'" fill="none" stroke="#1862D4" stroke-width="2.5" class="shape-gfx" data-shape="'+si+'"/>';
     } else {
-      s+='<polygon points="'+pts+'" fill="rgba(24,144,255,0.08)" stroke="#1890FF" stroke-width="2" stroke-dasharray="6 3" class="shape-gfx" data-shape="'+si+'"/>';
+      s+='<polygon points="'+pts+'" fill="rgba(24,98,212,0.08)" stroke="#1862D4" stroke-width="2.5" class="shape-gfx" data-shape="'+si+'"/>';
     }
     // Label at centroid
     if(sh.points&&sh.points.length>=3){
@@ -844,12 +951,10 @@ function buildModalSvgContent(shapesList,entrancesList){
       s+='<text x="'+mcx+'" y="'+mcy+'" fill="#fff" font-size="11" text-anchor="middle" stroke="#000" stroke-width="3" paint-order="stroke" stroke-linejoin="round" class="shape-label" data-shape="'+si+'">'+(sh.label||('范围 '+(si+1)))+'</text>';
     }
   });
-  // Vertex drag handles
+  // Vertex drag handles - unified blue style
   shapesList.forEach(function(sh,si){
-    var isImport=sh.source==='import';
-    var handleColor=isImport?'#52C41A':'#1890FF';
     sh.points.forEach(function(pt,pi){
-      s+='<circle cx="'+pt[0]+'" cy="'+pt[1]+'" r="5" fill="#fff" stroke="'+handleColor+'" stroke-width="2.5" class="vertex-handle" data-shape="'+si+'" data-point="'+pi+'" style="cursor:grab"/>';
+      s+='<circle cx="'+pt[0]+'" cy="'+pt[1]+'" r="5" fill="#fff" stroke="#1862D4" stroke-width="2" class="vertex-handle" data-shape="'+si+'" data-point="'+pi+'" style="cursor:grab"/>';
     });
   });
   // Entrance markers (draggable)
@@ -861,38 +966,111 @@ function buildModalSvgContent(shapesList,entrancesList){
   });
   return s;
 }
-var thumbMap=null,thumbRedlineLayer=null;
-function initThumbMap(){
-  var el=document.getElementById('thumbLeafletMap');
-  if(!el||typeof L==='undefined')return;
-  if(thumbMap){thumbMap.remove();thumbMap=null}
-  thumbMap=L.map(el,{zoomControl:false,attributionControl:false,doubleClickZoom:false,dragging:false,scrollWheelZoom:true})
-    .setView([22.536,113.9585],16);
-  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}).addTo(thumbMap);
-  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}).addTo(thumbMap);
-  // Render redline
-  if(redlineGeo){
-    thumbRedlineLayer=buildRedlineLeaflet(redlineGeo,thumbMap);
-  }
-  setTimeout(function(){if(thumbMap)thumbMap.invalidateSize()},200);
+var fenceMapView=null,fenceShapeLayer=null;
+
+/* ═══ 同项目其他围挡参照数据（从 MOCK_DATA 读取） ═══ */
+var OTHER_FENCE_BLOCKS=(function(){
+  if(!_defaultHoard)return[];
+  return MOCK_DATA.getOtherHoardings(_defaultHoard.id).map(function(h,i){
+    return{id:'围挡'+(i+2),engName:h.engineerName,status:h.fenceStatus,
+      gpsShape:h.gpsShape||[],
+      entrances:(h.entrances||[]).map(function(e){return{lat:e.lat,lng:e.lng,name:e.name}})};
+  });
+})();
+
+function renderOtherFences(mapInstance,tooltipEnabled){
+  if(!mapInstance||typeof L==='undefined')return;
+  OTHER_FENCE_BLOCKS.forEach(function(b){
+    if(!b.gpsShape||b.gpsShape.length<2)return;
+    var opts={color:'#9CA3B0',weight:2,dashArray:'6 4',fillColor:'rgba(156,163,176,0.08)',fillOpacity:0.5,interactive:tooltipEnabled};
+    var layer;
+    if(b.gpsShape.length===2||b.gpsShape.length===2){layer=L.polyline(b.gpsShape,opts).addTo(mapInstance)}
+    else{layer=L.polygon(b.gpsShape,opts).addTo(mapInstance)}
+    if(tooltipEnabled&&layer){
+      layer.bindTooltip(b.id+' '+b.engName+' '+b.status,{sticky:true,direction:'right',className:'other-fence-tooltip',offset:[8,0]});
+    }
+    /* 序号徽章（灰色） */
+    if(b.gpsShape.length>=3){
+      var bounds=layer.getBounds();var center=bounds.getCenter();
+      var badgeIcon=L.divIcon({className:'',html:'<div style="display:flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#6B7280;color:#FFF;font-size:11px;font-weight:bold;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,0.2);pointer-events:none">'+b.id.replace('围挡','')+'</div>',iconSize:[22,22],iconAnchor:[11,11]});
+      L.marker(center,{icon:badgeIcon,interactive:false}).addTo(mapInstance);
+    }
+    /* 出入口（灰色空心圆） */
+    if(b.entrances){
+      b.entrances.forEach(function(en){
+        var enIcon=L.divIcon({className:'',html:'<div style="display:flex;flex-direction:column;align-items:center"><div style="width:10px;height:10px;border-radius:50%;border:2px solid #9CA3B0;background:#fff;box-shadow:0 0 0 1px rgba(0,0,0,0.1)"></div><span style="margin-top:2px;font-size:9px;white-space:nowrap;color:#9CA3B0;font-family:var(--font-family)">'+en.name+'</span></div>',iconSize:[20,34],iconAnchor:[10,34]});
+        L.marker([en.lat,en.lng],{icon:enIcon,interactive:false}).addTo(mapInstance);
+      });
+    }
+  });
 }
-function renderThumbSvg(){
-  var svg=document.getElementById('thumbSvg');if(!svg)return;
-  var s=buildSvgContent(shapes,entrances);
-  s+=buildRedlineSvg(redlineGeo);
-  svg.innerHTML=s;
-  var e=document.getElementById('thumbEmpty');if(e)e.style.display=(shapes.length===0&&entrances.length===0)?'block':'none';
-  // Init thumb satellite map
-  if(shapes.length>0||entrances.length>0){
-    setTimeout(initThumbMap,150);
-  } else {
-    if(thumbMap){thumbMap.remove();thumbMap=null}
-    thumbRedlineLayer=null;
+function initFenceMap(){
+  console.log('[DEBUG] initFenceMap called, shapes:',shapes.length,'entrances:',entrances.length,'L:',typeof L);
+  var el=document.getElementById('fenceMap');
+  if(!el||typeof L==='undefined'){console.log('[DEBUG] initFenceMap abort: el=',!!el,'L=',typeof L);return;}
+  if(fenceMapView){fenceMapView.remove();fenceMapView=null}
+  var center=[22.536,113.9585];
+  if(selectedPairs.length>0){
+    var sp=selectedPairs[0];
+    var pd=projectData[sp.pid];
+    if(pd&&pd.lat) center=[pd.lat,pd.lng];
   }
+  fenceMapView=L.map('fenceMap',{zoomControl:false,doubleClickZoom:false,dragging:true,scrollWheelZoom:true})
+    .setView(center,16);
+  L.control.zoom({position:'topright'}).addTo(fenceMapView);
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'Esri',maxZoom:19}).addTo(fenceMapView);
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}).addTo(fenceMapView);
+  var allBounds=[];
+  // 项目红线
+  if(redlineGeo){
+    var rlLayer=buildRedlineLeaflet(redlineGeo,fenceMapView);
+    try{if(rlLayer)allBounds.push(rlLayer.getBounds())}catch(e){}
+  }
+  // 同项目其他围挡（灰色参照）
+  renderOtherFences(fenceMapView,false);
+  // 围挡范围
+  shapes.forEach(function(s){
+    if(!s.gpsPoints||s.gpsPoints.length===0){
+      s.gpsPoints=s.points.map(function(p){return svgToGps(p)});
+    }
+    if(s.gpsPoints.length<2)return;
+    var opts={color:'#1862D4',weight:2.5,fillColor:'rgba(24,98,212,0.08)',fillOpacity:0.5,interactive:false};
+    var layer;
+    if(s.type==='line'){layer=L.polyline(s.gpsPoints,opts).addTo(fenceMapView)}
+    else{layer=L.polygon(s.gpsPoints,opts).addTo(fenceMapView)}
+    try{allBounds.push(layer.getBounds())}catch(e){}
+  });
+  // 出入口（带类型标注）
+  entrances.forEach(function(en){
+    if(en.lat===undefined){var g=svgToGps([en.x,en.y]);en.lat=g[0];en.lng=g[1]}
+    var c=en.color||ENTRANCE_COLORS[en.type]||'#1890FF';
+    var label=escHtml(en.name||ENTRANCE_TYPES[en.type]||'出入口');
+    var icon=L.divIcon({
+      className:'',
+      html:'<div style="display:flex;flex-direction:column;align-items:center;transform:translate(-50%,-50%)">'+
+        '<div style="width:12px;height:12px;border-radius:50%;background:'+c+';border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,0.15)"></div>'+
+        '<span style="margin-top:2px;font-size:10px;white-space:nowrap;color:#fff;background:rgba(0,0,0,0.65);padding:1px 4px;border-radius:2px;font-family:var(--font-family);line-height:1.3">'+label+'</span>'+
+        '</div>',
+      iconSize:[0,0],iconAnchor:[0,0]
+    });
+    L.marker([en.lat,en.lng],{icon:icon,interactive:false}).addTo(fenceMapView);
+    allBounds.push(L.latLngBounds([[en.lat,en.lng],[en.lat,en.lng]]));
+  });
+  // 自适应范围
+  try{
+    if(allBounds.length>0){
+      var combined=allBounds[0];
+      for(var i=1;i<allBounds.length;i++)combined.extend(allBounds[i]);
+      fenceMapView.fitBounds(combined,{padding:[50,50],maxZoom:17});
+    }
+  }catch(e){}
+  setTimeout(function(){
+    if(fenceMapView)fenceMapView.invalidateSize();
+  },300);
 }
 function renderModalSvg(){
   var svg=document.getElementById('modalSvg');if(!svg)return;
-  svg.innerHTML=buildModalSvgContent(shapes,entrances)+buildRedlineSvg(redlineGeo);
+  svg.innerHTML=buildModalSvgContent(shapes,entrances);
 }
 function updateFenceSummary(){
   var mc=shapes.filter(function(s){return s.source==='manual'}).length;
@@ -901,15 +1079,60 @@ function updateFenceSummary(){
   var me=document.getElementById('fenceManualCount');if(me)me.textContent=mc;
   var ie=document.getElementById('fenceImportCount');if(ie)ie.textContent=ic;
   var ee=document.getElementById('fenceEntranceCount');if(ee)ee.textContent=entrances.length;
-  renderThumbSvg();
+  var msc=document.getElementById('fenceMapShapeCount');if(msc)msc.textContent=shapes.length;
+  var mec=document.getElementById('fenceMapEntranceCount');if(mec)mec.textContent=entrances.length;
+  initFenceMap();
+}
+
+/* ═══ 导出演示数据（写入HTML） ═══ */
+function exportDemoDataHtml(){
+  var cleanShapes=shapes.filter(function(s){return s.points&&s.points.length>=getMinPoints(s.type)}).map(function(s){
+    var o={type:s.type,points:s.points.map(function(p){return p.map(Math.round)}),label:s.label||'',source:s.source||'manual'};
+    if(s.gpsPoints&&s.gpsPoints.length>0)o.gpsPoints=s.gpsPoints.map(function(p){return[+p[0].toFixed(6),+p[1].toFixed(6)]});
+    return o;
+  });
+  var cleanEntrances=entrances.map(function(en){
+    var o={name:en.name||'',type:en.type||'vehicle',color:en.color||'#1890FF',x:Math.round(en.x||0),y:Math.round(en.y||0)};
+    if(en.lat!==undefined)o.lat=+en.lat.toFixed(6);
+    if(en.lng!==undefined)o.lng=+en.lng.toFixed(6);
+    return o;
+  });
+  var shapesJson=JSON.stringify(cleanShapes,null,2);
+  var entrancesJson=JSON.stringify(cleanEntrances,null,2);
+  var html='<!DOCTYPE html>\n'+document.documentElement.outerHTML;
+  var replaced=html.replace(
+    /var DEMO_SHAPES=\[[\s\S]*?\];\s*var DEMO_ENTRANCES=\[[\s\S]*?\];\s*shapes=DEMO_SHAPES\.slice\(\)/,
+    'var DEMO_SHAPES='+shapesJson+';\nvar DEMO_ENTRANCES='+entrancesJson+';\nshapes=DEMO_SHAPES.slice()'
+  );
+  if(replaced===html){showToast('未找到演示数据标记，导出失败');return}
+  var blob=new Blob([replaced],{type:'text/html;charset=utf-8'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='detail_v2.html';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  URL.revokeObjectURL(a.href);
+  showToast('演示数据已导出，请用下载的文件替换原文件');
 }
 
 
 /* ═══ 项目红线数据 ═══ */
 var redlineGeo=null;
-function normalizeGeo(g){if(!g||!g.length)return[];if(!Array.isArray(g[0][0]))return[g];return g}
+function normalizeGeo(g){
+  if(!g||!g.length)return[];
+  // New format: [{type:'polygon', points:[[lat,lng],...]}]
+  if(g[0]&&typeof g[0].type==='string'&&Array.isArray(g[0].points)){
+    return g.map(function(s){return s.points});
+  }
+  // Old format: [[[lat,lng],...]]
+  if(!Array.isArray(g[0][0]))return[g];
+  return g;
+}
 function loadRedlineForProject(pn){
   if(!pn){redlineGeo=null;return}
+  // 1. MOCK_DATA first
+  var proj=MOCK_DATA.getProjects().find(function(p){return p.name===pn});
+  if(proj&&proj.redlineGeo&&proj.redlineGeo.length>=3){redlineGeo=proj.redlineGeo;return}
+  // 2. localStorage fallback
   try{
     var s=localStorage.getItem('redlineMockData_v2');
     if(s){
@@ -935,7 +1158,7 @@ function buildRedlineSvg(redline){
       return [Math.round(x),Math.round(y)];
     }).filter(function(p){return p[0]>=0&&p[0]<=800&&p[1]>=0&&p[1]<=600});
     if(pts.length<3)return;
-    s+='<polygon points="'+pts.map(function(p){return p[0]+','+p[1]}).join(' ')+'" fill="rgba(209,59,47,0.12)" stroke="#D13B2F" stroke-width="2" stroke-dasharray="8 4" class="redline-gfx" style="pointer-events:none"/>';
+    s+='<polygon points="'+pts.map(function(p){return p[0]+','+p[1]}).join(' ')+'" fill="rgba(209,59,47,0.12)" stroke="#D13B2F" stroke-width="2" class="redline-gfx" style="pointer-events:none"/>';
   });
   return s;
 }
@@ -951,53 +1174,461 @@ function buildRedlineLeaflet(redline, mapInstance, layerVar){
   return g;
 }
 /* ═══ 弹窗控制 ═══ */
-var currentModalTool='polygon';
+var currentModalTool='line';
 var drawLeafletMap=null;
 var dragInfo=null;
+// Leaflet drawing state
+var drawPoints=[], drawMarkers=[], drawTempLayer=null, drawPreviewLine=null, pendingClick=null;
+var drawnLeafletLayers=[];
+
+function projectCenter(){
+  var clat=22.536, clng=113.9585;
+  if(selectedPairs.length>0){
+    var sp=selectedPairs[0];
+    var pd=projectData[sp.pid];
+    if(pd&&pd.lat){clat=pd.lat;clng=pd.lng}
+  }
+  return {lat:clat,lng:clng};
+}
+
+function gpsToSvg(latlng){
+  var c=projectCenter();
+  var x=Math.round(400+(latlng.lng-c.lng)*400/0.004);
+  var y=Math.round(300-(latlng.lat-c.lat)*300/0.004);
+  x=Math.max(0,Math.min(800,x));
+  y=Math.max(0,Math.min(600,y));
+  return [x,y];
+}
+
+function svgToGps(svgPoint){
+  var c=projectCenter();
+  var lat=c.lat+(300-svgPoint[1])*0.004/300;
+  var lng=c.lng+(svgPoint[0]-400)*0.004/400;
+  return [lat,lng];
+}
+
+function containerPointToSvg(cp){
+  var svg=document.getElementById('modalSvg');
+  if(!svg)return[0,0];
+  var mapArea=svg.parentElement;
+  var cw=mapArea.clientWidth,ch=mapArea.clientHeight;
+  var svgRatio=800/600,mapRatio=cw/ch;
+  var svgW,svgH,offsetX=0,offsetY=0;
+  if(mapRatio>svgRatio){svgH=ch;svgW=ch*svgRatio;offsetX=(cw-svgW)/2}
+  else{svgW=cw;svgH=cw/svgRatio;offsetY=(ch-svgH)/2}
+  var svgX=(cp.x-offsetX)/svgW*800;
+  var svgY=(cp.y-offsetY)/svgH*600;
+  return[Math.round(svgX),Math.round(svgY)];
+}
+function svgPointToGps(svgPoint){
+  if(!drawLeafletMap)return svgToGps(svgPoint);
+  var svg=document.getElementById('modalSvg');
+  if(!svg)return svgToGps(svgPoint);
+  var mapArea=svg.parentElement;
+  var cw=mapArea.clientWidth,ch=mapArea.clientHeight;
+  var svgRatio=800/600,mapRatio=cw/ch;
+  var svgW,svgH,offsetX=0,offsetY=0;
+  if(mapRatio>svgRatio){svgH=ch;svgW=ch*svgRatio;offsetX=(cw-svgW)/2}
+  else{svgW=cw;svgH=cw/svgRatio;offsetY=(ch-svgH)/2}
+  var cx=offsetX+svgPoint[0]*svgW/800;
+  var cy=offsetY+svgPoint[1]*svgH/600;
+  var latlng=drawLeafletMap.containerPointToLatLng([cx,cy]);
+  return [latlng.lat,latlng.lng];
+}
+function updateEntranceSvgPositions(){
+  if(!drawLeafletMap||dragInfo)return; // Don't reposition while dragging
+  var svg=document.getElementById('modalSvg');if(!svg)return;
+  entrances.forEach(function(en,i){
+    if(en.lat===undefined)return;
+    var pt=drawLeafletMap.latLngToContainerPoint([en.lat,en.lng]);
+    var svgPt=containerPointToSvg(pt);
+    en.x=svgPt[0];en.y=svgPt[1];
+    svg.querySelectorAll('[data-entrance="'+i+'"]').forEach(function(el){
+      if(el.tagName==='circle'){el.setAttribute('cx',svgPt[0]);el.setAttribute('cy',svgPt[1])}
+      else if(el.tagName==='text'){el.setAttribute('x',svgPt[0]);el.setAttribute('y',svgPt[1]-15)}
+    });
+  });
+}
+
+function updateShapeSvgPositions(){
+  if(!drawLeafletMap||dragInfo)return;
+  shapes.forEach(function(s){
+    if(!s.gpsPoints||s.gpsPoints.length===0)return;
+    for(var pi=0;pi<s.gpsPoints.length;pi++){
+      var gp=s.gpsPoints[pi];
+      var pt=drawLeafletMap.latLngToContainerPoint(gp);
+      var svgPt=containerPointToSvg(pt);
+      if(pi<s.points.length)s.points[pi]=svgPt;
+    }
+  });
+}
+function updateStatusTip(){
+  var el=document.getElementById('modalStatusTip');if(!el)return;
+  var msg='';
+  if(currentModalTool==='line'){
+    if(drawPoints.length===0)msg='单击地图添加线段顶点，双击即可完成绘制，右键撤回上一个顶点';
+    else if(drawPoints.length<2)msg='继续单击添加顶点（至少2个），双击完成绘制，右键撤回上一个顶点';
+    else msg='已添加 '+drawPoints.length+' 个顶点，双击完成绘制，右键撤回上一个顶点';
+  }else if(currentModalTool==='polygon'){
+    if(drawPoints.length===0)msg='单击地图添加多边形顶点，双击即可完成绘制，右键撤回上一个顶点';
+    else if(drawPoints.length<3)msg='继续单击添加顶点（至少3个），双击完成绘制，右键撤回上一个顶点';
+    else msg='已添加 '+drawPoints.length+' 个顶点，双击完成绘制，右键撤回上一个顶点';
+  }else if(currentModalTool==='entrance'){
+    msg='单击地图标记出入口位置';
+  }
+  el.textContent=msg;
+}
+
+function updateModalMapInfo(){
+  var el=document.getElementById('modalMapInfo');if(!el)return;
+  el.innerHTML='顶点 <strong>'+drawPoints.length+'</strong>';
+}
+
+function clearDrawState(){
+  if(pendingClick){clearTimeout(pendingClick);pendingClick=null}
+  drawMarkers.forEach(function(m){if(drawLeafletMap)drawLeafletMap.removeLayer(m)});
+  drawMarkers=[];
+  if(drawTempLayer&&drawLeafletMap){drawLeafletMap.removeLayer(drawTempLayer);drawTempLayer=null}
+  clearPreviewLine();
+  drawPoints=[];
+}
+
+function clearPreviewLine(){
+  if(drawPreviewLine&&drawLeafletMap){drawLeafletMap.removeLayer(drawPreviewLine);drawPreviewLine=null}
+}
+
+function updatePreviewLine(e){
+  clearPreviewLine();
+  if(!drawLeafletMap||drawPoints.length===0)return;
+  var mousePt=[e.latlng.lat,e.latlng.lng];
+  var lastPt=drawPoints[drawPoints.length-1];
+  var coords=[lastPt,mousePt];
+  if(currentModalTool==='polygon'&&drawPoints.length>=2){
+    coords.push(drawPoints[0]);
+  }
+  drawPreviewLine=L.polyline(coords,{color:'#1862D4',weight:2,dashArray:'6 4',interactive:false}).addTo(drawLeafletMap);
+}
+
+function updateTempLine(){
+  if(drawTempLayer&&drawLeafletMap)drawLeafletMap.removeLayer(drawTempLayer);
+  if(drawPoints.length<2)return;
+  drawTempLayer=L.polyline(drawPoints,{color:'#1862D4',weight:2.5}).addTo(drawLeafletMap);
+}
+
+function updateTempPolygon(){
+  if(drawTempLayer&&drawLeafletMap)drawLeafletMap.removeLayer(drawTempLayer);
+  if(drawPoints.length<2)return;
+  drawTempLayer=L.polyline(drawPoints,{color:'#1862D4',weight:2.5}).addTo(drawLeafletMap);
+}
+
+function addDrawnLeafletLayer(shape){
+  if(!drawLeafletMap||!shape.gpsPoints||shape.gpsPoints.length<2)return;
+  var opts={color:'#1862D4',weight:2.5,fillColor:'rgba(24,98,212,0.08)',fillOpacity:0.5,interactive:true};
+  var layer;
+  if(shape.type==='line'){
+    layer=L.polyline(shape.gpsPoints,opts).addTo(drawLeafletMap);
+  }else{
+    layer=L.polygon(shape.gpsPoints,opts).addTo(drawLeafletMap);
+  }
+  shape._leafletLayer=layer;
+  drawnLeafletLayers.push(layer);
+}
+
+function removeDrawnLeafletLayer(shape){
+  if(shape._leafletLayer&&drawLeafletMap){
+    drawLeafletMap.removeLayer(shape._leafletLayer);
+    var idx=drawnLeafletLayers.indexOf(shape._leafletLayer);
+    if(idx>=0)drawnLeafletLayers.splice(idx,1);
+    shape._leafletLayer=null;
+  }
+}
+
+function clearAllDrawnLeafletLayers(){
+  drawnLeafletLayers.forEach(function(l){
+    if(drawLeafletMap)drawLeafletMap.removeLayer(l);
+  });
+  drawnLeafletLayers=[];
+  shapes.forEach(function(s){s._leafletLayer=null});
+  entranceLeafletMarkers.forEach(function(m){if(drawLeafletMap)drawLeafletMap.removeLayer(m)});
+  entranceLeafletMarkers=[];
+  entrances.forEach(function(en){en._leafletMarker=null});
+}
+
+function rebuildDrawnLeafletLayers(){
+  clearAllDrawnLeafletLayers();
+  if(!drawLeafletMap)return;
+  shapes.forEach(function(s){
+    if(!s.gpsPoints||s.gpsPoints.length===0){
+      s.gpsPoints=s.points.map(function(p){return svgToGps(p)});
+    }
+    addDrawnLeafletLayer(s);
+  });
+  rebuildEntranceLeafletMarkers();
+}
+/* ═══ 出入口 Leaflet 标记 ═══ */
+var entranceLeafletMarkers=[];
+function addEntranceLeafletMarker(en){
+  if(!drawLeafletMap||en.lat===undefined)return;
+  var c=en.color||ENTRANCE_COLORS[en.type]||'#1890FF';
+  var marker=L.circleMarker([en.lat,en.lng],{
+    radius:7,color:c,fillColor:c,fillOpacity:0.9,weight:2.5,interactive:false
+  }).addTo(drawLeafletMap);
+  en._leafletMarker=marker;
+  entranceLeafletMarkers.push(marker);
+}
+function removeEntranceLeafletMarker(en){
+  if(en._leafletMarker&&drawLeafletMap){
+    drawLeafletMap.removeLayer(en._leafletMarker);
+    var idx=entranceLeafletMarkers.indexOf(en._leafletMarker);
+    if(idx>=0)entranceLeafletMarkers.splice(idx,1);
+    en._leafletMarker=null;
+  }
+}
+function rebuildEntranceLeafletMarkers(){
+  entranceLeafletMarkers.forEach(function(m){if(drawLeafletMap)drawLeafletMap.removeLayer(m)});
+  entranceLeafletMarkers=[];
+  entrances.forEach(function(en){
+    if(en.lat===undefined){var g=svgToGps([en.x,en.y]);en.lat=g[0];en.lng=g[1]}
+    addEntranceLeafletMarker(en);
+  });
+}
+
+function makeVertexMarker(latlng){
+  return L.marker(latlng,{icon:L.divIcon({className:'',html:'<div style="width:10px;height:10px;background:#1862D4;border:2px solid #fff;border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,0.3);cursor:pointer"></div>',iconSize:[10,10],iconAnchor:[5,5]})});
+}
+
+function handleMapClick(e){
+  if(currentModalTool==='line'||currentModalTool==='polygon'){
+    var latlng=e.latlng;
+    if(pendingClick){clearTimeout(pendingClick);pendingClick=null}
+    pendingClick=setTimeout(function(){
+      pendingClick=null;
+      drawPoints.push([latlng.lat,latlng.lng]);
+      var m=makeVertexMarker(latlng).addTo(drawLeafletMap);
+      drawMarkers.push(m);
+      if(currentModalTool==='line')updateTempLine();
+      else updateTempPolygon();
+      clearPreviewLine();
+      updateModalMapInfo();
+      updateStatusTip();
+    },280);
+  }else if(currentModalTool==='entrance'){
+    var svgPt=containerPointToSvg(e.containerPoint);
+    showEntranceTypeDialog(svgPt, null, e.latlng);
+  }
+}
+
+function handleMapDblClick(e){
+  if((currentModalTool==='line'||currentModalTool==='polygon')&&drawPoints.length>=1){
+    L.DomEvent.stop(e);
+    L.DomEvent.preventDefault(e);
+    if(pendingClick){clearTimeout(pendingClick);pendingClick=null}
+    drawPoints.push([e.latlng.lat,e.latlng.lng]);
+    var m=makeVertexMarker(e.latlng).addTo(drawLeafletMap);
+    drawMarkers.push(m);
+    var minPts=currentModalTool==='line'?2:3;
+    if(drawPoints.length<minPts){return}
+    var svgPts=drawPoints.map(function(p){return gpsToSvg(L.latLng(p[0],p[1]))});
+    var gpsPts=drawPoints.slice();
+    var label=(currentModalTool==='line'?'线段':'范围')+(shapes.length+1);
+    shapes.push({type:currentModalTool,points:svgPts,gpsPoints:gpsPts,label:label,source:'manual'});
+    addDrawnLeafletLayer(shapes[shapes.length-1]);
+    clearDrawState();
+    renderModalSvg();renderModalRangeList();
+    updateStatusTip();
+    updateModalMapInfo();
+    showToast(currentModalTool==='line'?'线段已绘制':'多边形范围已绘制');
+  }
+}
 
 function initDrawLeafletMap(){
   if(drawLeafletMap)return;
   var el=document.getElementById('drawLeafletMap');
   if(!el||typeof L==='undefined')return;
+  // 使用选中项目的坐标作为地图中心
+  var mapCenter=[22.548,114.061];
+  var selPn=document.getElementById('pairProjectInput');
+  if(selPn&&selPn.value){
+    var proj=MOCK_DATA.getProjects().find(function(p){return p.name===selPn.value});
+    if(proj&&proj.lat)mapCenter=[proj.lat,proj.lng];
+  }else if(_defaultHoard&&_defaultHoard.projectLat){
+    mapCenter=[_defaultHoard.projectLat,_defaultHoard.projectLng];
+  }
   drawLeafletMap=L.map(el,{zoomControl:false,attributionControl:false,doubleClickZoom:false,scrollWheelZoom:true})
-    .setView([22.536,113.9585],17);
+    .setView(mapCenter,17);
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}).addTo(drawLeafletMap);
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}).addTo(drawLeafletMap);
-  if(redlineGeo){buildRedlineLeaflet(redlineGeo,drawLeafletMap)}
-  setTimeout(function(){if(drawLeafletMap)drawLeafletMap.invalidateSize()},100);
+  var rlLayer=null;
+  if(redlineGeo){rlLayer=buildRedlineLeaflet(redlineGeo,drawLeafletMap)}
+    // 同项目其他围挡（灰色参照 + Tooltip）
+  renderOtherFences(drawLeafletMap,true);
+  drawLeafletMap.on('click',handleMapClick);
+  drawLeafletMap.on('dblclick',handleMapDblClick);
+  drawLeafletMap.on('mousemove',updatePreviewLine);
+  drawLeafletMap.on('contextmenu',function(e){
+    if(currentModalTool==='line'||currentModalTool==='polygon'){
+      L.DomEvent.preventDefault(e);modalUndo();
+    }
+  });
+  drawLeafletMap.on('move',function(){
+    updateShapeSvgPositions();
+    updateEntranceSvgPositions();
+  });
+  drawLeafletMap.on('moveend',function(){
+    if(dragInfo)return;
+    updateShapeSvgPositions();
+    updateEntranceSvgPositions();
+    renderModalSvg();
+  });
+  setTimeout(function(){
+    if(drawLeafletMap){
+      drawLeafletMap.invalidateSize();
+      if(rlLayer){
+        try{drawLeafletMap.fitBounds(rlLayer.getBounds(),{padding:[50,50],maxZoom:17})}catch(e){}
+      }
+      rebuildDrawnLeafletLayers();
+    }
+  },200);
 }
+
 function openDrawModal(){
   document.getElementById('drawModalOverlay').classList.add('open');
-  renderModalSvg();renderModalRangeList();renderModalEntranceList();setModalTool('polygon');
+  renderModalSvg();renderModalRangeList();setModalTool('line');
+  updateModalMapInfo();
   setTimeout(initDrawLeafletMap,150);
 }
+
 function closeDrawModal(){
   document.getElementById('drawModalOverlay').classList.remove('open');
+  clearDrawState();
+  clearAllDrawnLeafletLayers();
   if(drawLeafletMap){drawLeafletMap.remove();drawLeafletMap=null}
+  updateModalMapInfo();
 }
-function finishDrawModal(){closeDrawModal();updateFenceSummary();if(typeof saveCurrentFence==='function')saveCurrentFence();showToast('围挡范围已保存')}
+
+function finishDrawModal(){closeDrawModal();updateFenceSummary();if(typeof saveCurrentFence==='function'){saveCurrentFence();showToast('围挡范围已保存')}}
+
 function setModalTool(type){
+  clearDrawState();
   currentModalTool=type;
   ['toolPolygon','toolLine','toolEntrance'].forEach(function(id){
     var el=document.getElementById(id);
     if(el)el.classList.toggle('active',id==='tool'+type.charAt(0).toUpperCase()+type.slice(1));
   });
+  if(drawLeafletMap){
+    if(type==='line'||type==='polygon'){
+      drawLeafletMap.getContainer().style.cursor='crosshair';
+    }else{
+      drawLeafletMap.getContainer().style.cursor='';
+    }
+  }
+  updateModalMapInfo();
+  updateStatusTip();
 }
+
 function modalUndo(){
-  // Remove the last-added shape or entrance
-  if(shapes.length>0){shapes.pop();renderModalSvg();renderModalRangeList();showToast('已撤销最后一个范围')}
-  else if(entrances.length>0){entrances.pop();renderModalSvg();renderModalEntranceList();showToast('已撤销最后一个出入口')}
+  if(drawPoints.length>0){
+    drawPoints.pop();
+    var m=drawMarkers.pop();
+    if(m&&drawLeafletMap)drawLeafletMap.removeLayer(m);
+    if(currentModalTool==='line')updateTempLine();
+    else updateTempPolygon();
+    updateModalMapInfo();
+    updateStatusTip();
+    return;
+  }
+  if(shapes.length>0){
+    removeDrawnLeafletLayer(shapes[shapes.length-1]);
+    shapes.pop();
+    renderModalSvg();renderModalRangeList();
+    updateStatusTip();
+    showToast('已撤销最后一个范围');
+    return;
+  }
+  if(entrances.length>0){entrances.pop();renderModalSvg();renderModalRangeList();updateStatusTip();showToast('已撤销最后一个出入口')}
   else{showToast('没有可撤销的内容')}
 }
+
 function modalClearCurrent(){
-  if(shapes.length===0 && entrances.length===0){showToast('没有可清除的内容');return}
+  if(shapes.length===0 && entrances.length===0 && drawPoints.length===0){showToast('没有可清除的内容');return}
   confirmDialog('确认清除','确定要清除<strong>所有</strong>围挡范围和出入口吗？此操作不可恢复。',function(){
+    clearAllDrawnLeafletLayers();
     shapes=[];entrances=[];
-    renderModalSvg();renderModalRangeList();renderModalEntranceList();
+    clearDrawState();
+    renderModalSvg();renderModalRangeList();
+    updateModalMapInfo();
+    updateStatusTip();
     showToast('已清除全部围挡范围和出入口');
   });
 }
-function modalZoom(dir){showToast(dir>0?'放大':'缩小')}
+
+function showEntranceTypeDialog(svgPt, editIdx, latlng){
+  var isEdit=(typeof editIdx==='number'&&editIdx>=0);
+  var currentType=isEdit?entrances[editIdx].type:'vehicle';
+  var currentOther=isEdit&&currentType==='other'?entrances[editIdx].name:'';
+  var overlay=document.createElement('div');
+  overlay.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.45);z-index:9998;display:flex;align-items:center;justify-content:center';
+  var types=[
+    {value:'vehicle',label:'车辆出入口',color:ENTRANCE_COLORS.vehicle},
+    {value:'pedestrian',label:'行人出入口',color:ENTRANCE_COLORS.pedestrian},
+    {value:'temporary',label:'临时出入口',color:ENTRANCE_COLORS.temporary},
+    {value:'other',label:'其他出入口',color:ENTRANCE_COLORS.other}
+  ];
+  var html='<div style="background:#fff;border-radius:6px;box-shadow:0 8px 30px rgba(0,0,0,0.15);width:360px;overflow:hidden">';
+  html+='<div style="padding:16px 24px;border-bottom:1px solid #E3E6ED"><h4 style="margin:0;font-size:15px;color:#111827">'+(isEdit?'编辑出入口类型':'选择出入口类型')+'</h4></div>';
+  html+='<div style="padding:16px 24px">';
+  types.forEach(function(t,i){
+    var checked=(t.value===currentType)?'checked':'';
+    html+='<label style="display:flex;align-items:center;gap:8px;padding:8px 0;cursor:pointer;font-size:14px;font-family:var(--font-family)">';
+    html+='<input type="radio" name="entranceType" value="'+t.value+'" '+checked+(checked?'':' style="accent-color:#1862D4"')+' >';
+    html+='<span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:'+t.color+'"></span>';
+    html+=t.label;
+    html+='</label>';
+  });
+  var showOther=currentType==='other'?'block':'none';
+  html+='<div id="entranceOtherInput" style="display:'+showOther+';margin-top:8px;margin-left:24px">';
+  html+='<input type="text" id="entranceOtherText" placeholder="请输入出入口类型（选填）" value="'+escHtml(currentOther)+'" style="width:100%;height:32px;padding:0 8px;border:1px solid #C6CBD8;border-radius:4px;font-size:13px;font-family:var(--font-family);outline:none;box-sizing:border-box">';
+  html+='</div>';
+  html+='</div>';
+  html+='<div style="padding:12px 24px;display:flex;justify-content:flex-end;gap:8px;border-top:1px solid #E3E6ED;background:#F7F8FA">';
+  html+='<button type="button" id="entTypeCancel" style="height:32px;padding:0 16px;font-size:14px;border:1px solid #C6CBD8;border-radius:4px;background:#fff;color:#4B5563;cursor:pointer;font-family:var(--font-family)">取消</button>';
+  html+='<button type="button" id="entTypeConfirm" style="height:32px;padding:0 16px;font-size:14px;border:none;border-radius:4px;background:#1862D4;color:#fff;cursor:pointer;font-weight:500;font-family:var(--font-family)">'+(isEdit?'确认修改':'确认添加')+'</button>';
+  html+='</div></div>';
+  overlay.innerHTML=html;
+  document.body.appendChild(overlay);
+  var close=function(){overlay.remove()};
+  overlay.querySelector('#entTypeCancel').onclick=close;
+  overlay.addEventListener('click',function(ev){if(ev.target===overlay)close()});
+  var otherInput=overlay.querySelector('#entranceOtherInput');
+  overlay.querySelectorAll('input[name="entranceType"]').forEach(function(r){
+    r.onchange=function(){otherInput.style.display=r.value==='other'?'block':'none'};
+  });
+  overlay.querySelector('#entTypeConfirm').onclick=function(){
+    var selected='vehicle';
+    overlay.querySelectorAll('input[name="entranceType"]').forEach(function(r){if(r.checked)selected=r.value});
+    var otherText='';
+    if(selected==='other'){
+      otherText=(document.getElementById('entranceOtherText')||{}).value||'';
+      otherText=otherText.trim();
+    }
+    var name=otherText||ENTRANCE_TYPES[selected]||'出入口';
+    var color=ENTRANCE_COLORS[selected];
+    if(isEdit){
+      entrances[editIdx].type=selected;
+      entrances[editIdx].name=name;
+      entrances[editIdx].color=color;
+      showToast('出入口类型已修改');
+    }else{
+      var newEn={x:svgPt[0],y:svgPt[1],type:selected,name:name,color:color};
+      if(latlng){newEn.lat=latlng.lat;newEn.lng=latlng.lng}
+      entrances.push(newEn);
+      if(newEn.lat!==undefined)addEntranceLeafletMarker(newEn);
+      showToast('出入口已添加');
+    }
+    renderModalSvg();renderModalRangeList();
+    close();
+  };
+}
 
 /* ═══ 拖拽编辑 ═══ */
 function getSvgPoint(e,svgEl){
@@ -1006,6 +1637,7 @@ function getSvgPoint(e,svgEl){
   var ctm=svgEl.getScreenCTM().inverse();
   return pt.matrixTransform(ctm);
 }
+var _dragMoveFn=null;
 function initDragHandlers(){
   var svg=document.getElementById('modalSvg');if(!svg)return;
   svg.onmousedown=function(e){
@@ -1020,20 +1652,46 @@ function initDragHandlers(){
       t.style.cursor='grabbing';
     }
   };
-  svg.onmousemove=function(e){
-    if(!dragInfo)return;
-    var pt=getSvgPoint(e,svg);
+  // Remove old listener before adding new one (prevents quadratic accumulation)
+  if(_dragMoveFn)document.removeEventListener('mousemove',_dragMoveFn);
+  _dragMoveFn=function(e){
+    if(!dragInfo||!dragInfo.svg)return;
+    var pt=getSvgPoint(e,dragInfo.svg);
     var x=Math.max(0,Math.min(800,Math.round(pt.x)));
     var y=Math.max(0,Math.min(600,Math.round(pt.y)));
     if(dragInfo.type==='vertex'){
       shapes[dragInfo.si].points[dragInfo.pi]=[x,y];
-      renderModalSvg();renderModalRangeList();
+      var gps=svgPointToGps([x,y]);
+      if(!shapes[dragInfo.si].gpsPoints)shapes[dragInfo.si].gpsPoints=[];
+      shapes[dragInfo.si].gpsPoints[dragInfo.pi]=[gps[0],gps[1]];
+      // lightweight: only update the SVG circle position directly, no full rebuild
+      var handles=svg.querySelectorAll('.vertex-handle[data-shape="'+dragInfo.si+'"][data-point="'+dragInfo.pi+'"]');
+      for(var h=0;h<handles.length;h++){handles[h].setAttribute('cx',x);handles[h].setAttribute('cy',y)}
+      // Update polyline/polygon path
+      var shape=shapes[dragInfo.si];
+      var pts=shape.points.map(function(p){return p[0]+','+p[1]}).join(' ');
+      var gfx=svg.querySelector('.shape-gfx[data-shape="'+dragInfo.si+'"]');
+      if(gfx)gfx.setAttribute('points',pts);
+      // Update Leaflet layer
+      if(shape._leafletLayer&&drawLeafletMap){
+        try{shape._leafletLayer.setLatLngs(shape.gpsPoints)}catch(e){}
+      }
+      renderModalRangeList();
     }else if(dragInfo.type==='entrance'){
-      entrances[dragInfo.ei].x=x;
-      entrances[dragInfo.ei].y=y;
-      renderModalSvg();renderModalEntranceList();
+      var en=entrances[dragInfo.ei];
+      en.x=x;en.y=y;
+      var gps=svgPointToGps([x,y]);en.lat=gps[0];en.lng=gps[1];
+      if(en._leafletMarker)en._leafletMarker.setLatLng([en.lat,en.lng]);
+      var ehandles=svg.querySelectorAll('[data-entrance="'+dragInfo.ei+'"]');
+      for(var j=0;j<ehandles.length;j++){
+        var el=ehandles[j];
+        if(el.tagName==='circle'){el.setAttribute('cx',x);el.setAttribute('cy',y)}
+        else if(el.tagName==='text'){el.setAttribute('x',x);el.setAttribute('y',y-15)}
+      }
+      renderModalRangeList();
     }
   };
+  document.addEventListener('mousemove',_dragMoveFn);
 }
 document.addEventListener('mouseup',function(){
   if(dragInfo){dragInfo=null}
@@ -1047,47 +1705,82 @@ renderModalSvg=function(){
 
 /* ═══ 列表渲染 ═══ */
 function renderModalRangeList(){
-  var el=document.getElementById('modalRangeList');if(!el)return;
-  if(shapes.length===0){el.innerHTML='<div style="color:var(--text-tertiary);font-size:var(--font-size-sm);padding:var(--space-2)">暂无围挡范围</div>';return}
-  var html='';
-  shapes.forEach(function(sh,i){
-    var isManual=sh.source==='manual';
-    var bgc=isManual?'#1890FF':'#52C41A';
-    var tag=isManual?'手绘':'导入';
-    var name=sh.label||(sh.type==='polygon'?'范围'+(i+1):'线段'+(i+1));
-    html+='<div class="draw-modal-list-item">';
-    html+='<span class="item-icon" style="background:'+bgc+'"></span>';
-    html+='<span class="item-name">'+escHtml(name)+'</span>';
-    html+='<span class="source-tag '+(isManual?'manual':'import')+'">'+tag+'</span>';
-    html+='<span class="item-actions">';
-    html+='<button class="item-action-btn" title="定位" onclick="modalLocateShape('+i+')">&#9678;</button>';
-    html+='<button class="item-action-btn danger" title="删除" onclick="modalDeleteShape('+i+')">&times;</button>';
-    html+='</span></div>';
-  });
-  el.innerHTML=html;
+  // Shape list
+  var shapeEl=document.getElementById('modalShapeList');
+  var shapeCountEl=document.getElementById('modalShapeCount');
+  if(shapeCountEl)shapeCountEl.textContent='共 '+shapes.length+' 处';
+  if(shapeEl){
+    if(shapes.length===0){
+      shapeEl.innerHTML='<div class="range-sidebar-empty">暂无围挡范围</div>';
+    } else {
+      var html='';
+      shapes.forEach(function(sh,i){
+        var typeTag=sh.type==='line'?'线段':'多边形';
+        var name=sh.label||(sh.type==='line'?'线段':'范围')+(i+1);
+        html+='<div class="range-card">';
+        html+='<span class="range-card-dot"></span>';
+        html+='<div class="range-card-body"><div class="range-card-title">'+escHtml(name)+'</div><div class="range-card-info">['+typeTag+'] '+sh.points.length+' 个顶点</div></div>';
+        html+='<button class="range-card-del" title="删除" onclick="modalDeleteShape('+i+')">&times;</button>';
+        html+='</div>';
+      });
+      shapeEl.innerHTML=html;
+    }
+  }
+  // Entrance list
+  var entEl=document.getElementById('modalEntranceList');
+  var entCountEl=document.getElementById('modalEntranceCount');
+  if(entCountEl)entCountEl.textContent='共 '+entrances.length+' 处';
+  if(entEl){
+    if(entrances.length===0){
+      entEl.innerHTML='<div class="range-sidebar-empty">暂无出入口</div>';
+    } else {
+      var typeOpts=[{v:'vehicle',l:'车辆'},{v:'pedestrian',l:'行人'},{v:'temporary',l:'临时'},{v:'other',l:'其他'}];
+      var ehtml='';
+      entrances.forEach(function(en,i){
+        var c=en.color||ENTRANCE_COLORS[en.type]||'#1890FF';
+        var name=en.name||ENTRANCE_TYPES[en.type]||'出入口';
+        var isOther=en.type==='other';
+        ehtml+='<div class="range-card">';
+        ehtml+='<span class="range-card-dot" style="background:'+c+';border-radius:50%"></span>';
+        ehtml+='<div class="range-card-body"><div class="range-card-title">'+escHtml(name)+'</div><div class="range-card-info">出入口</div></div>';
+        ehtml+='<select onchange="changeEntranceType('+i+',this.value)" style="height:22px;border:1px solid #C6CBD8;border-radius:3px;font-size:11px;font-family:var(--font-family);background:#fff;color:#374151;flex-shrink:0">';
+        typeOpts.forEach(function(t){
+          ehtml+='<option value="'+t.v+'"'+(en.type===t.v?' selected':'')+'>'+t.l+'</option>';
+        });
+        ehtml+='</select>';
+        if(isOther){
+          var otherVal=ENTRANCE_TYPES[en.type]===en.name?'':en.name;
+          ehtml+='<input type="text" value="'+escHtml(otherVal)+'" placeholder="类型" onchange="changeEntranceOtherName('+i+',this.value)" style="height:22px;border:1px solid #C6CBD8;border-radius:3px;font-size:11px;font-family:var(--font-family);padding:0 3px;width:65px;flex-shrink:0;box-sizing:border-box">';
+        }
+        ehtml+='<button class="range-card-del" title="删除" onclick="modalDeleteEntrance('+i+')">&times;</button>';
+        ehtml+='</div>';
+      });
+      entEl.innerHTML=ehtml;
+    }
+  }
 }
-function renderModalEntranceList(){
-  var el=document.getElementById('modalEntranceList');if(!el)return;
-  if(entrances.length===0){el.innerHTML='<div style="color:var(--text-tertiary);font-size:var(--font-size-sm);padding:var(--space-2)">暂无出入口</div>';return}
-  var html='';
-  entrances.forEach(function(en,i){
-    var c=en.color||ENTRANCE_COLORS[en.type]||'#1890FF';
-    var name=en.name||ENTRANCE_TYPES[en.type]||'出入口';
-    html+='<div class="draw-modal-list-item">';
-    html+='<span class="entrance-dot" style="background:'+c+'"></span>';
-    html+='<span class="item-name">'+escHtml(name)+'</span>';
-    html+='<span class="source-tag manual">'+escHtml(ENTRANCE_TYPES[en.type]||'')+'</span>';
-    html+='<span class="item-actions">';
-    html+='<button class="item-action-btn" title="定位" onclick="modalLocateEntrance('+i+')">&#9678;</button>';
-    html+='<button class="item-action-btn danger" title="删除" onclick="modalDeleteEntrance('+i+')">&times;</button>';
-    html+='</span></div>';
-  });
-  el.innerHTML=html;
+
+function changeEntranceType(idx, newType){
+  if(idx<0||idx>=entrances.length)return;
+  entrances[idx].type=newType;
+  entrances[idx].color=ENTRANCE_COLORS[newType];
+  entrances[idx].name=ENTRANCE_TYPES[newType];
+  removeEntranceLeafletMarker(entrances[idx]);
+  addEntranceLeafletMarker(entrances[idx]);
+  renderModalSvg();
+  renderModalRangeList();
 }
-function modalLocateShape(idx){showToast('定位：'+(shapes[idx].label||'范围'+(idx+1)))}
-function modalDeleteShape(idx){shapes.splice(idx,1);renderModalSvg();renderModalRangeList()}
-function modalLocateEntrance(idx){showToast('定位：'+(entrances[idx].name||'出入口'))}
-function modalDeleteEntrance(idx){entrances.splice(idx,1);renderModalSvg();renderModalEntranceList()}
+
+function changeEntranceOtherName(idx, val){
+  if(idx<0||idx>=entrances.length)return;
+  var v=val.trim();
+  entrances[idx].name=v||ENTRANCE_TYPES.other;
+  renderModalSvg();
+  renderModalRangeList();
+}
+
+function modalDeleteShape(idx){removeDrawnLeafletLayer(shapes[idx]);shapes.splice(idx,1);renderModalSvg();renderModalRangeList();updateStatusTip()}
+function modalDeleteEntrance(idx){if(entrances[idx])removeEntranceLeafletMarker(entrances[idx]);entrances.splice(idx,1);renderModalSvg();renderModalRangeList();updateStatusTip()}
 
 /* ═══ 导入功能 ═══ */
 function triggerImport(){document.getElementById('importFileInput').click()}
@@ -1114,6 +1807,72 @@ function handleImportFile(input){
     fill.style.width=Math.min(progress,100)+'%';
   },200);
   input.value='';
+}
+
+/* ═══ 校核提交（通过/不通过） ═══ */
+function submitVerify(result){
+  var isReject=result==='reject';
+  var title=isReject?'校核不通过':'校核通过';
+  var btnText=isReject?'确认不通过':'确认通过';
+  var btnColor=isReject?'#EF4444':'#10B981';
+  var labelText=isReject?'校核意见（必填）':'校核意见（选填）';
+
+  var overlay=document.createElement('div');
+  overlay.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.45);z-index:9998;display:flex;align-items:center;justify-content:center;animation:fadeIn 0.15s ease';
+  overlay.innerHTML='<div style="background:#fff;border-radius:6px;box-shadow:0 8px 30px rgba(0,0,0,0.15);width:420px;overflow:hidden;animation:scaleIn 0.15s ease">'
+    +'<div style="padding:20px 24px 16px;border-bottom:1px solid #E3E6ED"><div style="display:flex;align-items:center;gap:8px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="'+(isReject?'#EF4444':'#10B981')+'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="'+(isReject?'M15 9l-6 6M9 9l6 6':'M9 12l2 2 4-4')+'"/></svg><span style="font-size:15px;font-weight:600;color:#111827">'+title+'</span></div></div>'
+    +'<div style="padding:16px 24px 20px">'
+      +'<label style="display:block;font-size:13px;font-weight:500;color:#374151;margin-bottom:6px">'+labelText+'</label>'
+      +'<textarea id="verifyOpinion" style="width:100%;height:80px;padding:8px 12px;font-size:14px;border:1px solid #C6CBD8;border-radius:4px;resize:vertical;font-family:inherit;box-sizing:border-box;outline:none" placeholder="请输入校核意见"></textarea>'
+      +'<p id="verifyError" style="display:none;color:#EF4444;font-size:12px;margin:6px 0 0 0">请填写校核意见</p>'
+    +'</div>'
+    +'<div style="padding:12px 24px;display:flex;justify-content:flex-end;gap:8px;border-top:1px solid #E3E6ED;background:#F7F8FA">'
+      +'<button type="button" id="vfyCancel" style="height:32px;padding:0 16px;font-size:14px;border:1px solid #C6CBD8;border-radius:4px;background:#fff;color:#4B5563;cursor:pointer;font-family:inherit">取消</button>'
+      +'<button type="button" id="vfyOk" style="height:32px;padding:0 16px;font-size:14px;border:none;border-radius:4px;background:'+btnColor+';color:#fff;cursor:pointer;font-weight:500;font-family:inherit">'+btnText+'</button>'
+    +'</div></div>';
+  document.body.appendChild(overlay);
+
+  var close=function(){overlay.remove()};
+  overlay.querySelector('#vfyCancel').onclick=close;
+  overlay.querySelector('#vfyOk').onclick=function(){
+    var opinion=document.getElementById('verifyOpinion').value.trim();
+    if(isReject&&!opinion){
+      var errEl=document.getElementById('verifyError');
+      if(errEl)errEl.style.display='block';
+      return;
+    }
+    close();
+    doVerify(result,opinion);
+  };
+  overlay.addEventListener('click',function(e){if(e.target===overlay)close()});
+  /* 自动聚焦 */
+  setTimeout(function(){var ta=document.getElementById('verifyOpinion');if(ta)ta.focus()},100);
+}
+
+function doVerify(result,opinion){
+  var urlProj='', urlEng='';
+  try{var m1=location.search.match(/project=([^&]+)/);if(m1)urlProj=decodeURIComponent(m1[1])}catch(e){}
+  try{var m2=location.search.match(/engineering=([^&]+)/);if(m2)urlEng=decodeURIComponent(m2[1])}catch(e){}
+  var hoard=MOCK_DATA.findByProjectAndEngineer(urlProj,urlEng);
+  if(!hoard)return showToast('未找到围挡记录');
+  /* 添加校核记录 */
+  var record={
+    id:'vr'+Date.now(),
+    verifier:'张建国',
+    unit:'深圳市住房和建设局',
+    role:'监管人员',
+    date:new Date().toISOString().replace('T',' ').substring(0,16),
+    type:result==='pass'?'校核通过':'校核不通过',
+    content:opinion||'校核通过',
+    field:'', before:'', after:''
+  };
+  if(!hoard.verifyRecords)hoard.verifyRecords=[];
+  hoard.verifyRecords.push(record);
+  /* 更新 needVerify 为否 */
+  MOCK_DATA.updateHoard(hoard.id,{verifyRecords:hoard.verifyRecords,needVerify:'否'});
+  showToast(result==='pass'?'校核通过，已返回列表':'校核不通过，已返回列表',function(){
+    window.open('index_v2.html','_self');
+  });
 }
 
 /* ═══ 初始化 ═══ */
@@ -1179,6 +1938,8 @@ function selectProject(pid){
   document.getElementById('pairProjectInput').value=projectData[pid].name;
   document.getElementById('projectDropdown').style.display='none';
   document.getElementById('pairProjectInput').dataset.pid=pid;
+  // Dynamically populate engineer select
+  populateEngineerSelect(pid);
   onPairProjectChange();
 }
 /* 点击外部关闭下拉 */
@@ -1189,56 +1950,6 @@ document.addEventListener('click',function(e){
   if(!wrap.contains(e.target)){dd.style.display='none'}
 });
 
-/* ═══ URL 参数自动填充项目工程 ═══ */
-(function(){
-  try{
-    var s=window.location.search.substring(1);
-    if(!s)return;
-    selectedPairs=[];
-    var p={};
-    s.split('&').forEach(function(x){var a=x.split('=');if(a.length===2)p[decodeURIComponent(a[0])]=decodeURIComponent(a[1])});
-    if(!p.project)return;
-    var pid=null;
-    Object.keys(projectData).forEach(function(k){if(projectData[k].name===p.project)pid=k});
-    if(!pid)return;
-    if(p.engineering){
-      var engs=projectData[pid].engineers;
-      for(var i=0;i<engs.length;i++){
-        if(engs[i].name===p.engineering){
-          var dup=selectedPairs.some(function(x){return x.pid===pid&&x.eid===String(i)});
-          if(!dup)selectedPairs.push({pid:pid,eid:String(i)});
-          break;
-        }
-      }
-    }
-    renderPairs();
-  }catch(e){}
-})();
-
-/* ═══ 预填数据初始化 ═══ */
-renderPairs();
-// Load existing fence data from SD if a project/engineer is selected
-(function(){
-  if(selectedPairs.length>0){
-    var sp=selectedPairs[0];
-    var pn=projectData[sp.pid]?projectData[sp.pid].name:'';
-    var eng=projectData[sp.pid]&&projectData[sp.pid].engineers[sp.eid];
-    var en=eng?eng.name:'';
-    if(pn&&en){
-      var loaded=loadFenceData(pn,en);
-      if(loaded){
-        if(loaded.shapes&&loaded.shapes.length>0) shapes=loaded.shapes;
-        if(loaded.entrances&&loaded.entrances.length>0) entrances=loaded.entrances;
-      }
-    }
-  }
-  updateFenceSummary();
-  // Load redline data
-  if(selectedPairs.length>0){
-    var rlPn=projectData[selectedPairs[0].pid]?projectData[selectedPairs[0].pid].name:'';
-    if(rlPn)loadRedlineForProject(rlPn);
-  }
-})();
 /* ═══ 章节导航滚动追踪 ═══ */
 (function(){
   var navItems=document.querySelectorAll('.section-nav-item');
@@ -1282,80 +1993,502 @@ function saveFenceData(projectName, engineeringName, pts, addr, entranceList){
   var data={};
   try{var s=localStorage.getItem(key);if(s)data=JSON.parse(s)}catch(e){}
   var id=projectName+'|||'+engineeringName;
-  var cleanEntrances=entranceList.map(function(e){return {x:e.x||0,y:e.y||0,type:e.type||'vehicle',name:e.name||'',color:e.color||''}});
-  data[id]={project:projectName,engineering:engineeringName,address:addr,shapes:validShapes,savedAt:new Date().toISOString(),entrances:cleanEntrances};
+  var cleanEntrances=entranceList.map(function(e){var o={x:e.x||0,y:e.y||0,type:e.type||'vehicle',name:e.name||'',color:e.color||''};if(e.lat!==undefined)o.lat=e.lat;if(e.lng!==undefined)o.lng=e.lng;return o});
+  var cleanShapes=validShapes.map(function(s){var o={type:s.type,points:s.points.map(function(p){return p.map(Math.round)}),label:s.label||'',source:s.source||'manual'};if(s.gpsPoints&&s.gpsPoints.length>0)o.gpsPoints=s.gpsPoints.map(function(p){return[+p[0].toFixed(6),+p[1].toFixed(6)]});return o});
+  data[id]={project:projectName,engineering:engineeringName,address:addr,shapes:cleanShapes,savedAt:new Date().toISOString(),entrances:cleanEntrances};
   try{localStorage.setItem(key,JSON.stringify(data))}catch(e){}
 }
 function loadFenceData(projectName, engineeringName){
-  // Try SD first - find matching engineer
-  var sdMatch=null;
-  SD.getProjects().forEach(function(p){
-    if(p.name===projectName){
-      (p.engineers||[]).forEach(function(e){
-        if(e.name===engineeringName && e.fenceId){
-          sdMatch={project:p,engineer:e,fenceId:e.fenceId};
-        }
-      });
-    }
-  });
-  if(sdMatch && sdMatch.engineer.shapes && sdMatch.engineer.shapes.length>0){
-    var result={shapes:sdMatch.engineer.shapes.map(function(s){return{type:s.type,points:s.points.slice(),label:s.label||'',source:s.source||'manual'}})};
-    if(sdMatch.engineer.entrances){
-      result.entrances=sdMatch.engineer.entrances.map(function(en){return{x:en.x||0,y:en.y||0,type:en.type||'vehicle',name:en.name||'',color:en.color||''}});
-    }
+  // 1. MOCK_DATA first
+  var h=MOCK_DATA.findByProjectAndEngineer(projectName,engineeringName);
+  if(h&&h.gpsShape&&h.gpsShape.length>=3){
+    var clat=h.projectLat||22.536,clng=h.projectLng||113.958;
+    var pts=h.gpsShape.map(function(g){return _gpsToSvg(g[0],g[1],clat,clng)});
+    var result={shapes:[{type:'polygon',points:pts,label:h.engineerName||'围挡范围',source:'manual',
+      gpsPoints:h.gpsShape.map(function(g){return[g[0],g[1]]})}],
+      entrances:(h.entrances||[]).map(function(en){
+        var svg=_gpsToSvg(en.lat,en.lng,clat,clng);
+        return{x:svg[0],y:svg[1],lat:en.lat,lng:en.lng,type:en.type||'vehicle',name:en.name||'',color:ENTRANCE_COLORS[en.type]||'#1890FF'};
+      })
+    };
     return result;
   }
+  // 2. localStorage fallback
+  try{
+    var raw=localStorage.getItem('fenceData_v4');
+    if(raw){
+      var all=JSON.parse(raw);
+      var id=projectName+'|||'+engineeringName;
+      var saved=all[id];
+      if(saved&&saved.shapes&&saved.shapes.length>0){
+        return{shapes:saved.shapes.map(function(s){return{type:s.type,points:s.points.slice(),label:s.label||'',source:s.source||'manual',gpsPoints:s.gpsPoints?s.gpsPoints.slice():undefined}}),entrances:(saved.entrances||[]).map(function(en){var o={x:en.x||0,y:en.y||0,type:en.type||'vehicle',name:en.name||'',color:en.color||''};if(en.lat!==undefined)o.lat=en.lat;if(en.lng!==undefined)o.lng=en.lng;return o})};
+      }
+    }
+  }catch(e){}
   return null;
 }
 
 
 
-function saveCurrentFence(){
-  if(selectedPairs.length>0){
-    var hasValidShape=shapes.some(function(s){return s.points&&s.points.length>=getMinPoints(s.type)});
-    if(!hasValidShape)return;
-    var p=selectedPairs[0];
-    var projName=projectData[p.pid].name;
-    var engName=projectData[p.pid].engineers[p.eid].name;
-    saveFenceData(projName,engName,[],'',entrances);
-    // Also save to SD for cross-page sync
-    var _svShapes=shapes.filter(function(s){return s.points&&s.points.length>=getMinPoints(s.type)});
-    SD.getProjects().forEach(function(pr){
-      if(pr.name===projName){
-        (pr.engineers||[]).forEach(function(en){
-          if(en.name===engName&&en.fenceId){
-            SD.updateFence(en.fenceId,{shapes:_svShapes.map(function(s){return{type:s.type,points:s.points.slice(),label:s.label||'',source:s.source||'manual'}}),entrances:entrances.map(function(ent){return{x:ent.x||0,y:ent.y||0,type:ent.type||'vehicle',name:ent.name||'',color:ent.color||''}})});
-          }
-        });
-      }
-    });
+/* ═══ 将围挡范围和出入口同步写入 MOCK_DATA ═══ */
+function syncShapesToMockData(projectName,engineeringName){
+  var h=MOCK_DATA.findByProjectAndEngineer(projectName,engineeringName);
+  if(!h)return;
+  var validShapes=shapes.filter(function(s){return s.points&&s.points.length>=getMinPoints(s.type)});
+  // 合并所有有效图斑的 GPS 点为一个 gpsShape
+  var allGpsPts=[];
+  validShapes.forEach(function(s){
+    var gps=s.gpsPoints||(s.points?s.points.map(function(p){return svgToGps(p)}):[]);
+    if(gps.length>=3)allGpsPts=gps; // 取最后一个有效多边形
+  });
+  var gpsEntrances=entrances.map(function(en){
+    if(en.lat!==undefined&&en.lng!==undefined)return{lat:en.lat,lng:en.lng,name:en.name||'',type:en.type||'vehicle'};
+    var g=svgToGps([en.x||0,en.y||0]);
+    return{lat:g[0],lng:g[1],name:en.name||'',type:en.type||'vehicle'};
+  });
+  if(allGpsPts.length>=3){
+    MOCK_DATA.updateHoard(h.id,{gpsShape:allGpsPts,entrances:gpsEntrances});
+    console.log('[MOCK] 围挡范围已保存到 MOCK_DATA',h.id,{gpsShape:allGpsPts,entrances:gpsEntrances});
   }
 }
+
+function saveCurrentFence(){
+  var inp=document.getElementById('pairProjectInput');
+  var pn=inp?inp.value||'':'';
+  var es=document.getElementById('engineerSelect');
+  var en=es?es.value||'':'';
+  if(!pn||!en)return;
+  var hasValidShape=shapes.some(function(s){return s.points&&s.points.length>=getMinPoints(s.type)});
+  if(!hasValidShape)return;
+  saveFenceData(pn,en,[],'',entrances);
+  // 同步写入 MOCK_DATA
+  syncShapesToMockData(pn,en);
+}
 function handleSave(){
-  if(selectedPairs.length===0){showToast('请先选择项目工程');return}
+  var inp=document.getElementById('pairProjectInput');
+  var pn=inp?inp.value||'':'';
+  var es=document.getElementById('engineerSelect');
+  var en=es?es.value||'':'';
+  if(!pn||!en){showToast('请先选择项目工程');return}
   var hasValidShape=shapes.some(function(s){return s.points&&s.points.length>=getMinPoints(s.type)});
   if(!hasValidShape){showToast('请先绘制围挡范围');return}
   saveCurrentFence();
-  if(selectedPairs.length>0){
-    var sp=selectedPairs[0];
-    var pn=projectData[sp.pid]?projectData[sp.pid].name:'';
-    var eng=projectData[sp.pid]&&projectData[sp.pid].engineers[sp.eid];
-    var en=eng?eng.name:'';
-    if(pn&&en){
-      SD.getProjects().forEach(function(p){
-        if(p.name===pn){
-          (p.engineers||[]).forEach(function(e){
-            if(e.name===en&&e.fenceId){
-              SD.updateFence(e.fenceId,{shapes:shapes.map(function(s){return{type:s.type,points:s.points.slice(),label:s.label||'',source:s.source||'manual'}}),entrances:entrances.map(function(ent){return{x:ent.x||0,y:ent.y||0,type:ent.type||'vehicle',name:ent.name||'',color:ent.color||''}})});
-            }
-          });
+  SD.getProjects().forEach(function(p){
+    if(p.name===pn){
+      (p.engineers||[]).forEach(function(e){
+        if(e.name===en&&e.fenceId){
+          SD.updateFence(e.fenceId,{shapes:shapes.map(function(s){return{type:s.type,points:s.points.slice(),label:s.label||'',source:s.source||'manual'}}),entrances:entrances.map(function(ent){return{x:ent.x||0,y:ent.y||0,type:ent.type||'vehicle',name:ent.name||'',color:ent.color||''}})});
         }
       });
     }
-  }
+  });
+  if(_pendingReuseId){markReused(_pendingReuseId);_pendingReuseId=null;}
   showToast('围挡信息保存成功！',function(){window.open('index_v2.html','_self')});
 }
-function showToastfunction showToast(msg,cb){var t=document.createElement('div');t.style.cssText='position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.85);background:rgba(0,0,0,0.75);color:#fff;padding:14px 24px;border-radius:6px;font-size:14px;z-index:9999;opacity:0;transition:all 0.2s ease;pointer-events:none;white-space:nowrap';t.textContent=msg;document.body.appendChild(t);requestAnimationFrame(function(){t.style.opacity='1';t.style.transform='translate(-50%,-50%) scale(1)'});setTimeout(function(){t.style.opacity='0';t.style.transform='translate(-50%,-50%) scale(0.85)';setTimeout(function(){t.remove();if(cb)cb()},200)},600)}
+function showToast(msg,cb){var t=document.createElement('div');t.style.cssText='position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.85);background:rgba(0,0,0,0.75);color:#fff;padding:14px 24px;border-radius:6px;font-size:14px;z-index:9999;opacity:0;transition:all 0.2s ease;pointer-events:none;white-space:nowrap';t.textContent=msg;document.body.appendChild(t);requestAnimationFrame(function(){t.style.opacity='1';t.style.transform='translate(-50%,-50%) scale(1)'});setTimeout(function(){t.style.opacity='0';t.style.transform='translate(-50%,-50%) scale(0.85)';setTimeout(function(){t.remove();if(cb)cb()},200)},600)}
+
+/* ═══ 页面初始化 ═══ */
+var UNIT_MAP={
+  '基坑围护工程':['深圳市深建基坑工程有限公司','深圳市中建基坑工程有限公司'],
+  '主体结构工程':['深圳市龙华建筑集团总公司'],
+  '土方开挖工程':['深圳市宝安基础工程有限公司','深圳市基础建设有限公司'],
+};
+function onEngineerChange(){
+  var sel=document.getElementById('engineerSelect');
+  var unitSel=document.getElementById('unitSelect');
+  var units=UNIT_MAP[sel.value]||[];
+  unitSel.innerHTML='<option value="">请选择责任单位</option>';
+  units.forEach(function(u){var o=document.createElement('option');o.value=u;o.textContent=u;unitSel.appendChild(o);});
+  renderEngInfoCard();
+}
+/* ═══ 工程信息卡片 ═══ */
+function getSelectedEngData(){
+  var inp=document.getElementById('pairProjectInput');
+  var pid=inp?inp.dataset.pid||'':'';
+  if(!pid||!projectData[pid])return null;
+  var engSel=document.getElementById('engineerSelect');
+  if(!engSel||!engSel.value)return null;
+  var engs=projectData[pid].engineers||[];
+  for(var i=0;i<engs.length;i++){if(engs[i].name===engSel.value)return engs[i]}
+  // Also check SD directly for the engineer (may not be in projectData)
+  var projName=projectData[pid].name;
+  var projs=SD.getProjects();
+  for(var j=0;j<projs.length;j++){
+    if(projs[j].name===projName){
+      var eArr=projs[j].engineers||[];
+      for(var k=0;k<eArr.length;k++){
+        if(eArr[k].name===engSel.value){
+          return {
+            name:engSel.value,
+            planPeriod:eArr[k].planPeriod||'',
+            region:projs[j].district||'', street:projs[j].street||'',
+            address:eArr[k].address||projs[j].address||'',
+            buildUnit:projs[j].buildUnit||'', buildContact:projs[j].buildContact||'',
+            constructUnit:projs[j].constructUnit||'', constructContact:projs[j].constructContact||'',
+            supervisorUnit:projs[j].supervisorUnit||'',
+            regulateUnit:projs[j].regulatorUnit||'',
+            designUnit:projs[j].designUnit||''
+          };
+        }
+      }
+    }
+  }
+  // fallback: use first engineer from projectData for project-level fields
+  if(engs.length>0)return engs[0];
+  // last fallback: find the project in SD and craft a minimal record
+  var projName2=projectData[pid].name;
+  var projs2=SD.getProjects();
+  for(var m=0;m<projs2.length;m++){
+    if(projs2[m].name===projName2){
+      var p=projs2[m];
+      return {
+        name:engSel.value, planPeriod:'',
+        region:p.district||'', street:p.street||'',
+        address:p.address||'',
+        buildUnit:p.buildUnit||'', buildContact:p.buildContact||'',
+        constructUnit:p.constructUnit||'', constructContact:p.constructContact||'',
+        supervisorUnit:p.supervisorUnit||'',
+        regulateUnit:p.regulatorUnit||'',
+        designUnit:p.designUnit||''
+      };
+    }
+  }
+  return null;
+}
+function renderEngInfoCard(){
+  var card=document.getElementById('engInfoCard');
+  var summary=document.getElementById('engInfoSummary');
+  var summaryText=document.getElementById('engInfoSummaryText');
+  var grid=document.getElementById('engInfoGrid');
+  if(!card||!summary||!grid)return;
+  var eng=getSelectedEngData();
+  var inp=document.getElementById('pairProjectInput');
+  var projName=inp?inp.value||'':'';
+  var engName=(document.getElementById('engineerSelect')||{}).value||'';
+  if(!eng||!engName){
+    card.style.display='none';summary.classList.remove('show');return;
+  }
+  card.style.display=''; // Reset inline style from previous display:none
+  // Build summary text
+  summaryText.textContent='已选：'+projName+' / '+engName;
+  // Ensure card is visible (not collapsed)
+  card.classList.remove('collapsed');
+  var fields=[
+    {label:'监管单位',value:eng.regulateUnit||''},
+    {label:'建设单位',value:eng.buildUnit||''},
+    {label:'施工单位',value:eng.constructUnit||''},
+    {label:'监理单位',value:eng.supervisorUnit||''},
+    {label:'设计单位',value:eng.designUnit||''},
+    {label:'工程计划工期',value:eng.planPeriod||''},
+    {label:'所属区域',value:(eng.region||'')+(eng.street?' '+eng.street:'')},
+    {label:'地址',value:eng.address||''},
+    {label:'建设单位联系人',value:eng.buildContact||''},
+    {label:'施工单位联系人',value:eng.constructContact||''}
+  ];
+  var html='';
+  fields.forEach(function(f){
+    html+='<div class="eng-info-field"><div class="eng-info-field-label">'+escHtml(f.label)+'</div><div class="eng-info-field-value" title="'+escHtml(f.value)+'">'+escHtml(f.value||'—')+'</div></div>';
+  });
+  grid.innerHTML=html;
+}
+function toggleEngInfo(){
+  var card=document.getElementById('engInfoCard');
+  var summary=document.getElementById('engInfoSummary');
+  if(!card||!summary)return;
+  if(card.classList.contains('collapsed')){
+    card.classList.remove('collapsed');summary.classList.remove('show');
+  } else {
+    card.classList.add('collapsed');summary.classList.add('show');
+    var summaryText=document.getElementById('engInfoSummaryText');
+    if(summaryText){
+      var inp=document.getElementById('pairProjectInput');
+      var projName=inp?inp.value||'':'';
+      var engName=(document.getElementById('engineerSelect')||{}).value||'';
+      summaryText.textContent='已选：'+projName+' / '+engName;
+    }
+  }
+}
+(function(){
+  var el=document.getElementById('custodyDateRange');
+  if(el&&typeof flatpickr==='function'){
+    flatpickr(el,{
+      mode:'range',
+      locale:typeof flatpickr.l10n!=='undefined'&&flatpickr.l10n.zh?flatpickr.l10n.zh:'default',
+      dateFormat:'Y-m-d',
+      allowInput:false,
+      showMonths:2,
+      onClose:function(selectedDates,dateStr){
+        if(selectedDates.length===2){
+          document.getElementById('custodyStartDate').value=flatpickr.formatDate(selectedDates[0],'Y-m-d');
+          document.getElementById('custodyEndDate').value=flatpickr.formatDate(selectedDates[1],'Y-m-d');
+        }
+      }
+    });
+  }
+  if(_urlProjectName){
+    var inp=document.getElementById('pairProjectInput');
+    if(inp&&!inp.value) inp.value=_urlProjectName;
+    loadRedlineForProject(_urlProjectName);
+  }
+  setTimeout(function(){initFenceMap();renderEngInfoCard();},200);
+  // Also render the card when project is already pre-populated
+  if(document.getElementById('pairProjectInput')&&document.getElementById('pairProjectInput').value) renderEngInfoCard();
+  // ═══ 沿用围挡信息：检查已到期记录 ═══
+  setTimeout(function(){checkExpiredFenceForReuse()},400);
+})();
+
+/* ═══ 沿用围挡信息功能 ═══ */
+var _reuseTargetId=null;
+var _pendingReuseId=null;
+var EXP_KEY='fenceExpired_v2';
+var REUSED_KEY='fenceReused_v2';
+function seedDemoExpiredRecords(){
+  // Clean old keys & always refresh demo data
+  try{localStorage.removeItem('fenceExpired_v1')}catch(e){}
+  try{localStorage.removeItem('fenceReused_v1')}catch(e){}
+  try{localStorage.removeItem(EXP_KEY)}catch(e){}
+  var defaults={};
+  // 罗湖区湖贝旧村改造项目 / 桩基工程 (对应列表页 FB-005, fenceStatus:已到期)
+  defaults['罗湖区湖贝旧村改造项目|||桩基工程']={
+    project:'罗湖区湖贝旧村改造项目',engineering:'桩基工程',unit:'深圳市罗湖桩基施工有限公司',
+    custodyStart:'2024-03-01',custodyEnd:'2026-05-10',
+    person:'李明',phone:'13800138002',
+    fenceDate:'2024-03-15',planDemolishDate:'2026-05-20',
+    street:'东门街道',material:'彩钢板',length:'410',height:'2.8',style:'仿真绿篱',poster:'文明城市公益宣传画面',
+    shapes:[
+      {type:'line',points:[[120,180],[300,120],[450,160]],label:'线段 1',source:'manual'},
+      {type:'polygon',points:[[200,320],[380,280],[400,380],[250,400],[180,350]],label:'围挡范围 1',source:'manual'}
+    ],
+    entrances:[
+      {name:'主入口',type:'vehicle',color:'#1890FF',x:280,y:200},
+      {name:'次入口',type:'pedestrian',color:'#52C41A',x:350,y:350}
+    ]
+  };
+  // 南山区科技园综合体项目 / 基坑围护工程 (额外演示用)
+  defaults['南山区科技园综合体项目|||基坑围护工程']={
+    project:'南山区科技园综合体项目',engineering:'基坑围护工程',unit:'深圳市深建基坑工程有限公司',
+    custodyStart:'2025-09-01',custodyEnd:'2026-04-15',
+    person:'张伟',phone:'13800138003',
+    fenceDate:'2025-09-10',planDemolishDate:'2026-05-01',
+    street:'粤海街道',material:'PVC围挡',length:'320',height:'2.5',style:'公益广告型',poster:'安全文明施工宣传',
+    shapes:[
+      {type:'polygon',points:[[150,200],[320,180],[380,300],[250,350],[130,300]],label:'围挡范围 1',source:'manual'}
+    ],
+    entrances:[
+      {name:'大门',type:'vehicle',color:'#1890FF',x:240,y:240}
+    ]
+  };
+  try{localStorage.setItem(EXP_KEY,JSON.stringify(defaults))}catch(e){}
+}
+function getReusedSet(){
+  try{var d=localStorage.getItem(REUSED_KEY);return d?JSON.parse(d):{}}catch(e){return{}}
+}
+function markReused(targetId){
+  var set=getReusedSet();
+  set[targetId]=true;
+  try{localStorage.setItem(REUSED_KEY,JSON.stringify(set))}catch(e){}
+}
+function checkExpiredFenceForReuse(){
+  seedDemoExpiredRecords();
+  if(!_urlProjectName)return;
+  var overlay=document.getElementById('reuseOverlay');
+  var nameEl=document.getElementById('reuseEngName');
+  if(!overlay||!nameEl)return;
+  try{
+    var raw=localStorage.getItem(EXP_KEY);
+    if(!raw)return;
+    var all=JSON.parse(raw);
+    var reused=getReusedSet();
+    for(var k in all){
+      if(reused[k])continue;
+      var rec=all[k];
+      if(rec.project===_urlProjectName&&rec.engineering){
+        _reuseTargetId=k;
+        nameEl.textContent=rec.project+' / '+rec.engineering;
+        overlay.classList.add('show');
+        return;
+      }
+    }
+  }catch(e){}
+}
+function handleReuseYes(){
+  document.getElementById('reuseOverlay').classList.remove('show');
+  if(!_reuseTargetId)return;
+  try{
+    var raw=localStorage.getItem(EXP_KEY);
+    if(!raw)return;
+    var all=JSON.parse(raw);
+    var rec=all[_reuseTargetId];
+    if(!rec)return;
+    // fill fields EXCEPT: 工程名称, 责任单位, 管护期限, 责任人, 责任人电话
+    var setVal=function(id,v){var el=document.getElementById(id);if(el&&v!==undefined)el.value=v};
+    setVal('fenceSetDate',rec.fenceDate);
+    setVal('planDemolishDate',rec.planDemolishDate);
+    setVal('fenceMaterial',rec.material);
+    setVal('fenceLength',rec.length);
+    setVal('fenceHeight',rec.height);
+    setVal('fenceStyle',rec.style);
+    setVal('fencePoster',rec.poster);
+    var streetSel=document.getElementById('fenceStreet');
+    if(streetSel&&rec.street){
+      for(var i=0;i<streetSel.options.length;i++){if(streetSel.options[i].value===rec.street||streetSel.options[i].text===rec.street){streetSel.selectedIndex=i;break}}
+    }
+    if(rec.shapes&&rec.shapes.length>0){
+      shapes=rec.shapes.map(function(s){return{type:s.type,points:s.points.map(function(p){return p.slice?p.slice():p}),label:s.label||'',source:s.source||'manual'}});
+    }
+    if(rec.entrances&&rec.entrances.length>0){
+      entrances=rec.entrances.map(function(e){return{x:e.x||0,y:e.y||0,type:e.type||'vehicle',name:e.name||'',color:e.color||'#1890FF'}});
+    }
+    updateFenceSummary();
+    _pendingReuseId=_reuseTargetId;
+    showToast('已沿用围挡信息，请补充工程名称、责任单位、管护期限、责任人等信息');
+  }catch(e){console.error(e)}
+  _reuseTargetId=null;
+}
+function handleReuseNo(){
+  document.getElementById('reuseOverlay').classList.remove('show');
+  _reuseTargetId=null;
+}
+</script>
+<!-- ═══ 沿用围挡信息弹窗 ═══ -->
+<div class="reuse-overlay" id="reuseOverlay">
+  <div class="reuse-dialog">
+    <div class="reuse-dialog-header"><span class="reuse-dialog-title">提示</span></div>
+    <div class="reuse-dialog-body">该项目下检测到<strong>已到期</strong>的围挡记录「<strong id="reuseEngName"></strong>」。<br>是否需要沿用该记录的围挡信息？<br><span style="font-size:12px;color:#9CA3B0">沿用后，除工程名称、责任单位、管护期限、围挡责任人及电话外，其余字段将自动带入。</span></div>
+    <div class="reuse-dialog-footer">
+      <button class="reuse-btn reuse-btn-no" onclick="handleReuseNo()">否，重新填写</button>
+      <button class="reuse-btn reuse-btn-yes" onclick="handleReuseYes()">是，沿用信息</button>
+    </div>
+  </div>
+</div>
+<!-- 开发调试：重置演示数据 -->
+<div style="position:fixed;bottom:8px;right:12px;z-index:9999;opacity:0.3;transition:opacity .2s" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.3'">
+  <button onclick="if(confirm('确定重置所有演示数据？'))MOCK_DATA.reset()" style="font-size:11px;padding:3px 8px;background:#fff;border:1px solid #ccc;border-radius:3px;cursor:pointer;color:#999">重置数据</button>
+</div>
+<!-- ═══ 监管端校核页：禁止编辑所有字段和图斑 ═══ -->
+<style>
+  /* 隐藏所有编辑相关按钮 */
+  .pair-add-btn, .proj-group-del, .eng-card-del,
+  .map-toolbar-btn, .draw-modal-footer,
+  .fence-scope-actions,
+  .range-card-del, .vertex-handle, .entrance-handle,
+  .file-upload input[type="file"],
+  .file-upload-btn { display:none !important; }
+  /* 禁用表单控件交互 */
+  .form-content input:not([type="hidden"]),
+  .form-content select,
+  .form-content textarea { pointer-events:none; background:#F7F8FA !important; color:#374151 !important; }
+  /* 禁用复选框 */
+  .eng-check-item input[type="checkbox"] { pointer-events:none; }
+  /* 地图只读 — 隐藏绘制工具 */
+  .draw-modal-toolbar { display:none !important; }
+  .draw-modal-body .vertex-handle,
+  .draw-modal-body .entrance-handle { display:none !important; }
+</style>
+<script>
+(function(){
+  /* ═══ 1. 禁用所有编辑控件（监管端只读） ═══ */
+  var allInputs=document.querySelectorAll('.form-content input:not([type="hidden"]), .form-content select, .form-content textarea');
+  for(var ai=0;ai<allInputs.length;ai++) allInputs[ai].disabled=true;
+  var drEl=document.getElementById('custodyDateRange');
+  if(drEl){drEl.disabled=true;if(drEl._flatpickr)drEl._flatpickr.set('clickOpens',false)}
+  var engSel2=document.getElementById('engineerSelect'); if(engSel2)engSel2.disabled=true;
+  var unitSel2=document.getElementById('unitSelect'); if(unitSel2)unitSel2.disabled=true;
+  var checkboxes=document.querySelectorAll('.eng-check-item input[type="checkbox"]');
+  for(var ci=0;ci<checkboxes.length;ci++)checkboxes[ci].disabled=true;
+
+  /* ═══ 2. 读取URL参数 ═══ */
+  var urlProj='', urlEng='';
+  try{var m1=location.search.match(/project=([^&]+)/);if(m1)urlProj=decodeURIComponent(m1[1])}catch(e){}
+  try{var m2=location.search.match(/engineering=([^&]+)/);if(m2)urlEng=decodeURIComponent(m2[1])}catch(e){}
+  if(!urlProj||!urlEng){
+    /* 无URL参数则使用默认演示数据 */
+    if(DEMO_SHAPES.length>0) shapes=DEMO_SHAPES.slice();
+    if(DEMO_ENTRANCES.length>0) entrances=DEMO_ENTRANCES.slice();
+    if(shapes.length>0||entrances.length>0) setTimeout(function(){ updateFenceSummary(); }, 150);
+    return;
+  }
+
+  /* ═══ 3. 从 MOCK_DATA 查找围挡记录 ═══ */
+  var hoard=MOCK_DATA.findByProjectAndEngineer(urlProj,urlEng);
+  if(!hoard)return;
+
+  /* ═══ 4. 查找PID ═══ */
+  var pid=null;
+  var pids=Object.keys(projectData);
+  for(var pi=0;pi<pids.length;pi++){if(projectData[pids[pi]].name===urlProj){pid=pids[pi];break}}
+  if(!pid)return;
+
+  /* ═══ 5. 填充项目名称 ═══ */
+  var inp=document.getElementById('pairProjectInput');
+  if(inp){inp.value=urlProj;inp.dataset.pid=pid}
+
+  /* ═══ 6. 直接构建工程名称下拉选项（不依赖 populateEngineerSelect） ═══ */
+  var engSel=document.getElementById('engineerSelect');
+  if(engSel){
+    var engineers=(projectData[pid]&&projectData[pid].engineers)||[];
+    engSel.innerHTML='<option value="">请选择工程</option>';
+    for(var ei=0;ei<engineers.length;ei++){
+      var opt=document.createElement('option');
+      opt.value=engineers[ei].name; opt.textContent=engineers[ei].name;
+      if(engineers[ei].name===urlEng) opt.selected=true;
+      engSel.appendChild(opt);
+    }
+    engSel.value=urlEng;
+  }
+
+  /* ═══ 7. 责任单位 ═══ */
+  var unitSel=document.getElementById('unitSelect');
+  if(unitSel)unitSel.innerHTML='<option value="">'+(hoard.constructUnit||'')+'</option>';
+
+  /* ═══ 8. 管护期限 ═══ */
+  var cs=hoard.custodyStart||'', ce=hoard.custodyEnd||'';
+  var elCS=document.getElementById('custodyStartDate'); if(elCS)elCS.value=cs;
+  var elCE=document.getElementById('custodyEndDate'); if(elCE)elCE.value=ce;
+  var drEl2=document.getElementById('custodyDateRange');
+  if(drEl2){
+    drEl2.value=cs&&ce?(cs+' ~ '+ce):(cs||'');
+    if(drEl2._flatpickr){
+      try{drEl2._flatpickr.setDate(cs&&ce?[cs,ce]:cs)}catch(e){}
+      drEl2._flatpickr.set('clickOpens',false);
+    }
+  }
+
+  /* ═══ 9. 围挡责任人 ═══ */
+  var elFPN=document.getElementById('fencePersonName'); if(elFPN)elFPN.value=hoard.fenceResponsible||'';
+  var elFPP=document.getElementById('fencePersonPhone'); if(elFPP)elFPP.value=hoard.fenceResponsiblePhone||'';
+
+  /* ═══ 10. 计划拆除/设置日期 ═══ */
+  var elFSD=document.getElementById('fenceSetDate'); if(elFSD)elFSD.value=hoard.setupDate||'';
+  var elPDD=document.getElementById('planDemolishDate'); if(elPDD)elPDD.value=hoard.planRemoveDate||'';
+
+  /* ═══ 11. 围挡本体 ═══ */
+  var elFM=document.getElementById('fenceMaterial'); if(elFM)elFM.value=hoard.material||'';
+  var elFL=document.getElementById('fenceLength'); if(elFL)elFL.value=hoard.length||'';
+  var elFH=document.getElementById('fenceHeight'); if(elFH)elFH.value=hoard.height||'';
+  var elFS=document.getElementById('fenceStyle'); if(elFS)elFS.value=hoard.fenceStyle||'';
+  var elFP=document.getElementById('fencePoster'); if(elFP)elFP.value=hoard.publicityContent||'';
+
+  /* ═══ 12. 占道信息 ═══ */
+  var roadInputs=document.querySelectorAll('#sec-road .form-input');
+  if(roadInputs.length>=2){
+    if(roadInputs[0]&&!roadInputs[0].id)roadInputs[0].value=hoard.roadOccupation||'';
+    if(roadInputs[1]&&!roadInputs[1].id)roadInputs[1].value=hoard.roadOccupationArea||'';
+  }
+
+  /* ═══ 13. 图斑数据已在上方由 DEMO_SHAPES/DEMO_ENTRANCES 初始化 ═══ */
+
+  /* ═══ 14. 加载项目红线 ═══ */
+  loadRedlineForProject(urlProj);
+
+  /* ═══ 15. 渲染 ═══ */
+  renderEngInfoCard();
+  console.log('[DEBUG] end-of-page init done, shapes:',shapes.length,'entrances:',entrances.length,'urlProj:',urlProj,'urlEng:',urlEng);
+  if(shapes.length>0||entrances.length>0){
+    /* 延迟初始化地图，确保 DOM 布局计算完成（Leaflet 依赖容器尺寸） */
+    setTimeout(function(){ console.log('[DEBUG] 150ms timer fired, calling updateFenceSummary'); updateFenceSummary(); }, 150);
+  }
+})();
 </script>
 </body>
 </html>
