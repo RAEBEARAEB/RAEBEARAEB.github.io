@@ -894,8 +894,8 @@ function showQrCodeModal(){
         return '<label class="qrcode-check-item" data-block-id="'+b.blockId+'" onmouseenter="showQrPreview(\''+b.blockId+'\')">'+
           '<input type="checkbox" value="'+b.blockId+'" onchange="onQrItemChange()">'+
           '<div class="qrcode-check-body">'+
-            '<div class="qrcode-check-title">'+b.blockId+' — '+b.projectName+' / '+b.engineerName+'</div>'+
-            '<div class="qrcode-check-meta"><span>'+b.unitName+'</span><span>'+b.address+'</span></div>'+
+            '<div class="qrcode-check-title">'+b.custodyStart+' ~ '+b.custodyEnd+'</div>'+
+            '<div class="qrcode-check-meta"><span>'+b.projectName+' / '+b.engineerName+'</span><span>'+b.unitName+'</span></div>'+
           '</div>'+
         '</label>';
       }).join('');

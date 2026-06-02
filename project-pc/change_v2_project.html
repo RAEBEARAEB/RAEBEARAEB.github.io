@@ -995,12 +995,6 @@ function renderOtherFences(mapInstance,tooltipEnabled){
     if(tooltipEnabled&&layer){
       layer.bindTooltip(b.id+' '+b.engName+' '+b.status,{sticky:true,direction:'right',className:'other-fence-tooltip',offset:[8,0]});
     }
-    /* 序号徽章（灰色） */
-    if(b.gpsShape.length>=3){
-      var bounds=layer.getBounds();var center=bounds.getCenter();
-      var badgeIcon=L.divIcon({className:'',html:'<div style="display:flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#6B7280;color:#FFF;font-size:11px;font-weight:bold;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,0.2);pointer-events:none">'+b.id.replace('围挡','')+'</div>',iconSize:[22,22],iconAnchor:[11,11]});
-      L.marker(center,{icon:badgeIcon,interactive:false}).addTo(mapInstance);
-    }
     /* 出入口（灰色空心圆） */
     if(b.entrances){
       b.entrances.forEach(function(en){
