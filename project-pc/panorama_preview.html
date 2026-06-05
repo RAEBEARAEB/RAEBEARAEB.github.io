@@ -14,6 +14,8 @@
         .header-btn { background: #262626; border: 1px solid #3a3a3a; color: #d9d9d9; padding: 6px 12px; border-radius: 4px; cursor: pointer; }
         .layout { height: calc(100% - var(--header-height)); display: flex; flex-direction: column; }
         #preview-container { flex: 1; min-height: 0; position: relative; }
+        #preview-container.iframe-mode { background: #fff; }
+        #preview-iframe { width: 100%; height: 100%; border: none; display: none; }
         .thumbs { height: 108px; background: rgba(0,0,0,0.55); border-top: 1px solid #303030; display: flex; align-items: center; gap: 10px; overflow-x: auto; padding: 10px 12px; box-sizing: border-box; }
         .thumb-item { width: 150px; height: 86px; border: 2px solid transparent; border-radius: 6px; overflow: hidden; cursor: pointer; flex-shrink: 0; position: relative; background: #222; }
         .thumb-item.active { border-color: var(--primary-color); }
@@ -28,6 +30,9 @@
         .floorplan-marker.active { background: #52c41a; }
         .floorplan-empty { color: #888; font-size: 12px; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
         .empty { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.7); border: 1px solid #3a3a3a; border-radius: 8px; padding: 12px 16px; font-size: 14px; display: none; }
+        .fallback-bar { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: #ccc; font-size: 12px; padding: 6px 12px; display: flex; align-items: center; justify-content: space-between; z-index: 20; }
+        .fallback-bar a { color: #91caff; text-decoration: none; }
+        .fallback-bar a:hover { text-decoration: underline; }
     </style>
 <script src="../shared_data.js"></script>
 </head>
@@ -39,11 +44,13 @@
         </div>
         <div style="display: flex; align-items: center; gap: 8px;">
             <button id="toggle-floorplan-btn" class="header-btn" onclick="togglePreviewFloorplan()" style="display:none;">平面图</button>
+            <button id="open-external-btn" class="header-btn" onclick="openInNewTab()" style="display:none;">在新标签页打开</button>
             <button class="header-btn" onclick="goBack()">关闭</button>
         </div>
     </div>
     <div class="layout">
         <div id="preview-container">
+            <iframe id="preview-iframe" src="" allow="fullscreen; accelerometer; gyroscope; xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
             <div id="preview-floorplan-overlay" class="floorplan-overlay">
                 <div class="floorplan-header">
                     <span>现场平面图</span>
@@ -53,6 +60,10 @@
                     <img id="preview-floorplan-img" src="" alt="现场平面图">
                     <div id="preview-floorplan-empty" class="floorplan-empty" style="display:none;">暂无平面图</div>
                 </div>
+            </div>
+            <div id="preview-fallback-bar" class="fallback-bar" style="display:none;">
+                <span>此全景为外部平台链接，页内展示可能受限</span>
+                <a id="preview-fallback-link" href="#" target="_blank">在新标签页打开 →</a>
             </div>
         </div>
         <div id="preview-thumbs" class="thumbs"></div>
@@ -65,9 +76,39 @@
         let previewCurrentSceneId = '';
         let previewSceneIds = [];
         let previewFloorplanMarkers = {};
+        let previewUseIframe = false;
+        let previewExternalUrl = '';
         const PROJECT_DB_NAME = 'panorama_project_db';
         const PROJECT_DB_STORE = 'projects';
         const PROJECT_DB_KEY = 'active';
+
+        /* ── URL type detection ── */
+        function isDirectImageUrl(url) {
+            if (!url) return false;
+            var u = url.split('?')[0].split('#')[0].toLowerCase();
+            return /\.(jpe?g|png|webp|bmp)$/i.test(u);
+        }
+
+        /* ── Check if any scene has a non-image panorama URL ── */
+        function hasExternalUrls(scenes) {
+            var ids = Object.keys(scenes);
+            for (var i = 0; i < ids.length; i++) {
+                if (scenes[ids[i]] && scenes[ids[i]].panorama && !isDirectImageUrl(scenes[ids[i]].panorama)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function getFirstExternalUrl(scenes) {
+            var ids = Object.keys(scenes);
+            for (var i = 0; i < ids.length; i++) {
+                if (scenes[ids[i]] && scenes[ids[i]].panorama && !isDirectImageUrl(scenes[ids[i]].panorama)) {
+                    return scenes[ids[i]].panorama;
+                }
+            }
+            return '';
+        }
 
         function openProjectDb() {
             return new Promise((resolve, reject) => {
@@ -78,12 +119,8 @@
                         db.createObjectStore(PROJECT_DB_STORE);
                     }
                 };
-                req.onsuccess = function() {
-                    resolve(req.result);
-                };
-                req.onerror = function() {
-                    reject(req.error);
-                };
+                req.onsuccess = function() { resolve(req.result); };
+                req.onerror = function() { reject(req.error); };
             });
         }
         async function getProjectData() {
@@ -93,24 +130,15 @@
                     const tx = db.transaction(PROJECT_DB_STORE, 'readonly');
                     const store = tx.objectStore(PROJECT_DB_STORE);
                     const req = store.get(PROJECT_DB_KEY);
-                    req.onsuccess = function() {
-                        resolve(req.result || null);
-                    };
-                    req.onerror = function() {
-                        reject(req.error);
-                    };
+                    req.onsuccess = function() { resolve(req.result || null); };
+                    req.onerror = function() { reject(req.error); };
                 });
                 db.close();
                 if (projectData) return projectData;
-            } catch (e) {
-            }
+            } catch (e) {}
             const raw = localStorage.getItem('panorama_project_data');
             if (!raw) return null;
-            try {
-                return JSON.parse(raw);
-            } catch (e) {
-                return null;
-            }
+            try { return JSON.parse(raw); } catch (e) { return null; }
         }
 
         function getSceneOrder(projectData, scenes) {
@@ -126,6 +154,11 @@
         function renderThumbs(sceneIds) {
             const thumbs = document.getElementById('preview-thumbs');
             thumbs.innerHTML = '';
+            if (previewUseIframe) {
+                thumbs.style.display = 'none';
+                return;
+            }
+            thumbs.style.display = 'flex';
             sceneIds.forEach(sceneId => {
                 const scene = previewScenes[sceneId];
                 if (!scene) return;
@@ -207,6 +240,11 @@
             overlay.classList.toggle('show');
         }
 
+        function openInNewTab() {
+            var url = previewExternalUrl || (previewCurrentSceneId && previewScenes[previewCurrentSceneId] ? previewScenes[previewCurrentSceneId].panorama : '');
+            if (url) window.open(url, '_blank');
+        }
+
         async function initPreview() {
             const projectData = await getProjectData();
             if (!projectData || !projectData.scenes || !Object.keys(projectData.scenes).length) {
@@ -217,10 +255,38 @@
             const sceneIds = getSceneOrder(projectData, previewScenes);
             previewSceneIds = sceneIds;
             previewCurrentSceneId = projectData.currentSceneId && previewScenes[projectData.currentSceneId] ? projectData.currentSceneId : sceneIds[0];
+
             if (!previewCurrentSceneId) {
                 document.getElementById('preview-empty').style.display = 'block';
                 return;
             }
+
+            // Detect external URL type
+            var firstScene = previewScenes[previewCurrentSceneId];
+            if (firstScene && firstScene.panorama && !isDirectImageUrl(firstScene.panorama)) {
+                // Use iframe for web-based panorama platforms
+                previewUseIframe = true;
+                previewExternalUrl = firstScene.panorama;
+
+                var iframe = document.getElementById('preview-iframe');
+                iframe.src = previewExternalUrl;
+                iframe.style.display = 'block';
+
+                var container = document.getElementById('preview-container');
+                container.classList.add('iframe-mode');
+
+                var fallbackBar = document.getElementById('preview-fallback-bar');
+                fallbackBar.style.display = 'flex';
+                document.getElementById('preview-fallback-link').href = previewExternalUrl;
+
+                var openBtn = document.getElementById('open-external-btn');
+                openBtn.style.display = 'inline-block';
+
+                document.getElementById('preview-thumbs').style.display = 'none';
+                return;
+            }
+
+            // Use Pannellum for direct image URLs
             previewViewer = pannellum.viewer('preview-container', {
                 "default": {
                     "firstScene": previewCurrentSceneId,

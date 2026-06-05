@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>问题闭环处置 - 深圳市建设施工围挡数字化管理系统</title>
+<style>
+:root {
+  --color-primary-50:#EBF2FF;--color-primary-100:#C6D9FF;--color-primary-200:#9DBEFF;
+  --color-primary-300:#6B9EF5;--color-primary-400:#3D7FED;--color-primary-500:#1862D4;
+  --color-primary-600:#104FAD;--color-primary-700:#0A3C86;--color-primary-800:#062A60;
+  --color-gray-0:#FFF;--color-gray-50:#F7F8FA;--color-gray-100:#F0F1F5;--color-gray-200:#E3E6ED;
+  --color-gray-300:#C6CBD8;--color-gray-400:#9CA3B0;--color-gray-500:#6B7280;--color-gray-600:#4B5563;
+  --color-gray-700:#374151;--color-gray-800:#1F2937;--color-gray-900:#111827;
+  --color-success:#1A9042;--color-success-light:#E6F4EA;--color-success-dark:#136B31;
+  --color-warning:#D48A00;--color-warning-light:#FEF3CD;--color-warning-dark:#9E6600;
+  --color-danger:#D13B2F;--color-danger-light:#FDECEA;--color-danger-dark:#9E2C22;
+  --color-info:#1862D4;--color-info-light:#E8F3FF;--color-info-dark:#104FAD;
+  --text-title:var(--color-gray-900);--text-primary:var(--color-gray-800);--text-secondary:var(--color-gray-600);
+  --text-tertiary:var(--color-gray-400);--text-link:var(--color-primary-500);--text-inverse:#FFF;
+  --border-color-light:var(--color-gray-200);--border-color-default:var(--color-gray-300);
+  --border-radius-sm:2px;--border-radius-md:4px;--border-radius-lg:6px;--border-radius-tag:2px;
+  --bg-page:var(--color-gray-50);--bg-card:var(--color-gray-0);--bg-sidebar:#0D2B55;--bg-header:#FFF;
+  --shadow-sm:0 1px 2px rgba(0,0,0,0.06);--shadow-md:0 2px 8px rgba(0,0,0,0.08);
+  --shadow-card:0 1px 4px rgba(0,0,0,0.07);
+  --space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:20px;
+  --space-6:24px;--space-8:32px;--space-10:40px;--space-12:48px;
+  --font-family:"PingFang SC","Microsoft YaHei","Helvetica Neue",Arial,sans-serif;
+  --font-size-xs:12px;--font-size-sm:13px;--font-size-md:14px;--font-size-lg:16px;
+  --font-size-xl:18px;--font-size-2xl:20px;--font-size-3xl:24px;
+  --font-weight-regular:400;--font-weight-medium:500;--font-weight-bold:600;
+  --line-height-tight:1.4;--line-height-normal:1.6;
+  --transition-fast:0.1s ease;--header-height:56px;--sidebar-width:220px;
+  --height-sm:28px;--height-md:32px;--height-lg:36px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{font-family:var(--font-family);font-size:var(--font-size-md);color:var(--text-primary);background:var(--bg-page);line-height:var(--line-height-normal);-webkit-font-smoothing:antialiased;height:100%}
+a{color:var(--text-link);text-decoration:none;transition:color var(--transition-fast)}
+a:hover{color:var(--color-primary-600)}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--color-gray-300);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--color-gray-400)}
+
+/* ═══ 布局 ═══ */
+.layout-wrapper{display:flex;flex-direction:column;height:100vh;overflow:hidden}
+.layout-header{height:var(--header-height);background:var(--bg-header);display:flex;align-items:center;padding:0;position:fixed;top:0;left:0;right:0;z-index:100;box-shadow:var(--shadow-sm)}
+.layout-header::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--color-primary-600),var(--color-primary-400),var(--color-primary-600))}
+.header-logo{display:flex;align-items:center;gap:var(--space-4);padding:0 var(--space-6);height:100%;border-right:1px solid var(--color-gray-100)}
+.header-logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--color-primary-500),var(--color-primary-700));border-radius:var(--border-radius-md);display:flex;align-items:center;justify-content:center;color:var(--text-inverse);box-shadow:0 2px 6px rgba(24,98,212,0.25)}
+.header-logo-text{font-size:var(--font-size-xl);font-weight:var(--font-weight-bold);color:var(--text-title);letter-spacing:0.02em}
+.header-right{margin-left:auto;display:flex;align-items:center;gap:0;height:100%;padding:0 var(--space-5)}
+.header-action-group{display:flex;align-items:center;gap:2px;padding:0 var(--space-3);border-right:1px solid var(--color-gray-100);height:100%}
+.header-action-btn{position:relative;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:var(--border-radius-md);cursor:pointer;transition:background var(--transition-fast);background:none;border:none;color:var(--text-secondary)}
+.header-action-btn:hover{background:var(--color-gray-50);color:var(--text-primary)}
+.header-action-btn svg{width:18px;height:18px}
+.header-badge{position:absolute;top:4px;right:4px;min-width:16px;height:16px;background:var(--color-danger);color:var(--text-inverse);font-size:10px;font-weight:var(--font-weight-bold);border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 4px;line-height:1;border:2px solid var(--bg-header)}
+.header-user{display:flex;align-items:center;gap:var(--space-2);padding:0 var(--space-2);cursor:pointer;height:36px;border-radius:var(--border-radius-md);transition:background var(--transition-fast)}
+.header-user:hover{background:var(--color-gray-50)}
+.header-avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--color-primary-100),var(--color-primary-200));display:flex;align-items:center;justify-content:center;font-size:var(--font-size-xs);color:var(--color-primary-700);font-weight:var(--font-weight-medium)}
+.header-user-info{display:flex;flex-direction:column;line-height:1.3}
+.header-user-name{font-size:var(--font-size-sm);color:var(--text-primary);font-weight:var(--font-weight-medium)}
+.header-user-role{font-size:10px;color:var(--text-tertiary)}
+.layout-body{display:flex;margin-top:var(--header-height);height:calc(100vh - var(--header-height));overflow:hidden}
+.layout-sidebar{width:var(--sidebar-width);background:var(--bg-sidebar);height:100%;overflow-y:auto;flex-shrink:0;display:flex;flex-direction:column}
+.nav-menu{list-style:none;padding:var(--space-3) 0;flex:1}
+.nav-group-label{font-size:11px;color:rgba(255,255,255,0.35);letter-spacing:0.06em;padding:var(--space-3) var(--space-5) var(--space-1);font-weight:var(--font-weight-medium);text-transform:uppercase}
+.nav-item{position:relative}
+.nav-item a{display:flex;align-items:center;gap:var(--space-3);padding:0 var(--space-5);height:40px;font-size:var(--font-size-sm);color:rgba(255,255,255,0.65);transition:background var(--transition-fast),color var(--transition-fast);text-decoration:none;position:relative}
+.nav-item a:hover{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.9)}
+.nav-item a.active{background:rgba(24,98,212,0.25);color:#FFF;font-weight:var(--font-weight-medium)}
+.nav-item a.active::before{content:'';position:absolute;left:0;top:4px;bottom:4px;width:3px;background:#FFF;border-radius:0 2px 2px 0}
+.nav-icon{width:16px;height:16px;flex-shrink:0;opacity:0.8}
+.nav-item a.active .nav-icon{opacity:1}
+.sidebar-bottom{padding:var(--space-3) var(--space-5);border-top:1px solid rgba(255,255,255,0.06)}
+.sidebar-version{font-size:11px;color:rgba(255,255,255,0.2)}
+.layout-main{flex:1;overflow-y:auto;padding:var(--space-6);background:var(--bg-page)}
+
+/* ═══ 面包屑+标题 ═══ */
+.page-header{margin-bottom:var(--space-5)}
+.page-title{font-size:var(--font-size-2xl);font-weight:var(--font-weight-bold);color:var(--text-title);margin:0 0 var(--space-1);line-height:var(--line-height-tight);display:flex;align-items:center;gap:var(--space-3)}
+.page-title::before{content:'';width:4px;height:24px;background:var(--color-primary-500);border-radius:2px}
+.breadcrumb{display:flex;align-items:center;gap:var(--space-1);font-size:var(--font-size-sm);color:var(--text-tertiary);margin-bottom:var(--space-3)}
+.breadcrumb a{color:var(--text-tertiary)}.breadcrumb a:hover{color:var(--text-link)}
+.breadcrumb .sep{color:var(--color-gray-300)}.breadcrumb .current{color:var(--text-primary);font-weight:var(--font-weight-medium)}
+
+/* ═══ 卡片 ═══ */
+.card{background:var(--bg-card);border:1px solid var(--border-color-light);border-radius:var(--border-radius-lg);box-shadow:var(--shadow-card);padding:var(--space-4) var(--space-5);margin-bottom:var(--space-4)}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-3);padding-bottom:var(--space-3);border-bottom:1px solid var(--border-color-light)}
+.card-title{font-size:var(--font-size-md);font-weight:var(--font-weight-bold);color:var(--text-title)}
+
+/* ═══ 搜索栏 ═══ */
+/* ═══ 状态标签页 ═══ */
+.card-toolbar{display:flex;align-items:center;justify-content:space-between;padding:var(--space-3) var(--space-5);border-bottom:1px solid var(--border-color-light);background:var(--color-gray-50)}
+.status-tabs{display:flex;align-items:center;gap:var(--space-2)}
+.status-tab{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;font-size:var(--font-size-sm);color:var(--text-secondary);border-radius:var(--border-radius-md);cursor:pointer;transition:all var(--transition-fast);background:none;border:none;font-family:var(--font-family);font-weight:var(--font-weight-regular);line-height:1}
+.status-tab:hover{background:var(--color-gray-100);color:var(--text-primary)}
+.status-tab.active{background:var(--color-primary-50);color:var(--color-primary-600);font-weight:var(--font-weight-medium)}
+.status-tab-num{font-weight:var(--font-weight-bold);font-size:var(--font-size-sm)}
+.status-tab.active .status-tab-num{color:var(--color-primary-500)}
+.status-tab-num-warn{color:#D48A00}
+.status-tab.active .status-tab-num-warn{color:#D48A00}
+.status-tab-num-danger{color:#D13B2F}
+.status-tab.active .status-tab-num-danger{color:#D13B2F}
+
+.search-bar{display:flex;gap:var(--space-3);flex-wrap:wrap;align-items:center}
+.search-bar select,.search-bar input{height:var(--height-md);padding:0 var(--space-3);font-size:var(--font-size-sm);color:var(--text-primary);background:var(--bg-card);border:1px solid var(--border-color-default);border-radius:var(--border-radius-md);outline:none;font-family:var(--font-family);transition:border-color var(--transition-fast),box-shadow var(--transition-fast)}
+.search-bar select:focus,.search-bar input:focus{border-color:var(--border-color-focus);box-shadow:0 0 0 2px var(--color-primary-50)}
+.search-bar input{min-width:240px}
+/* 转派弹窗 */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:1000;display:none;align-items:center;justify-content:center}
+.modal-overlay.show{display:flex}
+.modal{background:var(--bg-card);border-radius:var(--border-radius-lg);box-shadow:var(--shadow-lg);width:560px;max-width:90vw;max-height:80vh;display:flex;flex-direction:column}
+.modal-hd{padding:var(--space-4) var(--space-5);border-bottom:1px solid var(--border-color-light);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.modal-close{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:var(--border-radius-md);cursor:pointer;background:none;border:none;color:var(--text-tertiary)}
+.modal-close:hover{background:var(--color-gray-100)}
+.modal-bd{padding:var(--space-4);overflow-y:auto;flex:1}
+.modal-ft{padding:var(--space-3) var(--space-5);border-top:1px solid var(--border-color-light);display:flex;justify-content:flex-end;gap:var(--space-2);flex-shrink:0}
+.transfer-list{max-height:320px;overflow-y:auto}
+.transfer-item{display:flex;align-items:center;gap:var(--space-2);padding:var(--space-2);border:1px solid var(--border-color-light);border-radius:var(--border-radius-md);cursor:pointer;margin-bottom:var(--space-2);transition:all var(--transition-fast)}
+.transfer-item:hover{border-color:var(--color-primary-300);background:var(--color-primary-50)}
+.transfer-item.selected{border-color:var(--color-primary-500);background:var(--color-primary-50)}
+.transfer-item input[type="radio"]{accent-color:var(--color-primary-500);cursor:pointer}
+.transfer-body{flex:1;min-width:0}
+.transfer-title{font-size:var(--font-size-sm);color:var(--text-primary);font-weight:var(--font-weight-medium)}
+.transfer-meta{font-size:var(--font-size-xs);color:var(--text-tertiary);margin-top:2px}
+.transfer-warn{padding:var(--space-3);background:var(--color-warning-light);border-radius:var(--border-radius-md);color:var(--color-warning-dark);font-size:var(--font-size-sm);margin-bottom:var(--space-3);display:flex;align-items:center;gap:var(--space-2)}
+.transfer-warn svg{width:18px;height:18px;flex-shrink:0}
+.search-bar select{min-width:130px}
+.search-bar .btn-query{padding:0 var(--space-4);height:var(--height-md);font-size:var(--font-size-sm)}
+
+/* ═══ 按钮 ═══ */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--space-1);height:var(--height-md);padding:0 var(--space-4);font-size:var(--font-size-sm);font-weight:var(--font-weight-medium);border-radius:var(--border-radius-md);border:1px solid transparent;cursor:pointer;transition:all var(--transition-fast);white-space:nowrap;line-height:1;outline:none;font-family:var(--font-family)}
+.btn:active{transform:translateY(1px)}
+.btn:disabled{opacity:0.5;cursor:not-allowed;pointer-events:none}
+.btn-primary{background:var(--color-primary-500);color:var(--text-inverse);border-color:var(--color-primary-500)}
+.btn-primary:hover{background:var(--color-primary-600)}
+.btn-ghost{background:transparent;color:var(--text-secondary);border-color:var(--border-color-default)}
+.btn-ghost:hover{background:var(--color-gray-100);color:var(--text-primary)}
+.btn-sm{padding:0 var(--space-3);height:var(--height-sm);font-size:var(--font-size-xs)}
+.btn-warning{background:var(--color-warning);color:#FFF;border-color:var(--color-warning)}
+.btn-warning:hover{background:var(--color-warning-dark)}
+
+/* ═══ 表格 ═══ */
+.table-wrap{width:100%;overflow-x:auto}
+.table{width:100%;border-collapse:collapse;font-size:var(--font-size-sm)}
+.table th{background:var(--color-gray-100);color:var(--text-secondary);font-weight:var(--font-weight-medium);font-size:var(--font-size-xs);letter-spacing:0.02em;text-align:center;padding:var(--space-3) var(--space-3);border-bottom:1px solid var(--border-color-light);white-space:nowrap}
+.table td{padding:var(--space-3) var(--space-3);border-bottom:1px solid var(--border-color-light);color:var(--text-primary);vertical-align:middle;text-align:center}
+.table tbody tr:nth-child(even) td{background:var(--color-gray-50)}
+.table tbody tr:hover td{background:var(--color-primary-50);transition:background var(--transition-fast)}
+
+/* ═══ 标签 ═══ */
+.tag{display:inline-flex;align-items:center;padding:2px 10px;border-radius:999px;font-size:var(--font-size-xs);font-weight:var(--font-weight-medium);white-space:nowrap}
+.tag-pending{background:#FFF3E8;color:#E06A00}
+.tag-warning{background:var(--color-warning-light);color:var(--color-warning)}
+.tag-danger{background:var(--color-danger-light);color:var(--color-danger)}
+.tag-info{background:var(--color-info-light);color:var(--color-info)}
+.tag-success{background:var(--color-success-light);color:var(--color-success)}
+.issue-type-text{font-size:var(--font-size-sm);color:var(--color-primary-500);font-weight:var(--font-weight-medium)}
+.table-action-link{color:var(--text-link);font-size:var(--font-size-sm);cursor:pointer;white-space:nowrap;background:none;border:none;padding:0;text-decoration:none;display:inline-block}
+.table-action-link:hover{color:var(--color-primary-600);text-decoration:underline}
+.table-action-link.warning{color:var(--color-warning);font-weight:var(--font-weight-medium)}
+.table-action-link.warning:hover{color:var(--color-warning-dark)}
+.table-actions{display:flex;justify-content:center;gap:12px}
+
+/* ═══ 分页 ═══ */
+.pagination{display:flex;align-items:center;justify-content:space-between;padding:var(--space-3) 0 0;font-size:var(--font-size-sm);color:var(--text-tertiary)}
+.pagination-btns{display:flex;gap:var(--space-1)}
+.pagination-btns button{min-width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;padding:0 var(--space-2);border:1px solid var(--border-color-light);border-radius:var(--border-radius-md);color:var(--text-primary);background:var(--bg-card);cursor:pointer;font-size:var(--font-size-sm);transition:all var(--transition-fast)}
+.pagination-btns button:hover{border-color:var(--color-primary-400);color:var(--color-primary-500)}
+.pagination-btns button.active{background:var(--color-primary-500);border-color:var(--color-primary-500);color:#FFF}
+.pagination-btns button:disabled{opacity:0.4;cursor:not-allowed}
+</style>
+</head>
+<body>
+<div class="layout-wrapper">
+<header class="layout-header">
+  <div class="header-logo">
+    <div class="header-logo-icon"><svg viewBox="0 0 22 22" fill="currentColor" style="width:22px;height:22px;"><rect x="2" y="4" width="2.4" height="14" rx="0.6"/><rect x="9.8" y="4" width="2.4" height="14" rx="0.6"/><rect x="17.6" y="4" width="2.4" height="14" rx="0.6"/><rect x="2" y="5.5" width="18" height="2" rx="0.5"/><rect x="2" y="14.5" width="18" height="2" rx="0.5"/><rect x="4.8" y="7.8" width="1.2" height="6.4" rx="0.3" opacity="0.55"/><rect x="6.6" y="7.8" width="1.2" height="6.4" rx="0.3" opacity="0.55"/><rect x="8.4" y="7.8" width="1.2" height="6.4" rx="0.3" opacity="0.55"/><rect x="12.4" y="7.8" width="1.2" height="6.4" rx="0.3" opacity="0.55"/><rect x="14.2" y="7.8" width="1.2" height="6.4" rx="0.3" opacity="0.55"/><rect x="16" y="7.8" width="1.2" height="6.4" rx="0.3" opacity="0.55"/><rect x="1.2" y="2.8" width="4" height="1.8" rx="0.7"/><rect x="9" y="2.8" width="4" height="1.8" rx="0.7"/><rect x="16.8" y="2.8" width="4" height="1.8" rx="0.7"/></svg></div>
+    <span class="header-logo-text">深圳市建设施工围挡数字化管理系统</span>
+  </div>
+  <div class="header-right">
+    <div class="header-action-group">
+      <button class="header-action-btn" title="全屏"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg></button>
+      <button class="header-action-btn" title="消息"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><span class="header-badge">3</span></button>
+      <button class="header-action-btn" title="通知"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg><span class="header-badge">5</span></button>
+      <button class="header-action-btn" title="帮助"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button>
+    </div>
+    <div class="header-user">
+      <div class="header-avatar">张</div>
+      <div class="header-user-info"><span class="header-user-name">张项目</span><span class="header-user-role">项目端负责人</span></div>
+      <svg style="width:14px;height:14px;color:var(--text-tertiary);margin-left:2px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+  </div>
+</header>
+<div class="layout-body">
+  <aside class="layout-sidebar">
+    <ul class="nav-menu">
+      <li class="nav-item"><a href="index.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>首页</a></li>
+      <li class="nav-group-label">围挡管理</li>
+      <li class="nav-item"><a href="redline.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>项目红线管理</a></li>
+      <li class="nav-item"><a href="index_v2_project.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>围挡档案管理</a></li>
+      <li class="nav-item"><a href="fence-issue-list.html" class="active"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>问题闭环处置</a></li>
+    </ul>
+    <div class="sidebar-bottom"><div class="sidebar-version">v2.0.0 · 2026.06</div></div>
+  </aside>
+  <main class="layout-main">
+    <div class="breadcrumb"><a href="index.html">首页</a><span class="sep">/</span><a href="#">围挡管理</a><span class="sep">/</span><span class="current">问题闭环处置</span></div>
+    <div class="page-header"><div class="page-title">问题闭环处置</div></div>
+
+    <div class="card">
+    <div class="search-bar">
+      <select id="filterProject" onchange="renderTable()"><option value="all">全部项目</option></select>
+      <select id="filterEngineer" onchange="renderTable()"><option value="all">全部工程</option></select>
+      <select id="filterUnit" disabled style="background:var(--color-gray-50);color:var(--text-tertiary);cursor:not-allowed"><option>深圳市市政工程总公司</option></select>
+      <input type="text" id="filterKeyword" placeholder="搜索问题描述" oninput="renderTable()">
+      <select id="filterSource" onchange="renderTable()"><option value="all">全部来源</option><option value="街道上报">街道上报</option><option value="群众上报">群众上报</option><option value="监管巡查">监管巡查</option></select>
+      <button class="btn btn-primary btn-sm btn-query" onclick="renderTable()"><svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>查询</button>
+      <button class="btn btn-ghost btn-sm btn-query" onclick="document.getElementById('filterKeyword').value='';document.getElementById('filterSource').value='all';document.getElementById('filterProject').value='all';document.getElementById('filterEngineer').value='all';_statusTab='all';renderTable()"><svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>重置</button>
+    </div>
+    </div>
+
+    <div class="card" style="padding:0">
+    <div class="card-toolbar"><div class="status-tabs" id="statusTabs"></div></div>
+    <div class="table-wrap" style="padding-top:0">
+      <table class="table">
+        <thead><tr>
+          <th style="width:32px">序号</th>
+          <th style="width:90px">问题类型</th>
+          <th style="width:150px;text-align:left">关联项目</th>
+          <th style="width:120px;text-align:left">关联工程</th>
+          <th style="width:140px">责任单位</th>
+          <th style="width:145px">问题描述</th>
+          <th style="width:75px">问题来源</th>
+          <th style="width:75px">状态</th>
+          <th style="width:100px">上报时间</th>
+          <th style="width:118px">操作</th>
+        </tr></thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+    <div class="pagination" id="paginationBar"><span>共 0 条</span><div class="pagination-btns"></div></div>
+    </div>
+  </main>
+</div>
+<div class="modal-overlay" id="transferModal">
+  <div class="modal">
+    <div class="modal-hd"><span style="font-size:var(--font-size-lg);font-weight:var(--font-weight-bold)">转派围挡问题</span><button class="modal-close" onclick="closeTransferModal()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="modal-bd">
+      <div class="transfer-warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>是否确认非当前围挡问题？请选择正确的围挡进行转派</div>
+      <div style="margin-bottom:var(--space-3)"><div style="font-size:var(--font-size-sm);font-weight:var(--font-weight-medium);margin-bottom:4px"><span style="color:var(--color-danger)">*</span> 转派说明</div><textarea id="transferDesc" rows="3" style="width:100%;border:1px solid var(--border-color-light);border-radius:var(--border-radius-md);padding:var(--space-2) var(--space-3);font-size:var(--font-size-sm);font-family:var(--font-family);resize:vertical;outline:none" placeholder="请填写转派理由"></textarea></div>
+      <div class="transfer-list" id="transferList"></div>
+    </div>
+    <div class="modal-ft"><button class="btn btn-ghost btn-sm" onclick="closeTransferModal()">取消</button><button class="btn btn-primary btn-sm" onclick="confirmTransfer()">确认转派</button></div>
+  </div>
+</div>
+</div>
+
+<script src="../shared_data.js"></script>
+<script src="../mock-data.js"></script>
+<script>
+var _items = [];
+var _page = 1, _pageSize = 10;
+var _statusTab = 'all';
+
+function esc(s){ if(!s) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function loadData(){ _items = MOCK_DATA.getClosureIssues(); }
+
+function renderTable(){
+  loadData();
+  var kw = (document.getElementById('filterKeyword').value||'').trim().toLowerCase();
+  var st = _statusTab !== 'all' ? _statusTab : 'all';
+  var src = document.getElementById('filterSource').value;
+  var proj = document.getElementById('filterProject').value;
+  var eng = document.getElementById('filterEngineer').value;
+
+  if(kw) _items = _items.filter(function(i){ return (i.details||'').toLowerCase().indexOf(kw)>-1; });
+  if(st!=='all') _items = _items.filter(function(i){ return i.status === st; });
+  if(src!=='all') _items = _items.filter(function(i){ return (i.source||'街道上报') === src; });
+  if(proj!=='all') _items = _items.filter(function(i){ return (i._projectName||'') === proj; });
+  if(eng!=='all') _items = _items.filter(function(i){ return (i.engineerName||'') === eng; });
+
+  var total = _items.length;
+  var start = (_page-1)*_pageSize;
+  var pageItems = _items.slice(start, start+_pageSize);
+
+  var h = '';
+  pageItems.forEach(function(i, idx){
+    var sc = i.status==='待整改'?'待整改':i.status==='待审核'?'待审核':i.status==='退回整改'?'退回整改':i.status==='整改逾期'?'整改逾期':i.status==='待接收'?'待接收':'审核通过';
+    var sCls = i.status==='待整改'?'tag-warning':i.status==='退回整改'?'tag-warning':i.status==='待审核'?'tag-info':i.status==='整改逾期'?'tag-danger':i.status==='待接收'?'tag-warning':'tag-success';
+    h += '<tr><td>'+(start+idx+1)+'</td>'+
+      '<td><span class="issue-type-text">'+esc(i.type||'')+'</span></td>'+
+      '<td style="text-align:left">'+esc(i._projectName||'--')+'</td>'+
+      '<td style="text-align:left">'+esc(i.engineerName||'--')+'</td>'+
+      '<td>'+esc(i._constructUnit||i.responsibleUnit||'--')+'</td>'+
+      '<td style="text-align:left;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(i.details||'')+'</td>'+
+      '<td>'+esc(i.source||'--')+'</td>'+
+      '<td><span class="tag '+sCls+'">'+sc+'</span></td>'+
+      '<td>'+esc(i.reportTime||'')+'</td>'+
+      '<td><div class="table-actions"><a class="table-action-link" href="fence-issue-detail.html?id='+i.id+'">详情</a>'+
+      (i.status==='待整改'||i.status==='退回整改'?'<a class="table-action-link warning" href="fence-issue-rectify.html?id='+i.id+'">整改</a>':'')+
+      (i.status==='待接收'?'<a class="table-action-link" style="color:var(--color-info)" href="javascript:void(0)" onclick="receiveIssue(\''+i.id+'\')">接收</a>':'')+
+      '<a class="table-action-link" href="javascript:void(0)" onclick="openTransferModal(\''+i.id+'\')">转派</a></div></td></tr>';
+  });
+  if(!total) h = '<tr><td colspan="10" style="padding:40px;color:var(--text-tertiary)">暂无数据</td></tr>';
+  document.getElementById('tableBody').innerHTML = h;
+
+  var totalPages = Math.ceil(total/_pageSize);
+  var phtml = '<span>共 '+total+' 条</span><div class="pagination-btns">';
+  phtml += '<button '+( _page<=1?'disabled':'')+' onclick="goPage('+(_page-1)+')">&lt;</button>';
+  for(var p=1;p<=Math.min(totalPages,8);p++){
+    phtml += '<button class="'+(p===_page?'active':'')+'" onclick="goPage('+p+')">'+p+'</button>';
+  }
+  if(totalPages>8){ phtml += '<button disabled>...</button><button onclick="goPage('+totalPages+')">'+totalPages+'</button>'; }
+  phtml += '<button '+( _page>=totalPages?'disabled':'')+' onclick="goPage('+(_page+1)+')">&gt;</button></div>';
+  document.getElementById('paginationBar').innerHTML = phtml;
+
+  renderStatusTabs();
+  // Populate filter dropdowns (once)
+  if(!document.getElementById('filterProject').dataset.loaded){
+    var all = MOCK_DATA.getClosureIssues();
+    var projects = {}, engineers = {};
+    all.forEach(function(i){ if(i._projectName) projects[i._projectName]=true; if(i.engineerName) engineers[i.engineerName]=true; });
+    var psel = document.getElementById('filterProject'), esel = document.getElementById('filterEngineer');
+    Object.keys(projects).sort().forEach(function(t){ var o=document.createElement('option');o.value=t;o.textContent=t;psel.appendChild(o); });
+    Object.keys(engineers).sort().forEach(function(t){ var o=document.createElement('option');o.value=t;o.textContent=t;esel.appendChild(o); });
+    document.getElementById('filterProject').dataset.loaded='1';
+  }
+}
+
+function onStatusTab(tab){
+  _statusTab = tab;
+  _page = 1;
+  renderTable();
+}
+
+function renderStatusTabs(){
+  var tabs = ['all','待接收','待整改','退回整改','整改逾期','待审核','审核通过'];
+  var labels = ['全部','待接收','待整改','退回整改','整改逾期','待审核','审核通过'];
+  var warnTabs = { '待整改':true,'退回整改':true,'待接收':true };
+  var dangerTabs = { '整改逾期':true };
+  var all = MOCK_DATA.getClosureIssues();
+  var counts = {};
+  tabs.forEach(function(t){ counts[t] = t==='all' ? all.length : all.filter(function(i){return i.status===t}).length; });
+  var html = '';
+  tabs.forEach(function(t, idx){
+    var active = _statusTab === t ? ' active' : '';
+    var numCls = warnTabs[t] ? ' status-tab-num-warn' : dangerTabs[t] ? ' status-tab-num-danger' : '';
+    html += '<button class="status-tab'+active+'" onclick="onStatusTab(\''+t+'\')">'+labels[idx]+' <span class="status-tab-num'+numCls+'">'+counts[t]+'</span></button>';
+  });
+  document.getElementById('statusTabs').innerHTML = html;
+}
+
+function goPage(p){ _page = p; renderTable(); }
+
+/* ═══ 转派 ═══ */
+var _transferIssueId = null, _transferFenceId = null;
+function openTransferModal(issueId){
+  _transferIssueId = issueId;
+  _transferFenceId = null;
+  var issue = MOCK_DATA.getClosureDetail(issueId);
+  if(!issue) return;
+  var all = MOCK_DATA.getHoardings().filter(function(h){ return h.projectName === (issue._projectName||'') && h.id !== (issue.fenceId||''); });
+  var h = '';
+  if(!all.length) h = '<div style="text-align:center;padding:20px;color:var(--text-tertiary)">同项目下暂无其他围挡</div>';
+  else all.forEach(function(f){
+    h += '<label class="transfer-item"><input type="radio" name="transferFence" value="'+f.id+'" onchange="_transferFenceId=\''+f.id+'\'"><div class="transfer-body"><div class="transfer-title">'+esc(f.id)+' — '+esc(f.engineerName||'')+'</div><div class="transfer-meta">'+esc(f.address||'')+' · '+esc(f.constructUnit||'')+'</div></div></label>';
+  });
+  document.getElementById('transferList').innerHTML = h;
+  document.getElementById('transferModal').classList.add('show');
+}
+function closeTransferModal(){ document.getElementById('transferModal').classList.remove('show'); }
+function receiveIssue(issueId){
+  if(!confirm('确认接收此围挡问题？')) return;
+  showMsg('已接收');
+  setTimeout(function(){ renderTable(); },800);
+}
+function confirmTransfer(){
+  if(!_transferFenceId){ showMsg('请选择目标围挡'); return; }
+  var desc = document.getElementById('transferDesc').value.trim();
+  if(!desc){ showMsg('请填写转派理由'); return; }
+  if(!confirm('确认将此问题转派至围挡 '+_transferFenceId+'？')) return;
+  showMsg('已转派');
+  closeTransferModal();
+}
+function showMsg(m){ var d=document.createElement('div');d.style.cssText='position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.8);color:#fff;padding:12px 24px;border-radius:8px;font-size:14px;z-index:9999';d.textContent=m;document.body.appendChild(d);setTimeout(function(){d.remove()},2000); }
+
+renderTable();
+</script>
+</body>
+</html>

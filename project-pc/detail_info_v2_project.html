@@ -365,10 +365,10 @@ textarea.form-input{height:80px;padding:var(--space-2) var(--space-3);resize:ver
       <ul class="nav-menu">
         <li class="nav-item"><a href="index.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>首页</a></li>
         <li class="nav-group-label">围挡管理</li>
-        <li class="nav-item"><a href="index_v2_project.html" class="active"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>围挡档案管理</a></li>
+
         <li class="nav-item"><a href="redline.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8l-5 5-5-5"/><line x1="12" y1="13" x2="12" y2="3"/></svg>项目红线管理</a></li>
-        <li class="nav-group-label">系统管理</li>
-        <li class="nav-item"><a href="#"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>项目管理</a></li>
+        <li class="nav-item"><a href="index_v2_project.html" class="active"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>围挡档案管理</a></li>
+        <li class="nav-item"><a href="fence-issue-list.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>问题闭环处置</a></li>
       </ul>
       <div class="sidebar-bottom"><div class="sidebar-version">v2.0.0 · 2026.04</div></div>
     </aside>
@@ -644,22 +644,17 @@ textarea.form-input{height:80px;padding:var(--space-2) var(--space-3);resize:ver
             <div class="modal">
               <div class="modal-head"><span id="patrolModalTitle">新增巡检记录</span><button class="modal-close" onclick="closePatrolModal()">&times;</button></div>
               <div class="modal-body">
-                <div class="form-group"><label class="form-label">巡检日期</label><input type="date" class="form-input" id="patrolFormDate"></div>
-                <div class="form-group"><label class="form-label">巡检时间</label><input type="time" class="form-input" id="patrolFormTime" value="09:00"></div>
-                <div class="form-group"><label class="form-label">巡检人</label><input type="text" class="form-input" id="patrolFormPerson" placeholder="请输入巡检人姓名"></div>
-                <div class="form-group"><label class="form-label">所属单位</label><input type="text" class="form-input" id="patrolFormUnit" placeholder="请输入所属单位"></div>
-                <div class="form-group"><label class="form-label">巡检位置</label><input type="text" class="form-input" id="patrolFormLocation" placeholder="请输入巡检位置"></div>
-                <div class="form-group"><label class="form-label">全景照片</label>
-                  <div class="upload-area" id="patrolUploadArea" onclick="document.getElementById('patrolFileInput').click()">
-                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:8px;opacity:0.4"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                    <div>点击上传全景照片</div>
+                <div class="form-group"><label class="form-label"><span style="color:var(--color-danger)">*</span> 巡检时间</label><input type="datetime-local" class="form-input" id="patrolFormDatetime"></div>
+                <div class="form-group"><label class="form-label">巡检人</label><input type="text" class="form-input" id="patrolFormPerson" value="张项目" disabled style="background:var(--color-gray-100);cursor:not-allowed"></div>
+                <div class="form-group"><label class="form-label"><span style="color:var(--color-danger)">*</span> 全景照片链接</label><input type="url" class="form-input" id="patrolFormPanoUrl" placeholder="请输入全景照片链接，如 https://ips.cscecsteel.com/kgsy/projectTourist/... 或 https://www.720yun.com/vr/..."></div>
+                <div class="form-group"><label class="form-label">是否存在问题项</label>
+                  <div style="display:flex;gap:16px;padding-top:4px">
+                    <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:var(--font-size-sm)"><input type="radio" name="patrolHasIssue" value="no" checked onchange="document.getElementById('patrolIssueHint').style.display='none'"> 否</label>
+                    <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:var(--font-size-sm)"><input type="radio" name="patrolHasIssue" value="yes" onchange="document.getElementById('patrolIssueHint').style.display=''"> 是</label>
                   </div>
-                  <input type="file" id="patrolFileInput" accept="image/*" style="display:none" onchange="handlePatrolFile(this)">
+                  <div id="patrolIssueHint" style="display:none;font-size:var(--font-size-xs);color:var(--color-primary-500);margin-top:4px">保存后将进入巡检问题记录页面</div>
                 </div>
                 <div class="form-group"><label class="form-label">备注</label><textarea class="form-input" id="patrolFormRemark" placeholder="请输入备注信息"></textarea></div>
-                <div class="form-group"><label class="form-label">问题项</label>
-                  <label style="font-size:var(--font-size-sm);color:var(--text-secondary);cursor:pointer"><input type="checkbox" id="patrolFormHasIssue"> 存在问题项</label>
-                </div>
               </div>
               <div class="modal-foot">
                 <button class="btn btn-ghost" onclick="closePatrolModal()">取消</button>
@@ -1222,13 +1217,13 @@ var MOCK_DATA=(function(){
       (p.engineers||[]).forEach(function(e){
         if(e.name===en&&e.fenceId){
           records=SD.getPatrolRecords(e.fenceId).map(function(r){
-            return{id:r.id,date:r.date,time:'09:00',person:r.inspector,unit:'',location:'',remark:r.issues&&r.issues.length>0?r.issues.join('、'):'围挡状况良好',hasIssue:r.result==='有问题',panoramaSrc:'https://pannellum.org/images/alma.jpg'};
+            return{id:r.id,date:r.date,time:'09:00',person:r.inspector,unit:'',location:'',remark:r.issues&&r.issues.length>0?r.issues.join('、'):'围挡状况良好',hasIssue:r.result==='有问题',panoramaSrc:'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492'};
           });
         }
       });
     }
   });
-  return records.length>0?records:[{id:'r1',date:'2026-05-07',time:'09:32',person:'张伟',unit:'南山区住房和建设局',location:'围挡东侧A段',remark:'围挡状况良好，无明显破损',hasIssue:false,panoramaSrc:'https://pannellum.org/images/alma.jpg'}];
+  return records.length>0?records:[];
 })();
 
 function openPatrolDb(){
@@ -1282,7 +1277,7 @@ function buildPanoData(record){
   var sceneId='scene_'+record.id;
   var scenes={};
   scenes[sceneId]={
-    title:record.location+' - '+record.date+' '+record.time,
+    title:record.date+' '+record.time+' 巡检',
     type:'equirectangular',
     panorama:record.panoramaSrc||'',
     hfov:110,
@@ -1332,23 +1327,34 @@ function renderDayHeader(date,count){
   return '<div class="day-header"><span class="day-date">'+ds+'</span><span class="day-week">'+wk+'</span><span class="day-line"></span><span class="day-count">'+count+'条记录</span><button class="day-toggle" onclick="toggleDay(this)"><span class="toggle-icon">∧</span> 收起</button></div>';
 }
 
+/* 判断 URL 是否为可直接用作图片的链接 */
+function isDirectImageUrl(url){
+  if(!url)return false;
+  var u=url.split('?')[0].split('#')[0].toLowerCase();
+  return /\.(jpe?g|png|webp|bmp)$/i.test(u);
+}
+
 function renderCard(r){
+  var isImg=isDirectImageUrl(r.panoramaSrc);
+  var thumbStyle=isImg
+    ? 'background-image:url(\''+r.panoramaSrc+'\')'
+    : 'background:linear-gradient(135deg,#1a3a5c 0%,#0d2b55 40%,#1862D4 100%);display:flex;align-items:center;justify-content:center';
   var html='<div class="patrol-card" data-id="'+r.id+'">';
-  html+='<div class="patrol-thumb" style="background-image:url(\''+r.panoramaSrc+'\')">';
+  html+='<div class="patrol-thumb" style="'+thumbStyle+'">';
   html+='<span class="patrol-badge">全景</span>';
-  if(r.hasIssue)html+='<span class="patrol-badge-issue">问题</span>';
+  if(!isImg){ html+='<svg viewBox="0 0 60 60" width="48" height="48" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" style="pointer-events:none"><circle cx="28" cy="26" r="14"/><path d="M7 50l15-18 10 12 7-9 16 20"/><circle cx="25" cy="22" r="4"/></svg>'; }
+  if(r.hasIssue){ html+='<span class="patrol-badge-issue">有问题</span>'; }
   html+='<span class="patrol-time-watermark">'+r.time+'</span>';
   html+='</div>';
   html+='<div class="patrol-info">';
-  html+='<div class="patrol-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>巡检人：'+r.person+'（'+r.unit+'）</div>';
-  html+='<div class="patrol-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>巡检位置：'+r.location+'</div>';
-  if(r.hasIssue&&r.remark){
-    html+='<div class="patrol-remark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>'+r.remark+'</div>';
+  html+='<div class="patrol-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>巡检人：'+r.person+'</div>';
+  if(r.remark){
+    html+='<div style="font-size:var(--font-size-xs);color:var(--text-tertiary);padding:3px 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+r.remark+'</div>';
   }
   html+='</div>';
   html+='<div class="patrol-actions">';
-  html+='<div class="patrol-action" onclick="viewPanorama(\''+r.id+'\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>查看全景</div>';
-  html+='<div class="patrol-action" onclick="editPanorama(\''+r.id+'\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>编辑全景</div>';
+  html+='<div class="patrol-action" onclick="viewPatrolRecord(\''+r.id+'\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>查看</div>';
+  html+='<div class="patrol-action" onclick="addIssueToRecord(\''+r.id+'\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>新增问题</div>';
   html+='<div class="patrol-action danger" onclick="deleteRecord(\''+r.id+'\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>删除</div>';
   html+='</div></div>';
   return html;
@@ -1378,7 +1384,7 @@ function updateStat(){
   var monthStart=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-01';
   var monthCount=patrolRecords.filter(function(r){return r.date>=monthStart}).length;
   var panoCount=patrolRecords.filter(function(r){return r.panoramaSrc}).length;
-  el.textContent='本月已巡检 '+monthCount+' 次 · 累计 '+panoCount+' 张全景照片';
+  el.textContent='本月已巡检 '+monthCount+' 次 · 累计 '+panoCount+' 条全景记录';
 }
 
 window.setSeg=function(el){
@@ -1406,71 +1412,80 @@ window.toggleDay=function(btn){
 window.openAddModal=function(){
   editingId=null;
   document.getElementById('patrolModalTitle').textContent='新增巡检记录';
-  document.getElementById('patrolFormDate').value=new Date().toISOString().split('T')[0];
-  document.getElementById('patrolFormTime').value='09:00';
-  document.getElementById('patrolFormPerson').value='';
-  document.getElementById('patrolFormUnit').value='';
-  document.getElementById('patrolFormLocation').value='';
+  var now=new Date();
+  var dt=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0')+'T'+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+  document.getElementById('patrolFormDatetime').value=dt;
+  document.getElementById('patrolFormPerson').value='张项目';
+  document.getElementById('patrolFormPanoUrl').value='';
   document.getElementById('patrolFormRemark').value='';
-  document.getElementById('patrolFormHasIssue').checked=false;
-  var ua=document.getElementById('patrolUploadArea');
-  ua.classList.remove('has-image');
-  ua.innerHTML='<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:8px;opacity:0.4"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg><div>点击上传全景照片</div>';
-  document.getElementById('patrolFileInput').value='';
   document.getElementById('patrolModal').classList.add('show');
 };
 window.closePatrolModal=function(){document.getElementById('patrolModal').classList.remove('show')};
 
-window.handlePatrolFile=function(input){
-  if(!input.files||!input.files[0])return;
-  var file=input.files[0];
-  var reader=new FileReader();
-  reader.onload=function(e){
-    var ua=document.getElementById('patrolUploadArea');
-    ua.classList.add('has-image');
-    ua.innerHTML='<img src="'+e.target.result+'" alt="preview">';
-  };
-  reader.readAsDataURL(file);
-};
-
 window.savePatrolRecord=function(){
-  var date=document.getElementById('patrolFormDate').value;
-  var time=document.getElementById('patrolFormTime').value;
+  var dt=document.getElementById('patrolFormDatetime').value;
   var person=document.getElementById('patrolFormPerson').value;
-  var unit=document.getElementById('patrolFormUnit').value;
-  var location=document.getElementById('patrolFormLocation').value;
+  var panoUrl=document.getElementById('patrolFormPanoUrl').value.trim();
   var remark=document.getElementById('patrolFormRemark').value;
-  var hasIssue=document.getElementById('patrolFormHasIssue').checked;
-  if(!date||!person||!location){showToast('请填写必要信息','error');return}
-  var ua=document.getElementById('patrolUploadArea');
-  var img=ua.querySelector('img');
-  var panoramaSrc=img?img.src:'https://pannellum.org/images/alma.jpg';
+  var hasIssue=document.querySelector('input[name="patrolHasIssue"]:checked').value==='yes';
+  if(!dt){showToast('请选择巡检时间','error');return}
+  if(!panoUrl){showToast('请填写全景照片链接','error');return}
+  var date=dt.split('T')[0],time=dt.split('T')[1]||'09:00';
+  var rec={id:editingId||('r_'+Date.now()),date:date,time:time,person:person,unit:'深圳市市政工程总公司',location:'',remark:remark,hasIssue:hasIssue,panoramaSrc:panoUrl};
   if(editingId){
     var idx=patrolRecords.findIndex(function(r){return r.id===editingId});
-    if(idx>=0){
-      patrolRecords[idx]={id:editingId,date:date,time:time||'09:00',person:person,unit:unit,location:location,remark:remark,hasIssue:hasIssue,panoramaSrc:panoramaSrc};
-    }
-  }else{
-    patrolRecords.push({id:'r_'+Date.now(),date:date,time:time||'09:00',person:person,unit:unit,location:location,remark:remark,hasIssue:hasIssue,panoramaSrc:panoramaSrc});
-  }
+    if(idx>=0)patrolRecords[idx]=rec;
+  }else{patrolRecords.push(rec);}
   saveRecords(patrolRecords).then(function(){});
   closePatrolModal();
-  render();
-  showToast(editingId?'巡检记录已更新':'巡检记录已添加');
+  if(hasIssue){
+    // 保存巡检记录并跳转到巡检问题记录页面
+    writePanoData(rec,function(){
+      var params=new URLSearchParams(window.location.search);
+      var url='patrol_issue_record.html?patrolId='+encodeURIComponent(rec.id);
+      if(params.get('project')) url+='&project='+encodeURIComponent(params.get('project'));
+      if(params.get('engineering')) url+='&engineering='+encodeURIComponent(params.get('engineering'));
+      window.open(url,'_blank');
+    });
+  }else{
+    render();
+    showToast('巡检记录已添加');
+  }
 };
 
-window.viewPanorama=function(id){
+function buildIssuePageUrl(r,mode){
+  var params=new URLSearchParams(window.location.search);
+  var url='patrol_issue_record.html?patrolId='+encodeURIComponent(r.id);
+  if(mode) url+='&mode='+encodeURIComponent(mode);
+  if(params.get('project')) url+='&project='+encodeURIComponent(params.get('project'));
+  if(params.get('engineering')) url+='&engineering='+encodeURIComponent(params.get('engineering'));
+  return url;
+}
+
+window.viewPatrolRecord=function(id){
   var r=patrolRecords.find(function(r){return r.id===id});
   if(!r||!r.panoramaSrc){showToast('暂无全景照片','error');return}
-  writePanoData(r,function(){window.open('panorama_preview.html','_blank')});
+  writePanoData(r,function(){
+    var url=buildIssuePageUrl(r,'view');
+    window.open(url,'_blank');
+  });
 };
-window.editPanorama=function(id){
+
+window.addIssueToRecord=function(id){
   var r=patrolRecords.find(function(r){return r.id===id});
   if(!r||!r.panoramaSrc){showToast('暂无全景照片','error');return}
-  writePanoData(r,function(){window.open('panorama_editor.html','_blank')});
+  writePanoData(r,function(){
+    var url=buildIssuePageUrl(r,'addIssue');
+    window.open(url,'_blank');
+  });
 };
 
 window.deleteRecord=function(id){
+  var r=patrolRecords.find(function(r){return r.id===id});
+  if(r&&r.issues&&r.issues.length>0){
+    showToast('当前巡检记录存在问题项，不可删除','error');
+    return;
+  }
   deletingId=id;
   document.getElementById('patrolDeleteModal').classList.add('show');
 };
