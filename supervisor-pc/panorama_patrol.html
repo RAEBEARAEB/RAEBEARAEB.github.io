@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>全景巡查 - 深圳市建设施工围挡数字化管理系统</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"/>
+<style>
+:root{
+  --color-primary-50:#EBF2FF;--color-primary-100:#C6D9FF;--color-primary-200:#9DBEFF;
+  --color-primary-300:#6B9EF5;--color-primary-400:#3D7FED;--color-primary-500:#1862D4;
+  --color-primary-600:#104FAD;--color-primary-700:#0A3C86;--color-primary-800:#062A60;--color-primary-900:#031940;
+  --color-gray-0:#FFFFFF;--color-gray-50:#F7F8FA;--color-gray-100:#F0F1F5;--color-gray-200:#E3E6ED;
+  --color-gray-300:#C6CBD8;--color-gray-400:#9CA3B0;--color-gray-500:#6B7280;--color-gray-600:#4B5563;
+  --color-gray-700:#374151;--color-gray-800:#1F2937;--color-gray-900:#111827;
+  --color-success:#1A9042;--color-success-light:#E6F4EA;--color-warning:#D48A00;--color-warning-light:#FEF3CD;
+  --color-danger:#D13B2F;--color-danger-light:#FDECEA;--color-info:#1862D4;--color-info-light:#E8F3FF;
+  --text-title:var(--color-gray-900);--text-primary:var(--color-gray-800);--text-secondary:var(--color-gray-600);
+  --text-tertiary:var(--color-gray-400);--text-link:var(--color-primary-500);--text-inverse:#FFFFFF;
+  --border-color-light:var(--color-gray-200);--border-color-default:var(--color-gray-300);
+  --border-radius-sm:2px;--border-radius-md:4px;--border-radius-lg:6px;
+  --bg-page:var(--color-gray-50);--bg-card:var(--color-gray-0);--bg-sidebar:#0D2B55;--bg-header:#FFFFFF;
+  --shadow-sm:0 1px 2px rgba(0,0,0,0.06);--shadow-md:0 2px 8px rgba(0,0,0,0.08);
+  --shadow-card:0 1px 4px rgba(0,0,0,0.07);
+  --space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:20px;--space-6:24px;--space-8:32px;
+  --font-family:"PingFang SC","Microsoft YaHei","Helvetica Neue",Arial,sans-serif;
+  --font-size-xs:12px;--font-size-sm:13px;--font-size-md:14px;--font-size-lg:16px;
+  --font-weight-medium:500;--font-weight-bold:600;
+  --transition-fast:0.15s ease;--header-height:56px;--sidebar-width:220px;--height-md:32px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{font-family:var(--font-family);font-size:var(--font-size-md);color:var(--text-primary);background:var(--bg-page);line-height:1.6;height:100%}
+a{color:var(--text-link);text-decoration:none}::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:var(--color-gray-300);border-radius:3px}
+
+/* ═══ supervisor-pc layout ═══ */
+.layout-wrapper{display:flex;flex-direction:column;height:100vh;overflow:hidden}
+.layout-header{height:var(--header-height);background:var(--bg-header);display:flex;align-items:center;padding:0;position:fixed;top:0;left:0;right:0;z-index:100;box-shadow:var(--shadow-sm)}
+.layout-header::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--color-primary-600),var(--color-primary-400),var(--color-primary-600))}
+.header-logo{display:flex;align-items:center;gap:var(--space-4);padding:0 var(--space-6);height:100%;border-right:1px solid var(--color-gray-100)}
+.header-logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--color-primary-500),var(--color-primary-700));border-radius:var(--border-radius-md);display:flex;align-items:center;justify-content:center;color:var(--text-inverse);box-shadow:0 2px 6px rgba(24,98,212,0.25)}
+.header-logo-text{font-size:18px;font-weight:var(--font-weight-bold);color:var(--text-title)}
+.header-right{margin-left:auto;display:flex;align-items:center;height:100%;padding:0 var(--space-5)}
+.header-user{display:flex;align-items:center;gap:var(--space-2);padding:0 var(--space-2);cursor:pointer;height:36px;border-radius:var(--border-radius-md)}
+.header-avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--color-primary-100),var(--color-primary-200));display:flex;align-items:center;justify-content:center;font-size:var(--font-size-xs);color:var(--color-primary-700);font-weight:var(--font-weight-medium)}
+.header-user-info{display:flex;flex-direction:column;line-height:1.3}.header-user-name{font-size:var(--font-size-sm);color:var(--text-primary)}.header-user-role{font-size:10px;color:var(--text-tertiary)}
+.layout-body{display:flex;margin-top:var(--header-height);height:calc(100vh - var(--header-height));overflow:hidden}
+.layout-sidebar{width:var(--sidebar-width);background:var(--bg-sidebar);height:100%;overflow-y:auto;flex-shrink:0;display:flex;flex-direction:column}
+.nav-menu{list-style:none;padding:var(--space-4) 0;flex:1}
+.nav-group-label{font-size:11px;color:rgba(255,255,255,0.35);letter-spacing:0.06em;padding:var(--space-3) var(--space-5) var(--space-1);font-weight:var(--font-weight-medium);text-transform:uppercase}
+.nav-item{position:relative}
+.nav-item a{display:flex;align-items:center;gap:var(--space-3);padding:0 var(--space-5);height:40px;font-size:var(--font-size-sm);color:rgba(255,255,255,0.65);transition:background var(--transition-fast),color var(--transition-fast);text-decoration:none}
+.nav-item a:hover{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.9)}
+.nav-item a.active{background:rgba(24,98,212,0.25);color:#FFF;font-weight:var(--font-weight-medium)}
+.nav-item a.active::before{content:'';position:absolute;left:0;top:4px;bottom:4px;width:3px;background:#FFF;border-radius:0 2px 2px 0}
+.nav-icon{width:16px;height:16px;flex-shrink:0;opacity:0.8}.nav-item a.active .nav-icon{opacity:1}
+.sidebar-bottom{padding:var(--space-3) var(--space-5);border-top:1px solid rgba(255,255,255,0.06)}.sidebar-version{font-size:11px;color:rgba(255,255,255,0.2)}
+.layout-main{flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden}
+.breadcrumb{display:flex;align-items:center;gap:var(--space-1);font-size:var(--font-size-sm);padding:var(--space-3) var(--space-6) 0;flex-shrink:0}
+.breadcrumb a,.breadcrumb-item{color:var(--text-tertiary)}.breadcrumb a:hover{color:var(--text-link)}.breadcrumb .current{color:var(--text-primary);font-weight:var(--font-weight-medium)}.breadcrumb-sep{color:var(--color-gray-300);font-size:11px}
+.page-header-fixed{display:flex;align-items:center;justify-content:space-between;padding:var(--space-3) var(--space-6);border-bottom:1px solid var(--border-color-light);flex-shrink:0}
+.page-title{font-size:20px;font-weight:var(--font-weight-bold);color:var(--text-title);display:flex;align-items:center;gap:var(--space-2)}
+.page-title-accent{width:3px;height:20px;background:var(--color-primary-500);border-radius:2px;display:inline-block}
+
+/* ═══ three-panel body ═══ */
+.patrol-body{display:flex;flex:1;min-height:0;overflow:hidden}
+/* left panel */
+.panel-left{width:300px;flex-shrink:0;background:var(--bg-card);border-right:1px solid var(--border-color-light);display:flex;flex-direction:column;overflow:hidden}
+.panel-left-header{padding:12px 16px;font-size:14px;font-weight:var(--font-weight-bold);color:var(--text-title);border-bottom:1px solid var(--border-color-light);flex-shrink:0;display:flex;align-items:center;gap:8px}
+.panel-left-header .count{font-size:12px;color:var(--text-tertiary);font-weight:400}
+.panel-left-scroll{flex:1;overflow-y:auto;padding:8px}
+.project-card{background:#fff;border:2px solid var(--border-color-light);border-radius:8px;padding:12px;margin-bottom:8px;cursor:pointer;transition:all 0.2s}
+.project-card:hover{border-color:var(--color-primary-300);box-shadow:0 2px 8px rgba(24,98,212,0.08)}
+.project-card.selected{border-color:var(--color-primary-500);background:var(--color-primary-50)}
+.project-card .proj-name{font-size:13px;font-weight:var(--font-weight-bold);color:var(--text-title);line-height:1.4;margin-bottom:6px}
+.project-card .proj-meta{display:flex;gap:8px;flex-wrap:wrap}
+.proj-status-tag{font-size:10px;padding:1px 6px;border-radius:10px;font-weight:var(--font-weight-medium)}
+.proj-status-tag.building{background:#E8F3FF;color:var(--color-primary-600)}
+.proj-status-tag.other{background:var(--color-gray-100);color:var(--text-tertiary)}
+.proj-plan{font-size:11px;color:var(--text-tertiary);white-space:nowrap}
+.fence-sublist{margin-top:8px;display:none}
+.project-card.expanded .fence-sublist{display:block}
+.fence-item{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;margin-top:4px;background:var(--color-gray-50);border-radius:6px;cursor:pointer;border:1px solid transparent;transition:all 0.15s;font-size:12px}
+.fence-item:hover{background:var(--color-primary-50);border-color:var(--color-primary-200)}
+.fence-item.active{background:#E8F3FF;border-color:var(--color-primary-500)}
+.fence-item-info{flex:1;min-width:0}
+.fence-item-name{font-weight:var(--font-weight-medium);color:var(--text-primary)}
+.fence-item-sub{color:var(--text-tertiary);margin-top:2px;font-size:11px}
+.fence-item-status{font-size:10px;padding:1px 6px;border-radius:10px;flex-shrink:0;margin-left:6px}
+.fence-item-status.setting{background:#FFF7E6;color:#D48A00}
+.fence-item-status.normal{background:#E6F4EA;color:#1A9042}
+.fence-item-status.expiring{background:#FDECEA;color:#D13B2F}
+.fence-empty{text-align:center;padding:32px 16px;color:var(--text-tertiary);font-size:13px}
+/* center */
+.panel-center{flex:1;min-width:0;background:#000;position:relative;overflow:hidden}
+#viewer-container{width:100%;height:100%}
+#patrol-iframe{display:none;position:absolute;top:0;left:0;width:100%;height:100%;border:none}
+.center-placeholder{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.3);font-size:16px;flex-direction:column;gap:16px;pointer-events:none}
+.center-placeholder i{font-size:64px;opacity:0.3}
+/* right panel */
+.panel-right{width:320px;flex-shrink:0;background:var(--bg-card);border-left:1px solid var(--border-color-light);display:flex;flex-direction:column;overflow:hidden}
+.panel-right-header{padding:12px 16px;font-size:14px;font-weight:var(--font-weight-bold);color:var(--text-title);border-bottom:1px solid var(--border-color-light);flex-shrink:0;display:flex;align-items:center;justify-content:space-between}
+.panel-right-header .count{color:var(--color-warning);font-weight:600}
+.btn-add-issue{height:30px;padding:0 12px;font-size:12px;border-radius:4px;background:var(--color-primary-500);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;gap:4px;transition:background 0.2s}
+.btn-add-issue:hover{background:var(--color-primary-600)}
+.btn-add-issue:disabled{background:#ccc;cursor:not-allowed}
+.issue-list-scroll{flex:1;overflow-y:auto;padding:8px}
+.issue-card{display:flex;gap:10px;padding:10px;border:1px solid var(--border-color-light);border-radius:6px;margin-bottom:8px;background:var(--bg-card);position:relative}
+.issue-card:hover{border-color:var(--color-gray-300)}
+.issue-card-img{width:60px;height:60px;border-radius:4px;flex-shrink:0;background-size:cover;background-position:center;background-color:var(--color-gray-100)}
+.issue-card-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.issue-card-type{font-size:12px;color:var(--color-warning);font-weight:var(--font-weight-medium)}
+.issue-card-detail{font-size:12px;color:var(--text-secondary);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.issue-card-source{font-size:11px;color:var(--text-link);background:rgba(24,144,255,0.08);padding:1px 6px;border-radius:3px;display:inline-block;margin-top:2px;width:fit-content}
+.issue-card-delete{position:absolute;right:8px;top:8px;width:20px;height:20px;border-radius:50%;border:none;background:transparent;color:var(--color-danger);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s}
+.issue-card:hover .issue-card-delete{opacity:1}
+.issue-empty{text-align:center;padding:32px 16px;color:var(--text-tertiary);font-size:13px}
+.patrol-info-bar{display:flex;gap:16px;padding:8px 16px;background:var(--color-gray-50);border-bottom:1px solid var(--border-color-light);font-size:12px;color:var(--text-tertiary);flex-shrink:0;flex-wrap:nowrap}
+.patrol-info-bar strong{color:var(--text-primary)}
+
+/* ═══ Modal (same as patrol_issue_record.html) ═══ */
+.modal-mask{position:fixed;inset:0;background:rgba(0,0,0,0.55);display:none;align-items:center;justify-content:center;z-index:3000}
+.modal-mask.show{display:flex}
+.modal{background:#fff;color:#333;border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,0.3);overflow:hidden;max-height:95vh;display:flex;flex-direction:column}
+.modal-lg{width:1200px;max-width:97vw}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid #e8e8e8;font-size:16px;font-weight:600;color:#1F2937;flex-shrink:0}
+.modal-close{width:28px;height:28px;border:none;background:none;cursor:pointer;color:#999;font-size:20px;display:flex;align-items:center;justify-content:center;border-radius:4px}
+.modal-close:hover{background:#f0f0f0;color:#333}
+.modal-body{padding:20px;overflow-y:auto;flex:1}
+.modal-foot{display:flex;justify-content:flex-end;gap:12px;padding:12px 20px;border-top:1px solid #e8e8e8;flex-shrink:0}
+.btn{padding:7px 16px;border-radius:4px;border:1px solid #d9d9d9;cursor:pointer;font-size:14px;transition:all 0.2s;background:#fff;color:#333}
+.btn-primary{background:var(--color-primary-500);color:#fff;border-color:var(--color-primary-500)}
+.btn-primary:hover{background:var(--color-primary-600)}
+.btn-cancel{background:#fff;color:#666;border-color:#d9d9d9}
+.btn-cancel:hover{border-color:#999}
+.annotate-container{position:relative;border:1px solid #e8e8e8;border-radius:6px;overflow:hidden;background:#f5f5f5;min-height:200px}
+.annotate-container img,.annotate-container canvas{display:block;max-width:100%}
+.annotate-canvas{position:absolute;top:0;left:0;cursor:crosshair}
+.annotate-tools{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
+.annotate-tool-btn{padding:5px 12px;border:1px solid #d9d9d9;border-radius:4px;background:#fff;cursor:pointer;font-size:12px;display:flex;align-items:center;gap:4px;transition:all 0.2s}
+.annotate-tool-btn:hover{border-color:var(--color-primary-500);color:var(--color-primary-500)}
+.annotate-tool-btn.active{background:#e6f0ff;border-color:var(--color-primary-500);color:var(--color-primary-500);font-weight:600}
+.annotate-color-dot{width:16px;height:16px;border-radius:50%;display:inline-block;border:2px solid #fff;box-shadow:0 0 0 1px #d9d9d9;cursor:pointer}
+.annotate-color-dot.active{box-shadow:0 0 0 2px var(--color-primary-500)}
+.annotate-colors{display:flex;gap:6px;align-items:center;margin-left:8px}
+.annotation-row{display:flex;gap:20px}
+.annotation-left{flex:1;min-width:0}
+.annotation-right{width:300px;flex-shrink:0;display:flex;flex-direction:column}
+.form-group{margin-bottom:14px}.form-group:last-child{margin-bottom:0}
+.form-label{display:block;font-size:13px;color:#374151;margin-bottom:4px;font-weight:500}
+.form-label .required{color:var(--color-danger)}
+.form-select,.form-textarea{width:100%;padding:7px 10px;border:1px solid #d9d9d9;border-radius:4px;font-size:13px;color:#333;outline:none;font-family:inherit;box-sizing:border-box}
+.form-select:focus,.form-textarea:focus{border-color:var(--color-primary-500);box-shadow:0 0 0 2px rgba(24,144,255,0.1)}
+.form-textarea{min-height:70px;resize:vertical}
+.inline-loc-map{width:100%;height:180px;border-radius:6px;overflow:hidden;border:2px solid #e8e8e8;cursor:crosshair;margin-top:4px;flex-shrink:0;background:#f5f5f5}
+.inline-loc-map.picked{border-color:var(--color-primary-500)}
+.inline-loc-status{font-size:12px;color:#6B7280;margin-top:4px;display:flex;align-items:center;gap:4px}
+.inline-loc-status.picked{color:#1A9042;font-weight:500}
+.annotate-paste-hint{position:absolute;inset:0;background:rgba(255,255,255,0.85);display:none;align-items:center;justify-content:center;flex-direction:column;cursor:default;border:3px dashed #1890ff;border-radius:6px;z-index:5}
+.toast{position:fixed;top:80px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.8);color:#fff;padding:10px 24px;border-radius:6px;font-size:14px;z-index:5000;opacity:0;transition:opacity 0.3s;pointer-events:none}
+.toast.show{opacity:1}
+</style>
+<script src="../shared_data.js"></script>
+<script src="../mock-data.js"></script>
+</head>
+<body>
+<div class="layout-wrapper">
+  <!-- ═══ Header ═══ -->
+  <header class="layout-header">
+    <div class="header-logo">
+      <div class="header-logo-icon"><svg viewBox="0 0 22 22" fill="currentColor" style="width:22px;height:22px"><rect x="2" y="4" width="2.4" height="14" rx="0.6"/><rect x="9.8" y="4" width="2.4" height="14" rx="0.6"/><rect x="17.6" y="4" width="2.4" height="14" rx="0.6"/><rect x="2" y="5.5" width="18" height="2" rx="0.5"/><rect x="2" y="14.5" width="18" height="2" rx="0.5"/></svg></div>
+      <span class="header-logo-text">深圳市建设施工围挡数字化管理系统</span>
+    </div>
+    <div class="header-right">
+      <div class="header-user">
+        <div class="header-avatar">张</div>
+        <div class="header-user-info"><span class="header-user-name">张建国</span><span class="header-user-role">深圳市住房和建设局</span></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout-body">
+    <!-- ═══ Sidebar ═══ -->
+    <aside class="layout-sidebar">
+      <ul class="nav-menu">
+        <li class="nav-item"><a href="index.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>监管总览</a></li>
+        <li class="nav-group-label">围挡管理</li>
+        <li class="nav-item"><a href="redline.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8l-5 5-5-5"/><line x1="12" y1="13" x2="12" y2="3"/></svg>项目红线管理</a></li>
+        <li class="nav-item"><a href="index_v2.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>围挡档案管理</a></li>
+        <li class="nav-item"><a href="panorama_patrol.html" class="active"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>全景巡查</a></li>
+        <li class="nav-item"><a href="supervisor-issue-list.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>问题闭环处置</a></li>
+      </ul>
+      <div class="sidebar-bottom"><div class="sidebar-version">v2.0.0 · 2026.06</div></div>
+    </aside>
+
+    <!-- ═══ Main ═══ -->
+    <main class="layout-main">
+      <div class="breadcrumb">
+        <a href="index.html" class="breadcrumb-item">首页</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item current">全景巡查</span>
+      </div>
+      <div class="page-header-fixed">
+        <h1 class="page-title"><span class="page-title-accent"></span>全景巡查</h1>
+        <div></div>
+      </div>
+
+      <div class="patrol-body">
+        <!-- ═══ Left: Project list ═══ -->
+        <div class="panel-left">
+          <div class="panel-left-header">
+            围挡列表 <span class="count" id="project-count">(0)</span>
+          </div>
+          <div class="panel-left-scroll" id="project-list-scroll">
+            <div class="fence-empty">加载中...</div>
+          </div>
+        </div>
+
+        <!-- ═══ Center: Panorama ═══ -->
+        <div class="panel-center">
+          <div id="viewer-container"></div>
+          <iframe id="patrol-iframe" allow="fullscreen; accelerometer; gyroscope; xr-spatial-tracking"></iframe>
+          <div class="center-placeholder" id="center-placeholder">
+            <i class="fas fa-map-marked-alt"></i>
+            <span>请从左侧列表选择围挡记录</span>
+          </div>
+        </div>
+
+        <!-- ═══ Right: Issues ═══ -->
+        <div class="panel-right">
+          <div class="panel-right-header">
+            <span>全部问题</span>
+            <span class="count" id="issue-count">0</span>
+          </div>
+          <div class="patrol-info-bar" id="patrol-info-bar">
+            <span>巡检时间：<strong id="info-time">--</strong></span>
+            <span>巡检人：<strong id="info-person">--</strong></span>
+          </div>
+          <div class="patrol-info-bar" style="border-bottom:none;padding-top:0">
+            <button class="btn-add-issue" id="btn-add-issue" onclick="startAddIssue()" disabled>
+              <i class="fas fa-camera"></i> 截图并新增问题
+            </button>
+          </div>
+          <div class="issue-list-scroll" id="issue-list-scroll">
+            <div class="issue-empty" id="issue-empty">暂无问题记录</div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ═══ Annotation Modal ═══ -->
+<div class="modal-mask" id="annotate-modal">
+  <div class="modal modal-lg">
+    <div class="modal-head">
+      <span><i class="fas fa-pencil-alt" style="margin-right:8px;color:var(--color-primary-500)"></i>标注问题</span>
+      <button class="modal-close" onclick="closeAnnotateModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="annotation-row">
+        <div class="annotation-left">
+          <div class="annotate-tools">
+            <button class="annotate-tool-btn active" data-tool="rect" onclick="setAnnotateTool('rect',this)"><i class="far fa-square"></i> 画框</button>
+            <button class="annotate-tool-btn" data-tool="circle" onclick="setAnnotateTool('circle',this)"><i class="far fa-circle"></i> 画圈</button>
+            <button class="annotate-tool-btn" data-tool="arrow" onclick="setAnnotateTool('arrow',this)"><i class="fas fa-arrow-right"></i> 箭头</button>
+            <span class="annotate-colors">颜色：
+              <span class="annotate-color-dot active" style="background:#ff4d4f" data-color="#ff4d4f" onclick="setAnnotateColor('#ff4d4f',this)"></span>
+              <span class="annotate-color-dot" style="background:#1890ff" data-color="#1890ff" onclick="setAnnotateColor('#1890ff',this)"></span>
+              <span class="annotate-color-dot" style="background:#52c41a" data-color="#52c41a" onclick="setAnnotateColor('#52c41a',this)"></span>
+            </span>
+            <button class="annotate-tool-btn" onclick="undoAnnotation()" style="margin-left:auto"><i class="fas fa-undo"></i> 撤销</button>
+            <button class="annotate-tool-btn" onclick="clearAnnotations()"><i class="fas fa-trash"></i> 清除</button>
+          </div>
+          <div class="annotate-container" id="annotate-container">
+            <img id="annotate-img" src="" alt="截屏" style="display:block;max-width:100%">
+            <canvas id="annotate-canvas" class="annotate-canvas"></canvas>
+            <div class="annotate-paste-hint" id="annotate-paste-hint">
+              <i class="fas fa-clipboard" style="font-size:48px;color:#1890ff;margin-bottom:16px;"></i>
+              <span style="font-size:16px;color:#1F2937;font-weight:600;margin-bottom:8px;">Ctrl+V 粘贴截屏到此区域</span>
+              <span style="font-size:13px;color:#6B7280;">请先使用 Win+Shift+S 截取左侧全景画面，再回到此处粘贴</span>
+            </div>
+          </div>
+        </div>
+        <div class="annotation-right">
+          <div class="form-group"><label class="form-label"><span class="required">*</span> 问题类型</label><select class="form-select" id="issue-type"><option value="">请选择问题类型</option></select></div>
+          <div class="form-group"><label class="form-label"><span class="required">*</span> 问题详情</label><textarea class="form-textarea" id="issue-detail" placeholder="请简短说明问题情况"></textarea></div>
+          <div class="form-group" style="flex:1;display:flex;flex-direction:column;min-height:0;">
+            <label class="form-label"><span class="required">*</span> 问题位置 <span style="font-weight:400;color:var(--text-tertiary)">（点击地图选点）</span></label>
+            <div class="inline-loc-map" id="inline-loc-map"></div>
+            <div class="inline-loc-status" id="inline-loc-status"><i class="fas fa-map-marker-alt" style="color:#9CA3B0;font-size:11px;"></i> <span>点击地图选择问题位置</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-cancel" onclick="closeAnnotateModal()">取消</button>
+      <button class="btn btn-primary" onclick="saveIssue()"><i class="fas fa-check"></i> 保存问题</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+/* ═══════════════════════════════════════════
+   State
+   ═══════════════════════════════════════════ */
+var editorViewer = null;
+var iframeMode = false;
+var currentScreenshot = null;
+var issueList = [];
+var activeFenceId = null;
+var activePatrolRecord = null;
+var defaultSource = '监管巡查';
+
+// Annotation state
+var annotateTool = 'rect', annotateColor = '#ff4d4f', annotations = [];
+var isDrawing = false, drawStart = {x:0,y:0}, drawCurrent = {x:0,y:0};
+var annotateCanvas = null, annotateCtx = null, annotateImg = null;
+var inlineLocMap = null;
+var pickedLocation = {lat:null,lng:null,addr:'',picked:false};
+
+var ISSUE_TYPES = ['围挡破损','围挡脏污','围挡缺失','围挡基础松动','围挡占道超限','张贴小广告','应建未建围挡','公益广告污损','公益广告内容不合时宜','公益广告画面不连贯影响整体美观','围挡安全隐患','围挡喷淋不符合要求','围挡二维码内容不全','无围挡维护责任人信息','其他'];
+
+// All projects + hoardings from MOCK_DATA
+var allProjects = [];
+var allHoardings = [];
+
+/* ═══════════════════════════════════════════
+   Data loading
+   ═══════════════════════════════════════════ */
+function loadData() {
+    try {
+        if (window.MOCK_DATA) {
+            allProjects = window.MOCK_DATA.getProjects ? window.MOCK_DATA.getProjects() : [];
+            allHoardings = window.MOCK_DATA.getHoardings ? window.MOCK_DATA.getHoardings() : [];
+        }
+        if (!allProjects.length && window.SD) {
+            allProjects = window.SD.getProjects ? window.SD.getProjects() : [];
+        }
+    } catch(e) {}
+    if (!allProjects.length) allProjects = [];
+    if (!allHoardings.length) allHoardings = [];
+}
+
+function initIssueTypeSelect() {
+    var sel = document.getElementById('issue-type');
+    sel.innerHTML = '<option value="">请选择问题类型</option>';
+    ISSUE_TYPES.forEach(function(t) {
+        var o = document.createElement('option'); o.value = t; o.textContent = t; sel.appendChild(o);
+    });
+}
+
+/* ═══════════════════════════════════════════
+   Left panel — project list
+   ═══════════════════════════════════════════ */
+function renderProjectList() {
+    var scrollEl = document.getElementById('project-list-scroll');
+    var countEl = document.getElementById('project-count');
+    if (!scrollEl) return;
+
+    // Group hoardings by project
+    var projectMap = {};
+    allHoardings.forEach(function(h) {
+        if (!projectMap[h.projectName]) projectMap[h.projectName] = [];
+        projectMap[h.projectName].push(h);
+    });
+
+    // Build project info list
+    var projectList = [];
+    allProjects.forEach(function(p) {
+        var hoardings = projectMap[p.name] || [];
+        projectList.push({ project: p, hoardings: hoardings });
+    });
+
+    // Sort: 在建 first
+    projectList.sort(function(a, b) {
+        var aBuilding = a.project.status === '在建' ? 0 : 1;
+        var bBuilding = b.project.status === '在建' ? 0 : 1;
+        return aBuilding - bBuilding;
+    });
+
+    countEl.textContent = '(' + projectList.length + ')';
+
+    if (!projectList.length) {
+        scrollEl.innerHTML = '<div class="fence-empty">暂无项目数据</div>';
+        return;
+    }
+
+    var html = '';
+    projectList.forEach(function(item) {
+        var p = item.project;
+        var hoardings = item.hoardings;
+        var statusClass = p.status === '在建' ? 'building' : 'other';
+        var planDate = hoardings.length > 0 && hoardings[0].planRemoveDate ? hoardings[0].planRemoveDate : '--';
+        html += '<div class="project-card" id="proj-' + escHtml(p.name) + '" onclick="toggleProject(\'' + escAttr(p.name) + '\')">';
+        html += '<div class="proj-name">' + escHtml(p.name) + '</div>';
+        html += '<div class="proj-meta">';
+        html += '<span class="proj-status-tag ' + statusClass + '">' + escHtml(p.status || '--') + '</span>';
+        html += '<span class="proj-plan">拆除时间：' + planDate + '</span>';
+        html += '</div>';
+        // Fence sublist
+        html += '<div class="fence-sublist">';
+        if (hoardings.length === 0) {
+            html += '<div class="fence-item" style="color:var(--text-tertiary);cursor:default">该项目暂无围挡记录</div>';
+        } else {
+            hoardings.forEach(function(h) {
+                var fenceId = h.id;
+                var fsClass = h.fenceStatus === '设置中' ? 'setting' : h.fenceStatus === '即将到期' ? 'expiring' : 'normal';
+                html += '<div class="fence-item" id="fence-' + fenceId + '" onclick="event.stopPropagation();selectFence(\'' + escAttr(fenceId) + '\')">';
+                html += '<div class="fence-item-info">';
+                html += '<div class="fence-item-name">' + escHtml(h.engineerName || '--') + '</div>';
+                html += '<div class="fence-item-sub">责任单位：' + escHtml(h.constructUnit || '--') + '</div>';
+                html += '<div class="fence-item-sub">管护期限：' + (h.custodyStart || '--') + ' ~ ' + (h.custodyEnd || '--') + '</div>';
+                html += '</div>';
+                html += '<span class="fence-item-status ' + fsClass + '">' + escHtml(h.fenceStatus || '--') + '</span>';
+                html += '</div>';
+            });
+        }
+        html += '</div>';
+        html += '</div>';
+    });
+    scrollEl.innerHTML = html;
+}
+
+function toggleProject(projectName) {
+    var card = document.getElementById('proj-' + projectName);
+    if (!card) return;
+    card.classList.toggle('expanded');
+}
+
+/* ═══════════════════════════════════════════
+   Center — select fence & load panorama
+   ═══════════════════════════════════════════ */
+function isDirectImageUrl(url) {
+    if (!url) return false;
+    var u = url.split('?')[0].split('#')[0].toLowerCase();
+    return /\.(jpe?g|png|webp|bmp)$/i.test(u);
+}
+
+function selectFence(fenceId) {
+    // Highlight
+    document.querySelectorAll('.fence-item.active').forEach(function(el) { el.classList.remove('active'); });
+    var el = document.getElementById('fence-' + fenceId);
+    if (el) el.classList.add('active');
+    activeFenceId = fenceId;
+
+    // Find the fence record
+    var fence = null;
+    for (var i = 0; i < allHoardings.length; i++) {
+        if (allHoardings[i].id === fenceId) { fence = allHoardings[i]; break; }
+    }
+    if (!fence) { showToast('未找到围挡记录'); return; }
+
+    // Find latest patrol record
+    var patrolRecords = fence.patrolRecords || [];
+    if (!patrolRecords.length) {
+        showToast('该围挡暂无巡检记录');
+        clearViewer();
+        return;
+    }
+    var latest = patrolRecords[patrolRecords.length - 1];
+    activePatrolRecord = latest;
+    issueList = (latest.issues && Array.isArray(latest.issues)) ? latest.issues.slice() : [];
+    issueList.forEach(function(issue) { issue._persisted = true; });
+
+    // Update info bar
+    document.getElementById('info-time').textContent = (latest.date || '--') + ' ' + (latest.time || '09:00');
+    document.getElementById('info-person').textContent = latest.inspector || '--';
+    document.getElementById('btn-add-issue').disabled = false;
+    document.getElementById('center-placeholder').style.display = 'none';
+
+    // Load panorama
+    var panoUrl = latest.panoramaSrc || fence.panoramaSrc || '';
+    if (!panoUrl) { showToast('暂无全景照片'); return; }
+    loadPanorama(panoUrl);
+    renderIssueList();
+}
+
+function loadPanorama(panoUrl) {
+    // Destroy previous viewer
+    hideAllViewers();
+
+    if (!isDirectImageUrl(panoUrl)) {
+        // iframe mode
+        iframeMode = true;
+        var iframe = document.getElementById('patrol-iframe');
+        iframe.src = panoUrl;
+        iframe.style.display = 'block';
+        document.getElementById('viewer-container').style.display = 'none';
+    } else {
+        // Pannellum mode
+        iframeMode = false;
+        document.getElementById('patrol-iframe').style.display = 'none';
+        document.getElementById('viewer-container').style.display = '';
+        var scenes = { 'p': { title: '全景', type: 'equirectangular', panorama: panoUrl, autoLoad: true, hotSpots: [] } };
+        editorViewer = pannellum.viewer('viewer-container', {
+            "default": { "firstScene": "p", "autoLoad": true, "showControls": false, "draggable": true, "mouseZoom": true },
+            "scenes": scenes
+        });
+    }
+}
+
+function hideAllViewers() {
+    if (editorViewer) { try { editorViewer.destroy(); } catch(e) {} editorViewer = null; }
+    document.getElementById('patrol-iframe').style.display = 'none';
+    document.getElementById('viewer-container').style.display = '';
+    document.getElementById('patrol-iframe').src = '';
+}
+
+function clearViewer() {
+    hideAllViewers();
+    issueList = [];
+    activePatrolRecord = null;
+    activeFenceId = null;
+    document.getElementById('info-time').textContent = '--';
+    document.getElementById('info-person').textContent = '--';
+    document.getElementById('btn-add-issue').disabled = true;
+    document.getElementById('center-placeholder').style.display = '';
+    renderIssueList();
+}
+
+/* ═══════════════════════════════════════════
+   Right panel — issues
+   ═══════════════════════════════════════════ */
+function renderIssueList() {
+    var scrollEl = document.getElementById('issue-list-scroll');
+    var emptyEl = document.getElementById('issue-empty');
+    var countEl = document.getElementById('issue-count');
+    if (!scrollEl) return;
+
+    countEl.textContent = issueList.length;
+    scrollEl.querySelectorAll('.issue-card').forEach(function(c) { c.remove(); });
+
+    if (!issueList.length) {
+        emptyEl.style.display = 'block';
+        return;
+    }
+    emptyEl.style.display = 'none';
+
+    issueList.forEach(function(issue) {
+        var card = document.createElement('div');
+        card.className = 'issue-card';
+        var deleteBtn = issue._persisted ? '' : '<button class="issue-card-delete" onclick="deleteIssue(\'' + issue.id + '\')">&times;</button>';
+        card.innerHTML =
+            '<div class="issue-card-img" style="background-image:url(\'' + (issue.thumbnail || issue.screenshot || '') + '\')"></div>' +
+            '<div class="issue-card-info">' +
+                '<div class="issue-card-type">' + escHtml(issue.type) + '</div>' +
+                '<div class="issue-card-detail">' + escHtml(issue.detail) + '</div>' +
+                '<span class="issue-card-source">来源：' + escHtml(issue.source || defaultSource) + '</span>' +
+            '</div>' + deleteBtn;
+        scrollEl.appendChild(card);
+    });
+}
+
+function deleteIssue(issueId) {
+    var issue = issueList.find(function(i) { return i.id === issueId; });
+    if (issue && issue._persisted) { showToast('该问题已进入闭环流程，不可删除', true); return; }
+    if (!confirm('确定删除此问题？')) return;
+    issueList = issueList.filter(function(i) { return i.id !== issueId; });
+    renderIssueList();
+    autoSave();
+    showToast('问题已删除');
+}
+
+function autoSave() {
+    if (!activePatrolRecord || !activeFenceId) return;
+    activePatrolRecord.issues = issueList.map(function(item) {
+        var c = {}; for (var k in item) { if (k !== '_persisted') c[k] = item[k]; } return c;
+    });
+    activePatrolRecord.hasIssue = issueList.length > 0;
+    // Save to indexedDB
+    saveToDB();
+}
+
+function saveToDB() {
+    try {
+        var req = indexedDB.open('patrol_records_db', 1);
+        req.onsuccess = function() {
+            var db = req.result;
+            var tx = db.transaction('records', 'readwrite');
+            var store = tx.objectStore('records');
+            store.get('fence_001').onsuccess = function(e) {
+                var records = e.target.result || [];
+                if (!Array.isArray(records)) records = [];
+                // Update or push
+                var found = false;
+                for (var i = 0; i < records.length; i++) {
+                    if (records[i].id === activePatrolRecord.id) { records[i] = activePatrolRecord; found = true; break; }
+                }
+                if (!found) records.push(activePatrolRecord);
+                store.put(records, 'fence_001');
+                db.close();
+            };
+        };
+    } catch(e) {}
+}
+
+/* ═══════════════════════════════════════════
+   Add issue
+   ═══════════════════════════════════════════ */
+function startAddIssue() {
+    if (!activeFenceId) { showToast('请先选择围挡记录'); return; }
+    annotations = []; annotateTool = 'rect'; annotateColor = '#ff4d4f';
+    pickedLocation = {lat:null,lng:null,addr:'',picked:false};
+    if (inlineLocMap) { destroyInlineLocMap(); }
+    currentScreenshot = null;
+
+    if (iframeMode) {
+        // Open modal with paste hint
+        openAnnotateModal();
+        return;
+    }
+
+    // Pannellum — auto capture
+    if (!editorViewer) { showToast('全景查看器尚未就绪', true); return; }
+    var canvas = document.getElementById('viewer-container').querySelector('canvas');
+    if (!canvas) {
+        var canvases = document.getElementById('viewer-container').getElementsByTagName('canvas');
+        if (canvases.length > 0) canvas = canvases[0];
+    }
+    if (canvas) {
+        try { currentScreenshot = canvas.toDataURL('image/jpeg', 0.85); }
+        catch(e) { showToast('截图失败', true); return; }
+    } else { openAnnotateModal(); return; }
+    openAnnotateModal();
+}
+
+function openAnnotateModal() {
+    document.getElementById('issue-type').value = '';
+    document.getElementById('issue-detail').value = '';
+    pickedLocation = {lat:null,lng:null,addr:'',picked:false};
+    var mapEl = document.getElementById('inline-loc-map');
+    if (mapEl) mapEl.classList.remove('picked');
+    var statusEl = document.getElementById('inline-loc-status');
+    statusEl.classList.remove('picked');
+    statusEl.innerHTML = '<i class="fas fa-map-marker-alt" style="color:#9CA3B0;font-size:11px;"></i> <span>点击地图选择问题位置</span>';
+
+    document.querySelectorAll('.annotate-tool-btn[data-tool]').forEach(function(b) { b.classList.remove('active'); });
+    var rb = document.querySelector('.annotate-tool-btn[data-tool="rect"]'); if (rb) rb.classList.add('active');
+    document.querySelectorAll('.annotate-color-dot').forEach(function(d,i) { d.classList.toggle('active', i===0); });
+
+    var pasteHint = document.getElementById('annotate-paste-hint');
+    var imgEl = document.getElementById('annotate-img');
+    var canvasEl = document.getElementById('annotate-canvas');
+
+    if (!currentScreenshot) {
+        if (pasteHint) pasteHint.style.display = 'flex';
+        if (imgEl) imgEl.style.display = 'none';
+        if (canvasEl) canvasEl.style.display = 'none';
+    } else {
+        if (pasteHint) pasteHint.style.display = 'none';
+        if (imgEl) imgEl.style.display = 'block';
+        if (canvasEl) canvasEl.style.display = '';
+    }
+
+    document.getElementById('annotate-modal').classList.add('show');
+    setTimeout(function() {
+        if (currentScreenshot) loadScreenshot(currentScreenshot);
+        initInlineLocMap();
+    }, 250);
+}
+
+function closeAnnotateModal() {
+    document.getElementById('annotate-modal').classList.remove('show');
+    destroyInlineLocMap();
+    currentScreenshot = null; annotations = [];
+    annotateCanvas = null; annotateCtx = null; annotateImg = null;
+    var ph = document.getElementById('annotate-paste-hint'); if (ph) ph.style.display = 'none';
+}
+
+// ── Screenshot loading (same as patrol_issue_record.html) ──
+function loadScreenshot(dataUrl) {
+    currentScreenshot = dataUrl;
+    var ph = document.getElementById('annotate-paste-hint'); if (ph) ph.style.display = 'none';
+    annotateCanvas = document.getElementById('annotate-canvas');
+    annotateCanvas.style.display = 'none';
+    var preloader = new Image();
+    preloader.onload = function() {
+        var iw = preloader.naturalWidth, ih = preloader.naturalHeight;
+        if (!iw || !ih) { showToast('截图尺寸异常', true); return; }
+        annotateImg = document.getElementById('annotate-img');
+        var container = document.getElementById('annotate-container');
+        annotateImg.src = dataUrl; annotateImg.style.display = 'block';
+        var cw = container ? container.clientWidth : iw;
+        var dw = Math.min(cw-2, iw), ratio = dw/iw, dh = Math.round(ih*ratio);
+        annotateCanvas.width = dw; annotateCanvas.height = dh;
+        annotateCanvas.style.width = dw+'px'; annotateCanvas.style.height = dh+'px';
+        annotateCanvas.style.display = '';
+        annotateCtx = annotateCanvas.getContext('2d');
+        redrawAnno();
+        annotateCanvas.onmousedown = annoMouseDown; annotateCanvas.onmousemove = annoMouseMove;
+        annotateCanvas.onmouseup = annoMouseUp; annotateCanvas.onmouseleave = annoMouseUp;
+    };
+    preloader.onerror = function() { showToast('截图加载失败', true); };
+    preloader.src = dataUrl;
+}
+
+// Paste handler
+document.addEventListener('paste', function(e) {
+    var modal = document.getElementById('annotate-modal');
+    if (!modal.classList.contains('show')) return;
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+    if (currentScreenshot) return;
+    var items = (e.clipboardData||e.originalEvent.clipboardData).items;
+    if (!items) return;
+    for (var i=0;i<items.length;i++) {
+        if (items[i].type.indexOf('image')!==-1) {
+            var r = new FileReader();
+            r.onload = function(ev) { loadScreenshot(ev.target.result); };
+            r.readAsDataURL(items[i].getAsFile());
+            e.preventDefault(); return;
+        }
+    }
+});
+
+// ── Annotation tools ──
+function setAnnotateTool(t,b){annotateTool=t;document.querySelectorAll('.annotate-tool-btn[data-tool]').forEach(function(x){x.classList.remove('active')});if(b)b.classList.add('active')}
+function setAnnotateColor(c,b){annotateColor=c;document.querySelectorAll('.annotate-color-dot').forEach(function(x){x.classList.remove('active')});if(b)b.classList.add('active')}
+function undoAnnotation(){annotations.pop();redrawAnno()}
+function clearAnnotations(){annotations=[];redrawAnno()}
+
+function getCanvasPos(e){var r=annotateCanvas.getBoundingClientRect();return{x:(e.clientX-r.left)*(annotateCanvas.width/r.width),y:(e.clientY-r.top)*(annotateCanvas.height/r.height)}}
+function annoMouseDown(e){e.preventDefault();isDrawing=true;drawStart=getCanvasPos(e);drawCurrent=drawStart}
+function annoMouseMove(e){if(!isDrawing)return;drawCurrent=getCanvasPos(e);redrawAnno();drawCurrentShape()}
+function annoMouseUp(e){if(!isDrawing)return;isDrawing=false;drawCurrent=getCanvasPos(e);addCurrentAnnotation();redrawAnno()}
+function addCurrentAnnotation(){var dx=Math.abs(drawCurrent.x-drawStart.x),dy=Math.abs(drawCurrent.y-drawStart.y);if(annotateTool==='arrow'){if(Math.sqrt(dx*dx+dy*dy)<8)return}else{if(dx<5&&dy<5)return}annotations.push({type:annotateTool,x1:drawStart.x,y1:drawStart.y,x2:drawCurrent.x,y2:drawCurrent.y,color:annotateColor})}
+function drawCurrentShape(){if(!annotateCtx)return;drawShape(annotateCtx,{type:annotateTool,x1:drawStart.x,y1:drawStart.y,x2:drawCurrent.x,y2:drawCurrent.y,color:annotateColor})}
+function drawShape(ctx,s){ctx.save();ctx.strokeStyle=s.color;ctx.fillStyle=s.color;ctx.lineWidth=3;ctx.lineCap='round';var x1=s.x1,y1=s.y1,x2=s.x2,y2=s.y2;if(s.type==='rect'){var rx=Math.min(x1,x2),ry=Math.min(y1,y2),rw=Math.abs(x2-x1),rh=Math.abs(y2-y1);ctx.globalAlpha=0.15;ctx.fillRect(rx,ry,rw,rh);ctx.globalAlpha=1;ctx.strokeRect(rx,ry,rw,rh)}else if(s.type==='circle'){var cx=(x1+x2)/2,cy=(y1+y2)/2,rx2=Math.abs(x2-x1)/2,ry2=Math.abs(y2-y1)/2;ctx.globalAlpha=0.15;ctx.beginPath();ctx.ellipse(cx,cy,rx2,ry2,0,0,2*Math.PI);ctx.fill();ctx.globalAlpha=1;ctx.beginPath();ctx.ellipse(cx,cy,rx2,ry2,0,0,2*Math.PI);ctx.stroke()}else if(s.type==='arrow'){ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();var angle=Math.atan2(y2-y1,x2-x1),hl=14;ctx.beginPath();ctx.moveTo(x2,y2);ctx.lineTo(x2-hl*Math.cos(angle-Math.PI/6),y2-hl*Math.sin(angle-Math.PI/6));ctx.moveTo(x2,y2);ctx.lineTo(x2-hl*Math.cos(angle+Math.PI/6),y2-hl*Math.sin(angle+Math.PI/6));ctx.stroke()}ctx.restore()}
+function redrawAnno(){if(!annotateCtx||!annotateCanvas)return;annotateCtx.clearRect(0,0,annotateCanvas.width,annotateCanvas.height);for(var i=0;i<annotations.length;i++)drawShape(annotateCtx,annotations[i])}
+
+// ── Save issue ──
+function saveIssue() {
+    var issueType = document.getElementById('issue-type').value;
+    var issueDetail = document.getElementById('issue-detail').value.trim();
+    if (!issueType) { showToast('请选择问题类型', true); return; }
+    if (!issueDetail) { showToast('请填写问题详情', true); return; }
+    if (!pickedLocation.picked) { showToast('请在地图上点击选择问题位置', true); return; }
+
+    var combinedImg = currentScreenshot;
+    if (annotations.length > 0 && annotateCanvas) {
+        var offCanvas = document.createElement('canvas');
+        offCanvas.width = annotateCanvas.width; offCanvas.height = annotateCanvas.height;
+        var octx = offCanvas.getContext('2d');
+        octx.drawImage(document.getElementById('annotate-img'), 0, 0, offCanvas.width, offCanvas.height);
+        octx.drawImage(annotateCanvas, 0, 0);
+        combinedImg = offCanvas.toDataURL('image/jpeg', 0.85);
+    }
+    var thumbImg = combinedImg;
+    if (annotateCanvas) {
+        var tc = document.createElement('canvas'), ms = 120, sc = Math.min(ms/annotateCanvas.width, ms/annotateCanvas.height, 1);
+        tc.width = annotateCanvas.width*sc; tc.height = annotateCanvas.height*sc;
+        var tt = tc.getContext('2d');
+        tt.drawImage(document.getElementById('annotate-img'), 0, 0, tc.width, tc.height);
+        tt.save(); tt.scale(sc,sc); tt.drawImage(annotateCanvas,0,0); tt.restore();
+        try { thumbImg = tc.toDataURL('image/jpeg', 0.7); } catch(e) {}
+    }
+
+    issueList.push({
+        id: 'issue_'+Date.now(), type: issueType, detail: issueDetail,
+        source: defaultSource, _persisted: false,
+        location: { lat: pickedLocation.lat, lng: pickedLocation.lng, addr: pickedLocation.addr },
+        screenshot: combinedImg, thumbnail: thumbImg, annotations: annotations.slice(),
+        createdAt: new Date().toISOString()
+    });
+
+    closeAnnotateModal();
+    renderIssueList();
+    autoSave();
+    showToast('问题已保存');
+}
+
+// ── Inline map ──
+function getFenceContext() {
+    var ctx = { fenceGps: null, fenceEntrances: null, redlineGeo: null, centerLat: 22.548, centerLng: 114.061 };
+    if (!activeFenceId) return ctx;
+    for (var i=0;i<allHoardings.length;i++) {
+        if (allHoardings[i].id === activeFenceId) {
+            var h = allHoardings[i];
+            ctx.fenceGps = h.gpsShape; ctx.fenceEntrances = h.entrances;
+            if (ctx.fenceGps&&ctx.fenceGps.length>0) { ctx.centerLat=ctx.fenceGps[0][0]; ctx.centerLng=ctx.fenceGps[0][1]; }
+            for (var j=0;j<allProjects.length;j++) {
+                if (allProjects[j].name===h.projectName&&allProjects[j].redlineGeo) { ctx.redlineGeo=allProjects[j].redlineGeo; break; }
+            }
+            break;
+        }
+    }
+    return ctx;
+}
+function initInlineLocMap() {
+    destroyInlineLocMap();
+    var mapEl = document.getElementById('inline-loc-map'); if (!mapEl) return;
+    var ctx = getFenceContext();
+    if (pickedLocation.picked) { ctx.centerLat=pickedLocation.lat; ctx.centerLng=pickedLocation.lng; }
+    var m = L.map(mapEl,{zoomControl:true,attributionControl:false}); m.zoomControl.setPosition('bottomright');
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}).addTo(m);
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,opacity:0.4}).addTo(m);
+    if (ctx.redlineGeo&&ctx.redlineGeo.length>=3) L.polygon(ctx.redlineGeo,{color:'#D13B2F',weight:2.5,fillOpacity:0.08}).addTo(m).bindTooltip('项目红线');
+    if (ctx.fenceGps&&ctx.fenceGps.length>=2) {
+        ctx.fenceGps.length===2?L.polyline(ctx.fenceGps,{color:'#1862D4',weight:2.5}).addTo(m):L.polygon(ctx.fenceGps,{color:'#1862D4',weight:2.5,dashArray:'6 3',fillOpacity:0.1}).addTo(m).bindTooltip('围挡范围');
+    }
+    if (ctx.fenceEntrances) ctx.fenceEntrances.forEach(function(e){var c=e.type==='vehicle'?'#1862D4':e.type==='pedestrian'?'#1A9042':'#f0832c';L.circleMarker([e.lat,e.lng],{radius:5,color:c,fillColor:c,fillOpacity:0.6,weight:2}).addTo(m).bindTooltip(e.name||'出入口')});
+    var pickMarker=null;
+    m.on('click',function(e){var lat=e.latlng.lat,lng=e.latlng.lng;pickedLocation={lat:lat,lng:lng,addr:lat.toFixed(6)+', '+lng.toFixed(6),picked:true};if(pickMarker)m.removeLayer(pickMarker);pickMarker=L.marker([lat,lng],{icon:L.divIcon({className:'',html:'<div style="width:20px;height:20px;background:#D13B2F;border:3px solid #fff;border-radius:50%;box-shadow:0 1px 6px rgba(0,0,0,0.4);transform:translate(-10px,-10px)"></div>',iconSize:[0,0]})}).addTo(m);document.getElementById('inline-loc-map').classList.add('picked');var st=document.getElementById('inline-loc-status');st.classList.add('picked');st.innerHTML='<i class="fas fa-check-circle" style="color:#1A9042;font-size:11px;"></i> <span>位置已选择：'+pickedLocation.addr+'</span>'});
+    m.setView([ctx.centerLat,ctx.centerLng],16); inlineLocMap=m; setTimeout(function(){if(m)m.invalidateSize()},400);
+}
+function destroyInlineLocMap(){if(inlineLocMap){try{inlineLocMap.remove()}catch(e){}inlineLocMap=null}var me=document.getElementById('inline-loc-map');if(me){me.classList.remove('picked');me.innerHTML=''}}
+
+/* ═══════════════════════════════════════════
+   Utility
+   ═══════════════════════════════════════════ */
+function escHtml(s){var d=document.createElement('div');d.textContent=s||'';return d.innerHTML}
+function escAttr(s){return String(s||'').replace(/'/g,"\\'").replace(/"/g,'&quot;')}
+function showToast(msg,isErr){var e=document.createElement('div');e.className='toast';e.textContent=msg;if(isErr)e.style.background='rgba(209,59,47,0.9)';document.body.appendChild(e);requestAnimationFrame(function(){e.classList.add('show')});setTimeout(function(){e.classList.remove('show');setTimeout(function(){if(e.parentNode)e.remove()},300)},2000)}
+
+/* ═══════════════════════════════════════════
+   Init
+   ═══════════════════════════════════════════ */
+initIssueTypeSelect();
+loadData();
+renderProjectList();
+</script>
+</body>
+</html>
