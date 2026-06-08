@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<title>属地围挡管理 - 粤政易</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+/* ═══════════ Design Token ═══════════ */
+:root {
+  --font:"PingFang SC","Microsoft YaHei","Helvetica Neue",Arial,sans-serif;
+  --bg:#eef4fb; --panel:#fff; --panel2:#f6f9fe;
+  --blue:#1862D4; --blue-deep:#104FAD; --blue-50:#EBF2FF; --blue-100:#C6D9FF;
+  --gray-0:#FFF; --gray-50:#F7F8FA; --gray-100:#F0F1F5; --gray-200:#E3E6ED;
+  --gray-300:#C6CBD8; --gray-400:#9CA3B0; --gray-500:#6B7280; --gray-600:#4B5563;
+  --gray-700:#374151; --gray-800:#1F2937; --gray-900:#111827;
+  --green:#1A9042; --green-light:#E6F4EA;
+  --yellow:#D48A00; --yellow-light:#FEF3CD;
+  --red:#D13B2F; --red-light:#FDECEA;
+  --text:#1F2937; --text-sub:#5e718d; --text-tertiary:#9CA3B0;
+  --border:rgba(16,35,63,0.08);
+  --shadow-sm:0 1px 2px rgba(0,0,0,0.04); --shadow-md:0 2px 8px rgba(0,0,0,0.06);
+  --shadow-lg:0 12px 28px rgba(23,51,105,0.08);
+  --radius-sm:4px; --radius-md:8px; --radius-lg:14px; --radius-xl:20px;
+  --font-xs:12px; --font-sm:13px; --font-md:14px; --font-lg:16px; --font-xl:18px;
+  --fw-r:400; --fw-m:500; --fw-b:600; --fw-h:700;
+  --safe-top:47px; --safe-bottom:34px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font);background:#eef4fb;display:flex;justify-content:center;align-items:center;min-height:100vh;padding:20px}
+.phone{position:relative;width:390px;height:844px;margin:20px auto;background:linear-gradient(180deg,#f7faff,#edf4ff);border-radius:40px;overflow:hidden;box-shadow:0 0 0 2px #1a1a1a,0 0 0 6px #333,0 0 0 8px #1a1a1a,0 20px 60px rgba(0,0,0,0.3)}
+.phone-notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:126px;height:34px;background:#000;border-radius:0 0 20px 20px;z-index:999}
+.phone-bar{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:134px;height:5px;background:rgba(0,0,0,0.15);border-radius:3px;z-index:999}
+.phone-screen{position:absolute;top:0;left:0;right:0;bottom:0;overflow:hidden;background:var(--bg)}
+
+/* ═══════════ Screen Stack ═══════════ */
+.screen{position:absolute;top:0;left:0;width:100%;height:100%;overflow-y:auto;overflow-x:hidden;background:var(--bg);transform:translateX(100%);transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);z-index:1;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.screen::-webkit-scrollbar{display:none}
+.screen.active{transform:translateX(0)}
+.screen.push-left{transform:translateX(-30%)}
+
+/* ═══════════ Nav ═══════════ */
+.nav-bar{display:flex;align-items:center;padding:var(--safe-top) 0 0;background:var(--panel);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10}
+.nav-inner{display:flex;align-items:center;height:44px;padding:0 16px;position:relative;flex:1}
+.nav-back{width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:var(--text-tertiary);border-radius:var(--radius-md);flex-shrink:0;pointer-events:none}
+.nav-back::before{content:'\2039';font-size:28px;font-weight:var(--fw-r)}
+.nav-title{position:absolute;left:50%;transform:translateX(-50%);font-size:var(--font-lg);font-weight:var(--fw-h);color:var(--text);white-space:nowrap}
+.nav-action{font-size:var(--font-sm);color:var(--blue);cursor:pointer;white-space:nowrap;font-weight:var(--fw-m);display:flex;align-items:center;gap:4px;flex-shrink:0;width:32px;visibility:hidden}
+
+/* ═══════════ Top-right Floating Scan Button ═══════════ */
+.scan-btn{position:absolute;top:calc(var(--safe-top) + 8px);right:16px;z-index:20;display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:20px;background:rgba(24,98,212,0.88);backdrop-filter:blur(6px);color:#fff;font-size:var(--font-xs);font-weight:var(--fw-b);cursor:pointer;box-shadow:0 2px 8px rgba(24,98,212,0.35);border:none}
+.scan-btn:active{background:var(--blue-deep)}
+.scan-btn i{font-size:15px}
+
+/* ═══════════ Search ═══════════ */
+.search-bar{display:flex;gap:8px;padding:10px 16px}
+.search-wrap{flex:1;position:relative}
+.search-wrap i{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text-tertiary);font-size:16px}
+.search-inp{width:100%;height:36px;border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:0 12px 0 32px;font-size:var(--font-sm);color:var(--text);background:var(--panel);outline:none}
+.search-inp:focus{border-color:var(--blue)}
+.search-sel{height:36px;border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:0 8px;font-size:var(--font-sm);color:var(--text);background:var(--panel);outline:none;min-width:80px}
+
+/* ═══════════ Issue Card ═══════════ */
+.issue-card{background:var(--panel);border-radius:var(--radius-lg);margin:0 16px 12px;overflow:hidden;box-shadow:var(--shadow-sm);display:flex;cursor:pointer;transition:box-shadow 0.15s}
+.issue-card:active{box-shadow:var(--shadow-md)}
+.issue-card::before{content:'';width:3px;flex-shrink:0;border-radius:3px 0 0 3px;background:var(--green)}
+.issue-card.pending::before{background:var(--yellow)}
+.issue-card.proc::before{background:var(--blue)}
+.issue-card.danger::before{background:var(--red)}
+.issue-card-body{flex:1;padding:13px 14px;min-width:0}
+/* Row 1: 问题类型(左) + 状态(右) */
+.issue-row1{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}
+.issue-row1 .type{font-size:15px;font-weight:var(--fw-m);color:var(--text);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.issue-row1 .tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:var(--fw-b);flex-shrink:0;margin-left:12px}
+.issue-row1 .tag.warn{background:var(--yellow-light);color:var(--yellow)}
+.issue-row1 .tag.info{background:var(--blue-50);color:var(--blue)}
+.issue-row1 .tag.done{background:var(--green-light);color:var(--green)}
+.issue-row1 .tag.danger{background:var(--red-light);color:var(--red)}
+/* Row 2: 工程名称独占一行 */
+.issue-row2{font-size:var(--font-sm);color:var(--text-sub);margin-bottom:5px;overflow:hidden;white-space:nowrap}
+.issue-row2 .eng{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block}
+/* Row 3: 责任单位(左) + 时间(右) */
+.issue-row3{display:flex;justify-content:space-between;align-items:baseline;font-size:var(--font-xs);color:var(--text-tertiary)}
+.issue-row3 .unit{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0}
+.issue-row3 .time{font-size:11px;color:var(--gray-400);flex-shrink:0;margin-left:14px;white-space:nowrap}
+
+/* ═══════════ Empty ═══════════ */
+.empty{display:flex;flex-direction:column;align-items:center;padding:50px 24px;text-align:center;color:var(--text-tertiary)}
+.empty svg{width:56px;height:56px;margin-bottom:10px;color:var(--gray-300)}
+.empty span{font-size:var(--font-sm)}
+
+/* ═══════════ Global Fixed Bottom Bar ═══════════ */
+.fix-bar{position:absolute;bottom:0;left:0;right:0;padding:8px 16px calc(8px + var(--safe-bottom));background:linear-gradient(180deg,transparent,var(--bg) 30%);z-index:15;pointer-events:none}
+.fix-bar .fix-btn{width:100%;height:48px;border-radius:24px;background:var(--blue);color:#fff;border:none;font-size:var(--font-lg);font-weight:var(--fw-b);cursor:pointer;display:none;align-items:center;justify-content:center;gap:6px;pointer-events:auto}
+.fix-bar .fix-btn.show{display:flex}
+.fix-btn:active{background:var(--blue-deep);transform:scale(0.98)}
+/* screen底部留出按钮高度 */
+.screen.with-bar{padding-bottom:80px}
+
+/* ═══════════ Form ═══════════ */
+.form-sect{padding:0 16px}
+.form-grp{margin-bottom:14px}
+.form-lbl{font-size:var(--font-sm);font-weight:var(--fw-m);color:var(--text);margin-bottom:5px;display:flex;align-items:center;gap:2px}
+.form-lbl .req{color:var(--red)}
+.form-hint{font-size:var(--font-xs);color:var(--text-tertiary);margin-top:3px}
+.form-sel,.form-inp,.form-area{width:100%;border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:10px 12px;font-size:var(--font-md);color:var(--text);background:var(--panel);outline:none;font-family:var(--font);transition:border-color 0.15s}
+.form-sel:focus,.form-inp:focus,.form-area:focus{border-color:var(--blue)}
+.form-sel:disabled,.form-inp:disabled{background:var(--gray-50);color:var(--text-tertiary);cursor:not-allowed}
+.form-area{resize:vertical;min-height:90px;line-height:1.5}
+
+/* ═══════════ Issue Type Grid ═══════════ */
+.type-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.type-chip{border:1.5px solid var(--gray-200);border-radius:var(--radius-md);padding:10px 6px;text-align:center;font-size:var(--font-sm);color:var(--text-sub);cursor:pointer;transition:all 0.15s;background:var(--panel);display:flex;align-items:center;justify-content:center;gap:4px}
+.type-chip.selected{border-color:var(--blue);background:var(--blue-50);color:var(--blue);font-weight:var(--fw-b)}
+.type-chip:active{background:var(--gray-50)}
+
+/* ═══════════ Fence Info Card ═══════════ */
+.fence-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:14px;box-shadow:var(--shadow-sm)}
+.fence-card-hd{background:linear-gradient(135deg,var(--blue-50),var(--blue-100));padding:10px 14px;font-size:var(--font-sm);font-weight:var(--fw-b);color:var(--blue);display:flex;align-items:center;gap:6px}
+.fence-card-bd{padding:12px 14px}
+.fence-row{display:flex;justify-content:space-between;padding:5px 0;font-size:var(--font-sm)}
+.fence-row+.fence-row{border-top:1px solid var(--border)}
+.fence-lbl{color:var(--text-sub)}
+.fence-val{color:var(--text);font-weight:var(--fw-m)}
+.fence-days{color:var(--red);font-weight:var(--fw-b)}
+.fence-units{font-size:var(--font-xs);color:var(--text-sub);padding:6px 0 0;line-height:1.8}
+.fence-map{width:100%;height:130px;border-radius:var(--radius-sm);overflow:hidden;margin-top:8px;isolation:isolate}
+.fence-none{padding:20px;text-align:center;font-size:var(--font-sm);color:var(--text-tertiary)}
+
+/* ═══════════ Photo ═══════════ */
+.photo-row{display:flex;flex-wrap:wrap;gap:6px}
+.photo-add{width:72px;height:72px;border:1.5px dashed var(--gray-300);border-radius:var(--radius-md);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;color:var(--text-tertiary);font-size:11px;gap:3px;background:var(--panel)}
+.photo-add:active{background:var(--gray-50);border-color:var(--blue)}
+.photo-thumb{width:72px;height:72px;border-radius:var(--radius-md);overflow:hidden;position:relative}
+.photo-thumb img{width:100%;height:100%;object-fit:cover}
+.photo-thumb .del{position:absolute;top:2px;right:2px;width:18px;height:18px;border-radius:50%;background:rgba(0,0,0,0.55);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer}
+
+/* ═══════════ Location ═══════════ */
+.loc-row{display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--panel);border:1px solid var(--gray-200);border-radius:var(--radius-md);font-size:var(--font-sm);color:var(--text-sub)}
+.loc-row i{color:var(--blue);font-size:18px;flex-shrink:0}
+.loc-txt{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.loc-edit{font-size:var(--font-xs);color:var(--blue);cursor:pointer;flex-shrink:0}
+.loc-map{width:100%;height:150px;border-radius:var(--radius-md);overflow:hidden;margin-top:8px}
+
+/* ═══════════ QR Scan Modal ═══════════ */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;display:flex;align-items:flex-end;justify-content:center}
+.modal-sheet{width:390px;background:var(--panel);border-radius:20px 20px 0 0;padding:20px 16px 24px;animation:slideUp 0.25s}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.qr-frame-wrap{width:100%;aspect-ratio:1;background:#000;border-radius:var(--radius-lg);display:flex;align-items:center;justify-content:center;margin-bottom:12px;position:relative;overflow:hidden}
+.qr-frame{width:180px;height:180px;border:2px solid rgba(255,255,255,0.6);border-radius:var(--radius-md);position:relative}
+.qr-line{position:absolute;top:4px;left:4px;right:4px;height:2px;background:#00ff88;box-shadow:0 0 8px #00ff88;animation:qrScan 2s linear infinite}
+@keyframes qrScan{0%{top:4px}50%{top:calc(100% - 8px)}100%{top:4px}}
+.qr-album-btn{width:100%;text-align:center;font-size:var(--font-sm);color:var(--blue);cursor:pointer;padding:8px;margin-top:6px}
+
+/* ═══════════ Toast ═══════════ */
+.toast{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.78);color:#fff;padding:10px 22px;border-radius:var(--radius-md);font-size:var(--font-md);z-index:9999;pointer-events:none;opacity:0;transition:opacity 0.3s;white-space:nowrap}
+.toast.show{opacity:1}
+
+/* ═══════════ Location Picker Overlay ═══════════ */
+.loc-overlay{position:absolute;inset:0;background:var(--bg);z-index:300;display:flex;flex-direction:column}
+.loc-overlay .hd{padding:var(--safe-top) 12px 0;height:44px;box-sizing:content-box;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.loc-overlay .hd .back{background:none;border:none;color:#fff;font-size:var(--font-md);cursor:pointer;display:flex;align-items:center;gap:2px}
+.loc-overlay .hd .ttl{font-size:var(--font-lg);font-weight:var(--fw-b)}
+.loc-overlay .hd .ok{background:rgba(255,255,255,0.2);border:none;color:#fff;padding:5px 12px;border-radius:var(--radius-md);font-size:var(--font-sm);cursor:pointer;font-weight:var(--fw-m)}
+.loc-overlay .curr-btn{position:absolute;top:calc(var(--safe-top) + 54px);left:50%;transform:translateX(-50%);z-index:500;background:rgba(0,0,0,0.65);color:#fff;padding:5px 14px;border-radius:20px;font-size:var(--font-xs);cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:4px}
+.loc-overlay .curr-btn:active{background:rgba(0,0,0,0.8)}
+.loc-overlay .map-wrap{flex:1;position:relative;overflow:hidden}
+.loc-overlay .cross{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;z-index:500}
+.loc-overlay .cross svg{width:32px;height:32px;color:var(--red);filter:drop-shadow(0 1px 2px rgba(0,0,0,0.3))}
+.loc-overlay .tip{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);z-index:500;background:rgba(0,0,0,0.65);color:#fff;padding:5px 14px;border-radius:20px;font-size:var(--font-xs);pointer-events:none}
+.loc-legend{position:absolute;top:8px;right:8px;z-index:500;background:rgba(255,255,255,0.88);border-radius:6px;padding:3px 7px;font-size:10px;line-height:1.7;pointer-events:none}
+.loc-legend span{display:flex;align-items:center;gap:3px}
+.loc-legend .line{display:inline-block;width:10px;height:0;border-top:2px solid}
+.loc-legend .dot{display:inline-block;width:5px;height:5px;border-radius:50%}
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="phone-notch"></div>
+  <div class="phone-screen">
+
+  <!-- ═══════════ Issue List Screen ═══════════ -->
+  <div class="screen active with-bar" id="scList">
+    <div class="nav-bar"><div class="nav-inner">
+      <div class="nav-back"></div>
+      <div class="nav-title">属地围挡管理</div>
+      <div class="nav-action"></div>
+    </div></div>
+    <div class="scan-btn" id="scanBtn" onclick="openScan()"><i class="ti ti-scan"></i>扫码</div>
+    <div class="search-bar">
+      <div class="search-wrap"><i class="ti ti-search"></i><input class="search-inp" id="kw" placeholder="搜索项目/工程/问题详情" oninput="renderList()"></div>
+      <select class="search-sel" id="tpFilter" onchange="renderList()">
+        <option value="all">全部类型</option>
+      </select>
+    </div>
+    <div id="issueList"></div>
+    <div class="empty" id="empty" style="display:none">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span>暂无上报问题</span>
+    </div>
+      </div>
+
+  <!-- ═══════════ Report Screen ═══════════ -->
+  <div class="screen with-bar" id="scReport">
+    <div class="nav-bar"><div class="nav-inner">
+      <div class="nav-back" style="color:var(--blue);cursor:pointer;pointer-events:auto" onclick="goBack()"></div>
+      <div class="nav-title">上报围挡问题</div>
+    </div></div>
+    <div class="form-sect" style="padding-top:14px;padding-bottom:80px">
+
+      <!-- (1) 问题类型 -->
+      <div class="form-grp"><div class="form-lbl"><span class="req">*</span> 问题类型</div>
+      <div class="type-grid" id="typeGrid"></div></div>
+
+      <!-- (2) 关联项目 -->
+      <div class="form-grp"><div class="form-lbl"><span class="req">*</span> 关联项目</div>
+      <select class="form-sel" id="rptProject" onchange="onProjectChange()"><option value="">请选择项目</option></select></div>
+
+      <!-- (3) 关联工程 -->
+      <div class="form-grp"><div class="form-lbl"><span class="req">*</span> 关联工程</div>
+      <select class="form-sel" id="rptEngineer" onchange="onEngineerChange()"><option value="">请选择工程</option></select></div>
+
+      <!-- (4) 围挡信息卡片 -->
+      <div id="fenceInfoCard" style="display:none"></div>
+
+      <!-- (5) 责任单位 -->
+      <div class="form-grp" id="respUnitGrp"><div class="form-lbl"><span class="req">*</span> 责任单位</div>
+      <select class="form-sel" id="rptRespUnit"><option value="">请选择责任单位</option></select></div>
+
+      <!-- (6) 问题详情 -->
+      <div class="form-grp"><div class="form-lbl"><span class="req">*</span> 问题详情</div>
+      <textarea class="form-area" id="rptDetail" placeholder="请详细描述围挡问题情况"></textarea></div>
+
+      <!-- (7) 照片 -->
+      <div class="form-grp"><div class="form-lbl"><span class="req">*</span> 现场照片 <span style="font-weight:var(--fw-r);color:var(--text-tertiary)">（至少上传一张）</span></div>
+      <div class="photo-row" id="photoRow">
+        <div class="photo-add" onclick="document.getElementById('camInput').click()"><i class="ti ti-camera" style="font-size:22px"></i>拍照</div>
+        <div class="photo-add" onclick="document.getElementById('fileInput').click()"><i class="ti ti-photo" style="font-size:22px"></i>相册</div>
+        <input type="file" id="camInput" accept="image/*" capture="environment" multiple style="display:none" onchange="handlePhotos(event)">
+        <input type="file" id="fileInput" accept="image/*" multiple style="display:none" onchange="handlePhotos(event)">
+      </div>
+      <div class="form-hint" style="margin-top:6px">支持 JPG、PNG 格式，单张不超过 5MB</div></div>
+
+      <!-- (8) 问题位置 -->
+      <div class="form-grp"><div class="form-lbl"><span class="req">*</span> 问题位置</div>
+      <div class="loc-row" onclick="openLocPicker()">
+        <i class="ti ti-map-pin"></i><span class="loc-txt" id="locText">点击选择问题位置</span>
+        <span class="loc-edit"><i class="ti ti-chevron-right" style="font-size:14px"></i></span>
+      </div></div>
+
+    </div>
+  </div>
+
+  <div class="fix-bar"><button class="fix-btn" id="globalFixBtn"><i class="ti ti-alert-circle"></i>上报问题</button></div>
+
+  </div>
+  <div class="phone-bar"></div>
+  <div class="toast" id="toast"></div>
+</div>
+
+<script src="../mock-data.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+/* ═══════════ State ═══════════ */
+var S = {
+  issueType: null,
+  qrFenceId: null, qrProject: null, qrEngineer: null,
+  photos: [],
+  loc: { lat: null, lng: null, addr: '', picked: false },
+  stack: ['scList'],
+  _pickerMap: null
+};
+
+/* ═══════════ Issue Type Dict ═══════════ */
+
+/* ═══════════ Nav ═══════════ */
+function navTo(id) {
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active','push-left')});
+  document.getElementById(id).classList.add('active');
+  S.stack.push(id);
+  document.getElementById('scanBtn').style.display = (id === 'scList') ? '' : 'none';
+  updateFixBtn(id);
+  if (id === 'scReport') initReport();
+}
+function goBack() {
+  if (S.stack.length <= 1) return;
+  S.stack.pop();
+  var prev = S.stack[S.stack.length-1];
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active','push-left')});
+  document.getElementById(prev).classList.add('active');
+  document.getElementById('scanBtn').style.display = (prev === 'scList') ? '' : 'none';
+  updateFixBtn(prev);
+  if (prev === 'scList') renderList();
+}
+function updateFixBtn(screenId) {
+  var btn = document.getElementById('globalFixBtn');
+  if (screenId === 'scList') {
+    btn.className = 'fix-btn show';
+    btn.innerHTML = '<i class="ti ti-alert-circle"></i>上报问题';
+    btn.onclick = function(){ startReport(); };
+  } else if (screenId === 'scReport') {
+    btn.className = 'fix-btn show';
+    btn.innerHTML = '<i class="ti ti-send"></i>提交上报';
+    btn.onclick = function(){ submitReport(); };
+  } else {
+    btn.className = 'fix-btn';
+  }
+}
+
+/* ═══════════ Issue List ═══════════ */
+function renderList() {
+  var issues = MOCK_DATA.getStreetIssues();
+  var kw = (document.getElementById('kw').value||'').trim().toLowerCase();
+  var tp = document.getElementById('tpFilter').value;
+  if (kw) issues = issues.filter(function(i){ return (i.type||'').toLowerCase().indexOf(kw)>-1 || (i.details||'').toLowerCase().indexOf(kw)>-1 || (i.engineerName||'').toLowerCase().indexOf(kw)>-1 || (i.responsibleUnit||'').toLowerCase().indexOf(kw)>-1; });
+  if (tp !== 'all') issues = issues.filter(function(i){ return i.type === tp; });
+
+  var el = document.getElementById('issueList'), emp = document.getElementById('empty');
+  if (!issues.length) { el.innerHTML = ''; emp.style.display = 'flex'; return; }
+  emp.style.display = 'none';
+
+  var h = '';
+  issues.forEach(function(i){
+    var stCls = i.status === '待整改' || i.status === '退回整改' || i.status === '待接收' ? 'warn' : i.status === '待审核' ? 'info' : i.status === '整改逾期' ? 'danger' : 'done';
+    var cardCls = i.status === '待整改' || i.status === '退回整改' ? ' pending' : i.status === '整改逾期' ? ' danger' : '';
+    h += '<div class="issue-card'+cardCls+'"><div class="issue-card-body">'+
+      '<div class="issue-row1"><div class="type">'+esc(i.type)+'</div><div class="tag '+stCls+'">'+i.status+'</div></div>'+
+      '<div class="issue-row2"><span class="eng">'+esc(i.engineerName||'--')+'</span></div>'+
+      '<div class="issue-row3"><span class="unit">'+esc(i.responsibleUnit||'--')+'</span><span class="time">'+i.reportTime+'</span></div>'+
+    '</div></div>';
+  });
+  el.innerHTML = h;
+}
+
+/* ═══════════ Report Init ═══════════ */
+function initReport() {
+  renderTypeGrid();
+  if (!S.qrFenceId) {
+    document.getElementById('fenceInfoCard').style.display = 'none';
+    document.getElementById('rptDetail').value = '';
+    var engSel = document.getElementById('rptEngineer');
+    engSel.innerHTML = '<option value="">请先选择项目</option>';
+    engSel.disabled = true;
+    var respSel = document.getElementById('rptRespUnit');
+    respSel.innerHTML = '<option value="">请先选择项目</option>';
+    respSel.disabled = true;
+  }
+  initProjectSelect();
+  renderPhotos();
+  if (!S.loc.picked) { document.getElementById('locText').textContent = '点击选择问题位置'; }
+}
+
+function renderTypeGrid() {
+  var types = MOCK_DATA.getStreetIssueTypes();
+  document.getElementById('typeGrid').innerHTML = types.map(function(t){
+    return '<div class="type-chip'+(S.issueType===t?' selected':'')+'" onclick="S.issueType=\''+t+'\';renderTypeGrid();onEngineerChange()">'+t+'</div>';
+  }).join('');
+}
+
+/* ═══════════ Project/Engineer Select ═══════════ */
+function initProjectSelect() {
+  var sel = document.getElementById('rptProject');
+  sel.innerHTML = '<option value="">请选择项目</option>';
+  MOCK_DATA.getProjects().forEach(function(p){
+    var o = document.createElement('option'); o.value = p.name; o.textContent = p.name; sel.appendChild(o);
+  });
+  if (S.qrProject) { sel.value = S.qrProject; sel.disabled = true; onProjectChange(); }
+  else { sel.disabled = false; }
+}
+
+function onProjectChange() {
+  var pn = document.getElementById('rptProject').value;
+  var engSel = document.getElementById('rptEngineer');
+  engSel.innerHTML = '<option value="">请选择工程</option>';
+  engSel.disabled = !pn;
+  if (!pn) {
+    engSel.innerHTML = '<option value="">请先选择项目</option>';
+    document.getElementById('fenceInfoCard').style.display = 'none';
+    var respSel = document.getElementById('rptRespUnit');
+    respSel.innerHTML = '<option value="">请先选择项目</option>';
+    respSel.disabled = true;
+    return;
+  }
+  var seen = {};
+  MOCK_DATA.getHoardings().filter(function(h){return h.projectName===pn}).forEach(function(h){
+    if (!seen[h.engineerName]) { seen[h.engineerName]=true; var o=document.createElement('option'); o.value=h.engineerName; o.textContent=h.engineerName; engSel.appendChild(o); }
+  });
+  if (engSel.options.length <= 1) {
+    MOCK_DATA.getProjects().forEach(function(p){ if(p.name===pn && p.hoardings) p.hoardings.forEach(function(h){ if(!seen[h.engineerName]){seen[h.engineerName]=true;var o=document.createElement('option');o.value=h.engineerName;o.textContent=h.engineerName;engSel.appendChild(o);}}); });
+  }
+  if (S.qrEngineer) { engSel.value = S.qrEngineer; engSel.disabled = true; onEngineerChange(); }
+  else {
+    engSel.disabled = false; document.getElementById('fenceInfoCard').style.display = 'none';
+    var respSel = document.getElementById('rptRespUnit');
+    respSel.innerHTML = '<option value="">请先选择工程</option>';
+    respSel.disabled = true;
+  }
+}
+
+function onEngineerChange() {
+  var pn = document.getElementById('rptProject').value;
+  var en = document.getElementById('rptEngineer').value;
+  if (!pn || !en) { document.getElementById('fenceInfoCard').style.display = 'none'; return; }
+
+  var fence = null;
+  var all = MOCK_DATA.getHoardings();
+  for (var i = 0; i < all.length; i++) { if (all[i].projectName === pn && all[i].engineerName === en) { fence = all[i]; break; } }
+  var project = MOCK_DATA.getProjects().find(function(p){return p.name===pn});
+
+  renderFenceInfo(fence, project);
+  updateRespUnit(fence, project);
+}
+
+/* ═══════════ Fence Info Card ═══════════ */
+function renderFenceInfo(fence, project) {
+  var card = document.getElementById('fenceInfoCard');
+  card.style.display = 'block';
+  if (!fence) {
+    card.innerHTML = '<div class="fence-card"><div class="fence-card-hd"><i class="ti ti-info-circle"></i>围挡信息</div><div class="fence-none">该工程暂无围挡记录</div></div>';
+    return;
+  }
+  var now = new Date(), plan = new Date(fence.planRemoveDate||fence.custodyEnd);
+  var days = Math.ceil((plan - now)/86400000);
+  var daysTxt = days > 0 ? days+' 天' : '已到期 '+Math.abs(days)+' 天';
+  var daysStyle = days > 30 ? '' : days > 0 ? 'color:var(--yellow);font-weight:var(--fw-b)' : 'color:var(--red);font-weight:var(--fw-b)';
+
+  card.innerHTML =
+    '<div class="fence-card"><div class="fence-card-hd"><i class="ti ti-info-circle"></i>围挡信息 — '+esc(fence.id)+'</div>'+
+    '<div class="fence-card-bd">'+
+    '<div class="fence-row"><span class="fence-lbl">围挡长度</span><span class="fence-val">'+(fence.length||'--')+' m</span></div>'+
+    '<div class="fence-row"><span class="fence-lbl">围挡高度</span><span class="fence-val">'+(fence.height||'--')+' m</span></div>'+
+    '<div class="fence-row"><span class="fence-lbl">距拆除时间</span><span class="fence-val" style="'+daysStyle+'">'+daysTxt+'</span></div>'+
+    '<div class="fence-map" id="fencePrevMap"></div>'+
+    '<div class="fence-units">'+
+    '<div>建设单位：'+esc((project&&project.buildUnit)||'--')+'</div>'+
+    '<div>施工单位：'+esc((project&&project.constructUnit)||'--')+'</div>'+
+    '<div>监理单位：'+esc((project&&project.supervisorUnit)||'--')+'</div>'+
+    '</div></div></div>';
+
+  setTimeout(function(){ renderFencePrevMap(fence, project); }, 150);
+}
+
+function renderFencePrevMap(fence, project) {
+  var el = document.getElementById('fencePrevMap');
+  if (!el) return;
+  var center = [22.548,114.061];
+  if (fence && fence.gpsShape && fence.gpsShape.length>0) center = fence.gpsShape[0];
+  else if (project && project.redlineGeo && project.redlineGeo.length>0) center = project.redlineGeo[0];
+  var map = L.map(el, {zoomControl:false,attributionControl:false,dragging:false,scrollWheelZoom:false});
+  map.getPanes().tilePane.style.zIndex = '1';
+  map.getPanes().overlayPane.style.zIndex = '2';
+  map.getPanes().shadowPane.style.zIndex = '3';
+  map.getPanes().markerPane.style.zIndex = '4';
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}).addTo(map);
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,opacity:0.4}).addTo(map);
+  if (project && project.redlineGeo && project.redlineGeo.length>=3) L.polygon(project.redlineGeo,{color:'#D13B2F',weight:2,fillOpacity:0.06}).addTo(map);
+  if (fence && fence.gpsShape && fence.gpsShape.length>=2) {
+    if (fence.gpsShape.length===2) L.polyline(fence.gpsShape,{color:'#1862D4',weight:2.5}).addTo(map);
+    else L.polygon(fence.gpsShape,{color:'#1862D4',weight:2,fillOpacity:0.1,dashArray:'6 3'}).addTo(map);
+  }
+  if (fence && fence.entrances) fence.entrances.forEach(function(e){
+    var c = e.type==='vehicle'?'#1862D4':e.type==='pedestrian'?'#1A9042':e.type==='temporary'?'#f0832c':'#D13B2F';
+    L.circleMarker([e.lat,e.lng],{radius:5,color:c,fillColor:c,fillOpacity:0.7,weight:2}).addTo(map);
+  });
+  var bounds = L.latLngBounds([]);
+  if (fence && fence.gpsShape) fence.gpsShape.forEach(function(p){bounds.extend(p);});
+  if (project && project.redlineGeo) project.redlineGeo.forEach(function(p){bounds.extend(p);});
+  if (bounds.isValid()) map.fitBounds(bounds.pad(0.3));
+  map.setZoom(Math.min(map.getZoom(),18));
+}
+
+/* ═══════════ Responsible Unit ═══════════ */
+function updateRespUnit(fence, project) {
+  var sel = document.getElementById('rptRespUnit');
+  sel.innerHTML = '<option value="">请选择责任单位</option>';
+  var isMissing = S.issueType === '应建未建围挡';
+  var noFence = !fence;
+
+  if (isMissing || noFence) {
+    var units = [];
+    if (project && project.constructUnit) units.push(project.constructUnit);
+    MOCK_DATA.getProjects().forEach(function(p){ if (p.constructUnit && units.indexOf(p.constructUnit)<0) units.push(p.constructUnit); });
+    if (!units.length) units = ['深圳市市政工程总公司','中建三局集团有限公司'];
+    units.forEach(function(u){ var o=document.createElement('option');o.value=u;o.textContent=u;sel.appendChild(o); });
+    sel.disabled = false;
+  } else {
+    var u = project ? project.constructUnit : '';
+    if (u) { var o=document.createElement('option');o.value=u;o.textContent=u;sel.appendChild(o);sel.value=u; }
+    sel.disabled = true;
+  }
+}
+
+/* ═══════════ Photos ═══════════ */
+function handlePhotos(e) {
+  var files = e.target.files; if (!files) return;
+  for (var i=0;i<files.length;i++){
+    if (S.photos.length>=9){toast('最多9张');break}
+    (function(f){var r=new FileReader();r.onload=function(ev){S.photos.push(ev.target.result);renderPhotos()};r.readAsDataURL(f)})(files[i]);
+  }
+  e.target.value='';
+}
+function removePhoto(i){S.photos.splice(i,1);renderPhotos()}
+function renderPhotos(){
+  var row = document.getElementById('photoRow');
+  var h = S.photos.map(function(p,i){return '<div class="photo-thumb"><img src="'+p+'"><div class="del" onclick="event.stopPropagation();removePhoto('+i+')">&times;</div></div>'}).join('');
+  if (S.photos.length<9) {
+    h+='<div class="photo-add" onclick="document.getElementById(\'camInput\').click()"><i class="ti ti-camera" style="font-size:22px"></i>拍照</div>';
+    h+='<div class="photo-add" onclick="document.getElementById(\'fileInput\').click()"><i class="ti ti-photo" style="font-size:22px"></i>相册</div>';
+  }
+  h+='<input type="file" id="camInput" accept="image/*" capture="environment" multiple style="display:none" onchange="handlePhotos(event)"><input type="file" id="fileInput" accept="image/*" multiple style="display:none" onchange="handlePhotos(event)">';
+  row.innerHTML=h;
+}
+
+/* ═══════════ Location Picker ═══════════ */
+function openLocPicker(){
+  var ov = document.createElement('div'); ov.className='loc-overlay'; ov.id='locPickerOv';
+  ov.innerHTML=
+    '<div class="hd"><button class="back" onclick="document.getElementById(\'locPickerOv\').remove()"><i class="ti ti-chevron-left" style="font-size:20px"></i>返回</button>'+
+    '<span class="ttl">选择问题位置</span><button class="ok" onclick="confirmLoc()">确定</button></div>'+
+    '<div class="map-wrap">'+
+    '<div id="locPickerMap" style="position:absolute;inset:0"></div>'+
+    '<div class="loc-legend"><span><span class="line" style="border-color:#D13B2F"></span> 项目红线</span><span><span class="line" style="border-color:#1862D4;border-style:dashed"></span> 围挡范围</span><span><span class="dot" style="background:#1A9042"></span> 出入口</span></div></div>'+
+    '<div class="curr-btn" onclick="useCurrLoc()"><i class="ti ti-current-location" style="font-size:12px"></i>当前位置</div>'+
+    '<div class="cross"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg></div>'+
+    '<div class="tip">拖动地图，将十字准星对准问题位置</div>';
+  document.querySelector('.phone-screen').appendChild(ov);
+
+  setTimeout(function(){
+    var el = document.getElementById('locPickerMap'); if (!el) return;
+    var map = L.map(el,{zoomControl:true,attributionControl:false});map.zoomControl.setPosition('bottomright');
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}).addTo(map);
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,opacity:0.4}).addTo(map);
+
+    // Try to load fence layers from form selection, fallback to currentFenceId or first fence
+    var pn = document.getElementById('rptProject').value;
+    var en = document.getElementById('rptEngineer').value;
+    var fence = null, project = null;
+    if (pn && en) {
+      var all = MOCK_DATA.getHoardings();
+      for (var i=0;i<all.length;i++){if(all[i].projectName===pn&&all[i].engineerName===en){fence=all[i];break}}
+      project = MOCK_DATA.getProjects().find(function(p){return p.name===pn});
+    }
+    // Fallback: use currentFenceId from state
+    if (!fence && S.currentFenceId) { fence = MOCK_DATA.findFenceById(S.currentFenceId); }
+    if (fence && !project) { project = MOCK_DATA.getProjects().find(function(p){return p.name===fence.projectName}); }
+    // Final fallback: use the first fence from data
+    if (!fence) {
+      var all = MOCK_DATA.getHoardings();
+      if (all.length) { fence = all[0]; project = MOCK_DATA.getProjects()[0]; }
+    }
+
+    if (project && project.redlineGeo && project.redlineGeo.length>=3){
+      L.polygon(project.redlineGeo,{color:'#D13B2F',weight:2,fillOpacity:0.08,fillColor:'#D13B2F'}).addTo(map);
+    }
+    if (fence && fence.gpsShape && fence.gpsShape.length>=2) {
+      if (fence.gpsShape.length===2) L.polyline(fence.gpsShape,{color:'#1862D4',weight:2.5}).addTo(map);
+      else L.polygon(fence.gpsShape,{color:'#1862D4',weight:2,fillOpacity:0.1,fillColor:'#1862D4',dashArray:'6 3'}).addTo(map);
+    }
+    if (fence && fence.entrances) fence.entrances.forEach(function(e){
+      var c=e.type==='vehicle'?'#1862D4':e.type==='pedestrian'?'#1A9042':e.type==='temporary'?'#f0832c':'#D13B2F';
+      L.circleMarker([e.lat,e.lng],{radius:5,color:c,fillColor:c,fillOpacity:0.7,weight:2}).addTo(map);
+    });
+    var clat = S.loc.lat || 22.548, clng = S.loc.lng || 114.061;
+    if (fence && fence.gpsShape && fence.gpsShape.length>0){clat=fence.gpsShape[0][0];clng=fence.gpsShape[0][1]}
+    map.setView([clat,clng],16);
+    S._pickerMap = map;
+  },200);
+}
+
+function confirmLoc(){
+  var map = S._pickerMap; if (!map) return;
+  var c = map.getCenter();
+  S.loc.lat = c.lat; S.loc.lng = c.lng; S.loc.addr = c.lat.toFixed(6)+', '+c.lng.toFixed(6); S.loc.picked = true;
+  document.getElementById('locText').textContent = S.loc.addr;
+  document.getElementById('locPickerOv').remove();
+  toast('位置已确认');
+}
+
+function useCurrLoc(){
+  var map = S._pickerMap; if (!map) return;
+  if (navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(function(pos){map.setView([pos.coords.latitude,pos.coords.longitude],17);toast('已定位到当前位置')},
+    function(){toast('获取定位失败，请手动选择')},{timeout:8000,enableHighAccuracy:true});
+  } else { toast('设备不支持定位'); }
+}
+
+/* ═══════════ QR Scan ═══════════ */
+function openScan(){
+  var ov = document.createElement('div'); ov.className='modal-bg';
+  ov.onclick=function(e){if(e.target===ov)ov.remove()};
+
+  ov.innerHTML='<div class="modal-sheet">'+
+    '<div style="font-size:var(--font-lg);font-weight:var(--fw-b);margin-bottom:16px;text-align:center">扫描围挡二维码</div>'+
+    '<div class="qr-frame-wrap" onclick="randomScan();document.querySelector(\'.modal-bg\').remove()"><div class="qr-frame"><div class="qr-line"></div></div></div>'+
+    '<div class="qr-album-btn" onclick="randomScan();document.querySelector(\'.modal-bg\').remove()"><i class="ti ti-photo"></i> 从相册选择</div>'+
+    '<button class="fix-btn" style="margin-top:8px;height:40px;border-radius:var(--radius-md);font-size:var(--font-md)" onclick="document.querySelector(\'.modal-bg\').remove()">取消</button></div>';
+  document.body.appendChild(ov);
+}
+
+function randomScan() {
+  var all = MOCK_DATA.getHoardings();
+  if (!all.length) return;
+  var h = all[Math.floor(Math.random() * all.length)];
+  S.qrFenceId = h.id; S.qrProject = h.projectName; S.qrEngineer = h.engineerName;
+  S.issueType = null; S.photos = [];
+  navTo('scReport');
+  toast('已识别围挡：'+h.id);
+}
+
+/* ═══════════ Submit ═══════════ */
+function submitReport(){
+  if (!S.issueType) { toast('请选择问题类型'); return; }
+  var pn = document.getElementById('rptProject').value;
+  if (!pn) { toast('请选择关联项目'); return; }
+  var en = document.getElementById('rptEngineer').value;
+  if (!en) { toast('请选择关联工程'); return; }
+  var unit = document.getElementById('rptRespUnit').value;
+  if (!unit) { toast('请选择责任单位'); return; }
+  var detail = document.getElementById('rptDetail').value.trim();
+  if (!detail) { toast('请填写问题详情'); return; }
+  if (S.photos.length === 0) { toast('请至少上传一张照片'); return; }
+  if (!S.loc.picked) { toast('请选择问题位置'); return; }
+
+  var fence = null;
+  var all = MOCK_DATA.getHoardings();
+  for (var i=0;i<all.length;i++){if(all[i].projectName===pn&&all[i].engineerName===en){fence=all[i];break}}
+
+  MOCK_DATA.addStreetIssue({
+    type: S.issueType, fenceId: fence?fence.id:'', fenceAddr: fence?fence.address:(document.getElementById('rptProject').selectedOptions[0]?document.getElementById('rptProject').selectedOptions[0].textContent:''),
+    details: detail, photos: S.photos.slice(),
+    location: {lat:S.loc.lat,lng:S.loc.lng,addr:S.loc.addr},
+    projectName: pn, engineerName: en, responsibleUnit: unit
+  });
+
+  toast('问题已上报成功');
+  // Reset
+  S.issueType=null;S.photos=[];S.loc={lat:null,lng:null,addr:'',picked:false};S.qrFenceId=null;S.qrProject=null;S.qrEngineer=null;
+  goBack();
+}
+
+/* ═══════════ Utils ═══════════ */
+function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function escJs(s){return (s||'').replace(/'/g,"\\'")}
+function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show')},2000)}
+function startReport(){S.qrFenceId=null;S.qrProject=null;S.qrEngineer=null;S.issueType=null;S.photos=[];S.loc={lat:null,lng:null,addr:'',picked:false};navTo('scReport')}
+
+/* ═══════════ Init ═══════════ */
+// Populate filter dropdown from mock dictionary
+(function(){
+  var sel = document.getElementById('tpFilter');
+  MOCK_DATA.getStreetIssueTypes().forEach(function(t){
+    var o = document.createElement('option'); o.value = t; o.textContent = t; sel.appendChild(o);
+  });
+})();
+updateFixBtn('scList');
+renderTypeGrid(); renderList();
+</script>
+</body>
+</html>

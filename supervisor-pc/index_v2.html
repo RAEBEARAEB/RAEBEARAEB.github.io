@@ -326,8 +326,7 @@ tr.empty-row:hover td{background:transparent!important}
         <div class="search-item"><label class="search-label">项目状态</label><select class="search-select" id="filterProjStatus"><option value="">全部</option><option>报建</option><option>在建</option><option>备案</option><option>终止监督</option><option>完工未验收</option><option>停工</option><option>竣工</option><option>其他</option></select></div>
         <div class="search-item"><label class="search-label">关联工程</label><input type="text" class="search-input" id="filterEngName" placeholder="请输入工程名称"></div>
         <div class="search-item"><label class="search-label">工程状态</label><select class="search-select" id="filterEngStatus"><option value="">全部</option><option>在建</option><option>停工</option><option>竣工验收</option></select></div>
-        <div class="search-item"><label class="search-label">责任单位</label><select class="search-select" id="filterUnit"><option value="">全部</option></select></div>
-        <div class="search-item"><label class="search-label">围挡状态</label><select class="search-select" id="filterFenceStatus"><option value="">全部</option><option>设置中</option><option>即将到期</option><option>已超期</option><option>已到期</option></select></div>
+        <div class="search-item"><label class="search-label">围挡状态</label><select class="search-select" id="filterFenceStatus"><option value="">全部</option><option>设置中</option><option>即将到期</option><option>已到期</option></select></div>
         <div class="search-item"><label class="search-label">问题状态</label><select class="search-select" id="filterIssueStatus"><option value="">全部</option><option>正常</option><option>待整改</option><option>整改逾期</option></select></div>
         <div class="search-item"><label class="search-label">是否待校核</label><select class="search-select" id="filterNeedVerify"><option value="">全部</option><option value="是">是</option><option value="否">否</option></select></div>
         <div class="search-item"><label class="search-label">计划拆除时间</label><div style="display:flex;gap:4px;align-items:center"><input type="date" class="search-input" id="filterPlanStart" style="width:110px"><span style="color:#9CA3B0;font-size:12px;flex-shrink:0">至</span><input type="date" class="search-input" id="filterPlanEnd" style="width:110px"></div></div>
@@ -343,7 +342,6 @@ tr.empty-row:hover td{background:transparent!important}
             <button class="status-tab active" data-status="全部" onclick="filterByTab(this)">全部 <span class="status-tab-num" id="tabNumAll">0</span></button>
             <button class="status-tab" data-status="设置中" onclick="filterByTab(this)">设置中 <span class="status-tab-num" id="tabNumSetting">0</span></button>
             <button class="status-tab" data-status="即将到期" onclick="filterByTab(this)">即将到期 <span class="status-tab-num" id="tabNumSoon">0</span></button>
-            <button class="status-tab" data-status="已超期" onclick="filterByTab(this)">已超期 <span class="status-tab-num" id="tabNumOverdue">0</span></button>
             <button class="status-tab" data-status="已到期" onclick="filterByTab(this)">已到期 <span class="status-tab-num" id="tabNumExpired">0</span></button>
           </div>
           <div class="card-toolbar-right">
@@ -521,7 +519,7 @@ tr.empty-row:hover td{background:transparent!important}
 /* ═══ 标签/工具函数 ═══ */
 
 function getFenceTagCls(s){
-  return({'设置中':'tag-setting','即将到期':'tag-soon','已超期':'tag-overdue','已到期':'tag-expired'})[s]||'tag-setting';
+  return({'设置中':'tag-setting','即将到期':'tag-soon','已到期':'tag-expired'})[s]||'tag-setting';
 }
 function getIssueTagCls(s){
   return({'正常':'tag-ok','待整改':'tag-warn','整改逾期':'tag-error'})[s]||'tag-ok';
@@ -548,17 +546,8 @@ function renderTableFromSD(){
   var totalSeq=0;
   var projects=MOCK_DATA.getProjects();
   var isFiltered=_currentTab!=='全部';
-  /* 收集责任单位 */
-  var unitSet={};
-  projects.forEach(function(p){if(p.constructUnit)unitSet[p.constructUnit]=true});
-  var unitSel=document.getElementById('filterUnit');
-  if(unitSel){
-    var cv=unitSel.value;
-    unitSel.innerHTML='<option value="">全部</option>';
-    Object.keys(unitSet).sort().forEach(function(u){unitSel.innerHTML+='<option'+(u===cv?' selected':'')+'>'+u+'</option>'});
-  }
   /* 围挡状态计数 */
-  var counts={'全部':0,'设置中':0,'即将到期':0,'已超期':0,'已到期':0};
+  var counts={'全部':0,'设置中':0,'即将到期':0,'已到期':0};
   projects.forEach(function(proj){
     var hoardings=proj.hoardings||[];
     hoardings.forEach(function(h){
@@ -653,7 +642,7 @@ function renderTableFromSD(){
   if(pi)pi.textContent=totalSeq;
 }
 function updateStatusCounts(counts){
-  var map={'全部':'tabNumAll','设置中':'tabNumSetting','即将到期':'tabNumSoon','已超期':'tabNumOverdue','已到期':'tabNumExpired'};
+  var map={'全部':'tabNumAll','设置中':'tabNumSetting','即将到期':'tabNumSoon','已到期':'tabNumExpired'};
   for(var k in map){var el=document.getElementById(map[k]);if(el)el.textContent=counts[k]||0}
 }
 function filterByTab(tab){

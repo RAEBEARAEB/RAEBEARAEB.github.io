@@ -588,7 +588,19 @@ span.flatpickr-weekday{color:var(--text-secondary)}
                 </div>
               </div>
               <div class="form-item"><label class="form-label"><span class="required">*</span>所属街道</label><select class="form-select" id="fenceStreet"><option value="">请选择所属街道</option><option>桂园街道</option><option>黄贝街道</option><option>东门街道</option><option>南湖街道</option><option>笋岗街道</option><option>清水河街道</option><option>翠竹街道</option><option>东湖街道</option><option>莲塘街道</option><option selected>粤海街道</option><option>南头街道</option><option>沙河街道</option><option>西丽街道</option><option>桃源街道</option><option>福田街道</option><option>香蜜湖街道</option><option>民治街道</option><option>龙华街道</option><option>新安街道</option><option>西乡街道</option></select></div>
-              <div class="form-item"><label class="form-label"><span class="required">*</span>围挡材质</label><input type="text" class="form-input" id="fenceMaterial" placeholder="如：彩钢板、PVC围挡等" value="彩钢板"></div>
+              <div class="form-item">
+  <label class="form-label"><span class="required">*</span>围挡材质</label>
+  <select class="form-select" id="fenceMaterial" onchange="handleMaterialChange()">
+    <option value="">请选择围挡材质</option>
+    <option value="现代风格装配式钢结构仿真绿草皮围挡">现代风格装配式钢结构仿真绿草皮围挡</option>
+    <option value="装配式钢结构喷绘围挡">装配式钢结构喷绘围挡</option>
+    <option value="装配式钢结构普通围挡">装配式钢结构普通围挡</option>
+    <option value="装配式PVC围挡">装配式PVC围挡</option>
+    <option value="通透式围挡">通透式围挡</option>
+    <option value="其他">其他（请自定义录入）</option>
+  </select>
+  <input type="text" class="form-input" id="fenceMaterialOther" placeholder="请输入围挡材质" style="display:none;margin-top:8px" oninput="handleMaterialOtherInput()">
+</div>
               <div class="form-item"><label class="form-label"><span class="required">*</span>围挡长度</label><div class="form-input-group"><input type="number" class="form-input" id="fenceLength" placeholder="请输入围挡长度" value="320"><span class="form-input-suffix">m</span></div></div>
               <div class="form-item"><label class="form-label"><span class="required">*</span>围挡高度</label><div class="form-input-group"><input type="number" class="form-input" id="fenceHeight" placeholder="请输入围挡高度" value="2.5"><span class="form-input-suffix">m</span></div></div>
               <div class="form-item"><label class="form-label">围挡风格</label><input type="text" class="form-input" id="fenceStyle" placeholder="如：仿真绿篱、公益广告型等" value="仿真绿篱"></div>
@@ -2242,7 +2254,7 @@ function seedDemoExpiredRecords(){
     custodyStart:'2024-03-01',custodyEnd:'2026-05-10',
     person:'李明',phone:'13800138002',
     fenceDate:'2024-03-15',planDemolishDate:'2026-05-20',
-    street:'东门街道',material:'彩钢板',length:'410',height:'2.8',style:'仿真绿篱',poster:'文明城市公益宣传画面',
+    street:'东门街道',material:'装配式钢结构喷绘围挡',length:'410',height:'2.8',style:'仿真绿篱',poster:'文明城市公益宣传画面',
     shapes:[
       {type:'line',points:[[120,180],[300,120],[450,160]],label:'线段 1',source:'manual'},
       {type:'polygon',points:[[200,320],[380,280],[400,380],[250,400],[180,350]],label:'围挡范围 1',source:'manual'}
@@ -2258,7 +2270,7 @@ function seedDemoExpiredRecords(){
     custodyStart:'2025-09-01',custodyEnd:'2026-04-15',
     person:'张伟',phone:'13800138003',
     fenceDate:'2025-09-10',planDemolishDate:'2026-05-01',
-    street:'粤海街道',material:'PVC围挡',length:'320',height:'2.5',style:'公益广告型',poster:'安全文明施工宣传',
+    street:'粤海街道',material:'装配式PVC围挡',length:'320',height:'2.5',style:'公益广告型',poster:'安全文明施工宣传',
     shapes:[
       {type:'polygon',points:[[150,200],[320,180],[380,300],[250,350],[130,300]],label:'围挡范围 1',source:'manual'}
     ],
@@ -2312,7 +2324,13 @@ function handleReuseYes(){
     var setVal=function(id,v){var el=document.getElementById(id);if(el&&v!==undefined)el.value=v};
     setVal('fenceSetDate',rec.fenceDate);
     setVal('planDemolishDate',rec.planDemolishDate);
-    setVal('fenceMaterial',rec.material);
+    var matEl=document.getElementById('fenceMaterial');
+    var matOther=document.getElementById('fenceMaterialOther');
+    if(matEl){
+      var DICT=['现代风格装配式钢结构仿真绿草皮围挡','装配式钢结构喷绘围挡','装配式钢结构普通围挡','装配式PVC围挡','通透式围挡'];
+      if(DICT.indexOf(rec.material)>=0){matEl.value=rec.material;matOther.value='';matOther.style.display='none';}
+      else{matEl.value='其他';matOther.value=rec.material||'';matOther.style.display='';}
+    }
     setVal('fenceLength',rec.length);
     setVal('fenceHeight',rec.height);
     setVal('fenceStyle',rec.style);
@@ -2451,7 +2469,14 @@ function handleReuseNo(){
   var elPDD=document.getElementById('planDemolishDate'); if(elPDD)elPDD.value=hoard.planRemoveDate||'';
 
   /* ═══ 11. 围挡本体 ═══ */
-  var elFM=document.getElementById('fenceMaterial'); if(elFM)elFM.value=hoard.material||'';
+  var matEl=document.getElementById('fenceMaterial');
+  var matOther=document.getElementById('fenceMaterialOther');
+  if(matEl){
+    var DICT=['现代风格装配式钢结构仿真绿草皮围挡','装配式钢结构喷绘围挡','装配式钢结构普通围挡','装配式PVC围挡','通透式围挡'];
+    var matVal=hoard.material||'';
+    if(DICT.indexOf(matVal)>=0){matEl.value=matVal;matOther.value='';matOther.style.display='none';}
+    else if(matVal){matEl.value='其他';matOther.value=matVal;matOther.style.display='';}
+  }
   var elFL=document.getElementById('fenceLength'); if(elFL)elFL.value=hoard.length||'';
   var elFH=document.getElementById('fenceHeight'); if(elFH)elFH.value=hoard.height||'';
   var elFS=document.getElementById('fenceStyle'); if(elFS)elFS.value=hoard.fenceStyle||'';
@@ -2477,6 +2502,17 @@ function handleReuseNo(){
     setTimeout(function(){ console.log('[DEBUG] 150ms timer fired, calling updateFenceSummary'); updateFenceSummary(); }, 150);
   }
 })();
+function handleMaterialChange(){
+  var other=document.getElementById('fenceMaterialOther');
+  var sel=document.getElementById('fenceMaterial');
+  if(!other||!sel)return;
+  if(sel.value==='其他'){other.style.display='';}
+  else{other.style.display='none';other.value='';}
+}
+function handleMaterialOtherInput(){
+  var sel=document.getElementById('fenceMaterial');
+  if(sel)sel.value='其他';
+}
 </script>
 </body>
 </html>

@@ -48,7 +48,7 @@
               length: 320,
               height: 2.5,
               area: 156.8,
-              material: '彩钢板',
+              material: '装配式钢结构喷绘围挡',
               fenceStyle: '标准型',
               publicityContent: '文明施工 安全第一',
               roadOccupation: '人行道',
@@ -94,7 +94,7 @@
               length: 260,
               height: 2.5,
               area: 130.0,
-              material: '彩钢板',
+              material: '装配式钢结构喷绘围挡',
               fenceStyle: '标准型',
               publicityContent: '注意安全 请勿靠近',
               roadOccupation: '非机动车道',
@@ -123,7 +123,7 @@
               id: 'WD-2026-0003',
               engineerName: '道路恢复工程',
               engStatus: '停工',
-              fenceStatus: '已超期',
+              fenceStatus: '已到期',
               issueStatus: '正常',
               needVerify: '否',
               custodyStart: '2024-06-01',
@@ -133,7 +133,7 @@
               length: 180,
               height: 2.0,
               area: 90.0,
-              material: '水马',
+              material: '装配式PVC围挡',
               fenceStyle: '简易型',
               publicityContent: '施工区域 请绕行',
               roadOccupation: '机动车道',
@@ -152,11 +152,11 @@
               ],
               defaultDemo: false,
               verifyRecords: [
-                { id: 'vr3', verifier: '张建国', unit: '深圳市福田区住房和建设局', role: '监管人员', date: '2026-05-05 16:00', type: '校核修正', content: '围挡状态标记为超期', field: '围挡状态', before: '设置中', after: '已超期' }
+                { id: 'vr3', verifier: '张建国', unit: '深圳市福田区住房和建设局', role: '监管人员', date: '2026-05-05 16:00', type: '校核修正', content: '围挡状态标记为到期', field: '围挡状态', before: '设置中', after: '已到期' }
               ],
               changeRecords: [],
               patrolRecords: [
-                { id: 'pr4', date: '2026-05-08', time: '11:00', inspector: '陈刚', result: '异常', issues: ['围挡材质不符合规范', '已超期未拆除'], panoramaSrc: 'https://vsleem.com/scene/realsee/share?projectId=2183&patrolId=eff873ee90a9c39da9731b17789f9291&pointId=4d55d097-2e0d-4db5-b88a-a313b002cf2b&rotate=1.8900753669526844,-0.09621686902020032&authCode=70c29c3c9b5a40c8acd5567358e1c78b' }
+                { id: 'pr4', date: '2026-05-08', time: '11:00', inspector: '陈刚', result: '异常', issues: ['围挡材质不符合规范', '已到期未拆除'], panoramaSrc: 'https://vsleem.com/scene/realsee/share?projectId=2183&patrolId=eff873ee90a9c39da9731b17789f9291&pointId=4d55d097-2e0d-4db5-b88a-a313b002cf2b&rotate=1.8900753669526844,-0.09621686902020032&authCode=70c29c3c9b5a40c8acd5567358e1c78b' }
               ]
             }
           ]
@@ -199,7 +199,7 @@
               length: 450,
               height: 2.5,
               area: 225.0,
-              material: '彩钢板',
+              material: '装配式钢结构喷绘围挡',
               fenceStyle: '标准型',
               publicityContent: '基坑施工 注意安全',
               roadOccupation: '人行道',
@@ -238,7 +238,7 @@
               length: 380,
               height: 2.5,
               area: 190.0,
-              material: '彩钢板',
+              material: '装配式钢结构喷绘围挡',
               fenceStyle: '标准型',
               publicityContent: '优质工程 精品建设',
               roadOccupation: '非机动车道',

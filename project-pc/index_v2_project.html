@@ -434,7 +434,6 @@ a:hover{color:var(--text-link-hover)}
             <button class="status-tab active" data-status="全部" onclick="filterByTab(this)">全部 <span class="status-tab-num" id="tabNumAll">0</span></button>
             <button class="status-tab" data-status="设置中" onclick="filterByTab(this)">设置中 <span class="status-tab-num" id="tabNumSetting">0</span></button>
             <button class="status-tab" data-status="即将到期" onclick="filterByTab(this)">即将到期 <span class="status-tab-num" id="tabNumSoon">0</span></button>
-            <button class="status-tab" data-status="已超期" onclick="filterByTab(this)">已超期 <span class="status-tab-num" id="tabNumOverdue">0</span></button>
             <button class="status-tab" data-status="已到期" onclick="filterByTab(this)">已到期 <span class="status-tab-num" id="tabNumExpired">0</span></button>
           </div>
           <div class="card-toolbar-right">
@@ -700,7 +699,7 @@ function renderTableFromSD(){
   if(_currentTab!=='全部'){
     blocks=blocks.filter(function(b){return b.fenceStatus===_currentTab;});
   }
-  var sortOrder={'已超期':0,'即将到期':1,'设置中':2,'已到期':3};
+  var sortOrder={'即将到期':1,'设置中':2,'已到期':3};
   blocks.sort(function(a,b){var sa=sortOrder[a.fenceStatus];var sb=sortOrder[b.fenceStatus];if(sa===undefined)sa=99;if(sb===undefined)sb=99;return sa-sb;});
   var html='';
   blocks.forEach(function(b,idx){
@@ -729,10 +728,10 @@ function renderTableFromSD(){
 }
 
 function getStatusCls(s){
-  return({'设置中':'status-setting','即将到期':'status-soon','已超期':'status-overdue','已到期':'status-demolished'})[s]||'status-setting';
+  return({'设置中':'status-setting','即将到期':'status-soon','已到期':'status-demolished'})[s]||'status-setting';
 }
 function getFenceTagCls(s){
-  return({'设置中':'tag-setting','即将到期':'tag-soon','已超期':'tag-overdue','已到期':'tag-expired'})[s]||'tag-setting';
+  return({'设置中':'tag-setting','即将到期':'tag-soon','已到期':'tag-expired'})[s]||'tag-setting';
 }
 function getIssueTagCls(s){
   return({'正常':'tag-ok','待整改':'tag-warn','整改逾期':'tag-error'})[s]||'tag-ok';
@@ -744,7 +743,7 @@ function getEngDot(s){
   return'<span class="eng-dot '+cls+'"></span>'+s;
 }
 function getStatusColor(s){
-  return({'设置中':'#1862D4','即将到期':'#C47D00','已超期':'#D13B2F','已到期':'#9CA3B0'})[s]||'#1F2937';
+  return({'设置中':'#1862D4','即将到期':'#C47D00','已到期':'#9CA3B0'})[s]||'#1F2937';
 }
 function getIssueCls(s){
   return({'正常':'status-success','待整改':'status-wait','整改逾期':'status-alert'})[s]||'status-success';
@@ -771,9 +770,9 @@ function filterByTab(tab){
 
 function updateStatusCounts(){
   var blocks=MOCK_FENCE_BLOCKS;
-  var counts={'全部':blocks.length,'设置中':0,'即将到期':0,'已超期':0,'已到期':0};
+  var counts={'全部':blocks.length,'设置中':0,'即将到期':0,'已到期':0};
   blocks.forEach(function(b){if(counts.hasOwnProperty(b.fenceStatus))counts[b.fenceStatus]++;});
-  var map={'全部':'tabNumAll','设置中':'tabNumSetting','即将到期':'tabNumSoon','已超期':'tabNumOverdue','已到期':'tabNumExpired'};
+  var map={'全部':'tabNumAll','设置中':'tabNumSetting','即将到期':'tabNumSoon','已到期':'tabNumExpired'};
   for(var k in map){var el=document.getElementById(map[k]);if(el)el.textContent=counts[k];}
 }
 
@@ -1217,7 +1216,7 @@ function renderMapView(){
 function renderMapCards(){
   var list=document.getElementById('mapCardList');
   var countEl=document.getElementById('mapCardCount');
-  var statusTagMap={'设置中':'tag-setting','即将到期':'tag-soon','已超期':'tag-overdue'};
+  var statusTagMap={'设置中':'tag-setting','即将到期':'tag-soon',};
   var engDotMap={'工程监督':'eng-dot-gray','停工':'eng-dot-orange','竣工验收':'eng-dot-green'};
   var html='';
   var count=0;
