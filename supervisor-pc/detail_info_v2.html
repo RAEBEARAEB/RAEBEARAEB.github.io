@@ -246,7 +246,7 @@ a:hover{color:var(--text-link-hover)}
 .record-verify-reason .verify-result-label{font-weight:500}
 .record-verify-reason.pass .verify-result-label{color:#1A9042}
 .record-verify-reason.reject .verify-result-label{color:#D13B2F}
-/* ═══ 巡查记录占位 ═══ */
+/* ═══ 巡检记录占位 ═══ */
 .empty-placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:var(--space-10) var(--space-4);color:var(--text-tertiary)}
 .empty-placeholder svg{width:40px;height:40px;margin-bottom:var(--space-3);opacity:0.4}
 .empty-placeholder span{font-size:var(--font-size-sm)}
@@ -267,7 +267,7 @@ a:hover{color:var(--text-link-hover)}
 .map-legend-item{display:flex;align-items:center;gap:6px;color:var(--text-secondary)}
 .map-legend-line{width:22px;height:0;border-top:2.5px solid;flex-shrink:0;border-radius:1px}
 .map-legend-line.dashed{border-top-style:dashed}
-/* ═══ 巡查记录 ═══ */
+/* ═══ 巡检记录 ═══ */
 .patrol-toolbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--space-3);padding-bottom:var(--space-4);border-bottom:1px solid var(--border-color-light);margin-bottom:var(--space-5);max-width:860px;margin-left:auto;margin-right:auto}
 .patrol-toolbar-left{display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap}
 .patrol-toolbar-right{display:flex;align-items:center;gap:var(--space-4)}
@@ -380,10 +380,10 @@ textarea.form-input{height:80px;padding:var(--space-2) var(--space-3);resize:ver
         <span class="breadcrumb-sep">/</span>
         <a href="index_v2.html" class="breadcrumb-item">围挡档案管理</a>
         <span class="breadcrumb-sep">/</span>
-        <span class="breadcrumb-item">围挡详情</span>
+        <span class="breadcrumb-item">围挡记录详情</span>
       </div>
       <div class="page-header page-header-fixed">
-        <h1 class="page-title"><span class="page-title-accent"></span>围挡详情</h1>
+        <h1 class="page-title"><span class="page-title-accent"></span>围挡记录详情</h1>
         <div class="page-header-actions">
           <button type="button" class="btn btn-ghost" onclick="window.open('index_v2.html','_self')">返回列表</button>
         </div>
@@ -394,7 +394,7 @@ textarea.form-input{height:80px;padding:var(--space-2) var(--space-3);resize:ver
           <a href="#sec-plan" class="section-nav-item" data-sec="sec-plan"><span class="section-nav-num">2</span>项目围挡计划信息</a>
           <a href="#sec-fence" class="section-nav-item" data-sec="sec-fence"><span class="section-nav-num">3</span>围挡本体信息</a>
           <a href="#sec-road" class="section-nav-item" data-sec="sec-road"><span class="section-nav-num">4</span>围挡占道信息</a>
-          <a href="#sec-inspect" class="section-nav-item" data-sec="sec-inspect"><span class="section-nav-num">5</span>巡查记录</a>
+          <a href="#sec-inspect" class="section-nav-item" data-sec="sec-inspect"><span class="section-nav-num">5</span>巡检记录</a>
           <a href="#sec-verify-change" class="section-nav-item" data-sec="sec-verify-change"><span class="section-nav-num">6</span>校核与变更记录</a>
         </nav>
         <div class="form-content">
@@ -503,10 +503,10 @@ textarea.form-input{height:80px;padding:var(--space-2) var(--space-3);resize:ver
           </div>
           </div>
 
-          <!-- ═══ 5. 巡查记录 ═══ -->
+          <!-- ═══ 5. 巡检记录 ═══ -->
           <div id="sec-inspect">
           <div class="card">
-            <div class="card-header"><div class="card-title"><span class="card-title-dot"></span>巡查记录</div></div>
+            <div class="card-header"><div class="card-title"><span class="card-title-dot"></span>巡检记录</div></div>
             <div class="card-body">
               <div class="patrol-toolbar">
                 <div class="patrol-toolbar-left">
@@ -618,7 +618,7 @@ textarea.form-input{height:80px;padding:var(--space-2) var(--space-3);resize:ver
           </div>
           </div>
 
-          <!-- 巡查记录弹窗 -->
+          <!-- 巡检记录弹窗 -->
           <div class="modal-mask" id="patrolModal">
             <div class="modal">
               <div class="modal-head"><span id="patrolModalTitle">新增巡检记录</span><button class="modal-close" onclick="closePatrolModal()">&times;</button></div>
@@ -1144,7 +1144,7 @@ setTimeout(initRecordMiniMaps,500);
   });
 })();
 
-/* ═══ 巡查记录 ═══ */
+/* ═══ 巡检记录 ═══ */
 (function(){
 var PATROL_DB='patrol_records_db';
 var PATROL_STORE='records';
@@ -1252,7 +1252,7 @@ function writePanoData(record,cb){
 
 function formatDate(dateStr){
   var parts=dateStr.split('-');
-  return parts[1]+'月'+parts[2]+'日';
+  return parts[0]+'年'+parts[1]+'月'+parts[2]+'日';
 }
 function getWeekday(dateStr){
   var d=new Date(dateStr);
@@ -1275,23 +1275,33 @@ function renderDayHeader(date,count){
   return '<div class="day-header"><span class="day-date">'+ds+'</span><span class="day-week">'+wk+'</span><span class="day-line"></span><span class="day-count">'+count+'条记录</span><button class="day-toggle" onclick="toggleDay(this)"><span class="toggle-icon">∧</span> 收起</button></div>';
 }
 
+/* 判断 URL 是否为可直接用作图片的链接 */
+function isDirectImageUrl(url){
+  if(!url)return false;
+  var u=url.split('?')[0].split('#')[0].toLowerCase();
+  return /\.(jpe?g|png|webp|bmp)$/i.test(u);
+}
+
 function renderCard(r){
+  var isImg=isDirectImageUrl(r.panoramaSrc);
+  var thumbStyle=isImg
+    ? 'background-image:url(\''+r.panoramaSrc+'\')'
+    : 'background:linear-gradient(135deg,#1a3a5c 0%,#0d2b55 40%,#1862D4 100%);display:flex;align-items:center;justify-content:center';
   var html='<div class="patrol-card" data-id="'+r.id+'">';
-  html+='<div class="patrol-thumb" style="background-image:url(\''+r.panoramaSrc+'\')">';
-  html+='<span class="patrol-badge">全景</span>';
-  if(r.hasIssue)html+='<span class="patrol-badge-issue">问题</span>';
+  html+='<div class="patrol-thumb" style="'+thumbStyle+'">';
+  if(!isImg){ html+='<svg viewBox="0 0 60 60" width="48" height="48" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" style="pointer-events:none"><circle cx="28" cy="26" r="14"/><path d="M7 50l15-18 10 12 7-9 16 20"/><circle cx="25" cy="22" r="4"/></svg>'; }
+  if(r.hasIssue){ html+='<span class="patrol-badge-issue">问题</span>'; }
   html+='<span class="patrol-time-watermark">'+r.time+'</span>';
   html+='</div>';
   html+='<div class="patrol-info">';
   html+='<div class="patrol-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>巡检人：'+r.person+'（'+r.unit+'）</div>';
-  html+='<div class="patrol-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>巡检位置：'+r.location+'</div>';
-  if(r.hasIssue&&r.remark){
-    html+='<div class="patrol-remark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>'+r.remark+'</div>';
+  if(r.remark){
+    var remarkLabel=r.hasIssue?'问题详情':'备注';
+    html+='<div class="patrol-row" style="align-items:flex-start"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:0;pointer-events:none"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span style="font-size:var(--font-size-xs);color:var(--text-secondary);line-height:1.4;word-break:break-all"><span style="color:var(--text-tertiary)">'+remarkLabel+'：</span>'+r.remark+'</span></div>';
   }
   html+='</div>';
   html+='<div class="patrol-actions">';
   html+='<div class="patrol-action" onclick="viewPatrolRecord(\''+r.id+'\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>查看</div>';
-  html+='<div class="patrol-action danger" onclick="deleteRecord(\''+r.id+'\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>删除</div>';
   html+='</div></div>';
   return html;
 }
@@ -1308,7 +1318,7 @@ function render(){
     g.records.forEach(function(r){html+=renderCard(r)});
     html+='</div></div>';
   });
-  if(!html)html='<div class="empty-placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><span>暂无巡查记录</span></div>';
+  if(!html)html='<div class="empty-placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><span>暂无巡检记录</span></div>';
   list.innerHTML=html;
   updateStat();
 }
