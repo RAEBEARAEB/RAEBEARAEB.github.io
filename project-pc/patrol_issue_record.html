@@ -45,7 +45,25 @@
         .issue-card-delete { position: absolute; right: 8px; top: 8px; width: 20px; height: 20px; border-radius: 50%; background: transparent; border: none; color: #ff7875; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s; }
         .issue-card:hover .issue-card-delete { opacity: 1; }
         .issue-card-delete:hover { background: rgba(255,77,79,0.2); }
-        .issues-empty { font-size: 12px; color: #8c8c8c; text-align: center; padding: 20px 0; }
+        #all-issue-empty { font-size: 12px; color: #8c8c8c; text-align: center; padding: 20px 0; }
+        /* ═══ View-mode patrol detail card ═══ */
+        .patrol-detail-sheet { padding: 16px; display: flex; flex-direction: column; gap: 0; }
+        .patrol-detail-sheet-header { display: flex; align-items: center; gap: 8px; margin-bottom: 18px; }
+        .patrol-detail-sheet-header-line { width: 3px; height: 16px; background: var(--primary-color); border-radius: 2px; flex-shrink: 0; }
+        .patrol-detail-sheet-header-text { font-size: 14px; font-weight: 600; color: #e8e8e8; letter-spacing: 0.02em; }
+        .patrol-detail-row { display: flex; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid #2a2a2a; }
+        .patrol-detail-row:first-of-type { padding-top: 0; }
+        .patrol-detail-row:last-of-type { border-bottom: none; padding-bottom: 0; }
+        .patrol-detail-row-label { width: 96px; flex-shrink: 0; font-size: 11px; color: #666; font-weight: 400; letter-spacing: 0.03em; padding-top: 1px; }
+        .patrol-detail-row-value { flex: 1; font-size: 13px; color: #d4d4d4; line-height: 1.6; word-break: break-all; min-width: 0; }
+        .patrol-detail-row-value .is-issue { color: #ff7875; font-weight: 600; }
+        .patrol-detail-row-value .is-ok { color: #6b7280; }
+        .patrol-detail-remark-block { margin-top: 16px; padding: 14px; background: rgba(255,255,255,.03); border: 1px solid #2a2a2a; border-radius: 8px; }
+        .patrol-detail-remark-block-label { font-size: 11px; color: #555; margin-bottom: 6px; font-weight: 400; letter-spacing: 0.04em; }
+        .patrol-detail-remark-block-body { font-size: 13px; color: #bbb; line-height: 1.7; white-space: pre-wrap; word-break: break-all; }
+        .patrol-detail-remark-block.issue { border-color: rgba(255,77,79,.2); background: rgba(255,77,79,.04); }
+        .patrol-detail-remark-block.issue .patrol-detail-remark-block-label { color: #ff7875; }
+        .patrol-detail-remark-block.issue .patrol-detail-remark-block-body { color: #ffb3b0; }
         /* Toast */
         .toast { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: #fff; padding: 10px 24px; border-radius: 6px; font-size: 14px; z-index: 5000; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
         .toast.show { opacity: 1; }
@@ -117,25 +135,50 @@
     <div class="patrol-info-bar" id="patrol-info-bar">
         <span><i class="fas fa-calendar"></i> 巡检时间：<strong id="info-time">--</strong></span>
         <span><i class="fas fa-user"></i> 巡检人：<strong id="info-person">--</strong></span>
-        <span><i class="fas fa-clipboard-list"></i> 问题数：<strong id="info-issue-count">0</strong></span>
     </div>
     <div class="layout">
         <div class="viewport">
             <div id="editor-container"></div>
         </div>
         <div class="props">
-            <div class="props-section">
-                <button class="btn-screenshot" id="btn-screenshot" onclick="captureAndAnnotate()">
-                    <i class="fas fa-camera"></i> 截图并新增问题
-                </button>
-            </div>
-            <div class="issues-overview">
-                <div class="issues-overview-header">
-                    <span>全部问题</span>
-                    <span id="all-issue-count" class="issues-overview-count">0</span>
+            <!-- ═══ View mode: patrol record detail ═══ -->
+            <div id="patrol-detail-card" style="display:none">
+                <div class="patrol-detail-sheet">
+                    <div class="patrol-detail-sheet-header">
+                        <span class="patrol-detail-sheet-header-line"></span>
+                        <span class="patrol-detail-sheet-header-text">巡检记录信息</span>
+                    </div>
+                    <div class="patrol-detail-row">
+                        <span class="patrol-detail-row-label">是否存在问题</span>
+                        <span class="patrol-detail-row-value" id="patrol-detail-hasIssue"></span>
+                    </div>
+                    <!-- Normal remark row (no issue) -->
+                    <div id="patrol-detail-remark-row" class="patrol-detail-row">
+                        <span class="patrol-detail-row-label" id="patrol-detail-remarkLabel">备注</span>
+                        <span class="patrol-detail-row-value" id="patrol-detail-remark" style="white-space:pre-wrap"></span>
+                    </div>
+                    <!-- Issue highlight block (has issue) -->
+                    <div id="patrol-detail-issue-block" class="patrol-detail-remark-block issue" style="display:none">
+                        <div class="patrol-detail-remark-block-label">问题详情</div>
+                        <div class="patrol-detail-remark-block-body" id="patrol-detail-issue-block-body"></div>
+                    </div>
                 </div>
-                <ul id="all-issue-list" class="issues-overview-list"></ul>
-                <div id="all-issue-empty" class="issues-empty">暂无巡检问题记录</div>
+            </div>
+            <!-- ═══ AddIssue mode: screenshot button + issue list ═══ -->
+            <div id="addIssue-section">
+                <div class="props-section">
+                    <button class="btn-screenshot" id="btn-screenshot" onclick="captureAndAnnotate()">
+                        <i class="fas fa-camera"></i> 截图并新增问题
+                    </button>
+                </div>
+                <div class="issues-overview">
+                    <div class="issues-overview-header">
+                        <span>全部问题</span>
+                        <span id="all-issue-count" class="issues-overview-count">0</span>
+                    </div>
+                    <ul id="all-issue-list" class="issues-overview-list"></ul>
+                    <div id="all-issue-empty" class="issues-empty">暂无巡检问题记录</div>
+                </div>
             </div>
         </div>
     </div>
@@ -344,13 +387,33 @@
         // Set header title + buttons based on mode
         if (pageMode === 'view') {
             document.getElementById('header-title-text').textContent = '查看巡检记录 - ' + (patrolRecord.date || '');
-            // Hide "保存全部问题", show "关闭"
             document.getElementById('btn-save-all').style.display = 'none';
             document.getElementById('btn-close').style.display = '';
+            // Hide issue section, show patrol detail card
+            document.getElementById('addIssue-section').style.display = 'none';
+            document.getElementById('patrol-detail-card').style.display = '';
+            // Populate detail card
+            var hasIssue = patrolRecord.hasIssue;
+            var remark = patrolRecord.remark || '';
+            document.getElementById('patrol-detail-hasIssue').innerHTML = hasIssue
+                ? '<span class="is-issue">是</span>'
+                : '<span class="is-ok">否</span>';
+            if (hasIssue) {
+                document.getElementById('patrol-detail-remark-row').style.display = 'none';
+                document.getElementById('patrol-detail-issue-block').style.display = '';
+                document.getElementById('patrol-detail-issue-block-body').textContent = remark || '—';
+            } else {
+                document.getElementById('patrol-detail-remark-row').style.display = '';
+                document.getElementById('patrol-detail-issue-block').style.display = 'none';
+                document.getElementById('patrol-detail-remarkLabel').textContent = '备注';
+                document.getElementById('patrol-detail-remark').textContent = remark || '—';
+            }
         } else {
             document.getElementById('header-title-text').textContent = '巡检问题记录 - ' + (patrolRecord.date || '');
             document.getElementById('btn-save-all').style.display = '';
             document.getElementById('btn-close').style.display = 'none';
+            document.getElementById('addIssue-section').style.display = '';
+            document.getElementById('patrol-detail-card').style.display = 'none';
         }
 
         // Mark all existing issues as persisted (already in 问题闭环处置, cannot be deleted)
@@ -359,7 +422,7 @@
         // Update info bar
         document.getElementById('info-time').textContent = (patrolRecord.date || '--') + ' ' + (patrolRecord.time || '--');
         document.getElementById('info-person').textContent = patrolRecord.person || '--';
-        updateIssueCount();
+        if (pageMode !== 'view') updateIssueCount();
 
         // Build panorama scenes data
         var sceneId = 'patrol_scene';
@@ -1162,10 +1225,7 @@
 
     function updateIssueCount() {
         var countEl = document.getElementById('all-issue-count');
-        var infoCountEl = document.getElementById('info-issue-count');
-        var count = issueList.length;
-        if (countEl) countEl.textContent = count;
-        if (infoCountEl) infoCountEl.textContent = count;
+        if (countEl) countEl.textContent = issueList.length;
     }
 
     /* ═══════════════════════════════════════════

@@ -645,9 +645,9 @@ textarea.form-input{height:80px;padding:var(--space-2) var(--space-3);resize:ver
               <div class="modal-head"><span id="patrolModalTitle">新增巡检记录</span><button class="modal-close" onclick="closePatrolModal()">&times;</button></div>
               <div class="modal-body">
                 <div class="form-group"><label class="form-label"><span style="color:var(--color-danger)">*</span> 巡检时间</label><input type="datetime-local" class="form-input" id="patrolFormDatetime"></div>
-                <div class="form-group"><label class="form-label">巡检人</label><input type="text" class="form-input" id="patrolFormPerson" value="张项目" disabled style="background:var(--color-gray-100);cursor:not-allowed"></div>
+                <div class="form-group"><label class="form-label"><span style="color:var(--color-danger)">*</span> 巡检人</label><input type="text" class="form-input" id="patrolFormPerson" value="张项目" disabled style="background:var(--color-gray-100);cursor:not-allowed"></div>
                 <div class="form-group"><label class="form-label"><span style="color:var(--color-danger)">*</span> 全景照片链接</label><input type="url" class="form-input" id="patrolFormPanoUrl" placeholder="请输入全景照片链接，如 https://ips.cscecsteel.com/kgsy/projectTourist/... 或 https://www.720yun.com/vr/..."></div>
-                <div class="form-group"><label class="form-label">是否存在问题项</label>
+                <div class="form-group"><label class="form-label"><span style="color:var(--color-danger)">*</span> 是否存在问题项</label>
                   <div style="display:flex;gap:16px;padding-top:4px">
                     <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:var(--font-size-sm)"><input type="radio" name="patrolHasIssue" value="no" checked onchange="handleHasIssueChange()"> 否</label>
                     <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:var(--font-size-sm)"><input type="radio" name="patrolHasIssue" value="yes" onchange="handleHasIssueChange()"> 是</label>
@@ -1382,7 +1382,7 @@ function updateStat(){
   var monthStart=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-01';
   var monthCount=patrolRecords.filter(function(r){return r.date>=monthStart}).length;
   var panoCount=patrolRecords.filter(function(r){return r.panoramaSrc}).length;
-  el.textContent='本月已巡检 '+monthCount+' 次 · 累计 '+panoCount+' 条全景记录';
+  el.textContent='本月已巡检 '+monthCount+' 次';
 }
 
 window.setSeg=function(el){
@@ -1443,6 +1443,7 @@ window.savePatrolRecord=function(){
   var remark=document.getElementById('patrolFormRemark').value.trim();
   var hasIssue=document.querySelector('input[name="patrolHasIssue"]:checked').value==='yes';
   if(!dt){showToast('请选择巡检时间','error');return}
+  if(!person.trim()){showToast('请填写巡检人','error');return}
   if(!panoUrl){showToast('请填写全景照片链接','error');return}
   if(hasIssue&&!remark){showToast('请填写问题详情','error');return}
   var date=dt.split('T')[0],time=dt.split('T')[1]||'09:00';
