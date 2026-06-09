@@ -782,7 +782,13 @@ function renderPatrolCalendarPC() {
       });
     }
   }
-  label.textContent = '共'+totalPatrols+'次巡检';
+  // Count patrols in current calendar month only
+  var monthStr = patrolCalendarYear+'-'+String(patrolCalendarMonth).padStart(2,'0');
+  var monthCount = 0;
+  Object.keys(recordDates).forEach(function(ds){
+    if (ds.indexOf(monthStr)===0) monthCount++;
+  });
+  label.textContent = '本月已巡检 '+monthCount+' 次';
 
   // Header with year select
   var h = '<div class="patrol-calendar-pc-header">';
