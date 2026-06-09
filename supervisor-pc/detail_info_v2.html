@@ -1330,7 +1330,7 @@ function updateStat(){
   var monthStart=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-01';
   var monthCount=patrolRecords.filter(function(r){return r.date>=monthStart}).length;
   var panoCount=patrolRecords.filter(function(r){return r.panoramaSrc}).length;
-  el.textContent='本月已巡检 '+monthCount+' 次 · 累计 '+panoCount+' 张全景照片';
+  el.textContent='本月已巡检 '+monthCount+' 次';
 }
 
 window.setSeg=function(el){
