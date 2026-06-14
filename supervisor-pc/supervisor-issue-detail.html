@@ -197,6 +197,8 @@ function loadDetail(){
     '<div class="detail-item"><span class="detail-label">关联项目</span><span class="detail-value">'+esc(_issue._projectName||'--')+'</span></div>'+
     '<div class="detail-item"><span class="detail-label">关联工程</span><span class="detail-value">'+esc(_issue.engineerName||'--')+'</span></div>'+
     '<div class="detail-item"><span class="detail-label">责任单位</span><span class="detail-value">'+esc(_issue._constructUnit||_issue.responsibleUnit||'--')+'</span></div>'+
+    '<div class="detail-item"><span class="detail-label">所属街道</span><span class="detail-value">'+esc(_issue.street||'--')+'</span></div>'+
+    '<div class="detail-item"><span class="detail-label">所属区域</span><span class="detail-value">'+esc(_issue._district||'--')+'</span></div>'+
     '<div class="detail-item"><span class="detail-label">上报时间</span><span class="detail-value">'+esc(_issue.reportTime||'')+'</span></div>';
   if(_issue.photos&&_issue.photos.length)h+='<div class="detail-item full"><span class="detail-label">现场照片</span><div class="log-photos">'+_issue.photos.map(function(p){return'<img src="'+p+'">'}).join('')+'</div></div>';
   document.getElementById('basicBody').innerHTML=h;

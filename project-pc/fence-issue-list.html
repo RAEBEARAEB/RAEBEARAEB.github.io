@@ -77,7 +77,8 @@ a:hover{color:var(--color-primary-600)}
 .layout-main{flex:1;overflow-y:auto;padding:var(--space-6);background:var(--bg-page)}
 
 /* ═══ 面包屑+标题 ═══ */
-.page-header{margin-bottom:var(--space-5)}
+.page-header{margin-bottom:var(--space-5);display:flex;align-items:center;justify-content:space-between}
+.page-header-actions{display:flex;gap:var(--space-2)}
 .page-title{font-size:var(--font-size-2xl);font-weight:var(--font-weight-bold);color:var(--text-title);margin:0 0 var(--space-1);line-height:var(--line-height-tight);display:flex;align-items:center;gap:var(--space-3)}
 .page-title::before{content:'';width:4px;height:24px;background:var(--color-primary-500);border-radius:2px}
 .breadcrumb{display:flex;align-items:center;gap:var(--space-1);font-size:var(--font-size-sm);color:var(--text-tertiary);margin-bottom:var(--space-3)}
@@ -206,7 +207,7 @@ a:hover{color:var(--color-primary-600)}
   </aside>
   <main class="layout-main">
     <div class="breadcrumb"><a href="index.html">首页</a><span class="sep">/</span><a href="#">围挡管理</a><span class="sep">/</span><span class="current">问题闭环处置</span></div>
-    <div class="page-header"><div class="page-title">问题闭环处置</div></div>
+    <div class="page-header"><div class="page-title">问题闭环处置</div><div class="page-header-actions"><button class="btn btn-primary btn-sm" onclick="window.location.href='fence-issue-report.html'">新增围挡问题</button></div></div>
 
     <div class="card">
     <div class="search-bar">
@@ -214,7 +215,8 @@ a:hover{color:var(--color-primary-600)}
       <select id="filterEngineer" onchange="renderTable()"><option value="all">全部工程</option></select>
       <select id="filterUnit" disabled style="background:var(--color-gray-50);color:var(--text-tertiary);cursor:not-allowed"><option>深圳市市政工程总公司</option></select>
       <input type="text" id="filterKeyword" placeholder="搜索问题描述" oninput="renderTable()">
-      <select id="filterSource" onchange="renderTable()"><option value="all">全部来源</option><option value="街道上报">街道上报</option><option value="群众上报">群众上报</option><option value="监管巡查">监管巡查</option></select>
+      <select id="filterSource" onchange="renderTable()"><option value="all">全部来源</option><option value="街道上报">街道上报</option><option value="群众上报">群众上报</option><option value="监管巡查">监管巡查</option><option value="项目巡检">项目巡检</option></select>
+      <select id="filterType" onchange="renderTable()"><option value="all">全部类型</option></select>
       <button class="btn btn-primary btn-sm btn-query" onclick="renderTable()"><svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>查询</button>
       <button class="btn btn-ghost btn-sm btn-query" onclick="document.getElementById('filterKeyword').value='';document.getElementById('filterSource').value='all';document.getElementById('filterProject').value='all';document.getElementById('filterEngineer').value='all';_statusTab='all';renderTable()"><svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>重置</button>
     </div>
@@ -229,8 +231,8 @@ a:hover{color:var(--color-primary-600)}
           <th style="width:90px">问题类型</th>
           <th style="width:150px;text-align:left">关联项目</th>
           <th style="width:120px;text-align:left">关联工程</th>
+          <th style="width:80px">所属街道</th>
           <th style="width:140px">责任单位</th>
-          <th style="width:145px">问题描述</th>
           <th style="width:75px">问题来源</th>
           <th style="width:75px">状态</th>
           <th style="width:100px">上报时间</th>
@@ -272,12 +274,14 @@ function renderTable(){
   var kw = (document.getElementById('filterKeyword').value||'').trim().toLowerCase();
   var st = _statusTab !== 'all' ? _statusTab : 'all';
   var src = document.getElementById('filterSource').value;
+  var ft = document.getElementById('filterType').value;
   var proj = document.getElementById('filterProject').value;
   var eng = document.getElementById('filterEngineer').value;
 
-  if(kw) _items = _items.filter(function(i){ return (i.details||'').toLowerCase().indexOf(kw)>-1; });
+  if(kw) _items = _items.filter(function(i){ return (i.details||'').toLowerCase().indexOf(kw)>-1||(i._projectName||'').toLowerCase().indexOf(kw)>-1||(i.engineerName||'').toLowerCase().indexOf(kw)>-1; });
   if(st!=='all') _items = _items.filter(function(i){ return i.status === st; });
   if(src!=='all') _items = _items.filter(function(i){ return (i.source||'街道上报') === src; });
+  if(ft!=='all') _items = _items.filter(function(i){ return i.type === ft; });
   if(proj!=='all') _items = _items.filter(function(i){ return (i._projectName||'') === proj; });
   if(eng!=='all') _items = _items.filter(function(i){ return (i.engineerName||'') === eng; });
 
@@ -293,8 +297,8 @@ function renderTable(){
       '<td><span class="issue-type-text">'+esc(i.type||'')+'</span></td>'+
       '<td style="text-align:left">'+esc(i._projectName||'--')+'</td>'+
       '<td style="text-align:left">'+esc(i.engineerName||'--')+'</td>'+
+      '<td>'+esc(i.street||'--')+'</td>'+
       '<td>'+esc(i._constructUnit||i.responsibleUnit||'--')+'</td>'+
-      '<td style="text-align:left;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(i.details||'')+'</td>'+
       '<td>'+esc(i.source||'--')+'</td>'+
       '<td><span class="tag '+sCls+'">'+sc+'</span></td>'+
       '<td>'+esc(i.reportTime||'')+'</td>'+
@@ -386,6 +390,11 @@ function confirmTransfer(){
 }
 function showMsg(m){ var d=document.createElement('div');d.style.cssText='position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.8);color:#fff;padding:12px 24px;border-radius:8px;font-size:14px;z-index:9999';d.textContent=m;document.body.appendChild(d);setTimeout(function(){d.remove()},2000); }
 
+(function initTypeFilter(){
+  var s=document.getElementById('filterType');if(!s)return;
+  var types=window.MOCK_DATA?MOCK_DATA.getStreetIssueTypes():[];
+  types.forEach(function(t){var o=document.createElement('option');o.value=t;o.textContent=t;s.appendChild(o);});
+})();
 renderTable();
 </script>
 </body>

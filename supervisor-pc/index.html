@@ -175,8 +175,25 @@ a:hover{color:var(--text-link-hover)}
 .text-link:hover{color:var(--text-link-hover)}
 .text-link svg{width:12px;height:12px}
 
+
+/* ── 评分监管总览 ── */
+.sup-dist-chart{width:100%;height:300px}
+.sup-table-grade{display:inline-block;padding:0 8px;height:20px;line-height:20px;border-radius:var(--border-radius-tag);font-size:var(--font-size-xs);font-weight:var(--font-weight-medium)}
+.sup-table-grade.excellent{background:var(--color-success-light);color:var(--color-success-dark)}
+.sup-table-grade.good{background:var(--color-info-light);color:var(--color-info-dark)}
+.sup-table-grade.warn{background:var(--color-warning-light);color:var(--color-warning-dark)}
+.sup-table-grade.poor{background:var(--color-danger-light);color:var(--color-danger-dark)}
+.sup-table-score{font-weight:var(--font-weight-bold)}
+.sup-table-score.low{color:var(--color-danger)}
+.todo-tabs{display:flex;gap:0;margin-bottom:var(--space-4);border-bottom:2px solid var(--color-gray-200)}
+.todo-tab{padding:var(--space-2) var(--space-5);font-size:var(--font-size-sm);color:var(--text-secondary);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s;background:none;border-top:none;border-left:none;border-right:none;font-family:var(--font-family)}
+.todo-tab:hover{color:var(--text-primary)}
+.todo-tab.active{color:var(--color-primary-500);border-bottom-color:var(--color-primary-500);font-weight:var(--font-weight-bold)}
+.todo-panel{display:none}
+.todo-panel.active{display:block}
 </style>
 <script src="../shared_data.js"></script>
+<script src="../mock-data.js"></script>
 </head>
 <body>
 <div class="layout-wrapper">
@@ -255,8 +272,21 @@ a:hover{color:var(--text-link-hover)}
         </div>
       </div>
 
-      <div class="two-col-cards">
-      <!-- 待办事项 -->
+      <!-- ═══ 评分总览 ═══ -->
+      <div class="chart-row" style="margin-bottom:var(--space-4)">
+        <div class="card">
+          <div class="card-header"><div class="card-title">围挡评分分布</div></div>
+          <div class="card-body" style="padding:var(--space-3)"><div id="supScoreDistChart" class="sup-dist-chart"></div></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">本月低评分围挡 TOP5</div></div>
+          <div class="card-body" style="padding:0"><div class="table-wrapper"><table class="table" id="supTop5Table"><thead><tr><th style="width:32px;text-align:center">序号</th><th>关联工程</th><th style="width:80px;text-align:center">围挡状态</th><th style="width:80px">所属街道</th><th style="width:52px;text-align:center">得分</th><th style="width:68px;text-align:center">评分级别</th></tr></thead><tbody></tbody></table></div></div>
+        </div>
+      </div>
+      <!-- ═══ TODO Tabs ═══ -->
+      <div class="todo-tabs" id="supTodoTabs"><button class="todo-tab active" onclick="switchSupTodoTab('todo')">待办事项</button><button class="todo-tab" onclick="switchSupTodoTab('remind')">提醒事项</button></div>
+
+      <div id="supTodoPanel_todo" class="todo-panel active">
       <div class="card">
         <div class="card-header">
           <div class="card-title">待办事项 <span class="count-badge">8</span></div>
@@ -327,8 +357,10 @@ a:hover{color:var(--text-link-hover)}
           </div>
         </div>
       </div>
+      </div><!-- end supTodoPanel_todo -->
 
       <!-- 提醒事项 -->
+      <div id="supTodoPanel_remind" class="todo-panel">
       <div class="card">
         <div class="card-header">
           <div class="card-title">提醒事项</div>
@@ -386,25 +418,15 @@ a:hover{color:var(--text-link-hover)}
           </div>
         </div>
       </div>
-      </div>
+      </div><!-- end supTodoPanel_remind -->
 
-      <!-- 统计图表 -->
-      <div class="chart-row">
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">各区围挡分布统计</div>
-          </div>
-          <div class="card-body" style="padding:var(--space-3)">
-            <div id="chartDistribution" class="chart-box"></div>
-          </div>
+      <!-- 围挡预警数量趋势 -->
+      <div class="card" style="margin-bottom:var(--space-4)">
+        <div class="card-header">
+          <div class="card-title">围挡预警数量趋势</div>
         </div>
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">围挡预警数量趋势</div>
-          </div>
-          <div class="card-body" style="padding:var(--space-3)">
-            <div id="chartTrend" class="chart-box"></div>
-          </div>
+        <div class="card-body" style="padding:var(--space-3)">
+          <div id="chartTrend" class="chart-box" style="height:300px"></div>
         </div>
       </div>
 
@@ -441,15 +463,6 @@ document.querySelectorAll('.tab-btn:not(.todo-tab)').forEach(function(btn){
 });
 
 /* 图表 */
-var chartD=echarts.init(document.getElementById('chartDistribution'));
-chartD.setOption({
-  tooltip:{trigger:'axis',backgroundColor:'#fff',borderColor:'#E3E6ED',borderWidth:1,textStyle:{color:'#1F2937',fontSize:13},formatter:function(p){return p[0].name+'<br/>围挡数量：<b>'+p[0].value+'</b> 条'}},
-  grid:{left:48,right:16,top:16,bottom:32},
-  xAxis:{type:'category',data:['福田区','南山区','龙岗区','宝安区','龙华区','罗湖区','光明区','坪山区'],axisLabel:{fontSize:12,color:'#6B7280'},axisLine:{lineStyle:{color:'#E3E6ED'}},axisTick:{show:false}},
-  yAxis:{type:'value',axisLabel:{fontSize:11,color:'#9CA3B0'},splitLine:{lineStyle:{color:'#F0F1F5',type:'dashed'}},axisLine:{show:false},axisTick:{show:false}},
-  series:[{type:'bar',barWidth:24,data:[218,196,245,178,142,125,98,82],itemStyle:{color:'#1862D4',borderRadius:[2,2,0,0]}}]
-});
-
 var chartT=echarts.init(document.getElementById('chartTrend'));
 chartT.setOption({
   tooltip:{trigger:'axis',backgroundColor:'#fff',borderColor:'#E3E6ED',borderWidth:1,textStyle:{color:'#1F2937',fontSize:13},formatter:function(p){return p[0].name+'<br/>预警数量：<b>'+p[0].value+'</b> 条'}},
@@ -459,7 +472,51 @@ chartT.setOption({
   series:[{type:'line',smooth:true,data:[45,38,52,41,35,47],lineStyle:{color:'#1862D4',width:2},itemStyle:{color:'#1862D4'},symbol:'circle',symbolSize:6,areaStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:'rgba(24,98,212,0.12)'},{offset:1,color:'rgba(24,98,212,0.01)'}]}}}]
 });
 
-window.addEventListener('resize',function(){chartD.resize();chartT.resize()});
+/* ═══ 评分总览 ═══ */
+var distChart=echarts.init(document.getElementById('supScoreDistChart'));
+distChart.setOption({
+  tooltip:{trigger:'axis',axisPointer:{type:'shadow'},backgroundColor:'#fff',borderColor:'#E3E6ED',borderWidth:1,textStyle:{color:'#1F2937',fontSize:13}},
+  legend:{data:['优秀','良好','警示','差'],bottom:0,textStyle:{fontSize:12,color:'#6B7280'},itemWidth:10,itemHeight:10,itemGap:16},
+  grid:{left:40,right:16,top:16,bottom:40},
+  yAxis:{type:'value',axisLabel:{fontSize:11,color:'#9CA3B0'},splitLine:{lineStyle:{color:'#F0F1F5',type:'dashed'}},axisLine:{show:false},axisTick:{show:false}},
+  xAxis:{type:'category',data:['福田区','南山区','龙岗区','宝安区','龙华区','罗湖区','光明区','坪山区'],axisLabel:{fontSize:11,color:'#6B7280'},axisLine:{lineStyle:{color:'#E3E6ED'}},axisTick:{show:false}},
+  series:[
+    {name:'优秀',type:'bar',stack:'total',data:[3,2,1,2,1,0,1,0],itemStyle:{color:'#1A9042'},barWidth:20,emphasis:{focus:'series'}},
+    {name:'良好',type:'bar',stack:'total',data:[5,4,3,4,3,2,2,2],itemStyle:{color:'#1862D4'},emphasis:{focus:'series'}},
+    {name:'警示',type:'bar',stack:'total',data:[2,1,2,1,0,1,1,0],itemStyle:{color:'#D48A00'},emphasis:{focus:'series'}},
+    {name:'差',  type:'bar',stack:'total',data:[1,0,1,0,0,1,0,0],itemStyle:{color:'#D13B2F'},emphasis:{focus:'series'}}
+  ]
+});
+
+// TOP5 table
+(function(){
+  var scores=MOCK_DATA.getProjectScores();
+  if(!scores||!scores.length)return;
+  var hoardings=MOCK_DATA.getHoardings();
+  var scoredHoards=hoardings.map(function(h){
+    if(h.fenceStatus==='已到期')return null;
+    var ps=null;
+    scores.forEach(function(s){if(s.projectId===h.projectId)ps=s;});
+    return ps?{engineerName:h.engineerName,fenceStatus:h.fenceStatus,street:h.projectStreet||h.street,district:h.projectDistrict,total:ps.total,grade:ps.grade,gradeCls:ps.gradeCls}:null;
+  }).filter(Boolean);
+  scoredHoards.sort(function(a,b){return a.total-b.total;});
+  var top5=scoredHoards.slice(0,5);
+  var tbody5='';
+  top5.forEach(function(h,i){
+    var scCls=h.total<55?' low':'';
+    tbody5+='<tr><td class="col-num">'+(i+1)+'</td><td><div class="info-name">'+h.district+' · '+h.engineerName+'</div></td><td class="col-center"><span class="tag tag-default">'+h.fenceStatus+'</span></td><td>'+h.street+'</td><td class="col-center"><span class="sup-table-score'+scCls+'">'+h.total+'</span></td><td class="col-center"><span class="sup-table-grade '+h.gradeCls+'">'+h.grade+'</span></td></tr>';
+  });
+  document.querySelector('#supTop5Table tbody').innerHTML=tbody5;
+})();
+
+window.addEventListener('resize',function(){distChart.resize();chartT.resize()});
+
+function switchSupTodoTab(tab){
+  document.querySelectorAll('#supTodoTabs .todo-tab').forEach(function(t){t.classList.toggle('active',t.textContent.indexOf(tab==='todo'?'待办':'提醒')>-1)});
+  document.querySelectorAll('#supTodoPanel_todo, #supTodoPanel_remind').forEach(function(p){p.classList.remove('active')});
+  var panel=document.getElementById('supTodoPanel_'+tab);if(panel)panel.classList.add('active');
+}
 </script>
+
 </body>
 </html>

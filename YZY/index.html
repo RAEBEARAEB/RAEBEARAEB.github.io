@@ -99,21 +99,38 @@ body{font-family:var(--font);background:#eef4fb;display:flex;justify-content:cen
 .screen.with-bar{padding-bottom:80px}
 
 /* ═══════════ Form ═══════════ */
-.form-sect{padding:0 16px}
-.form-grp{margin-bottom:14px}
-.form-lbl{font-size:var(--font-sm);font-weight:var(--fw-m);color:var(--text);margin-bottom:5px;display:flex;align-items:center;gap:2px}
+.form-sect{padding:16px 16px 80px}
+.form-section{margin-bottom:20px}
+.form-section-title{font-size:var(--font-md);font-weight:var(--fw-b);color:var(--text);margin-bottom:12px;padding-left:12px;display:flex;align-items:center;gap:8px;line-height:1.4}
+.form-section-title::before{content:'';display:inline-block;width:3px;height:16px;background:var(--blue);border-radius:2px;flex-shrink:0;margin-left:-12px;margin-right:0}
+.form-card{background:var(--panel);border-radius:var(--radius-lg);padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.04);border:1px solid var(--gray-100)}
+.form-card-title{font-size:var(--font-md);font-weight:var(--fw-b);color:var(--text);margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid var(--gray-100);display:flex;align-items:center;gap:var(--space-2)}
+.form-card-title::before{content:'';display:inline-block;width:3px;height:14px;background:var(--blue);border-radius:2px;flex-shrink:0}
+.form-grp{margin-bottom:var(--space-5)}
+.form-card .form-grp:last-child{margin-bottom:0}
+.form-lbl{font-size:var(--font-sm);font-weight:var(--fw-m);color:var(--text);margin-bottom:6px;display:flex;align-items:center;gap:2px}
 .form-lbl .req{color:var(--red)}
-.form-hint{font-size:var(--font-xs);color:var(--text-tertiary);margin-top:3px}
-.form-sel,.form-inp,.form-area{width:100%;border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:10px 12px;font-size:var(--font-md);color:var(--text);background:var(--panel);outline:none;font-family:var(--font);transition:border-color 0.15s}
-.form-sel:focus,.form-inp:focus,.form-area:focus{border-color:var(--blue)}
+.form-hint{font-size:var(--font-xs);color:var(--text-tertiary);margin-top:4px}
+.form-sel,.form-inp,.form-area{width:100%;border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:10px 12px;font-size:var(--font-md);color:var(--text);background:var(--panel);outline:none;font-family:var(--font);transition:border-color .15s,box-shadow .15s}
+.form-sel:focus,.form-inp:focus,.form-area:focus{border-color:var(--blue);box-shadow:0 0 0 2px var(--blue-50)}
 .form-sel:disabled,.form-inp:disabled{background:var(--gray-50);color:var(--text-tertiary);cursor:not-allowed}
 .form-area{resize:vertical;min-height:90px;line-height:1.5}
 
 /* ═══════════ Issue Type Grid ═══════════ */
 .type-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
-.type-chip{border:1.5px solid var(--gray-200);border-radius:var(--radius-md);padding:10px 6px;text-align:center;font-size:var(--font-sm);color:var(--text-sub);cursor:pointer;transition:all 0.15s;background:var(--panel);display:flex;align-items:center;justify-content:center;gap:4px}
+.type-chip{border:1.5px solid var(--gray-200);border-radius:var(--radius-md);padding:10px 6px;text-align:center;font-size:var(--font-sm);color:var(--text-sub);cursor:pointer;transition:all .15s;background:var(--panel);display:flex;align-items:center;justify-content:center;gap:4px}
+.type-chip:hover{border-color:var(--blue-300)}
 .type-chip.selected{border-color:var(--blue);background:var(--blue-50);color:var(--blue);font-weight:var(--fw-b)}
 .type-chip:active{background:var(--gray-50)}
+
+/* ═══════════ 应建未建 section ═══════════ */
+.yzzy-notbuilt-card{margin-top:var(--space-4);padding:var(--space-4);background:var(--gray-50);border-radius:var(--radius-lg);border:1px dashed var(--gray-300)}
+.yzzy-notbuilt-card .yzzy-radio-row{display:flex;gap:var(--space-3)}
+.yzzy-notbuilt-card .yzzy-radio-opt{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;font-size:var(--font-md);color:var(--text);padding:10px 0;border:1.5px solid var(--gray-200);border-radius:var(--radius-md);background:var(--panel);transition:all .15s}
+.yzzy-notbuilt-card .yzzy-radio-opt:has(input:checked){border-color:var(--blue);background:var(--blue-50);color:var(--blue);font-weight:var(--fw-b)}
+.yzzy-inline-pair{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3)}
+.yzzy-inline-pair .form-grp{margin-bottom:0}
+
 
 /* ═══════════ Fence Info Card ═══════════ */
 .fence-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:14px;box-shadow:var(--shadow-sm)}
@@ -173,6 +190,10 @@ body{font-family:var(--font);background:#eef4fb;display:flex;justify-content:cen
 .loc-legend span{display:flex;align-items:center;gap:3px}
 .loc-legend .line{display:inline-block;width:10px;height:0;border-top:2px solid}
 .loc-legend .dot{display:inline-block;width:5px;height:5px;border-radius:50%}
+
+.yzzy-tabs{display:flex;gap:0;padding:0 6px;margin:8px 10px 0;background:var(--gray-50);border-radius:var(--radius-lg)}
+.yzzy-tab{flex:1;text-align:center;padding:8px 0;font-size:12px;font-weight:500;color:var(--text-secondary);border:none;background:transparent;cursor:pointer;border-radius:var(--radius-lg);transition:all .15s;font-family:var(--font-family)}
+.yzzy-tab.active{background:var(--blue);color:#fff;font-weight:600;box-shadow:0 1px 3px rgba(24,98,212,.3)}
 </style>
 </head>
 <body>
@@ -194,6 +215,11 @@ body{font-family:var(--font);background:#eef4fb;display:flex;justify-content:cen
         <option value="all">全部类型</option>
       </select>
     </div>
+    <div class="yzzy-tabs" id="yzzyTabs">
+      <button class="yzzy-tab active" data-tab="all" onclick="switchYZYTab('all')">全部</button>
+      <button class="yzzy-tab" data-tab="street" onclick="switchYZYTab('street')">街道上报</button>
+      <button class="yzzy-tab" data-tab="supervise" onclick="switchYZYTab('supervise')">街道督办</button>
+    </div>
     <div id="issueList"></div>
     <div class="empty" id="empty" style="display:none">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
@@ -207,47 +233,75 @@ body{font-family:var(--font);background:#eef4fb;display:flex;justify-content:cen
       <div class="nav-back" style="color:var(--blue);cursor:pointer;pointer-events:auto" onclick="goBack()"></div>
       <div class="nav-title">上报围挡问题</div>
     </div></div>
-    <div class="form-sect" style="padding-top:14px;padding-bottom:80px">
+    <div class="form-sect" style="padding-top:16px;padding-bottom:80px">
 
-      <!-- (1) 问题类型 -->
-      <div class="form-grp"><div class="form-lbl"><span class="req">*</span> 问题类型</div>
-      <div class="type-grid" id="typeGrid"></div></div>
+      <!-- ── 第 1 组：问题分类 ── -->
+      <div class="form-section">
+        <div class="form-section-title">问题分类</div>
+        <div class="form-card">
 
-      <!-- (2) 关联项目 -->
-      <div class="form-grp"><div class="form-lbl"><span class="req">*</span> 关联项目</div>
-      <select class="form-sel" id="rptProject" onchange="onProjectChange()"><option value="">请选择项目</option></select></div>
+        <div class="form-grp"><div class="form-lbl"><span class="req">*</span> 问题类型</div>
+        <div class="type-grid" id="typeGrid"></div></div>
 
-      <!-- (3) 关联工程 -->
-      <div class="form-grp"><div class="form-lbl"><span class="req">*</span> 关联工程</div>
-      <select class="form-sel" id="rptEngineer" onchange="onEngineerChange()"><option value="">请选择工程</option></select></div>
-
-      <!-- (4) 围挡信息卡片 -->
-      <div id="fenceInfoCard" style="display:none"></div>
-
-      <!-- (5) 责任单位 -->
-      <div class="form-grp" id="respUnitGrp"><div class="form-lbl"><span class="req">*</span> 责任单位</div>
-      <select class="form-sel" id="rptRespUnit"><option value="">请选择责任单位</option></select></div>
-
-      <!-- (6) 问题详情 -->
-      <div class="form-grp"><div class="form-lbl"><span class="req">*</span> 问题详情</div>
-      <textarea class="form-area" id="rptDetail" placeholder="请详细描述围挡问题情况"></textarea></div>
-
-      <!-- (7) 照片 -->
-      <div class="form-grp"><div class="form-lbl"><span class="req">*</span> 现场照片 <span style="font-weight:var(--fw-r);color:var(--text-tertiary)">（至少上传一张）</span></div>
-      <div class="photo-row" id="photoRow">
-        <div class="photo-add" onclick="document.getElementById('camInput').click()"><i class="ti ti-camera" style="font-size:22px"></i>拍照</div>
-        <div class="photo-add" onclick="document.getElementById('fileInput').click()"><i class="ti ti-photo" style="font-size:22px"></i>相册</div>
-        <input type="file" id="camInput" accept="image/*" capture="environment" multiple style="display:none" onchange="handlePhotos(event)">
-        <input type="file" id="fileInput" accept="image/*" multiple style="display:none" onchange="handlePhotos(event)">
+        <!-- (1a) 应建未建 — 项目工程是否已报建 + 区域/街道 -->
+        <div id="yzzyIsReportedGrp" style="display:none" class="yzzy-notbuilt-card">
+          <div class="form-grp"><div class="form-lbl"><span class="req">*</span> 项目工程是否已报建</div>
+          <div class="yzzy-radio-row">
+            <label class="yzzy-radio-opt"><input type="radio" name="yzzyIsReported" value="是" onchange="onIsReportedChange()"> 是</label>
+            <label class="yzzy-radio-opt"><input type="radio" name="yzzyIsReported" value="否" onchange="onIsReportedChange()"> 否</label>
+          </div></div>
+          <div class="yzzy-inline-pair">
+            <div class="form-grp" id="yzzyDistrictGrp" style="display:none"><div class="form-lbl"><span class="req">*</span> 所属区域</div>
+            <select class="form-sel" id="yzzyDistrict" onchange="onDistrictChange()"><option value="">请选择所属区域</option></select></div>
+            <div class="form-grp" id="yzzyStreetGrp" style="display:none"><div class="form-lbl"><span class="req">*</span> 所属街道</div>
+            <select class="form-sel" id="yzzyStreet"><option value="">请先选择所属区域</option></select></div>
+          </div>
+        </div>
+        </div>
       </div>
-      <div class="form-hint" style="margin-top:6px">支持 JPG、PNG 格式，单张不超过 5MB</div></div>
 
-      <!-- (8) 问题位置 -->
-      <div class="form-grp"><div class="form-lbl"><span class="req">*</span> 问题位置</div>
-      <div class="loc-row" onclick="openLocPicker()">
-        <i class="ti ti-map-pin"></i><span class="loc-txt" id="locText">点击选择问题位置</span>
-        <span class="loc-edit"><i class="ti ti-chevron-right" style="font-size:14px"></i></span>
-      </div></div>
+      <!-- ── 第 2 组：关联信息 ── -->
+      <div class="form-section" id="yzzyRelationCard">
+        <div class="form-section-title">关联信息</div>
+        <div class="form-card">
+
+        <div class="form-grp" id="rptProjectGrp"><div class="form-lbl"><span class="req">*</span> 关联项目</div>
+        <select class="form-sel" id="rptProject" onchange="onProjectChange()"><option value="">请选择项目</option></select></div>
+
+        <div class="form-grp" id="rptEngineerGrp"><div class="form-lbl"><span class="req">*</span> 关联工程</div>
+        <select class="form-sel" id="rptEngineer" onchange="onEngineerChange()"><option value="">请选择工程</option></select></div>
+
+        <div id="fenceInfoCard" style="display:none"></div>
+
+        <div class="form-grp" id="respUnitGrp"><div class="form-lbl"><span class="req">*</span> 责任单位</div>
+        <select class="form-sel" id="rptRespUnit"><option value="">请选择责任单位</option></select></div>
+        </div>
+      </div>
+
+      <!-- ── 第 3 组：问题信息 ── -->
+      <div class="form-section">
+        <div class="form-section-title">问题信息</div>
+        <div class="form-card">
+
+        <div class="form-grp"><div class="form-lbl"><span class="req">*</span> 问题详情</div>
+        <textarea class="form-area" id="rptDetail" placeholder="请详细描述围挡问题情况"></textarea></div>
+
+        <div class="form-grp"><div class="form-lbl"><span class="req">*</span> 现场照片 <span style="font-weight:var(--fw-r);color:var(--text-tertiary)">（至少上传一张）</span></div>
+        <div class="photo-row" id="photoRow">
+          <div class="photo-add" onclick="document.getElementById('camInput').click()"><i class="ti ti-camera" style="font-size:22px"></i>拍照</div>
+          <div class="photo-add" onclick="document.getElementById('fileInput').click()"><i class="ti ti-photo" style="font-size:22px"></i>相册</div>
+          <input type="file" id="camInput" accept="image/*" capture="environment" multiple style="display:none" onchange="handlePhotos(event)">
+          <input type="file" id="fileInput" accept="image/*" multiple style="display:none" onchange="handlePhotos(event)">
+        </div>
+        <div class="form-hint" style="margin-top:6px">支持 JPG、PNG 格式，单张不超过 5MB</div></div>
+
+        <div class="form-grp"><div class="form-lbl"><span class="req">*</span> 问题位置</div>
+        <div class="loc-row" onclick="openLocPicker()">
+          <i class="ti ti-map-pin"></i><span class="loc-txt" id="locText">点击选择问题位置</span>
+          <span class="loc-edit"><i class="ti ti-chevron-right" style="font-size:14px"></i></span>
+        </div></div>
+        </div>
+      </div>
 
     </div>
   </div>
@@ -310,10 +364,17 @@ function updateFixBtn(screenId) {
 
 /* ═══════════ Issue List ═══════════ */
 function renderList() {
-  var issues = MOCK_DATA.getStreetIssues();
+  var _yzzyTab="all";var YZYZ_STREET="粤海街道";var issues = MOCK_DATA.getStreetIssues();
   var kw = (document.getElementById('kw').value||'').trim().toLowerCase();
   var tp = document.getElementById('tpFilter').value;
-  if (kw) issues = issues.filter(function(i){ return (i.type||'').toLowerCase().indexOf(kw)>-1 || (i.details||'').toLowerCase().indexOf(kw)>-1 || (i.engineerName||'').toLowerCase().indexOf(kw)>-1 || (i.responsibleUnit||'').toLowerCase().indexOf(kw)>-1; });
+  function switchYZYTab(tab){
+  _yzzyTab=tab;
+  document.querySelectorAll('.yzzy-tab').forEach(function(b){b.classList.toggle('active',b.dataset.tab===tab)});
+  renderList();
+}
+if(_yzzyTab==='street') issues=issues.filter(function(i){return(i.source||'')==='街道上报'&&i.type!=='应建未建围挡';});
+if(_yzzyTab==='supervise') issues=issues.filter(function(i){return i.type==='应建未建围挡'&&(i.street||'')===YZYZ_STREET;});
+if (kw) issues = issues.filter(function(i){ return (i.type||'').toLowerCase().indexOf(kw)>-1 || (i.details||'').toLowerCase().indexOf(kw)>-1 || (i.engineerName||'').toLowerCase().indexOf(kw)>-1 || (i.responsibleUnit||'').toLowerCase().indexOf(kw)>-1; });
   if (tp !== 'all') issues = issues.filter(function(i){ return i.type === tp; });
 
   var el = document.getElementById('issueList'), emp = document.getElementById('empty');
@@ -324,7 +385,7 @@ function renderList() {
   issues.forEach(function(i){
     var stCls = i.status === '待整改' || i.status === '退回整改' || i.status === '待接收' ? 'warn' : i.status === '待审核' ? 'info' : i.status === '整改逾期' ? 'danger' : 'done';
     var cardCls = i.status === '待整改' || i.status === '退回整改' ? ' pending' : i.status === '整改逾期' ? ' danger' : '';
-    h += '<div class="issue-card'+cardCls+'"><div class="issue-card-body">'+
+    h += '<div class="issue-card'+cardCls+'" onclick="onYZYIssueClick(\x27'+i.id+'\x27)"><div class="issue-card-body">'+
       '<div class="issue-row1"><div class="type">'+esc(i.type)+'</div><div class="tag '+stCls+'">'+i.status+'</div></div>'+
       '<div class="issue-row2"><span class="eng">'+esc(i.engineerName||'--')+'</span></div>'+
       '<div class="issue-row3"><span class="unit">'+esc(i.responsibleUnit||'--')+'</span><span class="time">'+i.reportTime+'</span></div>'+
@@ -336,6 +397,14 @@ function renderList() {
 /* ═══════════ Report Init ═══════════ */
 function initReport() {
   renderTypeGrid();
+  // Reset 应建未建 fields
+  setFmGrp('yzzyIsReportedGrp',false);
+  setFmGrp('yzzyDistrictGrp',false);
+  setFmGrp('yzzyStreetGrp',false);
+  setFmGrp('rptProjectGrp',true);
+  setFmGrp('rptEngineerGrp',true);
+  setFmGrp('respUnitGrp',true);
+  initYzzyDistrict();
   if (!S.qrFenceId) {
     document.getElementById('fenceInfoCard').style.display = 'none';
     document.getElementById('rptDetail').value = '';
@@ -351,11 +420,66 @@ function initReport() {
   if (!S.loc.picked) { document.getElementById('locText').textContent = '点击选择问题位置'; }
 }
 
+function setFmGrp(id,vis){var el=document.getElementById(id);if(el)el.style.display=vis?'':'none';}
 function renderTypeGrid() {
   var types = MOCK_DATA.getStreetIssueTypes();
   document.getElementById('typeGrid').innerHTML = types.map(function(t){
-    return '<div class="type-chip'+(S.issueType===t?' selected':'')+'" onclick="S.issueType=\''+t+'\';renderTypeGrid();onEngineerChange()">'+t+'</div>';
+    return '<div class="type-chip'+(S.issueType===t?' selected':'')+'" onclick="S.issueType=\''+t+'\';renderTypeGrid();onIssueTypeChange()">'+t+'</div>';
   }).join('');
+}
+function onIssueTypeChange(){
+  var isNotBuilt=S.issueType==='应建未建围挡';
+  setFmGrp('yzzyIsReportedGrp',isNotBuilt);
+  setFmGrp('yzzyDistrictGrp',false);
+  setFmGrp('yzzyStreetGrp',false);
+  setFmGrp('rptProjectGrp',!isNotBuilt);
+  setFmGrp('rptEngineerGrp',!isNotBuilt);
+  setFmGrp('respUnitGrp',!isNotBuilt);
+  setFmGrp('fenceInfoCard',!isNotBuilt);
+  setFmGrp('yzzyRelationCard',!isNotBuilt);
+  if(!isNotBuilt){onEngineerChange();}
+}
+function onIsReportedChange(){
+  var v=document.querySelector('input[name="yzzyIsReported"]:checked');
+  var isYes=v&&v.value==='是';
+  setFmGrp('yzzyDistrictGrp',!isYes);
+  setFmGrp('yzzyStreetGrp',!isYes);
+  setFmGrp('rptProjectGrp',isYes);
+  setFmGrp('rptEngineerGrp',isYes);
+  setFmGrp('respUnitGrp',isYes);
+  setFmGrp('fenceInfoCard',isYes);
+  setFmGrp('yzzyRelationCard',isYes);
+  if(isYes){onProjectChange();}
+}
+var _yzzyDistrictMap={
+'福田区':['福田街道','香蜜湖街道','华强北街道','园岭街道','南园街道','沙头街道','梅林街道'],
+'罗湖区':['桂园街道','黄贝街道','东门街道','南湖街道','笋岗街道','清水河街道','翠竹街道','东湖街道','莲塘街道'],
+'南山区':['粤海街道','南头街道','沙河街道','西丽街道','桃源街道','蛇口街道','招商街道'],
+'宝安区':['新安街道','西乡街道','航城街道','福永街道','沙井街道','松岗街道','石岩街道'],
+'龙华区':['民治街道','龙华街道','大浪街道','福城街道','观澜街道','观湖街道'],
+'光明区':['光明街道','公明街道','新湖街道','凤凰街道'],
+'龙岗区':['龙岗街道','龙城街道','坪地街道','横岗街道','园山街道','布吉街道','坂田街道','南湾街道'],
+'盐田区':['沙头角街道','海山街道','盐田街道'],
+'坪山区':['坪山街道','坑梓街道','龙田街道','石井街道'],
+'大鹏新区':['大鹏街道','南澳街道','葵涌街道']
+};
+function initYzzyDistrict(){
+var sel=document.getElementById('yzzyDistrict');
+sel.innerHTML='<option value="">请选择所属区域</option>';
+Object.keys(_yzzyDistrictMap).sort().forEach(function(d){
+var o=document.createElement('option');o.value=d;o.textContent=d;sel.appendChild(o);
+});
+}
+function onDistrictChange(){
+var dist=document.getElementById('yzzyDistrict').value;
+var ss=document.getElementById('yzzyStreet');
+ss.innerHTML='<option value="">请选择所属街道</option>';
+if(dist&&_yzzyDistrictMap[dist]){
+_yzzyDistrictMap[dist].forEach(function(s){
+var o=document.createElement('option');o.value=s;o.textContent=s;ss.appendChild(o);
+});
+ss.disabled=false;
+}else{ss.disabled=true;}
 }
 
 /* ═══════════ Project/Engineer Select ═══════════ */
@@ -611,6 +735,23 @@ function randomScan() {
 /* ═══════════ Submit ═══════════ */
 function submitReport(){
   if (!S.issueType) { toast('请选择问题类型'); return; }
+  var isNotBuilt=S.issueType==='应建未建围挡';
+  if(isNotBuilt){
+    var isReported=document.querySelector('input[name="yzzyIsReported"]:checked');
+    if(!isReported){toast('请选择项目工程是否已报建');return;}
+    if(isReported.value==='否'){
+      var dist=document.getElementById('yzzyDistrict').value;
+      var strt=document.getElementById('yzzyStreet').value;
+      if(!dist){toast('请选择所属区域');return;}
+      if(!strt){toast('请选择所属街道');return;}
+      var detail=document.getElementById('rptDetail').value.trim();
+      if(!detail){toast('请填写问题详情');return;}
+      if(S.photos.length===0){toast('请至少上传一张照片');return;}
+      if(!S.loc.picked){toast('请选择问题位置');return;}
+      MOCK_DATA.addStreetIssue({type:S.issueType,fenceId:'',fenceAddr:dist+strt,details:detail,photos:S.photos.slice(),location:{lat:S.loc.lat,lng:S.loc.lng,addr:S.loc.addr},projectName:'',engineerName:'',responsibleUnit:'',street:strt,source:'街道上报'});
+      toast('问题已上报成功');setTimeout(function(){navTo('scMain')},1200);return;
+    }
+  }
   var pn = document.getElementById('rptProject').value;
   if (!pn) { toast('请选择关联项目'); return; }
   var en = document.getElementById('rptEngineer').value;
@@ -646,6 +787,54 @@ function toast(m){var t=document.getElementById('toast');t.textContent=m;t.class
 function startReport(){S.qrFenceId=null;S.qrProject=null;S.qrEngineer=null;S.issueType=null;S.photos=[];S.loc={lat:null,lng:null,addr:'',picked:false};navTo('scReport')}
 
 /* ═══════════ Init ═══════════ */
+
+var _yzyIssueModal=null;
+function onYZYIssueClick(id){
+  var all=MOCK_DATA.getStreetIssues();var issue=null;
+  all.forEach(function(i){if(i.id===id)issue=i;});
+  if(!issue)return;
+  var isNotBuilt=issue.type==='应建未建围挡';
+  var canRectify=isNotBuilt&&(issue.status==='待整改'||issue.status==='待审核'||issue.status==='整改逾期');
+  if(canRectify) openRectifySheet(issue); else openIssueDetail(issue);
+}
+function openRectifySheet(issue){
+  if(_yzyIssueModal){_yzyIssueModal.remove();}
+  var ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;flex-direction:column';
+  ov.onclick=function(e){if(e.target===ov)ov.remove();};
+  var h='<div style="flex:1;min-height:0"></div><div style="background:#fff;border-radius:16px 16px 0 0;max-height:82vh;overflow-y:auto;padding:16px">';
+  h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><span style="font-size:18px;font-weight:700">提交整改</span><span onclick="var p=this.parentNode.parentNode.parentNode;p.remove()" style="font-size:24px;cursor:pointer;color:#999">&times;</span></div>';
+  h+='<div style="background:#FFF5F5;border-radius:8px;padding:12px;margin-bottom:16px"><div style="font-size:13px;color:#D13B2F;font-weight:600">'+esc(issue.type)+'</div><div style="font-size:12px;color:#666;margin-top:4px">'+esc(issue.details||'')+'</div></div>';
+  h+='<div style="font-size:13px;color:#666;margin-bottom:12px">所属街道：'+esc(issue.street||'--')+'</div>';
+  h+='<div class="rect-form-grp"><div class="rect-form-lbl">整改情况</div><textarea class="rect-form-textarea" id="yzyRectDesc" placeholder="请描述整改措施和完成情况"></textarea></div>';
+  h+='<button style="width:100%;margin-top:16px;padding:12px;border:none;border-radius:8px;background:var(--blue);color:#fff;font-size:15px;font-weight:600" onclick="saveYZYRectification(\x27'+issue.id+'\x27)">提交整改</button>';
+  h+='</div>';
+  ov.innerHTML=h;document.body.appendChild(ov);_yzyIssueModal=ov;
+}
+function saveYZYRectification(id){
+  var desc=document.getElementById('yzyRectDesc').value.trim();
+  if(!desc){toast('请填写整改情况');return;}
+  MOCK_DATA.submitRectification(id,{rectifier:'街道巡查员',rectifierUnit:YZYZ_STREET,rectTime:new Date().toISOString().slice(0,16).replace('T',' '),desc:desc,photos:[]});
+  toast('整改已提交');if(_yzyIssueModal)_yzyIssueModal.remove();
+  setTimeout(function(){renderList();},500);
+}
+function openIssueDetail(issue){
+  if(_yzyIssueModal){_yzyIssueModal.remove();}
+  var ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;flex-direction:column';
+  ov.onclick=function(e){if(e.target===ov)ov.remove();};
+  var h='<div style="flex:1;min-height:0"></div><div style="background:#fff;border-radius:16px 16px 0 0;max-height:82vh;overflow-y:auto;padding:16px">';
+  h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><span style="font-size:18px;font-weight:700">问题详情</span><span onclick="var p=this.parentNode.parentNode.parentNode;p.remove()" style="font-size:24px;cursor:pointer;color:#999">&times;</span></div>';
+  h+='<div style="margin-bottom:12px"><span style="font-size:14px;font-weight:600">'+esc(issue.type)+'</span><span class="tag" style="margin-left:8px;background:var(--blue-50);color:var(--blue);padding:2px 8px;border-radius:10px;font-size:11px">'+esc(issue.status)+'</span></div>';
+  h+='<div style="font-size:12px;color:#999;margin-bottom:4px">上报时间</div><div style="font-size:13px;color:#333;margin-bottom:12px">'+esc(issue.reportTime||'')+'</div>';
+  if(issue.responsibleUnit) h+='<div style="font-size:12px;color:#999;margin-bottom:4px">责任单位</div><div style="font-size:13px;color:#333;margin-bottom:12px">'+esc(issue.responsibleUnit)+'</div>';
+  if(issue.street) h+='<div style="font-size:12px;color:#999;margin-bottom:4px">所属街道</div><div style="font-size:13px;color:#333;margin-bottom:12px">'+esc(issue.street)+'</div>';
+  h+='<div style="font-size:12px;color:#999;margin-bottom:4px">问题描述</div><div style="font-size:13px;color:#333;line-height:1.6;margin-bottom:12px">'+esc(issue.details||'')+'</div>';
+  h+='<div style="font-size:12px;color:#999;margin-bottom:4px">问题来源</div><div style="font-size:13px;color:#333;margin-bottom:12px">'+esc(issue.source||'')+'</div>';
+  h+='</div>';
+  ov.innerHTML=h;document.body.appendChild(ov);_yzyIssueModal=ov;
+}
+
 // Populate filter dropdown from mock dictionary
 (function(){
   var sel = document.getElementById('tpFilter');

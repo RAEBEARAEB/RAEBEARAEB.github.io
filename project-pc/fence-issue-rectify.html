@@ -158,6 +158,8 @@ function loadIssue(){
     '<div class="info-item"><span class="info-lbl">关联项目</span><span class="info-val">'+esc(_issue._projectName||'--')+'</span></div>'+
     '<div class="info-item"><span class="info-lbl">关联工程</span><span class="info-val">'+esc(_issue.engineerName||'--')+'</span></div>'+
     '<div class="info-item"><span class="info-lbl">责任单位</span><span class="info-val">'+esc(_issue._constructUnit||_issue.responsibleUnit||'--')+'</span></div>'+
+    '<div class="info-item"><span class="info-lbl">所属街道</span><span class="info-val">'+esc(_issue.street||'--')+'</span></div>'+
+    '<div class="info-item"><span class="info-lbl">所属区域</span><span class="info-val">'+esc(_issue._district||'--')+'</span></div>'+
     '<div class="info-item"><span class="info-lbl">上报时间</span><span class="info-val">'+esc(_issue.reportTime||'')+'</span></div>'+
     '<div class="info-item full"><span class="info-lbl">问题详情</span><span class="info-val">'+esc(_issue.details||'')+'</span></div>';
   if(_issue.photos&&_issue.photos.length)h+='<div class="info-item full"><span class="info-lbl">现场照片</span><div class="photo-grid">'+_issue.photos.map(function(p){return'<img src="'+p+'">'}).join('')+'</div></div>';

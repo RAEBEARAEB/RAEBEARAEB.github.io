@@ -112,7 +112,8 @@ a{color:var(--text-link);text-decoration:none}::-webkit-scrollbar{width:6px}::-w
 <div class="card"><div class="search-bar" style="margin-bottom:0">
   <input type="text" id="filterKeyword" placeholder="搜索项目/工程/问题描述" oninput="renderTable()">
   <select id="filterStatus" onchange="renderTable()"><option value="all">全部状态</option><option value="待整改">待整改</option><option value="退回整改">退回整改</option><option value="整改逾期">整改逾期</option><option value="待审核">待审核</option><option value="审核通过">审核通过</option></select>
-  <select id="filterSource" onchange="renderTable()"><option value="all">全部来源</option><option value="街道上报">街道上报</option><option value="群众上报">群众上报</option><option value="监管巡查">监管巡查</option></select>
+  <select id="filterSource" onchange="renderTable()"><option value="all">全部来源</option><option value="街道上报">街道上报</option><option value="群众上报">群众上报</option><option value="监管巡查">监管巡查</option><option value="项目巡检">项目巡检</option></select>
+  <select id="filterType" onchange="renderTable()"><option value="all">全部类型</option></select>
   <button class="btn btn-primary btn-sm" onclick="renderTable()"><svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>查询</button>
   <button class="btn btn-ghost btn-sm" onclick="document.getElementById('filterKeyword').value='';document.getElementById('filterStatus').value='all';document.getElementById('filterSource').value='all';renderTable()"><svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>重置</button>
 </div></div>
@@ -121,7 +122,7 @@ a{color:var(--text-link);text-decoration:none}::-webkit-scrollbar{width:6px}::-w
 <div class="table-wrap">
   <table class="table">
     <thead><tr>
-      <th style="width:32px">序号</th><th style="width:90px">问题类型</th><th style="width:150px;text-align:left">关联项目</th><th style="width:120px;text-align:left">关联工程</th><th style="width:140px">责任单位</th><th style="width:145px">问题描述</th><th style="width:75px">问题来源</th><th style="width:75px">状态</th><th style="width:100px">上报时间</th><th style="width:118px">操作</th>
+      <th style="width:32px">序号</th><th style="width:90px">问题类型</th><th style="width:150px;text-align:left">关联项目</th><th style="width:120px;text-align:left">关联工程</th><th style="width:80px">所属街道</th><th style="width:140px">责任单位</th><th style="width:75px">问题来源</th><th style="width:75px">状态</th><th style="width:100px">上报时间</th><th style="width:118px">操作</th>
     </tr></thead>
     <tbody id="tableBody"></tbody>
   </table>
@@ -142,14 +143,16 @@ function renderTable(){
   var kw=(document.getElementById('filterKeyword').value||'').trim().toLowerCase();
   var st=document.getElementById('filterStatus').value;
   var src=document.getElementById('filterSource').value;
+  var ft=document.getElementById('filterType').value;
   if(kw)_items=_items.filter(function(i){return(i.details||'').toLowerCase().indexOf(kw)>-1||(i._projectName||'').toLowerCase().indexOf(kw)>-1||(i.engineerName||'').toLowerCase().indexOf(kw)>-1;});
   if(st!=='all')_items=_items.filter(function(i){return i.status===st;});
   if(src!=='all')_items=_items.filter(function(i){return(i.source||'街道上报')===src;});
+  if(ft!=='all')_items=_items.filter(function(i){return i.type===ft;});
   var total=_items.length,start=(_page-1)*_pageSize,pageItems=_items.slice(start,start+_pageSize),h='';
   pageItems.forEach(function(i,idx){
     var sc=i.status==='待整改'?'待整改':i.status==='待审核'?'待审核':i.status==='退回整改'?'退回整改':i.status==='整改逾期'?'整改逾期':i.status==='待接收'?'待接收':'审核通过';
     var sCls=i.status==='待整改'?'tag-warning':i.status==='退回整改'?'tag-warning':i.status==='待审核'?'tag-info':i.status==='整改逾期'?'tag-danger':i.status==='待接收'?'tag-warning':'tag-success';
-    h+='<tr><td>'+(start+idx+1)+'</td><td><span class="issue-type-text">'+esc(i.type||'')+'</span></td><td style="text-align:left">'+esc(i._projectName||'--')+'</td><td style="text-align:left">'+esc(i.engineerName||'--')+'</td><td>'+esc(i._constructUnit||i.responsibleUnit||'--')+'</td><td style="text-align:left;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(i.details||'')+'</td><td>'+esc(i.source||'--')+'</td><td><span class="tag '+sCls+'">'+sc+'</span></td><td>'+esc(i.reportTime||'')+'</td><td><div class="table-actions"><a class="table-action-link" href="supervisor-issue-detail.html?id='+i.id+'">详情</a>'+(i.status==='待审核'?'<a class="table-action-link warning" href="supervisor-issue-audit.html?id='+i.id+'">审核</a>':'')+'</div></td></tr>';
+    h+='<tr><td>'+(start+idx+1)+'</td><td><span class="issue-type-text">'+esc(i.type||'')+'</span></td><td style="text-align:left">'+esc(i._projectName||'--')+'</td><td style="text-align:left">'+esc(i.engineerName||'--')+'</td><td>'+esc(i.street||'--')+'</td><td>'+esc(i._constructUnit||i.responsibleUnit||'--')+'</td><td>'+esc(i.source||'--')+'</td><td><span class="tag '+sCls+'">'+sc+'</span></td><td>'+esc(i.reportTime||'')+'</td><td><div class="table-actions"><a class="table-action-link" href="supervisor-issue-detail.html?id='+i.id+'">详情</a>'+(i.status==='待审核'?'<a class="table-action-link warning" href="supervisor-issue-audit.html?id='+i.id+'">审核</a>':'')+'</div></td></tr>';
   });
   if(!total)h='<tr><td colspan="10" style="padding:40px;color:var(--text-tertiary)">暂无数据</td></tr>';
   document.getElementById('tableBody').innerHTML=h;
@@ -169,6 +172,11 @@ function renderStatCards(){
   document.getElementById('statCards').innerHTML=h;
 }
 function goPage(p){_page=p;renderTable();}
+(function initTypeFilter(){
+  var s=document.getElementById('filterType');if(!s)return;
+  var types=window.MOCK_DATA?MOCK_DATA.getStreetIssueTypes():[];
+  types.forEach(function(t){var o=document.createElement('option');o.value=t;o.textContent=t;s.appendChild(o);});
+})();
 renderTable();
 </script>
 </body>

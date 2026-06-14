@@ -345,7 +345,6 @@ tr.empty-row:hover td{background:transparent!important}
             <button class="status-tab" data-status="已到期" onclick="filterByTab(this)">已到期 <span class="status-tab-num" id="tabNumExpired">0</span></button>
           </div>
           <div class="card-toolbar-right">
-            <button class="btn btn-ghost btn-sm" onclick="showModal('importModal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>批量导入</button>
             <button class="btn btn-ghost btn-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>导出</button>
           </div>
         </div>
@@ -385,22 +384,6 @@ tr.empty-row:hover td{background:transparent!important}
   </div>
 </div>
 
-<!-- 批量导入弹窗 -->
-<div class="modal-overlay" id="importModal">
-  <div class="modal">
-    <div class="modal-header"><span class="modal-title">批量导入围挡数据</span><button class="modal-close" onclick="hideModal('importModal')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
-    <div class="modal-body">
-      <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
-        <div class="upload-zone-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
-        <div class="upload-zone-text">点击此处选择文件，或将文件拖拽到此区域</div>
-        <div class="upload-zone-hint">支持 .xlsx、.xls、.csv 格式，单次最多导入 500 条数据</div>
-        <input type="file" id="fileInput" accept=".xlsx,.xls,.csv">
-      </div>
-      <div id="uploadResult" style="margin-top:var(--space-4);padding:var(--space-3) var(--space-4);background:var(--color-success-light);border:1px solid #C2E4CB;border-radius:var(--border-radius-md);font-size:var(--font-size-sm);color:var(--color-success-dark);display:none;"><span id="uploadFileName"></span></div>
-    </div>
-    <div class="modal-footer"><button class="btn btn-ghost btn-sm" onclick="hideModal('importModal')">取消</button><button class="btn btn-primary btn-sm">开始导入</button></div>
-  </div>
-</div>
 
 <!-- 删除确认弹窗 -->
 <div class="modal-overlay" id="deleteModal">

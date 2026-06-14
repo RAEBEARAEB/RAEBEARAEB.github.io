@@ -118,6 +118,15 @@ a:hover{color:var(--text-link-hover)}
 .detail-file{display:inline-flex;align-items:center;gap:var(--space-1);color:var(--text-link);font-size:var(--font-size-sm);cursor:pointer}
 .detail-file:hover{color:var(--text-link-hover)}
 .detail-file svg{width:14px;height:14px;flex-shrink:0}
+.tag{display:inline-flex;align-items:center;padding:2px 10px;border-radius:var(--border-radius-tag);font-size:var(--font-size-xs);font-weight:var(--font-weight-medium);white-space:nowrap}
+.tag-setting{color:#1862D4;background:#EBF2FF;border:1px solid #1862D4}
+.tag-soon{color:#C47D00;background:#FEF6E6;border:1px solid #C47D00}
+.tag-expired{color:#9CA3B0;background:#F7F8FA;border:1px solid #9CA3B0}
+.tag-ok{background:var(--color-success);color:#FFF}
+.tag-warn{background:var(--color-warning);color:#FFF}
+.tag-error{background:var(--color-danger);color:#FFF}
+.tag-need-verify{color:#C47D00;background:#FEF6E6;border:1px solid #C47D00}
+.tag-no-verify{color:#9CA3B0;background:#F7F8FA;border:1px solid #9CA3B0}
 
 /* ═══ 只读表单值 ═══ */
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 var(--space-8);max-width:860px;margin:0 auto}
@@ -332,6 +341,11 @@ textarea.form-input{height:80px;padding:var(--space-2) var(--space-3);resize:ver
 .toast{position:fixed;top:80px;left:50%;transform:translateX(-50%) translateY(-20px);background:var(--color-success);color:#fff;padding:10px 24px;border-radius:var(--border-radius-md);font-size:var(--font-size-sm);z-index:2000;opacity:0;transition:opacity 0.3s ease,transform 0.3s ease;pointer-events:none}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast.error{background:var(--color-danger)}
+
+.detail-status-tags{display:inline-flex;align-items:center;gap:6px;margin-left:var(--space-4);vertical-align:middle}
+.detail-status-item{display:inline-flex;align-items:center;line-height:1}
+.detail-status-item .tag{padding-top:2px;padding-bottom:2px;line-height:1.5}
+.detail-verify-text{font-size:var(--font-size-sm);color:#C47D00;font-weight:var(--font-weight-bold);white-space:nowrap;vertical-align:middle}
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -383,7 +397,7 @@ textarea.form-input{height:80px;padding:var(--space-2) var(--space-3);resize:ver
         <span class="breadcrumb-item">围挡记录详情</span>
       </div>
       <div class="page-header page-header-fixed">
-        <h1 class="page-title"><span class="page-title-accent"></span>围挡记录详情</h1>
+        <h1 class="page-title"><span class="page-title-accent"></span>围挡记录详情<span class="detail-status-tags" id="detailStatusTags"><span class="detail-status-item" id="detailFenceStatusTag">—</span><span class="detail-status-item" id="detailIssueStatusTag">—</span><span class="detail-status-item" id="detailNeedVerifyTag">—</span></span></h1>
         <div class="page-header-actions">
           <button type="button" class="btn btn-ghost" onclick="window.open('index_v2.html','_self')">返回列表</button>
         </div>
@@ -846,6 +860,15 @@ function initMap(){
 var projectData=SD.toProjectDataSimple();
 
 initMap();
+(function(){
+  var h=_defaultHoard;if(!h)return;
+  var fsTag={'设置中':'<span class="tag tag-setting">设置中</span>','即将到期':'<span class="tag tag-soon">即将到期</span>','已到期':'<span class="tag tag-expired">已到期</span>'};
+  document.getElementById('detailFenceStatusTag').innerHTML=fsTag[h.fenceStatus]||h.fenceStatus||'—';
+  var isTag={'正常':'<span class="tag tag-ok">正常</span>','待整改':'<span class="tag tag-warn">待整改</span>','整改逾期':'<span class="tag tag-error">整改逾期</span>'};
+  document.getElementById('detailIssueStatusTag').innerHTML=isTag[h.issueStatus]||h.issueStatus||'—';
+  var nv=h.needVerify||'';
+  document.getElementById('detailNeedVerifyTag').innerHTML=nv==='是'?'<span class="detail-verify-text">● 待校核</span>':'';
+})();
 
 /* ═══ 工程信息卡片 ═══ */
 function escHtml(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML}

@@ -175,8 +175,59 @@ a:hover{color:var(--text-link-hover)}
 .text-link:hover{color:var(--text-link-hover)}
 .text-link svg{width:12px;height:12px}
 
+
+/* ── 月度评分卡片 ── */
+.score-card{background:#FFFFFF;border:1px solid #E3E6ED;border-radius:8px;box-shadow:0 1px 6px rgba(0,0,0,0.06);padding:20px 24px;margin-bottom:var(--space-4)}
+.score-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:var(--space-4)}
+.score-header-left{display:flex;align-items:center;gap:var(--space-3)}
+.score-header-title{font-size:var(--font-size-md);font-weight:var(--font-weight-bold);color:var(--text-title);white-space:nowrap}
+.score-header-right{display:flex;align-items:center;gap:var(--space-4)}
+.score-proj-select{height:32px;padding:0 28px 0 var(--space-3);font-size:var(--font-size-sm);color:var(--text-primary);background:var(--color-gray-50);border:1px solid var(--border-color-light);border-radius:var(--border-radius-md);cursor:pointer;font-family:var(--font-family);appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;outline:none;min-width:180px;max-width:280px}
+.score-proj-select:focus{border-color:var(--border-color-focus)}
+.score-header-meta{font-size:var(--font-size-xs);color:#9CA3B0;white-space:nowrap}
+.score-header-meta a{color:var(--text-link);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.score-header-meta a:hover{color:var(--color-primary-600)}
+.score-card-row{display:flex;align-items:stretch;gap:0;min-height:280px}
+.score-left{flex:0 0 200px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding-right:var(--space-6);min-width:0}
+.score-divider{width:1px;background:var(--border-color-light);flex-shrink:0;align-self:stretch}
+.score-center{flex:1;padding:0 var(--space-5);display:flex;align-items:center;justify-content:center;min-width:280px}
+.score-right{flex:0 0 320px;padding-left:var(--space-6);display:flex;flex-direction:column;justify-content:center;gap:8px;min-width:0}
+.score-value{font-size:48px;font-weight:700;line-height:1;margin-bottom:6px}
+.score-value.excellent{color:var(--color-success)}
+.score-value.good{color:var(--color-primary-500)}
+.score-value.warn{color:var(--color-warning)}
+.score-value.poor{color:var(--color-danger)}
+.score-grade-badge{display:inline-block;height:24px;line-height:24px;padding:0 12px;border-radius:12px;font-size:var(--font-size-sm);font-weight:var(--font-weight-medium)}
+.score-grade-badge.excellent{border:1.5px solid var(--color-success);color:var(--color-success)}
+.score-grade-badge.good{border:1.5px solid var(--color-primary-500);color:var(--color-primary-500)}
+.score-grade-badge.warn{border:1.5px solid var(--color-warning);color:var(--color-warning)}
+.score-grade-badge.poor{border:1.5px solid var(--color-danger);color:var(--color-danger)}
+.score-subtitle{font-size:var(--font-size-xs);color:#9CA3B0;margin-top:var(--space-2)}
+.score-radar-box{width:100%;height:275px}
+.score-dim-item{display:flex;align-items:center;gap:var(--space-2)}
+.score-dim-label{font-size:var(--font-size-sm);color:#374151;flex-shrink:0;white-space:nowrap}
+.score-dim-tip{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;border:1px solid var(--color-gray-300);color:var(--color-gray-400);font-size:10px;cursor:help;margin-left:3px;flex-shrink:0;position:relative;line-height:1;font-style:normal}
+.score-dim-tip::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:#1F2937;color:#fff;font-size:11px;font-weight:var(--font-weight-regular);padding:6px 10px;border-radius:4px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .15s;z-index:10;max-width:320px;white-space:normal;line-height:1.5}
+.score-dim-tip:hover::after{opacity:1}
+.score-dim-bar-wrap{flex:1;height:6px;background:var(--color-gray-100);border-radius:3px;overflow:hidden;min-width:0}
+.score-dim-bar{height:100%;border-radius:3px;transition:width .5s ease;background:var(--color-primary-400)}
+.score-dim-bar.dim-lo{background:var(--color-warning)}
+.score-dim-score{font-size:var(--font-size-xs);font-weight:var(--font-weight-medium);color:#1F2937;flex-shrink:0;text-align:right;min-width:48px}
+.score-dim-warn{color:var(--color-warning);margin-left:2px;font-size:var(--font-size-xs)}
+.score-sug-section{border-top:1px solid var(--border-color-light);margin-top:16px;padding-top:16px}
+.score-sug-section .sug-title{font-size:var(--font-size-sm);font-weight:var(--font-weight-bold);color:var(--color-primary-600);margin-bottom:10px}
+.score-sug-item{font-size:var(--font-size-sm);color:var(--text-primary);padding:3px 0;display:flex;align-items:flex-start;gap:var(--space-2);line-height:1.5}
+.score-sug-item::before{content:'→';color:var(--color-primary-400);flex-shrink:0;font-weight:var(--font-weight-bold)}
+.score-sug-item:last-child{padding-bottom:0}
+.todo-tabs{display:flex;gap:0;margin-bottom:var(--space-4);border-bottom:2px solid var(--color-gray-200)}
+.todo-tab{padding:var(--space-2) var(--space-5);font-size:var(--font-size-sm);color:var(--text-secondary);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s;background:none;border-top:none;border-left:none;border-right:none;font-family:var(--font-family)}
+.todo-tab:hover{color:var(--text-primary)}
+.todo-tab.active{color:var(--color-primary-500);border-bottom-color:var(--color-primary-500);font-weight:var(--font-weight-bold)}
+.todo-panel{display:none}
+.todo-panel.active{display:block}
 </style>
 <script src="../shared_data.js"></script>
+<script src="../mock-data.js"></script>
 </head>
 <body>
 <div class="layout-wrapper">
@@ -231,31 +282,47 @@ a:hover{color:var(--text-link-hover)}
         </div>
       </div>
 
-      <!-- 统计卡片 -->
-      <div class="stat-cards">
-        <div class="stat-card">
-          <div class="stat-label">围挡总数</div>
-          <div class="stat-value">1,284<span class="stat-unit">条</span></div>
-          <div class="stat-sub">较上月 +32</div>
+<!-- ═══ 月度评分 ═══ -->
+      <div class="score-card" id="scoreCard">
+        <div class="score-card-header">
+          <div class="score-header-left">
+            <span class="score-header-title">围挡管理综合评分</span>
+            <select class="score-proj-select" id="scoreProjSelect" onchange="switchScoreProject(this.value)"></select>
+          </div>
+          <div class="score-header-right">
+            <span class="score-header-meta">评分每月1日更新 · <a onclick="document.getElementById('scoreRulesModal').style.display='flex'">查看详细说明 →</a></span>
+          </div>
         </div>
-        <div class="stat-card warning">
-          <div class="stat-label">待办事项</div>
-          <div class="stat-value">3<span class="stat-unit">条</span></div>
-          <div class="stat-sub">需今日处理</div>
-        </div>
-        <div class="stat-card danger">
-          <div class="stat-label">超期预警</div>
-          <div class="stat-value">12<span class="stat-unit">条</span></div>
-          <div class="stat-sub">需立即督办</div>
-        </div>
-        <div class="stat-card success">
-          <div class="stat-label">本月已整改</div>
-          <div class="stat-value">89<span class="stat-unit">条</span></div>
-          <div class="stat-sub">完成率 86%</div>
+        <div class="score-card-row" id="scoreCardRow"></div>
+        <div class="score-sug-section" id="scoreSugSection" style="display:none"></div>
+      </div>
+      <!-- ═══ 评分说明弹窗 ═══ -->
+      <div class="modal-overlay" id="scoreRulesModal" style="position:fixed;top:0;left:0;right:0;bottom:0;background:var(--bg-overlay);z-index:2000;display:none;align-items:center;justify-content:center" onclick="if(event.target===this)this.style.display='none'">
+        <div class="modal-box" style="width:560px;max-width:90vw;background:var(--bg-card);border-radius:var(--border-radius-lg);box-shadow:var(--shadow-lg);max-height:80vh;overflow-y:auto" onclick="event.stopPropagation()">
+          <div style="padding:var(--space-4) var(--space-5);border-bottom:1px solid var(--border-color-light);display:flex;align-items:center;justify-content:space-between"><span style="font-size:var(--font-size-lg);font-weight:var(--font-weight-bold);color:var(--text-title)">围挡管理评分说明</span><button onclick="document.getElementById('scoreRulesModal').style.display='none'" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text-tertiary)">&times;</button></div>
+          <div style="padding:var(--space-5)">
+            <table style="width:100%;border-collapse:collapse;font-size:var(--font-size-sm)">
+              <thead><tr style="background:var(--color-gray-50)"><th style="padding:var(--space-2) var(--space-3);text-align:left;border-bottom:1px solid var(--border-color-light)">档位</th><th style="padding:var(--space-2) var(--space-3);text-align:left;border-bottom:1px solid var(--border-color-light)">分数区间</th><th style="padding:var(--space-2) var(--space-3);text-align:left;border-bottom:1px solid var(--border-color-light)">奖励/处罚</th></tr></thead>
+            <tbody>
+              <tr><td style="padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--border-color-light)"><span style="color:var(--color-success);font-weight:var(--font-weight-bold)">🏆 优秀</span></td><td style="padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--border-color-light)">85分以上</td><td style="padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--border-color-light)">日常监督免罚一次 + 通报表扬</td></tr>
+              <tr><td style="padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--border-color-light)"><span style="color:var(--color-success);font-weight:var(--font-weight-bold)">✅ 良好</span></td><td style="padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--border-color-light)">70-84分</td><td style="padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--border-color-light)">正常管理</td></tr>
+              <tr><td style="padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--border-color-light)"><span style="color:var(--color-warning);font-weight:var(--font-weight-bold)">⚠️ 警示</span></td><td style="padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--border-color-light)">55-69分</td><td style="padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--border-color-light)">约谈提醒</td></tr>
+              <tr><td style="padding:var(--space-2) var(--space-3)"><span style="color:var(--color-danger);font-weight:var(--font-weight-bold)">❌ 差</span></td><td style="padding:var(--space-2) var(--space-3)">54分以下</td><td style="padding:var(--space-2) var(--space-3)">通报公示 + 列入重点监管名单</td></tr>
+            </tbody></table>
+            <div style="margin-top:var(--space-4);padding:var(--space-3);background:var(--color-gray-50);border-radius:var(--border-radius-md);font-size:var(--font-size-sm);color:var(--text-secondary);line-height:var(--line-height-normal)">
+              <div style="font-weight:var(--font-weight-bold);margin-bottom:var(--space-2)">评分维度</div>
+              <div>• 维度1（40分）：基础合规 — 围挡信息是否录入(10分) + 日常巡检频率(30分)</div>
+              <div>• 维度2（60分）：问题发现与整改 — 自查问题发现率(30分) + 整改完成率(30分)</div>
+              <div style="margin-top:var(--space-2);color:var(--color-danger)">• 未录入围挡信息则所有维度直接计为0分</div>
+            </div>
+          </div>
         </div>
       </div>
-
-      <div class="two-col-cards">
+      <div class="todo-tabs" id="todoTabs">
+        <button class="todo-tab active" onclick="switchTodoTab('todo')">待办事项</button>
+        <button class="todo-tab" onclick="switchTodoTab('remind')">提醒事项</button>
+      </div>
+      <div id="todoPanel_todo" class="todo-panel active">
       <!-- 待办事项 -->
       <div class="card">
         <div class="card-header">
@@ -301,7 +368,8 @@ a:hover{color:var(--text-link-hover)}
           </div>
         </div>
       </div>
-
+      </div><!-- end todoPanel_todo -->
+      <div id="todoPanel_remind" class="todo-panel">
       <!-- 提醒事项 -->
       <div class="card">
         <div class="card-header">
@@ -360,7 +428,7 @@ a:hover{color:var(--text-link-hover)}
           </div>
         </div>
       </div>
-      </div>
+      </div><!-- end todoPanel_remind -->
 
       <!-- 统计图表 -->
       <div class="card" style="margin-top:var(--space-4)">
@@ -376,7 +444,130 @@ a:hover{color:var(--text-link-hover)}
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script><script>
+/* ═══ 评分渲染 ═══ */
+// Dimension tooltip formulas (from original spec)
+var DIM_TIPS={
+  '围挡建档完整率':'在建工程是否已录入围挡信息。\A有=100% / 无=0%（该维度为0则总分直接归零）',
+  '日常巡检执行率':'实际巡检天数 ÷ 当月应巡检天数\A（当月天数×60%计，当天多条记录仅计1天）',
+  '问题发现率':'施工单位自查发现数 ÷（自查+监管巡查+街道上报问题总数）',
+  '整改完成率':'当前周期整改完成数 ÷ 当前周期应整改问题总数'
+};
+
+function buildScoreView(s){
+  // 4 sub-dimension percentages for radar
+  var d1Pct = s.hasFence>0 ? 100 : 0;
+  var d2Pct = Math.round(s.patrolRate*100);
+  var d3Pct = Math.round(s.discoveryRate*100);
+  var d4Pct = Math.round(s.rectifyRate*100);
+
+  var dims=[
+    {name:'围挡建档完整率', val:d1Pct, pct:d1Pct, score:s.hasFence, max:10},
+    {name:'日常巡检执行率', val:d2Pct, pct:d2Pct, score:s.d1_2||0,  max:30},
+    {name:'问题发现率',     val:d3Pct, pct:d3Pct, score:s.d2_1||0,  max:30},
+    {name:'整改完成率',     val:d4Pct, pct:d4Pct, score:s.d2_2||0,  max:30}
+  ];
+
+  // ── 左栏：分值 + 等级 ──
+  var h='';
+  if(s.total>0){
+    h+='<div class="score-value '+s.gradeCls+'">'+s.total+'</div>';
+    h+='<div class="score-grade-badge '+s.gradeCls+'">'+s.gradeIcon+' '+s.grade+'</div>';
+  }else{
+    h+='<div class="score-value poor">0</div>';
+    h+='<div class="score-grade-badge poor">❌ 未录入</div>';
+  }
+  h+='<div class="score-subtitle">本月综合评分</div>';
+  var leftHtml=h;
+
+  // ── 右栏：维度明细含微进度条（单位：百分比）──
+  h='';
+  dims.forEach(function(d){
+    var loCls=d.pct<60?' dim-lo':'';
+    var warn=d.pct<60?'<span class="score-dim-warn">⚠</span>':'';
+    var tip=DIM_TIPS[d.name]||'';
+    h+='<div class="score-dim-item">'+
+      '<span class="score-dim-label">'+d.name+'<span class="score-dim-tip" data-tip="'+tip.replace(/"/g,'&quot;')+'">?</span>（'+d.max+'分）</span>'+
+      '<div class="score-dim-bar-wrap"><div class="score-dim-bar'+loCls+'" style="width:'+d.pct+'%"></div></div>'+
+      '<span class="score-dim-score">'+d.pct+'%'+warn+'</span>'+
+    '</div>';
+  });
+  var rightHtml=h;
+
+  // ── 拼装三栏 ──
+  document.getElementById('scoreCardRow').innerHTML=
+    '<div class="score-left">'+leftHtml+'</div>'+
+    '<div class="score-divider"></div>'+
+    '<div class="score-center"><div id="scoreRadar" class="score-radar-box"></div></div>'+
+    '<div class="score-divider"></div>'+
+    '<div class="score-right">'+rightHtml+'</div>';
+
+  // ── ECharts 雷达图 ──
+  if(window._scoreRadarChart)window._scoreRadarChart.dispose();
+  window._scoreRadarChart=echarts.init(document.getElementById('scoreRadar'));
+  window._scoreRadarChart.setOption({
+    radar:{
+      center:['50%','50%'],radius:'62%',
+      indicator:dims.map(function(d){return{name:d.name+'（'+d.max+'分）',max:100};}),
+      axisName:{color:'#6B7280',fontSize:11},
+      axisLine:{lineStyle:{color:'#E3E6ED'}},
+      splitLine:{lineStyle:{color:'#E3E6ED'}},
+      splitArea:{areaStyle:{color:['rgba(0,0,0,0.02)','transparent']}}
+    },
+    series:[{type:'radar',data:[{value:dims.map(function(d){return d.val;}),name:'评分'}],
+      areaStyle:{color:'rgba(24,98,212,0.12)'},
+      lineStyle:{color:'#1862D4',width:2},
+      itemStyle:{color:'#1862D4'},
+      symbol:'circle',symbolSize:4
+    }]
+  });
+
+  // ── 底部建议区 ──
+  var sugEl=document.getElementById('scoreSugSection');
+  if(s.suggestions&&s.suggestions.length){
+    var sugH='<div class="sug-title">提升建议</div>';
+    s.suggestions.forEach(function(sug){sugH+='<div class="score-sug-item">'+sug+'</div>';});
+    sugEl.innerHTML=sugH;
+    sugEl.style.display='block';
+  }else{
+    sugEl.style.display='none';
+  }
+}
+
+// Project switcher
+window.switchScoreProject=function(projectId){
+  var found=null;
+  (window._allScores||[]).forEach(function(s){if(s.projectId===projectId)found=s;});
+  if(found)buildScoreView(found);
+};
+
+// Init
+(function(){
+  var scores=MOCK_DATA.getProjectScores();
+  if(!scores||!scores.length)return;
+  window._allScores=scores;
+
+  // Populate project dropdown
+  var sel=document.getElementById('scoreProjSelect');
+  scores.forEach(function(s){
+    var opt=document.createElement('option');
+    opt.value=s.projectId;
+    opt.textContent=s.projectName;
+    sel.appendChild(opt);
+  });
+  sel.value=scores[0].projectId;
+
+  buildScoreView(scores[0]);
+})();
+
+/* ═══ TAB 切换 ═══ */
+function switchTodoTab(tab){
+  document.querySelectorAll('.todo-tab').forEach(function(t){t.classList.toggle('active',t.textContent.indexOf(tab==='todo'?'待办':'提醒')>-1)});
+  document.querySelectorAll('.todo-panel').forEach(function(p){p.classList.remove('active')});
+  document.getElementById('todoPanel_'+tab).classList.add('active');
+}
+</script>
+
 <script>
 /* Tab 切换 */
 document.querySelectorAll('.tab-btn').forEach(function(btn){
@@ -404,7 +595,7 @@ chartT.setOption({
   series:[{type:'line',smooth:true,data:[45,38,52,41,35,47],lineStyle:{color:'#1862D4',width:2},itemStyle:{color:'#1862D4'},symbol:'circle',symbolSize:6,areaStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:'rgba(24,98,212,0.12)'},{offset:1,color:'rgba(24,98,212,0.01)'}]}}}]
 });
 
-window.addEventListener('resize',function(){chartD.resize();chartT.resize()});
+window.addEventListener('resize',function(){if(window._scoreRadarChart)window._scoreRadarChart.resize();chartT.resize()});
 </script>
 </body>
 </html>

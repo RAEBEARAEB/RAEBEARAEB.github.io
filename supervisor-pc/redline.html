@@ -223,12 +223,6 @@ a:hover{color:var(--text-link-hover)}
 </div>
 
 <div class="card">
-<div class="tab-bar">
-<button class="tab-item active" data-tab="all" onclick="switchTab('all')">全部<span class="tab-count">7</span></button>
-<button class="tab-item" data-tab="drawn" onclick="switchTab('drawn')">已绘制<span class="tab-count">4</span></button>
-<button class="tab-item" data-tab="undrawn" onclick="switchTab('undrawn')">未绘制<span class="tab-count">3</span></button>
-</div>
-
 <div class="table-wrapper">
 <table class="table">
 <thead>
@@ -291,7 +285,6 @@ var mockData = (function(){
   return defaults;
 })();
 
-var currentTab='all';
 var filteredData=mockData.slice();
 var currentPage=1;
 var pageSize=8;
@@ -375,8 +368,6 @@ function applyFilter(){
     var dist=document.getElementById('filterDistrict').value;
   var stat=document.getElementById('filterStatus').value;
   filteredData=mockData.filter(function(row){
-    if(currentTab==='drawn'&&row.status!=='已绘制') return false;
-    if(currentTab==='undrawn'&&row.status!=='未绘制') return false;
     if(proj&&row.project.indexOf(proj)===-1) return false;
         if(dist&&row.district!==dist) return false;
     if(stat&&row.status!==stat) return false;
@@ -385,7 +376,6 @@ function applyFilter(){
   });
   currentPage=1;
   renderTable(filteredData);
-  updateTabCounts();
 }
 
 function doSearch(){ applyFilter(); }
@@ -396,27 +386,9 @@ function resetFilter(){
   document.getElementById('filterStatus').value='';
   selectedStatuses=projectStatusOptions.filter(function(s){return defaultExcludeStatus.indexOf(s)===-1});
   renderStatusOptions();
-  currentTab='all';
-  document.querySelectorAll('.tab-item').forEach(function(t){t.classList.remove('active')});
-  document.querySelector('.tab-item[data-tab="all"]').classList.add('active');
-  applyFilter();
 }
 
-function switchTab(tab){
-  currentTab=tab;
-  document.querySelectorAll('.tab-item').forEach(function(t){t.classList.remove('active')});
-  document.querySelector('.tab-item[data-tab="'+tab+'"]').classList.add('active');
-  applyFilter();
-}
 
-function updateTabCounts(){
-  var all=mockData.length;
-  var drawn=mockData.filter(function(r){return r.status==='已绘制'}).length;
-  var undrawn=mockData.filter(function(r){return r.status==='未绘制'}).length;
-  document.querySelector('.tab-item[data-tab="all"] .tab-count').textContent=all;
-  document.querySelector('.tab-item[data-tab="drawn"] .tab-count').textContent=drawn;
-  document.querySelector('.tab-item[data-tab="undrawn"] .tab-count').textContent=undrawn;
-}
 
 function goPage(p){currentPage=p;renderTable(filteredData)}
 
