@@ -80,7 +80,7 @@ a{color:var(--text-link);text-decoration:none;transition:color var(--transition-
 .page-title{font-size:var(--font-size-2xl);font-weight:var(--font-weight-bold);color:var(--text-title);display:flex;align-items:center;gap:var(--space-2)}
 .page-title-accent{width:3px;height:20px;background:var(--color-primary-500);border-radius:2px;display:inline-block}
 .page-header-actions{display:flex;gap:var(--space-2)}
-.section-nav{width:150px;flex-shrink:0;overflow-y:auto;padding:var(--space-4) 0}
+.section-nav{width:150px;flex-shrink:0;overflow-y:auto;padding:var(--space-4) 0;position:sticky;top:0;align-self:flex-start;max-height:100vh}
 .section-nav-item{display:flex;align-items:center;gap:var(--space-2);padding:var(--space-2) var(--space-4);font-size:var(--font-size-sm);color:var(--text-secondary);cursor:pointer;border-left:3px solid transparent;transition:all var(--transition-fast)}
 .section-nav-item:hover{background:var(--color-gray-50);color:var(--text-primary)}
 .section-nav-item.active{background:var(--color-primary-50);color:var(--color-primary-600);font-weight:var(--font-weight-medium);border-left-color:var(--color-primary-500)}
@@ -162,11 +162,11 @@ a{color:var(--text-link);text-decoration:none;transition:color var(--transition-
 <div class="page-header-fixed"><div class="page-title"><span class="page-title-accent"></span>围挡问题详情</div><div class="page-header-actions"><button class="btn btn-ghost" onclick="history.back()">返回列表</button></div></div>
 <div class="main-body">
 <nav class="section-nav" id="sectionNav">
-<a class="section-nav-item active" data-sec="sec-basic"><span class="section-nav-num">1</span>基本信息</a>
+<a class="section-nav-item active" data-sec="sec-basic"><span class="section-nav-num">1</span>围挡问题信息</a>
 <a class="section-nav-item" data-sec="sec-log" id="navLog"><span class="section-nav-num">2</span>流转日志</a>
 </nav>
 <div class="form-content" id="formContent">
-<section id="sec-basic" class="card"><div class="card-header"><div class="card-title"><span class="card-title-dot"></span>基本信息</div></div><div class="card-body"><div class="detail-grid" id="basicBody"></div></div></section>
+<section id="sec-basic" class="card"><div class="card-header"><div class="card-title"><span class="card-title-dot"></span>围挡问题信息</div></div><div class="card-body"><div class="detail-grid" id="basicBody"></div></div></section>
 <section id="sec-log" class="card"><div class="card-header"><div class="card-title"><span class="card-title-dot"></span>流转日志</div></div><div class="card-body"><div id="logBody"></div></div></section>
 </div></div>
 </main>
@@ -190,126 +190,89 @@ function loadDetail(){
   var sc=_issue.status==='待整改'?'待整改':_issue.status==='待审核'?'待审核':_issue.status==='退回整改'?'退回整改':_issue.status==='整改逾期'?'整改逾期':_issue.status==='待接收'?'待接收':'审核通过';
   var sCls=_issue.status==='待整改'?'tag-warning':_issue.status==='退回整改'?'tag-warning':_issue.status==='待审核'?'tag-info':_issue.status==='整改逾期'?'tag-danger':_issue.status==='待接收'?'tag-warning':'tag-success';
 
-  // Basic info (NO location here)
-  var h='<div class="detail-item"><span class="detail-label">问题状态</span><span class="detail-value"><span class="tag '+sCls+'">'+sc+'</span></span></div>'+
+  // ═══ 围挡问题信息 ═══
+  var h='<div class="detail-item"><span class="detail-label">问题类型</span><span class="detail-value" style="color:var(--color-primary-500);font-weight:var(--font-weight-medium)">'+esc(_issue.type||'--')+'</span></div>'+
+    '<div class="detail-item"><span class="detail-label">问题状态</span><span class="detail-value"><span class="tag '+sCls+'">'+sc+'</span></span></div>'+
     '<div class="detail-item"><span class="detail-label">问题来源</span><span class="detail-value">'+esc(_issue.source||'--')+'</span></div>'+
     '<div class="detail-item"><span class="detail-label">关联项目</span><span class="detail-value">'+esc(_issue._projectName||'--')+'</span></div>'+
     '<div class="detail-item"><span class="detail-label">关联工程</span><span class="detail-value">'+esc(_issue.engineerName||'--')+'</span></div>'+
     '<div class="detail-item"><span class="detail-label">责任单位</span><span class="detail-value">'+esc(_issue._constructUnit||_issue.responsibleUnit||'--')+'</span></div>'+
     '<div class="detail-item"><span class="detail-label">所属街道</span><span class="detail-value">'+esc(_issue.street||'--')+'</span></div>'+
     '<div class="detail-item"><span class="detail-label">所属区域</span><span class="detail-value">'+esc(_issue._district||'--')+'</span></div>'+
-    '<div class="detail-item"><span class="detail-label">上报时间</span><span class="detail-value">'+esc(_issue.reportTime||'')+'</span></div>';
+    '<div class="detail-item"><span class="detail-label">上报时间</span><span class="detail-value">'+esc(_issue.reportTime||'')+'</span></div>'+
+    '<div class="detail-item full"><span class="detail-label">问题详情</span><span class="detail-value">'+esc(_issue.details||'')+'</span></div>';
   if(_issue.photos&&_issue.photos.length)h+='<div class="detail-item full"><span class="detail-label">现场照片</span><div class="log-photos">'+_issue.photos.map(function(p){return'<img src="'+p+'">'}).join('')+'</div></div>';
+  if(_issue.location&&_issue.location.lat)h+='<div class="detail-item full"><span class="detail-label">问题位置</span><span class="detail-value">'+esc(_issue.location.addr||_issue.location.lat+', '+_issue.location.lng)+'</span><div class="log-loc-map" id="issueLocMap" style="width:100%;max-width:400px;height:200px"></div></div>';
   document.getElementById('basicBody').innerHTML=h;
 
-  // Build log items
-  var r=_issue._rectification,au=_issue._audits||[],tr=_issue._transfers||[],items=[];
-  items.push({type:'report',title:'问题上报',time:_issue.reportTime,person:'',unit:'',desc:_issue.details,photos:_issue.photos,location:_issue.location});
-  if(tr.length)tr.forEach(function(t){
-    if(t.type==='transfer')items.push({type:'transfer',title:'问题转派',sub:'',time:t.time,person:t.operator,unit:t.unit,desc:t.desc});
-    if(t.type==='receive')items.push({type:'receive',title:'转派接收',sub:'',time:t.time,person:t.operator,unit:t.unit});
-  });
-  if(r)items.push({type:'rectify',title:'问题整改',sub:'',time:r.rectTime,person:r.rectifier,unit:r.rectifierUnit,desc:r.desc,photos:r.photos});
+  // ═══ 流转日志 (simplified: 上报 → 整改 → 审核) ═══
+  var r=_issue._rectification,au=_issue._audits||[],items=[];
+  // 1. 问题上报
+  items.push({type:'report',title:'问题上报',time:_issue.reportTime,desc:_issue.details,photos:_issue.photos,person:_issue.source==='项目巡检'?'刘伟':_issue.source==='街道上报'?'李伟':_issue.source==='监管巡查'?'张建国':_issue.source==='群众上报'?'市民':'—'});
+  // 2. 整改处置
+  if(r)items.push({type:'rectify',title:'整改处置',time:r.rectTime,person:r.rectifier,unit:r.rectifierUnit,desc:r.desc,photos:r.photos});
+  // 3. 监管审核
   au.forEach(function(a){
-    items.push({type:a.result==='审核通过'?'pass':'reject',title:a.result==='审核通过'?'整改通过':'退回整改',sub:'',time:a.time,person:a.auditor,unit:a.auditorUnit,opinion:a.opinion,photos:a.photos});
+    items.push({type:a.result==='审核通过'?'pass':'reject',title:'监管审核 — '+(a.result==='审核通过'?'审核通过':'退回整改'),time:a.time,person:a.auditor,unit:a.auditorUnit,opinion:a.opinion,photos:a.photos});
   });
-  // Sort newest first
   items.sort(function(a,b){return(b.time||'').localeCompare(a.time||'')});
 
   var th='<div class="log-timeline">';
-  items.forEach(function(t, idx){
-    var dotCls=t.type;var tagLabel='',tagCls='';
-    if(t.type==='report'){tagLabel='已上报';tagCls='report';}
-    else if(t.type==='transfer'){tagLabel='已转派';tagCls='transfer';}
-    else if(t.type==='receive'){tagLabel='已接收';tagCls='receive';}
-    else if(t.type==='rectify'){tagLabel='已整改';tagCls='rectify';}
-    else if(t.type==='pass'){tagLabel='已通过';tagCls='pass';}
-    else if(t.type==='reject'){tagLabel='已退回';tagCls='reject';}
+  items.forEach(function(t){
+    var dotCls=t.type;
     var iconSvg='';
     if(t.type==='report')iconSvg='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>';
     else if(t.type==='rectify')iconSvg='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
-    else if(t.type==='transfer')iconSvg='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>';
-    else if(t.type==='receive')iconSvg='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>';
     else if(t.type==='pass')iconSvg='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>';
     else iconSvg='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
 
     th+='<div class="log-item"><div class="log-dot '+dotCls+'">'+iconSvg+'</div><div class="log-card">'+
-      '<div class="log-card-head"><div class="log-card-title">'+esc(t.title)+(t.sub?' — '+esc(t.sub):'')+'</div><div class="log-card-time">'+esc(t.time||'')+' <span class="log-tag '+tagCls+'">'+tagLabel+'</span></div></div>'+
+      '<div class="log-card-head"><div class="log-card-title">'+esc(t.title)+'</div><div class="log-card-time">'+esc(t.time||'')+'</div></div>'+
       '<div class="log-card-body">';
-    if(t.person)th+='<div class="log-field"><span class="log-field-lbl">操作人</span><span class="log-field-val">'+esc(t.person||'')+(t.unit?'（'+esc(t.unit)+'）':'')+'</span></div>';
-    if(t.type==='report')th+='<div class="log-field"><span class="log-field-lbl">问题类型</span><span class="log-field-val" style="color:var(--color-primary-500);font-weight:var(--font-weight-medium)">'+esc(_issue.type||'')+'</span></div>';
-    if(t.desc)th+='<div class="log-field"><span class="log-field-lbl">'+(t.type==='transfer'?'转派说明':t.type==='rectify'?'整改说明':'问题详情')+'</span><span class="log-field-val">'+esc(t.desc)+'</span></div>';
-    if(t.opinion)th+='<div class="log-opinion '+(t.type==='pass'?'pass':'reject')+'"><div class="lbl">审核意见</div>'+esc(t.opinion)+'</div>';
-    if(t.photos&&t.photos.length)th+='<div class="log-photos">'+t.photos.map(function(p){return'<img src="'+p+'">'}).join('')+'</div>';
-    if(t.location&&t.location.lat)th+='<div class="log-field" style="margin-bottom:6px"><span class="log-field-lbl">问题位置</span><span class="log-field-val">'+esc(t.location.addr||'')+'</span></div><div class="log-loc-map" id="locMap_'+idx+'" style="width:240px;height:180px"></div>';
+    if(t.type==='report'){
+      th+='<div class="log-field"><span class="log-field-lbl">问题来源</span><span class="log-field-val">'+esc(_issue.source||'--')+'</span></div>';
+      th+='<div class="log-field"><span class="log-field-lbl">操作人</span><span class="log-field-val">'+(t.person?esc(t.person)+(t.unit?'（'+esc(t.unit)+'）':''):(_issue.source==='项目巡检'?'刘伟':_issue.source==='街道上报'?'李伟':_issue.source==='监管巡查'?'张建国':_issue.source==='群众上报'?'市民':_issue.source||'—'))+'</span></div>';
+    }
+    if(t.type==='rectify'){
+      th+='<div class="log-field"><span class="log-field-lbl">处置人</span><span class="log-field-val">'+esc(t.person||'')+(t.unit?'（'+esc(t.unit)+'）':'')+'</span></div>';
+      if(t.desc)th+='<div class="log-field"><span class="log-field-lbl">整改说明</span><span class="log-field-val">'+esc(t.desc)+'</span></div>';
+    }
+    if(t.type==='pass'||t.type==='reject'){
+      th+='<div class="log-field"><span class="log-field-lbl">审核人</span><span class="log-field-val">'+esc(t.person||'')+(t.unit?'（'+esc(t.unit)+'）':'')+'</span></div>';
+      th+='<div class="log-field"><span class="log-field-lbl">审核结果</span><span class="log-field-val" style="font-weight:var(--font-weight-medium)">'+(t.type==='pass'?'审核通过':'退回整改')+'</span></div>';
+      if(t.opinion)th+='<div class="log-field"><span class="log-field-lbl">审核意见</span><span class="log-field-val">'+esc(t.opinion)+'</span></div>';
+    }
+    if(t.type!=='report'&&t.photos&&t.photos.length)th+='<div class="log-field"><span class="log-field-lbl">'+(t.type==='rectify'?'\u6574\u6539\u7167\u7247':'\u7167\u7247')+'</span><div class="log-photos">'+t.photos.map(function(p){return'<img src="'+p+'">'}).join('')+'</div></div>'
     th+='</div></div></div>';
   });
   if(!items.length)th+='<div style="color:var(--text-tertiary);text-align:center;padding:20px">暂无记录</div>';
   th+='</div>';
   document.getElementById('logBody').innerHTML=th;
 
-  // Init location maps in log (with redline/fence/entrance layers)
-  setTimeout(function(){
-    // Load fence/project data from mock
-    var fence = null, project = null;
-    if (_issue && _issue.fenceId) {
-      fence = MOCK_DATA.findFenceById(_issue.fenceId);
-    }
-    // Fallback: use first hoarding if fenceId lookup failed
-    if (!fence) {
-      var allH = MOCK_DATA.getHoardings();
-      if (allH.length) fence = allH[0];
-    }
-    if (fence) {
-      var allP = MOCK_DATA.getProjects();
-      for (var k = 0; k < allP.length; k++) {
-        if (allP[k].name === fence.projectName) { project = allP[k]; break; }
-      }
-    }
-    if (!project) project = MOCK_DATA.getProjects()[0];
+  // Init issue location map in ①
+  setTimeout(function(){initIssueLocMap();},400);
+}
 
-    items.forEach(function(t, idx){
-      if(!t.location||!t.location.lat)return;
-      var mapEl = document.getElementById('locMap_'+idx);
-      if(!mapEl)return;
-      var m = L.map(mapEl, {zoomControl:true, attributionControl:false, dragging:true, scrollWheelZoom:true});
-      m.zoomControl.setPosition('topright');
-      L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}).addTo(m);
-      L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,opacity:0.4}).addTo(m);
-      // Project redline
-      if(project && project.redlineGeo && project.redlineGeo.length >= 3) {
-        L.polygon(project.redlineGeo,{color:'#D13B2F',weight:2.5,fillOpacity:0.08,fillColor:'#D13B2F'}).addTo(m);
-      }
-      // Fence GPS shape
-      if(fence && fence.gpsShape && fence.gpsShape.length >= 2) {
-        if(fence.gpsShape.length === 2) {
-          L.polyline(fence.gpsShape,{color:'#1862D4',weight:2.5}).addTo(m);
-        } else {
-          L.polygon(fence.gpsShape,{color:'#1862D4',weight:2,fillOpacity:0.1,fillColor:'#1862D4',dashArray:'8 4'}).addTo(m);
-        }
-      }
-      // Entrances
-      if(fence && fence.entrances) {
-        fence.entrances.forEach(function(e){
-          var c = e.type==='vehicle'?'#1862D4':e.type==='pedestrian'?'#1A9042':e.type==='temporary'?'#f0832c':'#D13B2F';
-          L.circleMarker([e.lat,e.lng],{radius:5,color:c,fillColor:c,fillOpacity:0.7,weight:2}).addTo(m).bindTooltip(e.name||'出入口',{direction:'top'});
-        });
-      }
-      // Problem location marker
-      L.circleMarker([t.location.lat,t.location.lng],{radius:8,color:'#D13B2F',fillColor:'#D13B2F',fillOpacity:0.9,weight:3}).addTo(m).bindPopup('<b>问题位置</b><br>'+esc(t.location.addr||''));
-      // Pulsing outer ring
-      L.circleMarker([t.location.lat,t.location.lng],{radius:14,color:'#D13B2F',fillOpacity:0,weight:1.5,opacity:0.4}).addTo(m);
-      // Fit bounds
-      var bounds = L.latLngBounds([]);
-      if(project && project.redlineGeo) project.redlineGeo.forEach(function(p){bounds.extend(p);});
-      if(fence && fence.gpsShape) fence.gpsShape.forEach(function(p){bounds.extend(p);});
-      bounds.extend([t.location.lat,t.location.lng]);
-      if(bounds.isValid()) m.fitBounds(bounds.pad(0.3));
-      m.setZoom(Math.min(m.getZoom(),18));
-      // Force resize after render
-      setTimeout(function(){ m.invalidateSize(); }, 300);
-    });
-  }, 600);
+function initIssueLocMap(){
+  var mapEl=document.getElementById('issueLocMap');if(!mapEl)return;
+  var m=L.map(mapEl,{zoomControl:true,attributionControl:false,dragging:true,scrollWheelZoom:true});
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}).addTo(m);
+  var fence=null,project=null;
+  if(_issue&&_issue.fenceId){fence=MOCK_DATA.findFenceById(_issue.fenceId);}
+  if(!fence){var allH=MOCK_DATA.getHoardings();if(allH.length)fence=allH[0];}
+  if(fence){var allP=MOCK_DATA.getProjects();for(var k=0;k<allP.length;k++){if(allP[k].name===fence.projectName){project=allP[k];break;}}}
+  if(!project)project=MOCK_DATA.getProjects()[0];
+  if(project&&project.redlineGeo&&project.redlineGeo.length>=3){L.polygon(project.redlineGeo,{color:'#D13B2F',weight:2.5,fillOpacity:0.08,fillColor:'#D13B2F'}).addTo(m);}
+  if(fence&&fence.gpsShape&&fence.gpsShape.length>=2){var gs=fence.gpsShape;if(gs.length===2){L.polyline(gs,{color:'#1862D4',weight:2.5}).addTo(m);}else{L.polygon(gs,{color:'#1862D4',weight:2,fillOpacity:0.1,fillColor:'#1862D4',dashArray:'8 4'}).addTo(m);}}
+  if(fence&&fence.entrances){fence.entrances.forEach(function(e){var c=e.type==='vehicle'?'#1862D4':e.type==='pedestrian'?'#1A9042':e.type==='temporary'?'#f0832c':'#D13B2F';L.circleMarker([e.lat,e.lng],{radius:5,color:c,fillColor:c,fillOpacity:0.7,weight:2}).addTo(m).bindTooltip(e.name||'出入口',{direction:'top'});});}
+  if(_issue.location&&_issue.location.lat){L.circleMarker([_issue.location.lat,_issue.location.lng],{radius:8,color:'#D13B2F',fillColor:'#D13B2F',fillOpacity:0.9,weight:3}).addTo(m).bindPopup('<b>问题位置</b><br>'+esc(_issue.location.addr||''));}
+  var bounds=L.latLngBounds([]);
+  if(project&&project.redlineGeo)project.redlineGeo.forEach(function(p){bounds.extend(p);});
+  if(fence&&fence.gpsShape)fence.gpsShape.forEach(function(p){bounds.extend(p);});
+  if(_issue.location&&_issue.location.lat)bounds.extend([_issue.location.lat,_issue.location.lng]);
+  if(bounds.isValid())m.fitBounds(bounds.pad(0.3));else m.setView([22.548,114.061],15);
+  m.setZoom(Math.min(m.getZoom(),18));
+  setTimeout(function(){m.invalidateSize();},300);
 }
 
 loadDetail();

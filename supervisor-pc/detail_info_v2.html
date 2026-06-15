@@ -1441,6 +1441,7 @@ function buildIssuePageUrl(r,mode){
   url+='&source='+encodeURIComponent('监管巡查');
   if(params.get('project')) url+='&project='+encodeURIComponent(params.get('project'));
   if(params.get('engineering')) url+='&engineering='+encodeURIComponent(params.get('engineering'));
+  if(_defaultHoard&&_defaultHoard.id) url+='&fenceId='+encodeURIComponent(_defaultHoard.id);
   return url;
 }
 

@@ -168,16 +168,9 @@
                             <span class="patrol-detail-row-label">问题详情</span>
                             <span class="patrol-detail-row-value" id="patrol-detail-issue-detail" style="white-space:pre-wrap">—</span>
                         </div>
-                    <div class="patrol-detail-row">
-                        <span class="patrol-detail-row-label">问题位置</span>
-                        <div class="patrol-detail-row-value" style="overflow:visible">
-                            <div id="patrol-detail-issue-map" style="width:100%;height:220px;border-radius:6px;overflow:hidden;border:1px solid #333;background:#1a1a1a"></div>
-                            <div style="display:flex;gap:6px;margin-top:6px;font-size:10px;color:#aaa;white-space:nowrap">
-                                <span style="display:flex;align-items:center;gap:2px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#D13B2F;flex-shrink:0"></span>问题</span>
-                                <span style="display:flex;align-items:center;gap:2px"><span style="display:inline-block;width:10px;height:2px;background:#D13B2F;flex-shrink:0"></span>红线</span>
-                                <span style="display:flex;align-items:center;gap:2px"><span style="display:inline-block;width:10px;height:0;border-bottom:2px dashed #1862D4;flex-shrink:0"></span>围挡</span>
-                                <span style="display:flex;align-items:center;gap:2px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#1862D4;flex-shrink:0"></span>出入口</span>
-                            </div>
+                        <div class="patrol-detail-row">
+                            <span class="patrol-detail-row-label">问题位置</span>
+                            <span class="patrol-detail-row-value" id="patrol-detail-issue-location">—</span>
                         </div>
                     </div>
                     <!-- Rectification fields -->
@@ -427,81 +420,6 @@
         return null;
     }
 
-    // Init Leaflet mini-map for issue location in view mode
-    var _issueLocMap=null;
-    function initIssueLocationMap(lat,lng){
-        var el=document.getElementById('patrol-detail-issue-map');
-        if(!el||typeof L==='undefined')return;
-        // Wait two frames for DOM reflow after display:none → visible
-        requestAnimationFrame(function(){
-        requestAnimationFrame(function(){
-        if(_issueLocMap){_issueLocMap.remove();_issueLocMap=null;}
-        _issueLocMap=L.map(el,{zoomControl:true,attributionControl:false,scrollWheelZoom:true,dragging:true});
-        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:18}).addTo(_issueLocMap);
-
-        // Collect all layers for fitBounds
-        var allLayers=[];
-
-        // Add issue marker
-        var mk=L.circleMarker([lat,lng],{radius:7,color:'#D13B2F',fillColor:'#D13B2F',fillOpacity:1,weight:2})
-            .bindTooltip('问题位置',{direction:'top',offset:[0,-10]})
-            .addTo(_issueLocMap);
-        allLayers.push(mk);
-
-        // Load fence/project data
-        var fenceId=getQueryParam('fenceId');
-        if(!fenceId){_issueLocMap.setView([lat,lng],16);_issueLocMap.invalidateSize();return;}
-        var hoard=window.MOCK_DATA?window.MOCK_DATA.findHoard(fenceId):null;
-        if(!hoard){_issueLocMap.setView([lat,lng],16);_issueLocMap.invalidateSize();return;}
-        var projects=window.MOCK_DATA?window.MOCK_DATA.getProjects():[];
-        var proj=null;
-        if(hoard.projectId){projects.forEach(function(p){if(p.id===hoard.projectId)proj=p;});}
-
-        // Project redline
-        if(proj&&proj.redlineGeo&&proj.redlineGeo.length>0){
-            var rl=L.polygon(proj.redlineGeo.map(function(p){return[p[0],p[1]];}),{color:'#D13B2F',weight:2,fill:false}).addTo(_issueLocMap);
-            allLayers.push(rl);
-        }
-
-        // This fence gpsShape
-        if(hoard.gpsShape&&hoard.gpsShape.length>0){
-            var fl=L.polygon(hoard.gpsShape.map(function(p){return[p[0],p[1]];}),{color:'#1862D4',weight:2,dashArray:'6 4',fillColor:'rgba(24,98,212,0.10)',fillOpacity:1}).addTo(_issueLocMap);
-            allLayers.push(fl);
-        }
-
-        // Entrances
-        if(hoard.entrances){
-            hoard.entrances.forEach(function(e){
-                L.circleMarker([e.lat,e.lng],{radius:4,color:'#1862D4',fillColor:'#1862D4',fillOpacity:0.8,weight:1.5}).bindTooltip(e.name||'出入口',{direction:'top'}).addTo(_issueLocMap);
-            });
-        }
-
-        // Other fence blocks in same project
-        if(proj&&proj.hoardings){
-            proj.hoardings.forEach(function(h){
-                if(h.id===fenceId)return;
-                if(!h.gpsShape||!h.gpsShape.length)return;
-                L.polygon(h.gpsShape.map(function(p){return[p[0],p[1]];}),{color:'#9CA3B0',weight:1,dashArray:'4 3',fillColor:'rgba(156,163,176,0.04)',fillOpacity:1}).addTo(_issueLocMap);
-                if(h.entrances){
-                    h.entrances.forEach(function(e){
-                        L.circleMarker([e.lat,e.lng],{radius:3,color:'#9CA3B0',fillColor:'#9CA3B0',fillOpacity:0.5,weight:1}).addTo(_issueLocMap);
-                    });
-                }
-            });
-        }
-
-        // Fit bounds to show redline + fence range context (with issue marker included)
-        if(allLayers.length>0){
-            var group=L.featureGroup(allLayers);
-            try{_issueLocMap.fitBounds(group.getBounds(),{padding:[20,20],maxZoom:16});}catch(e){_issueLocMap.setView([lat,lng],15);}
-        }else{
-            _issueLocMap.setView([lat,lng],16);
-        }
-        _issueLocMap.invalidateSize();
-        });
-        });
-    }
-
     function loadDemoData() {
         // Use demo data matching the patrol record
         patrolRecord = {
@@ -546,14 +464,9 @@
                 var issue=patrolRecord.issues&&patrolRecord.issues[0];
                 document.getElementById('patrol-detail-issue-type').textContent = issue&&issue.type?issue.type:'—';
                 document.getElementById('patrol-detail-issue-detail').textContent = issue&&issue.detail?issue.detail:(remark||'—');
-                // Location from YZY matched issue + patrol record
+                // Location from YZY matched issue
                 var yzyIssue=findMatchedYZYIssue(patrolRecord);
-                var locLat=null,locLng=null;
-                if(issue&&issue.location&&issue.location.lat){locLat=issue.location.lat;locLng=issue.location.lng;}
-                else if(yzyIssue&&yzyIssue.location&&yzyIssue.location.lat){locLat=yzyIssue.location.lat;locLng=yzyIssue.location.lng;}
-                if(locLat!==null){
-                  setTimeout(function(){initIssueLocationMap(locLat,locLng);},100);
-                }
+                document.getElementById('patrol-detail-issue-location').textContent = yzyIssue&&yzyIssue.location?yzyIssue.location.addr||(yzyIssue.location.lat+', '+yzyIssue.location.lng):'—';
                 // Rectification fields
                 var rect=yzyIssue&&yzyIssue._rectification;
                 if(rect){

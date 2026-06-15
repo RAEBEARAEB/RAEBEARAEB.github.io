@@ -69,7 +69,28 @@ a{color:var(--text-link);text-decoration:none}::-webkit-scrollbar{width:6px}::-w
 .card-hd{padding:var(--space-4) var(--space-5);background:var(--color-gray-50);border-bottom:1px solid var(--border-color-light);font-size:var(--font-size-md);font-weight:var(--font-weight-bold);color:var(--text-title);display:flex;align-items:center;gap:var(--space-2)}
 .card-bd{padding:var(--space-5)}
 .card-hd .dot{width:4px;height:16px;background:var(--color-primary-500);border-radius:2px;display:inline-block}
-.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-2) var(--space-8);max-width:860px}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-2) var(--space-8);max-width:860px;margin:0 auto}
+/* ── 流转日志 ── */
+.log-timeline{position:relative;padding-left:40px;max-width:860px;margin:0 auto}
+.log-timeline::before{content:'';position:absolute;left:17px;top:0;bottom:0;width:2px;background:linear-gradient(180deg,var(--color-gray-200) 0%,var(--color-gray-200) 60%,transparent 100%)}
+.log-item{position:relative;margin-bottom:var(--space-6)}.log-item:last-child{margin-bottom:0}
+.log-dot{position:absolute;left:-40px;top:4px;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;z-index:2;box-shadow:0 2px 6px rgba(0,0,0,0.08)}
+.log-dot svg{width:18px;height:18px}
+.log-dot.report{background:#EBF2FF;color:var(--color-primary-500)}
+.log-dot.rectify{background:#E8F0FE;color:var(--color-primary-500)}
+.log-dot.pass{background:var(--color-success-light);color:var(--color-success)}
+.log-dot.reject{background:var(--color-danger-light);color:var(--color-danger)}
+.log-card{background:var(--bg-card);border:1px solid var(--border-color-light);border-radius:var(--border-radius-lg);overflow:hidden;transition:box-shadow var(--transition-fast)}
+.log-card:hover{box-shadow:var(--shadow-md)}
+.log-card-head{display:flex;align-items:center;justify-content:space-between;padding:var(--space-3) var(--space-5);border-bottom:1px solid var(--border-color-light)}
+.log-card-title{font-size:var(--font-size-sm);font-weight:var(--font-weight-bold);color:var(--text-title)}
+.log-card-time{font-size:var(--font-size-xs);color:var(--text-tertiary);white-space:nowrap}
+.log-card-body{padding:var(--space-4) var(--space-5)}
+.log-field{display:flex;margin-bottom:var(--space-2);font-size:var(--font-size-sm);line-height:1.6}.log-field:last-child{margin-bottom:0}
+.log-field-lbl{width:72px;flex-shrink:0;color:var(--text-tertiary);font-size:var(--font-size-sm)}
+.log-field-val{color:var(--text-primary);flex:1;min-width:0;word-break:break-all}
+.log-photos{display:flex;flex-wrap:wrap;gap:var(--space-2);margin-top:var(--space-2)}
+.log-photos img{width:80px;height:80px;object-fit:cover;border-radius:var(--border-radius-md);border:1px solid var(--border-color-light)}
 .info-item{display:flex;flex-direction:column;gap:2px}.info-item.full{grid-column:1/-1}
 .info-lbl{font-size:var(--font-size-xs);color:var(--text-tertiary)}
 .info-val{font-size:var(--font-size-sm);color:var(--text-primary);font-weight:var(--font-weight-medium)}
@@ -94,6 +115,16 @@ a{color:var(--text-link);text-decoration:none}::-webkit-scrollbar{width:6px}::-w
 .btn:active{transform:translateY(1px)}.btn-primary{background:var(--color-primary-500);color:#fff;box-shadow:0 1px 3px rgba(24,98,212,0.2)}.btn-primary:hover{background:var(--color-primary-600)}
 .btn-ghost{background:transparent;color:var(--text-secondary);border-color:var(--border-color-default)}.btn-ghost:hover{background:var(--color-gray-100);color:var(--text-primary)}
 .btn-success{background:var(--color-success);color:#fff}.btn-success:hover{background:var(--color-success-dark)}
+/* ── Section nav ── */
+.main-body{display:flex;flex:1;min-height:0}
+.section-nav{width:150px;flex-shrink:0;overflow-y:auto;padding:var(--space-4) 0;position:sticky;top:0;align-self:flex-start;max-height:100vh}
+.section-nav-item{display:flex;align-items:center;gap:var(--space-2);padding:var(--space-2) var(--space-4);font-size:var(--font-size-sm);color:var(--text-secondary);cursor:pointer;border-left:3px solid transparent;transition:all var(--transition-fast)}
+.section-nav-item:hover{background:var(--color-gray-50);color:var(--text-primary)}
+.section-nav-item.active{background:var(--color-primary-50);color:var(--color-primary-600);font-weight:var(--font-weight-medium);border-left-color:var(--color-primary-500)}
+.section-nav-num{width:20px;height:20px;border-radius:50%;background:var(--color-gray-200);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:var(--font-weight-bold);flex-shrink:0}
+.section-nav-item.active .section-nav-num{background:var(--color-primary-500);color:#fff}
+.form-content{flex:1;min-width:0;padding:var(--space-4) var(--space-6);overflow-y:auto}
+.form-content::-webkit-scrollbar{width:5px}.form-content::-webkit-scrollbar-thumb{background:var(--color-gray-300);border-radius:3px}
 </style>
 </head>
 <body>
@@ -111,8 +142,15 @@ a{color:var(--text-link);text-decoration:none}::-webkit-scrollbar{width:6px}::-w
 <main class="layout-main">
 <div class="breadcrumb"><a href="index.html">首页</a><span class="sep">/</span><a href="fence-issue-list.html">问题闭环处置</a><span class="sep">/</span><span class="current">整改</span></div>
 <div class="page-header"><div class="page-title">围挡问题整改</div><div class="page-actions"><button class="btn btn-ghost" onclick="history.back()">返回列表</button><button class="btn btn-success" onclick="submitRectify()">提交整改</button></div></div>
+	<div class="main-body">
+	<nav class="section-nav" id="sectionNav">
+	<a class="section-nav-item active" data-sec="sec-issue"><span class="section-nav-num">1</span>问题信息</a>
+	<a class="section-nav-item" data-sec="sec-rectify"><span class="section-nav-num">2</span>整改信息</a>
+	<a class="section-nav-item" data-sec="sec-log"><span class="section-nav-num">3</span>流转日志</a>
+	</nav>
+	<div class="form-content" id="formContent">
 
-<div id="issueInfoCard" class="card"><div class="card-hd"><span class="dot"></span>围挡问题信息</div><div class="card-bd"><div class="info-grid" id="issueInfoBody"></div></div></div>
+<section id="sec-issue"><div id="issueInfoCard" class="card"><div class="card-hd"><span class="dot"></span>围挡问题信息</div><div class="card-bd"><div class="info-grid" id="issueInfoBody"></div></div></div>
 
 <div class="card">
   <div class="card-hd"><span class="dot"></span>整改信息 <span style="font-weight:var(--font-weight-regular);font-size:var(--font-size-xs);color:var(--color-danger)">*必填</span></div>
@@ -129,6 +167,12 @@ a{color:var(--text-link);text-decoration:none}::-webkit-scrollbar{width:6px}::-w
     </div>
   </div>
 </div>
+	<div class="card">
+	  <div class="card-hd"><span class="dot"></span>流转日志</div>
+	  <div class="card-bd"><div id="logBody"></div></div>
+	</div>
+t</div>
+	</div>
 </main>
 </div></div>
 
@@ -167,6 +211,43 @@ function loadIssue(){
   if(_issue.location&&_issue.location.lat)h+='<div class="info-item full"><span class="info-lbl">问题位置</span><span class="info-val">'+esc(_issue.location.addr||'')+'</span><div class="loc-map" id="locMap"></div></div>';
   document.getElementById('issueInfoBody').innerHTML=h;
 
+  // ═══ 流转日志 ═══
+  var r=_issue._rectification,au=_issue._audits||[],items=[];
+  items.push({type:'report',title:'问题上报',time:_issue.reportTime,desc:_issue.details,photos:_issue.photos,person:_issue.source==='项目巡检'?'刘伟':_issue.source==='街道上报'?'李伟':_issue.source==='监管巡查'?'张建国':_issue.source==='群众上报'?'市民':'—'});
+  if(r)items.push({type:'rectify',title:'整改处置',time:r.rectTime,person:r.rectifier,unit:r.rectifierUnit,desc:r.desc,photos:r.photos});
+  au.forEach(function(a){items.push({type:a.result==='审核通过'?'pass':'reject',title:'监管审核 — '+(a.result==='审核通过'?'审核通过':'退回整改'),time:a.time,person:a.auditor,unit:a.auditorUnit,opinion:a.opinion,photos:a.photos});});
+  items.sort(function(a,b){return(b.time||'').localeCompare(a.time||'')});
+  var th='<div class="log-timeline">';
+  items.forEach(function(t){
+    var dotCls=t.type;
+    var iconSvg='';
+    if(t.type==='report')iconSvg='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>';
+    else if(t.type==='rectify')iconSvg='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
+    else if(t.type==='pass')iconSvg='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>';
+    else iconSvg='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
+    th+='<div class="log-item"><div class="log-dot '+dotCls+'">'+iconSvg+'</div><div class="log-card">'+
+      '<div class="log-card-head"><div class="log-card-title">'+esc(t.title)+'</div><div class="log-card-time">'+esc(t.time||'')+'</div></div>'+
+      '<div class="log-card-body">';
+    if(t.type==='report'){
+      th+='<div class="log-field"><span class="log-field-lbl">问题来源</span><span class="log-field-val">'+esc(_issue.source||'')+'</span></div>';
+      th+='<div class="log-field"><span class="log-field-lbl">操作人</span><span class="log-field-val">'+(t.person?esc(t.person)+(t.unit?'（'+esc(t.unit)+'）':''):(_issue.source==='项目巡检'?'刘伟':_issue.source==='街道上报'?'李伟':_issue.source==='监管巡查'?'张建国':_issue.source==='群众上报'?'市民':_issue.source||'—'))+'</span></div>';
+    }
+    if(t.type==='rectify'){
+      th+='<div class="log-field"><span class="log-field-lbl">处置人</span><span class="log-field-val">'+esc(t.person||'')+(t.unit?'（'+esc(t.unit)+'）':'')+'</span></div>';
+      if(t.desc)th+='<div class="log-field"><span class="log-field-lbl">整改说明</span><span class="log-field-val">'+esc(t.desc)+'</span></div>';
+    }
+    if(t.type==='pass'||t.type==='reject'){
+      th+='<div class="log-field"><span class="log-field-lbl">审核人</span><span class="log-field-val">'+esc(t.person||'')+(t.unit?'（'+esc(t.unit)+'）':'')+'</span></div>';
+      th+='<div class="log-field"><span class="log-field-lbl">审核结果</span><span class="log-field-val" style="font-weight:var(--font-weight-medium)">'+(t.type==='pass'?'审核通过':'退回整改')+'</span></div>';
+      if(t.opinion)th+='<div class="log-field"><span class="log-field-lbl">审核意见</span><span class="log-field-val">'+esc(t.opinion)+'</span></div>';
+    }
+    if(t.type!=='report'&&t.photos&&t.photos.length)th+='<div class="log-field"><span class="log-field-lbl">'+(t.type==='rectify'?'\u6574\u6539\u7167\u7247':'\u7167\u7247')+'</span><div class="log-photos">'+t.photos.map(function(p){return'<img src="'+p+'">'}).join('')+'</div></div>'
+    th+='</div></div></div>';
+  });
+  if(!items.length)th+='<div style="color:var(--text-tertiary);text-align:center;padding:20px">暂无记录</div>';
+  th+='</div>';
+  document.getElementById('logBody').innerHTML=th;
+
   // Init location map
   if(_issue.location&&_issue.location.lat)setTimeout(function(){
     var el=document.getElementById('locMap');if(!el)return;
@@ -199,6 +280,11 @@ function submitRectify(){if(!_issue){showMsg('问题不存在');return;}var desc
 function showMsg(m){var d=document.createElement('div');d.style.cssText='position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.8);color:#fff;padding:12px 24px;border-radius:8px;font-size:14px;z-index:9999';d.textContent=m;document.body.appendChild(d);setTimeout(function(){d.remove()},2000);}
 
 loadIssue();
+(function(){
+  var navs=document.querySelectorAll(".section-nav-item"),fc=document.getElementById("formContent");
+  navs.forEach(function(n){n.addEventListener("click",function(e){e.preventDefault();var el=document.getElementById(this.getAttribute("data-sec"));if(el)el.scrollIntoView({behavior:"smooth",block:"start"});});});
+  fc.addEventListener("scroll",function(){var st=fc.scrollTop;navs.forEach(function(n){var el=document.getElementById(n.getAttribute("data-sec"));if(el)n.classList.toggle("active",st+120>=el.offsetTop-fc.offsetTop);});});
+})();
 </script>
 </body>
 </html>

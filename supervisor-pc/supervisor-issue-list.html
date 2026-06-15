@@ -105,9 +105,9 @@ a{color:var(--text-link);text-decoration:none}::-webkit-scrollbar{width:6px}::-w
         <li class="nav-item"><a href="supervisor-issue-list.html" class="active"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>问题闭环处置</a></li></ul><div class="sidebar-bottom"><div class="sidebar-version">v2.0.0 · 2026.06</div></div></aside>
 <main class="layout-main">
 <div class="breadcrumb"><a href="index.html">首页</a><span class="sep">/</span><span class="current">问题闭环处置</span></div>
-<div class="page-header"><div class="page-title">问题闭环处置</div><div class="page-actions"><button class="btn btn-primary" onclick="window.location.href='supervisor-issue-report.html'">新增围挡问题</button></div></div>
+<div class="page-header"><div class="page-title">问题闭环处置</div></div>
 
-<div class="stat-cards" id="statCards"></div>
+<div class="stat-cards" id="statCards" style="margin-bottom:var(--space-4)"></div>
 
 <div class="card"><div class="search-bar" style="margin-bottom:0">
   <input type="text" id="filterKeyword" placeholder="搜索项目/工程/问题描述" oninput="renderTable()">
@@ -116,6 +116,7 @@ a{color:var(--text-link);text-decoration:none}::-webkit-scrollbar{width:6px}::-w
   <select id="filterType" onchange="renderTable()"><option value="all">全部类型</option></select>
   <button class="btn btn-primary btn-sm" onclick="renderTable()"><svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>查询</button>
   <button class="btn btn-ghost btn-sm" onclick="document.getElementById('filterKeyword').value='';document.getElementById('filterStatus').value='all';document.getElementById('filterSource').value='all';renderTable()"><svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>重置</button>
+  <button class="btn btn-primary" onclick="window.location.href='supervisor-issue-report.html'" style="margin-left:auto">新增围挡问题</button>
 </div></div>
 
 <div class="card" style="padding:0">
