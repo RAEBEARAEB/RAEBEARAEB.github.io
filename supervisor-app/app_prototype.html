@@ -318,7 +318,7 @@ input,textarea,select{font-family:var(--font-family);outline:none}
 
   <!-- Screen 1: 工作台 -->
   <div class="screen active" id="screenHome">
-    <div class="screen-body" id="workbenchBody"></div>
+    <div class="screen-body" id="workbenchBody"><div style="padding:40px;text-align:center;color:var(--text-sub)">加载中...</div></div>
   </div>
 
   <!-- Screen 2: 围挡详情 -->
@@ -425,6 +425,7 @@ input,textarea,select{font-family:var(--font-family);outline:none}
    Data from MOCK_DATA (mock-data.js)
    ═══════════════════════════════════════════ */
 
+if(typeof MOCK_DATA==='undefined'){document.body.innerHTML='<div style=padding:20px;color:red>数据加载失败，请清除浏览器缓存后重试</div>';throw new Error('MOCK_DATA not loaded');}
 var STATUS_KEY={ '设置中':'setting','即将到期':'removing','已到期':'removed' };
 var STATUS_LABEL={ setting:'设置中',removing:'即将到期',removed:'已到期' };
 var ISSUE_KEY={ '正常':'normal','待整改':'pending','整改逾期':'overdue','待审核':'pending','审核通过':'passed','退回整改':'pending' };
@@ -576,7 +577,7 @@ const patrolData=(function(){
       });
     });
     // Enrich with issue type/location from YZY issues
-    var allIssues = MOCK_DATA.getStreetIssues();
+    allIssues = MOCK_DATA.getStreetIssues();
     var enrichedDays = Object.values(daysMap);
     enrichedDays.forEach(function(day){
       day.records.forEach(function(rec){
@@ -1102,7 +1103,12 @@ showScreen=function(id,addToStack){
   if(id==='screenMapOverview')renderMapOverview();
 };
 
-renderWorkbench();
+(function init(){
+  // Verify critical dependencies
+  if(typeof MOCK_DATA==='undefined'){document.body.innerHTML='<div style="padding:40px;text-align:center;color:#D13B2F">数据模块加载失败<br><small>请清除缓存后重试</small></div>';return;}
+  if(typeof projectFenceData==='undefined'){document.body.innerHTML='<div style="padding:40px;text-align:center;color:#D13B2F">项目数据为空<br><small>请清除缓存后重试</small></div>';return;}
+  try{renderWorkbench();}catch(e){document.getElementById('workbenchBody').innerHTML='<div style="padding:40px;color:var(--red);text-align:center"><div style="font-size:20px;margin-bottom:8px">页面加载异常</div><div style="font-size:12px;color:var(--text-sub)">'+e.message+'</div></div>';}
+})();
 </script>
 </body>
 </html>
