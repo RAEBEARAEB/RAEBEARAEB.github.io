@@ -485,19 +485,19 @@
     function d(s) { var t = new Date(now); t.setDate(t.getDate() - s); return t.toISOString().slice(0,10); }
     function _img(w,h,txt,c1,c2) { return "data:image/svg+xml," + encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' width='"+w+"' height='"+h+"'><rect width='"+w+"' height='"+h+"' fill='"+c1+"'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='14' fill='"+c2+"' font-family='sans-serif'>"+txt+"</text></svg>"); }
     return [
-      { id: 'YZY-001', type: '围挡破损', fenceId: 'WD-2026-0001', fenceAddr: '福田区福华三路', details: '围挡面板破裂约0.5㎡，金属框架外露存在安全风险', status: '审核通过', source: '街道上报', reportTime: d(1)+' 08:30:15', engineerName: '管道铺设工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png'], location: { lat: 22.549, lng: 114.060, addr: '福田区福华三路与金田路交汇处' } },
-      { id: 'YZY-002', type: '围挡占道超限', fenceId: 'WD-2026-0002', fenceAddr: '福田区福华三路西侧', details: '施工材料大量占据人行道，行人被迫绕行机动车道，存在严重安全隐患', status: '退回整改', source: '群众上报', reportTime: d(3)+' 15:00:00', engineerName: '沟槽开挖工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png','../围挡破损.png'], location: { lat: 22.548, lng: 114.059, addr: '福田区福华三路西侧' } },
-      { id: 'YZY-003', type: '围挡安全隐患', fenceId: 'WD-2026-0003', fenceAddr: '南山区科技南路', details: '围挡整体向西侧倒塌约15米，底部基础完全裸露', status: '待审核', source: '监管巡查', reportTime: d(5)+' 10:15:30', engineerName: '道路恢复工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png'], location: { lat: 22.537, lng: 113.952, addr: '南山区科技南路' } },
-      { id: 'YZY-004', type: '围挡基础松动', fenceId: 'WD-2026-0004', fenceAddr: '南山区科技园路', details: '基坑围护工程围挡向东倾斜约10度，基础部分外露', status: '审核通过', source: '街道上报', reportTime: d(10)+' 11:00:00', engineerName: '基坑围护工程', responsibleUnit: '中建三局集团有限公司', photos: ['../围挡破损.png'], location: { lat: 22.535, lng: 113.948, addr: '南山区科技园路' } },
+      { id: 'YZY-001', type: '围挡破损', fenceId: 'WD-2026-0001', fenceAddr: '福田区福华三路', details: '围挡面板破裂约0.5㎡，金属框架外露存在安全风险', status: '整改完成', source: '街道上报', reportTime: d(1)+' 08:30:15', engineerName: '管道铺设工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png'], location: { lat: 22.549, lng: 114.060, addr: '福田区福华三路与金田路交汇处' } },
+      { id: 'YZY-002', type: '围挡占道超限', fenceId: 'WD-2026-0002', fenceAddr: '福田区福华三路西侧', details: '施工材料大量占据人行道，行人被迫绕行机动车道，存在严重安全隐患', status: '待整改', source: '群众上报', reportTime: d(3)+' 15:00:00', engineerName: '沟槽开挖工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png','../围挡破损.png'], location: { lat: 22.548, lng: 114.059, addr: '福田区福华三路西侧' } },
+      { id: 'YZY-003', type: '围挡安全隐患', fenceId: 'WD-2026-0003', fenceAddr: '南山区科技南路', details: '围挡整体向西侧倒塌约15米，底部基础完全裸露', status: '待整改', source: '监管巡查', reportTime: d(5)+' 10:15:30', engineerName: '道路恢复工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png'], location: { lat: 22.537, lng: 113.952, addr: '南山区科技南路' } },
+      { id: 'YZY-004', type: '围挡基础松动', fenceId: 'WD-2026-0004', fenceAddr: '南山区科技园路', details: '基坑围护工程围挡向东倾斜约10度，基础部分外露', status: '整改完成', source: '街道上报', reportTime: d(10)+' 11:00:00', engineerName: '基坑围护工程', responsibleUnit: '中建三局集团有限公司', photos: ['../围挡破损.png'], location: { lat: 22.535, lng: 113.948, addr: '南山区科技园路' } },
       { id: 'YZY-005', type: '围挡安全隐患', fenceId: 'WD-2026-0001', fenceAddr: '福田区福华三路', details: '围挡底部焊接点锈蚀严重，存在倒塌风险，限期整改已超15天未完成', status: '整改逾期', source: '街道上报', reportTime: d(15)+' 09:00:00', engineerName: '管道铺设工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png','../围挡破损.png'], location: { lat: 22.549, lng: 114.060, addr: '福田区福华三路' } },
-      { id: 'YZY-006', type: '围挡缺失', fenceId: 'WD-2026-0002', fenceAddr: '福田区福华三路西侧', details: '围挡局部缺失约2米，行人可穿行进入施工区域，存在安全隐患', status: '待接收', source: '街道上报', reportTime: d(0)+' 07:45:00', engineerName: '沟槽开挖工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png'], location: { lat: 22.548, lng: 114.059, addr: '福田区福华三路西侧' } },
-      { id: 'YZY-007', type: '围挡破损', fenceId: 'WD-2026-0001', fenceAddr: '福田区福华三路', details: '巡检中发现围挡面板出现裂缝，面积约0.3㎡，已修复完成', status: '审核通过', source: '项目巡检', reportTime: d(2)+' 14:20:00', engineerName: '管道铺设工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png'], location: { lat: 22.549, lng: 114.060, addr: '福田区福华三路与金田路交汇处' } },
+      { id: 'YZY-006', type: '围挡缺失', fenceId: 'WD-2026-0002', fenceAddr: '福田区福华三路西侧', details: '围挡局部缺失约2米，行人可穿行进入施工区域，存在安全隐患', status: '待整改', source: '街道上报', reportTime: d(0)+' 07:45:00', engineerName: '沟槽开挖工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png'], location: { lat: 22.548, lng: 114.059, addr: '福田区福华三路西侧' } },
+      { id: 'YZY-007', type: '围挡破损', fenceId: 'WD-2026-0001', fenceAddr: '福田区福华三路', details: '巡检中发现围挡面板出现裂缝，面积约0.3㎡，已修复完成', status: '整改完成', source: '项目巡检', reportTime: d(2)+' 14:20:00', engineerName: '管道铺设工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png'], location: { lat: 22.549, lng: 114.060, addr: '福田区福华三路与金田路交汇处' } },
       { id: 'YZY-008', type: '围挡脏污', fenceId: 'WD-2026-0005', fenceAddr: '南山区科技南路', details: '巡检中发现围挡表面有大面积泥浆污渍，影响市容', status: '待整改', source: '项目巡检', reportTime: d(7)+' 10:00:00', engineerName: '主体结构工程', responsibleUnit: '中建三局集团有限公司', photos: ['../围挡破损.png'], location: { lat: 22.536, lng: 113.958, addr: '南山区科技南路18号' } },
       // ── 福田项目自查已整改 demo ──
-      { id: 'YZY-011', type: '围挡基础松动', fenceId: 'WD-2026-0001', fenceAddr: '福田区福华三路', details: '巡检中发现围挡底部基础螺栓松动3处，已当日加固修复', status: '审核通过', source: '项目巡检', reportTime: d(8)+' 09:20:00', engineerName: '管道铺设工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png'], location: { lat: 22.550, lng: 114.061, addr: '福田区福华三路与金田路交汇处' } },
-      { id: 'YZY-012', type: '围挡脏污', fenceId: 'WD-2026-0002', fenceAddr: '福田区福华三路西侧', details: '巡检中发现围挡表面有泥浆泼溅痕迹约2㎡，已清洗完毕', status: '审核通过', source: '项目巡检', reportTime: d(9)+' 14:50:00', engineerName: '沟槽开挖工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png'], location: { lat: 22.547, lng: 114.060, addr: '福田区福华三路西侧' } },
-      { id: 'YZY-013', type: '围挡喷淋不符合要求', fenceId: 'WD-2026-0001', fenceAddr: '福田区福华三路', details: '巡检中发现围挡喷淋头堵塞2处导致降尘效果不达标，已疏通更换', status: '审核通过', source: '项目巡检', reportTime: d(11)+' 16:30:00', engineerName: '管道铺设工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png'], location: { lat: 22.549, lng: 114.062, addr: '福田区福华三路与金田路交汇处' } },
-      { id: 'YZY-014', type: '围挡二维码内容不全', fenceId: 'WD-2026-0003', fenceAddr: '福田区福华三路东侧', details: '巡检中发现围挡二维码缺少责任人联系电话，已重新制作张贴', status: '审核通过', source: '项目巡检', reportTime: d(12)+' 11:10:00', engineerName: '道路恢复工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png'], location: { lat: 22.547, lng: 114.063, addr: '福田区福华三路东侧' } },
+      { id: 'YZY-011', type: '围挡基础松动', fenceId: 'WD-2026-0001', fenceAddr: '福田区福华三路', details: '巡检中发现围挡底部基础螺栓松动3处，已当日加固修复', status: '整改完成', source: '项目巡检', reportTime: d(8)+' 09:20:00', engineerName: '管道铺设工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png'], location: { lat: 22.550, lng: 114.061, addr: '福田区福华三路与金田路交汇处' } },
+      { id: 'YZY-012', type: '围挡脏污', fenceId: 'WD-2026-0002', fenceAddr: '福田区福华三路西侧', details: '巡检中发现围挡表面有泥浆泼溅痕迹约2㎡，已清洗完毕', status: '整改完成', source: '项目巡检', reportTime: d(9)+' 14:50:00', engineerName: '沟槽开挖工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png'], location: { lat: 22.547, lng: 114.060, addr: '福田区福华三路西侧' } },
+      { id: 'YZY-013', type: '围挡喷淋不符合要求', fenceId: 'WD-2026-0001', fenceAddr: '福田区福华三路', details: '巡检中发现围挡喷淋头堵塞2处导致降尘效果不达标，已疏通更换', status: '整改完成', source: '项目巡检', reportTime: d(11)+' 16:30:00', engineerName: '管道铺设工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png'], location: { lat: 22.549, lng: 114.062, addr: '福田区福华三路与金田路交汇处' } },
+      { id: 'YZY-014', type: '围挡二维码内容不全', fenceId: 'WD-2026-0003', fenceAddr: '福田区福华三路东侧', details: '巡检中发现围挡二维码缺少责任人联系电话，已重新制作张贴', status: '整改完成', source: '项目巡检', reportTime: d(12)+' 11:10:00', engineerName: '道路恢复工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png'], location: { lat: 22.547, lng: 114.063, addr: '福田区福华三路东侧' } },
       // ── 应建未建围挡 demo ──
       { id: 'YZY-009', type: '应建未建围挡', fenceId: '', fenceAddr: '', details: '粤海街道科技南路与滨海大道交汇处，根据规划要求此处应设置围挡但至今未建', status: '待整改', source: '街道上报', reportTime: d(4)+' 09:30:00', engineerName: '', responsibleUnit: '', street: '粤海街道', projectName: '', photos: ['../围挡破损.png'], location: { lat: 22.538, lng: 113.955, addr: '南山区粤海街道科技南路与滨海大道交汇处' } },
       { id: 'YZY-010', type: '应建未建围挡', fenceId: '', fenceAddr: '', details: '黄贝街道深南东路北侧工地出入口处未按规定设置围挡，存在安全隐患', status: '待整改', source: '街道上报', reportTime: d(6)+' 14:00:00', engineerName: '', responsibleUnit: '', street: '黄贝街道', projectName: '', photos: ['../围挡破损.png'], location: { lat: 22.550, lng: 114.140, addr: '罗湖区黄贝街道深南东路北侧' } }
@@ -576,10 +576,10 @@
       },
       audits: {
         'YZY-002': [
-          { id: 'au2', auditor: '张建国', auditorUnit: '深圳市福田区住房和建设局', time: '2026-06-02 16:00', result: '退回整改', opinion: '清运后现场仍有少量建筑垃圾残留，请再次清理并拍照', photos: ['../围挡破损.png'] }
+          { id: 'au2', auditor: '张建国', auditorUnit: '深圳市福田区住房和建设局', time: '2026-06-02 16:00', result: '待整改', opinion: '清运后现场仍有少量建筑垃圾残留，请再次清理并拍照', photos: ['../围挡破损.png'] }
         ],
         'YZY-004': [
-          { id: 'au4', auditor: '张建国', auditorUnit: '深圳市福田区住房和建设局', time: '2026-06-03 09:30', result: '审核通过', opinion: '整改措施到位，围挡稳固无安全隐患，审核通过', photos: ['../围挡破损.png','../围挡破损.png'] }
+          { id: 'au4', auditor: '张建国', auditorUnit: '深圳市福田区住房和建设局', time: '2026-06-03 09:30', result: '整改完成', opinion: '整改措施到位，围挡稳固无安全隐患，审核通过', photos: ['../围挡破损.png','../围挡破损.png'] }
         ]
       }
     };
@@ -637,12 +637,12 @@
     // Update issue status
     var allIssues = window.MOCK_DATA.getStreetIssues();
     for (var j = 0; j < allIssues.length; j++) {
-      if (allIssues[j].id === issueId) { allIssues[j].status = '待审核'; break; }
+      if (allIssues[j].id === issueId) { allIssues[j].status = '整改完成'; break; }
     }
     window.MOCK_DATA._saveIssues(allIssues);
   };
 
-  /** 提交审核 */
+  /** 提交审核（已废弃，保留兼容）*/
   window.MOCK_DATA.submitAudit = function (issueId, data) {
     var closureData = _load();
     if (!closureData.audits) closureData.audits = {};
@@ -652,20 +652,11 @@
       auditor: data.auditor || '',
       auditorUnit: data.auditorUnit || '',
       time: data.time || new Date().toISOString().replace('T', ' ').slice(0, 16),
-      result: data.result || '审核通过',
+      result: '整改完成',
       opinion: data.opinion || '',
       photos: data.photos || []
     });
     _save(closureData);
-    // Update issue status based on audit result
-    var allIssues = window.MOCK_DATA.getStreetIssues();
-    for (var j = 0; j < allIssues.length; j++) {
-      if (allIssues[j].id === issueId) {
-        allIssues[j].status = data.result === '退回整改' ? '退回整改' : '审核通过';
-        break;
-      }
-    }
-    window.MOCK_DATA._saveIssues(allIssues);
   };
 
   /** 保存街道问题列表（内部使用） */
@@ -711,7 +702,7 @@
       var discScore=Math.round(30*discRate);
       // D2(2): 整改完成率 (30pts)
       var tR=0,cR=0;
-      projHoards.forEach(function(h){issues.forEach(function(iss){if(iss.fenceId===h.id){tR++;if(iss.status==='审核通过'||iss.status==='已通过')cR++;}});});
+      projHoards.forEach(function(h){issues.forEach(function(iss){if(iss.fenceId===h.id){tR++;if(iss.status==='整改完成'||iss.status==='已通过')cR++;}});});
       var rectRate=tR>0?cR/tR:1;
       var rectScore=Math.round(30*rectRate);
       var d2=d1===0?0:(discScore+rectScore);

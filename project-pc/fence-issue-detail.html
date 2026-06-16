@@ -187,8 +187,8 @@ function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/<
 
 function loadDetail(){
   _issue=MOCK_DATA.getClosureDetail(decodeURIComponent(issueId));if(!_issue)return;
-  var sc=_issue.status==='待整改'?'待整改':_issue.status==='待审核'?'待审核':_issue.status==='退回整改'?'退回整改':_issue.status==='整改逾期'?'整改逾期':_issue.status==='待接收'?'待接收':'审核通过';
-  var sCls=_issue.status==='待整改'?'tag-warning':_issue.status==='退回整改'?'tag-warning':_issue.status==='待审核'?'tag-info':_issue.status==='整改逾期'?'tag-danger':_issue.status==='待接收'?'tag-warning':'tag-success';
+  var sc=_issue.status==='待整改'?'待整改':_issue.status==='整改逾期'?'整改逾期':'整改完成';
+  var sCls=_issue.status==='待整改'?'tag-warning':_issue.status==='整改逾期'?'tag-danger':'tag-success';
 
   // ═══ 围挡问题信息 ═══
   var h='<div class="detail-item"><span class="detail-label">问题类型</span><span class="detail-value" style="color:var(--color-primary-500);font-weight:var(--font-weight-medium)">'+esc(_issue.type||'--')+'</span></div>'+
@@ -205,16 +205,16 @@ function loadDetail(){
   if(_issue.location&&_issue.location.lat)h+='<div class="detail-item full"><span class="detail-label">问题位置</span><span class="detail-value">'+esc(_issue.location.addr||_issue.location.lat+', '+_issue.location.lng)+'</span><div class="log-loc-map" id="issueLocMap" style="width:100%;max-width:400px;height:200px"></div></div>';
   document.getElementById('basicBody').innerHTML=h;
 
-  // ═══ 流转日志 (simplified: 上报 → 整改 → 审核) ═══
-  var r=_issue._rectification,au=_issue._audits||[],items=[];
+    // ═══ 流转日志 (simplified: 上报 → 转派 → 整改) ═══
+  var r=_issue._rectification,tr=_issue._transfers||[],items=[];
   // 1. 问题上报
   items.push({type:'report',title:'问题上报',time:_issue.reportTime,desc:_issue.details,photos:_issue.photos,person:_issue.source==='项目巡检'?'刘伟':_issue.source==='街道上报'?'李伟':_issue.source==='监管巡查'?'张建国':_issue.source==='群众上报'?'市民':'—'});
-  // 2. 整改处置
-  if(r)items.push({type:'rectify',title:'整改处置',time:r.rectTime,person:r.rectifier,unit:r.rectifierUnit,desc:r.desc,photos:r.photos});
-  // 3. 监管审核
-  au.forEach(function(a){
-    items.push({type:a.result==='审核通过'?'pass':'reject',title:'监管审核 — '+(a.result==='审核通过'?'审核通过':'退回整改'),time:a.time,person:a.auditor,unit:a.auditorUnit,opinion:a.opinion,photos:a.photos});
+  // 3. 问题转派 (if any)
+  tr.forEach(function(t){
+    items.push({type:'transfer',title:'问题转派',time:t.time,person:t.operator,unit:t.unit,desc:t.desc,originalEng:t.originalEng||'—'});
   });
+  // 4. 整改处置
+  if(r)items.push({type:'rectify',title:'整改处置',time:r.rectTime,person:r.rectifier,unit:r.rectifierUnit,desc:r.desc,photos:r.photos});
   items.sort(function(a,b){return(b.time||'').localeCompare(a.time||'')});
 
   var th='<div class="log-timeline">';
@@ -222,27 +222,27 @@ function loadDetail(){
     var dotCls=t.type;
     var iconSvg='';
     if(t.type==='report')iconSvg='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>';
+    else if(t.type==='transfer')iconSvg='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>';
     else if(t.type==='rectify')iconSvg='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
-    else if(t.type==='pass')iconSvg='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>';
-    else iconSvg='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
 
     th+='<div class="log-item"><div class="log-dot '+dotCls+'">'+iconSvg+'</div><div class="log-card">'+
       '<div class="log-card-head"><div class="log-card-title">'+esc(t.title)+'</div><div class="log-card-time">'+esc(t.time||'')+'</div></div>'+
       '<div class="log-card-body">';
     if(t.type==='report'){
       th+='<div class="log-field"><span class="log-field-lbl">问题来源</span><span class="log-field-val">'+esc(_issue.source||'--')+'</span></div>';
-      th+='<div class="log-field"><span class="log-field-lbl">操作人</span><span class="log-field-val">'+(t.person?esc(t.person)+(t.unit?'（'+esc(t.unit)+'）':''):(_issue.source==='项目巡检'?'刘伟':_issue.source==='街道上报'?'李伟':_issue.source==='监管巡查'?'张建国':_issue.source==='群众上报'?'市民':_issue.source||'—'))+'</span></div>';
+      th+='<div class="log-field"><span class="log-field-lbl">操作人</span><span class="log-field-val">'+esc(t.person||'—')+'</span></div>';
+    }
+    }
+    if(t.type==='transfer'){
+      th+='<div class="log-field"><span class="log-field-lbl">转派人</span><span class="log-field-val">'+esc(t.person||'—')+(t.unit?'（'+esc(t.unit)+'）':'')+'</span></div>';
+      th+='<div class="log-field"><span class="log-field-lbl">原关联工程</span><span class="log-field-val">'+esc(_issue.engineerName||'—')+'</span></div>';
+      if(t.desc)th+='<div class="log-field"><span class="log-field-lbl">转派说明</span><span class="log-field-val">'+esc(t.desc)+'</span></div>';
     }
     if(t.type==='rectify'){
       th+='<div class="log-field"><span class="log-field-lbl">处置人</span><span class="log-field-val">'+esc(t.person||'')+(t.unit?'（'+esc(t.unit)+'）':'')+'</span></div>';
       if(t.desc)th+='<div class="log-field"><span class="log-field-lbl">整改说明</span><span class="log-field-val">'+esc(t.desc)+'</span></div>';
     }
-    if(t.type==='pass'||t.type==='reject'){
-      th+='<div class="log-field"><span class="log-field-lbl">审核人</span><span class="log-field-val">'+esc(t.person||'')+(t.unit?'（'+esc(t.unit)+'）':'')+'</span></div>';
-      th+='<div class="log-field"><span class="log-field-lbl">审核结果</span><span class="log-field-val" style="font-weight:var(--font-weight-medium)">'+(t.type==='pass'?'审核通过':'退回整改')+'</span></div>';
-      if(t.opinion)th+='<div class="log-field"><span class="log-field-lbl">审核意见</span><span class="log-field-val">'+esc(t.opinion)+'</span></div>';
-    }
-    if(t.type!=='report'&&t.photos&&t.photos.length)th+='<div class="log-field"><span class="log-field-lbl">'+(t.type==='rectify'?'\u6574\u6539\u7167\u7247':'\u7167\u7247')+'</span><div class="log-photos">'+t.photos.map(function(p){return'<img src="'+p+'">'}).join('')+'</div></div>'
+    if(t.type!=='report'&&t.photos&&t.photos.length)th+='<div class="log-field"><span class="log-field-lbl">'+(t.type==='rectify'?'整改照片':'照片')+'</span><div class="log-photos">'+t.photos.map(function(p){return'<img src="'+p+'">'}).join('')+'</div></div>';
     th+='</div></div></div>';
   });
   if(!items.length)th+='<div style="color:var(--text-tertiary);text-align:center;padding:20px">暂无记录</div>';

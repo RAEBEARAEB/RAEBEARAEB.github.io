@@ -292,8 +292,8 @@ function renderTable(){
 
   var h = '';
   pageItems.forEach(function(i, idx){
-    var sc = i.status==='待整改'?'待整改':i.status==='待审核'?'待审核':i.status==='退回整改'?'退回整改':i.status==='整改逾期'?'整改逾期':i.status==='待接收'?'待接收':'审核通过';
-    var sCls = i.status==='待整改'?'tag-warning':i.status==='退回整改'?'tag-warning':i.status==='待审核'?'tag-info':i.status==='整改逾期'?'tag-danger':i.status==='待接收'?'tag-warning':'tag-success';
+    var sc = i.status==='待整改'?'待整改':i.status==='整改逾期'?'整改逾期':'整改完成';
+    var sCls = i.status==='待整改'?'tag-warning':i.status==='整改逾期'?'tag-danger':'tag-success';
     h += '<tr><td>'+(start+idx+1)+'</td>'+
       '<td><span class="issue-type-text">'+esc(i.type||'')+'</span></td>'+
       '<td style="text-align:left">'+esc(i._projectName||'--')+'</td>'+
@@ -304,9 +304,9 @@ function renderTable(){
       '<td><span class="tag '+sCls+'">'+sc+'</span></td>'+
       '<td>'+esc(i.reportTime||'')+'</td>'+
       '<td><div class="table-actions"><a class="table-action-link" href="fence-issue-detail.html?id='+i.id+'">详情</a>'+
-      (i.status==='待整改'||i.status==='退回整改'?'<a class="table-action-link warning" href="fence-issue-rectify.html?id='+i.id+'">整改</a>':'')+
-      (i.status==='待接收'?'<a class="table-action-link" style="color:var(--color-info)" href="javascript:void(0)" onclick="receiveIssue(\''+i.id+'\')">接收</a>':'')+
-      '<a class="table-action-link" href="javascript:void(0)" onclick="openTransferModal(\''+i.id+'\')">转派</a></div></td></tr>';
+      (i.status==='待整改'||i.status==='整改逾期'?'<a class="table-action-link warning" href="fence-issue-rectify.html?id='+i.id+'">整改</a>':'')+
+      (i.status==='待整改'||i.status==='整改逾期'?'<a class="table-action-link" href="javascript:void(0)" onclick="openTransferModal(\''+i.id+'\')">转派</a>':'')+
+      '</div></td></tr>';
   });
   if(!total) h = '<tr><td colspan="10" style="padding:40px;color:var(--text-tertiary)">暂无数据</td></tr>';
   document.getElementById('tableBody').innerHTML = h;
@@ -341,9 +341,9 @@ function onStatusTab(tab){
 }
 
 function renderStatusTabs(){
-  var tabs = ['all','待接收','待整改','退回整改','整改逾期','待审核','审核通过'];
-  var labels = ['全部','待接收','待整改','退回整改','整改逾期','待审核','审核通过'];
-  var warnTabs = { '待整改':true,'退回整改':true,'待接收':true };
+  var tabs = ['all','待整改','整改逾期','整改完成'];
+  var labels = ['全部','待整改','整改逾期','整改完成'];
+  var warnTabs = { '待整改':true };
   var dangerTabs = { '整改逾期':true };
   var all = MOCK_DATA.getClosureIssues();
   var counts = {};

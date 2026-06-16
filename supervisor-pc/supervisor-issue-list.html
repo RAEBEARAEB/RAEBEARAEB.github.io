@@ -63,7 +63,7 @@ a{color:var(--text-link);text-decoration:none}::-webkit-scrollbar{width:6px}::-w
 .search-bar select,.search-bar input{height:var(--height-md);padding:0 var(--space-3);font-size:var(--font-size-sm);color:var(--text-primary);background:var(--bg-card);border:1px solid var(--border-color-default);border-radius:var(--border-radius-md);outline:none;font-family:var(--font-family)}
 .search-bar select:focus,.search-bar input:focus{border-color:var(--border-color-focus);box-shadow:0 0 0 2px var(--color-primary-50)}
 .search-bar input{min-width:220px}.search-bar select{min-width:110px}
-.stat-cards{display:grid;grid-template-columns:repeat(5,1fr);gap:var(--space-3);margin-bottom:var(--space-4)}
+.stat-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-3);margin-bottom:var(--space-4)}
 .stat-card{background:var(--bg-card);border:1px solid var(--border-color-light);border-radius:var(--border-radius-lg);padding:var(--space-3) var(--space-4);box-shadow:var(--shadow-card);position:relative;overflow:hidden}
 .stat-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:2px 0 0 2px}
 .stat-card.warn::before{background:var(--color-warning)}.stat-card.info::before{background:var(--color-info)}.stat-card.danger::before{background:var(--color-danger)}.stat-card.success::before{background:var(--color-success)}
@@ -111,7 +111,7 @@ a{color:var(--text-link);text-decoration:none}::-webkit-scrollbar{width:6px}::-w
 
 <div class="card"><div class="search-bar" style="margin-bottom:0">
   <input type="text" id="filterKeyword" placeholder="搜索项目/工程/问题描述" oninput="renderTable()">
-  <select id="filterStatus" onchange="renderTable()"><option value="all">全部状态</option><option value="待整改">待整改</option><option value="退回整改">退回整改</option><option value="整改逾期">整改逾期</option><option value="待审核">待审核</option><option value="审核通过">审核通过</option></select>
+  <select id="filterStatus" onchange="renderTable()"><option value="all">全部状态</option><option value="待整改">待整改</option><option value="整改逾期">整改逾期</option><option value="整改完成">整改完成</option></select>
   <select id="filterSource" onchange="renderTable()"><option value="all">全部来源</option><option value="街道上报">街道上报</option><option value="群众上报">群众上报</option><option value="监管巡查">监管巡查</option><option value="项目巡检">项目巡检</option></select>
   <select id="filterType" onchange="renderTable()"><option value="all">全部类型</option></select>
   <button class="btn btn-primary btn-sm" onclick="renderTable()"><svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>查询</button>
@@ -151,9 +151,9 @@ function renderTable(){
   if(ft!=='all')_items=_items.filter(function(i){return i.type===ft;});
   var total=_items.length,start=(_page-1)*_pageSize,pageItems=_items.slice(start,start+_pageSize),h='';
   pageItems.forEach(function(i,idx){
-    var sc=i.status==='待整改'?'待整改':i.status==='待审核'?'待审核':i.status==='退回整改'?'退回整改':i.status==='整改逾期'?'整改逾期':i.status==='待接收'?'待接收':'审核通过';
-    var sCls=i.status==='待整改'?'tag-warning':i.status==='退回整改'?'tag-warning':i.status==='待审核'?'tag-info':i.status==='整改逾期'?'tag-danger':i.status==='待接收'?'tag-warning':'tag-success';
-    h+='<tr><td>'+(start+idx+1)+'</td><td><span class="issue-type-text">'+esc(i.type||'')+'</span></td><td style="text-align:left">'+esc(i._projectName||'--')+'</td><td style="text-align:left">'+esc(i.engineerName||'--')+'</td><td>'+esc(i.street||'--')+'</td><td>'+esc(i._constructUnit||i.responsibleUnit||'--')+'</td><td>'+esc(i.source||'--')+'</td><td><span class="tag '+sCls+'">'+sc+'</span></td><td>'+esc(i.reportTime||'')+'</td><td><div class="table-actions"><a class="table-action-link" href="supervisor-issue-detail.html?id='+i.id+'">详情</a>'+(i.status==='待审核'?'<a class="table-action-link warning" href="supervisor-issue-audit.html?id='+i.id+'">审核</a>':'')+'</div></td></tr>';
+    var sc=i.status==='待整改'?'待整改':i.status==='整改逾期'?'整改逾期':i.status==='待接收'?'待接收':'整改完成';
+    var sCls=i.status==='待整改'?'tag-warning':i.status==='整改逾期'?'tag-danger':i.status==='待接收'?'tag-warning':'tag-success';
+    h+='<tr><td>'+(start+idx+1)+'</td><td><span class="issue-type-text">'+esc(i.type||'')+'</span></td><td style="text-align:left">'+esc(i._projectName||'--')+'</td><td style="text-align:left">'+esc(i.engineerName||'--')+'</td><td>'+esc(i.street||'--')+'</td><td>'+esc(i._constructUnit||i.responsibleUnit||'--')+'</td><td>'+esc(i.source||'--')+'</td><td><span class="tag '+sCls+'">'+sc+'</span></td><td>'+esc(i.reportTime||'')+'</td><td><div class="table-actions"><a class="table-action-link" href="supervisor-issue-detail.html?id='+i.id+'">详情</a></div></td></tr>';
   });
   if(!total)h='<tr><td colspan="10" style="padding:40px;color:var(--text-tertiary)">暂无数据</td></tr>';
   document.getElementById('tableBody').innerHTML=h;
@@ -167,8 +167,8 @@ function renderTable(){
 }
 function renderStatCards(){
   var all=MOCK_DATA.getClosureIssues(),counts={};
-  ['待整改','退回整改','待审核','整改逾期','审核通过'].forEach(function(s){counts[s]=all.filter(function(i){return i.status===s;}).length;});
-  var cards=[{key:'待整改',cls:'warn'},{key:'退回整改',cls:'warn'},{key:'整改逾期',cls:'danger'},{key:'待审核',cls:'info'},{key:'审核通过',cls:'success'}];
+  ['待整改','整改逾期','整改完成'].forEach(function(s){counts[s]=all.filter(function(i){return i.status===s;}).length;});
+  var cards=[{key:'待整改',cls:'warn'},{key:'整改逾期',cls:'danger'},{key:'整改完成',cls:'success'}];
   var h='';cards.forEach(function(c){h+='<div class="stat-card '+c.cls+'"><div class="stat-card-lbl">'+c.key+'</div><div class="stat-card-val">'+counts[c.key]+'</div></div>';});
   document.getElementById('statCards').innerHTML=h;
 }
