@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>问题闭环处置 - 深圳市建设施工围挡数字化管理系统</title>
+<title>项目问题 - 深圳市建设施工围挡数字化管理系统</title>
 <style>
 :root {
   --color-primary-50:#EBF2FF;--color-primary-100:#C6D9FF;--color-primary-200:#9DBEFF;
@@ -41,16 +41,15 @@ a{color:var(--text-link);text-decoration:none}::-webkit-scrollbar{width:6px}::-w
 .header-action-btn{position:relative;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:var(--border-radius-md);cursor:pointer;background:none;border:none;color:var(--text-secondary)}
 .header-action-btn:hover{background:var(--color-gray-50)}.header-action-btn svg{width:18px;height:18px}
 .header-badge{position:absolute;top:4px;right:4px;min-width:16px;height:16px;background:var(--color-danger);color:#fff;font-size:10px;font-weight:var(--font-weight-bold);border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 4px;border:2px solid var(--bg-header)}
-.header-user{display:flex;align-items:center;gap:var(--space-2);padding:0 var(--space-2);cursor:pointer;height:36px;border-radius:var(--border-radius-md)}
-.header-user:hover{background:var(--color-gray-50)}.header-avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--color-primary-100),var(--color-primary-200));display:flex;align-items:center;justify-content:center;font-size:var(--font-size-xs);color:var(--color-primary-700)}.header-user-info{display:flex;flex-direction:column;line-height:1.3}.header-user-name{font-size:var(--font-size-sm);color:var(--text-primary)}.header-user-role{font-size:10px;color:var(--text-tertiary)}
+.header-user{display:flex;align-items:center;gap:var(--space-2);padding:0 var(--space-2);cursor:pointer;height:36px;border-radius:var(--border-radius-md)}.header-user:hover{background:var(--color-gray-50)}
+.header-avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--color-primary-100),var(--color-primary-200));display:flex;align-items:center;justify-content:center;font-size:var(--font-size-xs);color:var(--color-primary-700)}.header-user-info{display:flex;flex-direction:column;line-height:1.3}.header-user-name{font-size:var(--font-size-sm);color:var(--text-primary)}.header-user-role{font-size:10px;color:var(--text-tertiary)}
 .layout-body{display:flex;margin-top:var(--header-height);height:calc(100vh - var(--header-height));overflow:hidden}
 .layout-sidebar{width:var(--sidebar-width);background:var(--bg-sidebar);height:100%;overflow-y:auto;flex-shrink:0;display:flex;flex-direction:column}
 .nav-menu{list-style:none;padding:var(--space-4) 0;flex:1}
 .nav-group-label{font-size:11px;color:rgba(255,255,255,0.35);letter-spacing:0.06em;padding:var(--space-3) var(--space-5) var(--space-1);font-weight:var(--font-weight-medium);text-transform:uppercase}
 .nav-item{position:relative}.nav-item a{display:flex;align-items:center;gap:var(--space-3);padding:0 var(--space-5);height:40px;font-size:var(--font-size-sm);color:rgba(255,255,255,0.65);transition:background var(--transition-fast),color var(--transition-fast);text-decoration:none}
 .nav-item a:hover{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.9)}.nav-item a.active{background:rgba(24,98,212,0.25);color:#FFF;font-weight:var(--font-weight-medium)}
-.nav-item a.active::before{content:'';position:absolute;left:0;top:4px;bottom:4px;width:3px;background:#FFF;border-radius:0 2px 2px 0}
-.nav-icon{width:16px;height:16px;flex-shrink:0;opacity:0.8}.nav-item a.active .nav-icon{opacity:1}
+.nav-item a.active::before{content:'';position:absolute;left:0;top:4px;bottom:4px;width:3px;background:#FFF;border-radius:0 2px 2px 0}.nav-icon{width:16px;height:16px;flex-shrink:0;opacity:0.8}
 .sidebar-bottom{padding:var(--space-3) var(--space-5);border-top:1px solid rgba(255,255,255,0.06)}.sidebar-version{font-size:11px;color:rgba(255,255,255,0.2)}
 .layout-main{flex:1;overflow-y:auto;padding:var(--space-6);background:#F5F6F8}
 .breadcrumb{display:flex;align-items:center;gap:var(--space-1);font-size:var(--font-size-sm);color:var(--text-tertiary);margin-bottom:var(--space-3)}
@@ -63,29 +62,17 @@ a{color:var(--text-link);text-decoration:none}::-webkit-scrollbar{width:6px}::-w
 .search-bar select,.search-bar input{height:var(--height-md);padding:0 var(--space-3);font-size:var(--font-size-sm);color:var(--text-primary);background:var(--bg-card);border:1px solid var(--border-color-default);border-radius:var(--border-radius-md);outline:none;font-family:var(--font-family)}
 .search-bar select:focus,.search-bar input:focus{border-color:var(--border-color-focus);box-shadow:0 0 0 2px var(--color-primary-50)}
 .search-bar input{min-width:220px}.search-bar select{min-width:110px}
-.stat-cards{display:flex;gap:var(--space-3);margin-bottom:var(--space-4)}
-.stat-card{flex:1;background:var(--bg-card);border:1px solid var(--border-color-light);border-radius:var(--border-radius-lg);padding:var(--space-4) var(--space-5);box-shadow:var(--shadow-card);display:flex;align-items:center;gap:var(--space-4);cursor:default;transition:box-shadow var(--transition-fast)}
-.stat-card:hover{box-shadow:var(--shadow-md)}
-.stat-card-icon{width:44px;height:44px;border-radius:var(--border-radius-md);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.stat-card-icon.warn{background:var(--color-warning-light);color:var(--color-warning)}
-.stat-card-icon.danger{background:var(--color-danger-light);color:var(--color-danger)}
-.stat-card-icon.success{background:var(--color-success-light);color:var(--color-success)}
-.stat-card-icon.info{background:var(--color-info-light);color:var(--color-info)}
-.stat-card-icon svg{width:22px;height:22px}
-.stat-card-body{display:flex;flex-direction:column;min-width:0}
-.stat-card-val{font-size:var(--font-size-2xl);font-weight:var(--font-weight-bold);color:var(--text-title);line-height:1.1}
-.stat-card-lbl{font-size:var(--font-size-xs);color:var(--text-tertiary);margin-top:2px;white-space:nowrap}
 .table-wrap{width:100%;overflow-x:auto}
-.table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:var(--font-size-sm)}
+.table{width:100%;border-collapse:collapse;font-size:var(--font-size-sm)}
 .table th{background:var(--color-gray-100);color:var(--text-secondary);font-weight:var(--font-weight-medium);font-size:var(--font-size-xs);text-align:center;padding:var(--space-3) var(--space-3);border-bottom:1px solid var(--border-color-light);white-space:nowrap}
 .table td{padding:var(--space-3) var(--space-3);border-bottom:1px solid var(--border-color-light);text-align:center}
 .table tbody tr:hover td{background:var(--color-primary-50)}
 .tag{display:inline-flex;align-items:center;padding:2px 10px;border-radius:999px;font-size:var(--font-size-xs);font-weight:var(--font-weight-medium);white-space:nowrap}
 .tag-warning{background:var(--color-warning-light);color:var(--color-warning)}.tag-danger{background:var(--color-danger-light);color:var(--color-danger)}
 .tag-info{background:var(--color-info-light);color:var(--color-info)}.tag-success{background:var(--color-success-light);color:var(--color-success)}
+.tag-default{background:var(--color-gray-100);color:var(--color-gray-500)}
 .issue-type-text{font-size:var(--font-size-sm);color:var(--color-primary-500);font-weight:var(--font-weight-medium)}
 .table-action-link{color:var(--text-link);font-size:var(--font-size-sm);cursor:pointer;white-space:nowrap;text-decoration:none}.table-action-link:hover{color:var(--color-primary-600);text-decoration:underline}
-.table-action-link.warning{color:var(--color-warning);font-weight:var(--font-weight-medium)}
 .table-actions{display:flex;justify-content:center;gap:12px}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:4px;height:var(--height-md);padding:0 var(--space-4);font-size:var(--font-size-sm);font-weight:var(--font-weight-medium);border-radius:var(--border-radius-md);border:1px solid transparent;cursor:pointer;transition:all var(--transition-fast);white-space:nowrap;font-family:var(--font-family)}
 .btn:active{transform:translateY(1px)}.btn-primary{background:var(--color-primary-500);color:#fff}.btn-primary:hover{background:var(--color-primary-600)}
@@ -94,6 +81,16 @@ a{color:var(--text-link);text-decoration:none}::-webkit-scrollbar{width:6px}::-w
 .pagination{display:flex;align-items:center;justify-content:space-between;padding:var(--space-3) 0 0;font-size:var(--font-size-sm);color:var(--text-tertiary)}
 .pagination-btns{display:flex;gap:var(--space-1)}.pagination-btns button{min-width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;padding:0 var(--space-2);border:1px solid var(--border-color-light);border-radius:var(--border-radius-md);color:var(--text-primary);background:var(--bg-card);cursor:pointer;font-size:var(--font-size-sm)}
 .pagination-btns button.active{background:var(--color-primary-500);border-color:var(--color-primary-500);color:#FFF}.pagination-btns button:disabled{opacity:0.4;cursor:not-allowed}
+/* ── 状态标签页 ── */
+.card-toolbar{display:flex;align-items:center;justify-content:space-between;padding:var(--space-3) var(--space-5);border-bottom:1px solid var(--border-color-light);background:var(--color-gray-50)}
+.status-tabs{display:flex;align-items:center;gap:var(--space-2)}
+.status-tab{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;font-size:var(--font-size-sm);color:var(--text-secondary);border-radius:var(--border-radius-md);cursor:pointer;transition:all var(--transition-fast);background:none;border:none;font-family:var(--font-family);font-weight:var(--font-weight-regular);line-height:1}
+.status-tab:hover{background:var(--color-gray-100);color:var(--text-primary)}
+.status-tab.active{background:var(--color-primary-50);color:var(--color-primary-600);font-weight:var(--font-weight-medium)}
+.status-tab-num{font-weight:var(--font-weight-bold);font-size:var(--font-size-sm)}
+.status-tab.active .status-tab-num{color:var(--color-primary-500)}
+.status-tab-num-warn{color:#D48A00}.status-tab.active .status-tab-num-warn{color:#D48A00}
+.status-tab-num-danger{color:#D13B2F}.status-tab.active .status-tab-num-danger{color:#D13B2F}
 </style>
 </head>
 <body>
@@ -110,112 +107,115 @@ a{color:var(--text-link);text-decoration:none}::-webkit-scrollbar{width:6px}::-w
 <li class="nav-item"><a href="panorama_patrol.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>全景巡查</a></li>
         <li class="nav-item"><a href="supervisor-issue-list.html" class="active"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>问题闭环处置</a></li></ul><div class="sidebar-bottom"><div class="sidebar-version">v2.0.0 · 2026.06</div></div></aside>
 <main class="layout-main">
-<div class="breadcrumb"><a href="index.html">首页</a><span class="sep">/</span><span class="current">问题闭环处置</span></div>
-<div class="page-header"><div class="page-title">问题闭环处置</div></div>
+<div class="breadcrumb"><a href="supervisor-issue-list.html">问题闭环处置</a><span class="sep">/</span><span class="current" id="breadcrumbProj">项目问题</span></div>
+<div class="page-header"><div class="page-title" id="projPageTitle">项目围挡问题</div><div class="page-actions"><button class="btn btn-ghost" onclick="window.location.href='supervisor-issue-list.html'">← 返回</button></div></div>
 
-<div class="stat-cards" id="statCards" style="margin-bottom:var(--space-4)"></div>
+<div class="card"><div class="search-bar" style="margin-bottom:0">
+  <select id="filterEngineer" onchange="renderTable()"><option value="all">全部关联工程</option></select>
+  <select id="filterSource" onchange="renderTable()"><option value="all">全部来源</option><option value="街道上报">街道上报</option><option value="群众上报">群众上报</option><option value="监管巡查">监管巡查</option><option value="项目巡检">项目巡检</option></select>
+  <select id="filterType" onchange="renderTable()"><option value="all">全部类型</option></select>
+  <button class="btn btn-primary btn-sm" onclick="renderTable()"><svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>查询</button>
+  <button class="btn btn-ghost btn-sm" onclick="document.getElementById('filterEngineer').value='all';document.getElementById('filterSource').value='all';_statusTab='all';renderTable()"><svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>重置</button>
+</div></div>
 
-
-	<div class="card"><div class="search-bar" style="margin-bottom:0">
-	  <select id="filterDistrict" onchange="renderTable()"><option value="all">全部区域</option></select>
-		  <select id="filterStreet" onchange="renderTable()"><option value="all">全部街道</option></select>
-		  <input type="text" id="filterKeyword" placeholder="搜索项目名称" oninput="renderTable()">
-	  <button class="btn btn-primary btn-sm" onclick="renderTable()"><svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>查询</button>
-	  <button class="btn btn-ghost btn-sm" onclick="document.getElementById('filterKeyword').value='';document.getElementById('filterDistrict').value='all';document.getElementById('filterStreet').value='all';renderTable()"><svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>重置</button>
-	  <button class="btn btn-primary" onclick="window.location.href='supervisor-issue-report.html'" style="margin-left:auto">新增围挡问题</button>
-	</div></div>
-
-	<div class="card" style="padding:0">
-	<div class="table-wrap">
-	  <table class="table">
-	    <thead><tr>
-	      <th style="width:32px">序号</th><th style="text-align:left;width:240px;overflow:hidden;text-overflow:ellipsis">项目名称</th><th style="width:72px">项目状态</th><th style="width:72px">围挡状态</th><th style="width:90px">计划拆除时间</th><th style="width:64px">待整改</th><th style="width:72px">整改逾期</th><th style="width:80px">累计整改完成</th><th style="width:70px">操作</th>
-	    </tr></thead>
-	    <tbody id="tableBody"></tbody>
-	  </table>
-	</div>
-	<div class="pagination" id="paginationBar"><span>共 0 条</span><div class="pagination-btns"></div></div>
-	</div>
+<div class="card" style="padding:0">
+	<div class="card-toolbar"><div class="status-tabs" id="statusTabs"></div></div>
+<div class="table-wrap">
+  <table class="table">
+    <thead><tr>
+      <th style="width:32px">序号</th><th style="width:90px">问题类型</th><th style="width:120px;text-align:left">关联工程</th><th style="width:80px">所属街道</th><th style="width:140px">责任单位</th><th style="width:75px">问题来源</th><th style="width:75px">状态</th><th style="width:100px">上报时间</th><th style="width:80px">操作</th>
+    </tr></thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+</div>
+<div class="pagination" id="paginationBar"><span>共 0 条</span><div class="pagination-btns"></div></div>
+</div>
 </main>
 </div></div>
 
 <script src="../shared_data.js"></script>
 <script src="../mock-data.js"></script>
 <script>
-var _projItems=[],_page=1,_pageSize=10;
+var _projName=decodeURIComponent((window.location.search.match(/project=([^&]*)/)||[])[1]||'');
+var _items=[],_page=1,_pageSize=10;
+
 function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
-function buildProjData(){
-  var allIssues=MOCK_DATA.getClosureIssues();
-  var map={};
-  // Group issues by project
-  allIssues.forEach(function(i){
-    var key=i._projectName||'未知项目';
-    if(!map[key]){
-      map[key]={
-        project:key,
-        street:i.street||'—',
-        constructUnit:i._constructUnit||i.responsibleUnit||'—',
-        pending:0,overdue:0,completed:0,hoardings:[]
-      };
-    }
-    if(i.status==='待整改')map[key].pending++;
-    else if(i.status==='整改逾期')map[key].overdue++;
-    else if(i.status==='整改完成')map[key].completed++;
-    map[key].hoardings.push(i);
+// Set project name in UI
+document.getElementById('breadcrumbProj').textContent=_projName||'项目问题';
+document.getElementById('projPageTitle').textContent=(_projName||'项目')+' - 围挡问题';
+
+function loadData(){
+  _items=MOCK_DATA.getClosureIssues();
+  // Filter to this project only
+  _items=_items.filter(function(i){return (i._projectName||'')===_projName;});
+}
+
+(function initTypeFilter(){
+  var s=document.getElementById('filterType');if(!s)return;
+  var types=MOCK_DATA.getStreetIssueTypes();
+  types.forEach(function(t){var o=document.createElement('option');o.value=t;o.textContent=t;s.appendChild(o);});
+})();
+
+// Init engineer filter from project data
+(function initEngineerFilter(){
+  var issues=MOCK_DATA.getClosureIssues();
+  var engSet={};
+  issues.forEach(function(i){
+    if((i._projectName||'')===_projName&&i.engineerName)engSet[i.engineerName]=true;
   });
-  // Merge with MOCK_DATA project info for status/dates
-  var projects=MOCK_DATA.getProjects();
-  var result=[];
-  Object.keys(map).forEach(function(k){
-    var entry=map[k];
-    // Find project info
-    var proj=null;
-    projects.forEach(function(p){if(p.name===k)proj=p;});
-    if(proj){
-      entry.projStatus=proj.status||'在建';
-      entry.district=proj.district||'';
-      // Compute aggregate fence status (priority: 即将到期 > 设置中 > 已到期)
-      var fs={};
-      (proj.hoardings||[]).forEach(function(h){fs[h.fenceStatus]=true;});
-      entry.fenceStatus=fs['即将到期']?'即将到期':fs['设置中']?'设置中':'已到期';
-      // Earliest planRemoveDate
-      var earliest='';
-      (proj.hoardings||[]).forEach(function(h){if(h.planRemoveDate&&(!earliest||h.planRemoveDate<earliest))earliest=h.planRemoveDate;});
-      entry.removeDate=earliest||'—';
-    }else{
-      entry.projStatus='—';entry.fenceStatus='—';entry.removeDate='—';
-    }
-    result.push(entry);
+  var s=document.getElementById('filterEngineer');if(!s)return;
+  Object.keys(engSet).sort().forEach(function(e){
+    var o=document.createElement('option');o.value=e;o.textContent=e;s.appendChild(o);
   });
-  return result;
+})();
+
+var _statusTab='all';
+
+function onStatusTab(tab){_statusTab=tab;_page=1;renderTable();}
+
+function renderStatusTabs(){
+  var all=MOCK_DATA.getClosureIssues().filter(function(i){return(i._projectName||'')===_projName;});
+  var tabs=['all','待整改','整改逾期','整改完成'];
+  var labels=['全部','待整改','整改逾期','整改完成'];
+  var warnTabs={'待整改':true};
+  var dangerTabs={'整改逾期':true};
+  var counts={};
+  tabs.forEach(function(t){counts[t]=t==='all'?all.length:all.filter(function(i){return i.status===t;}).length;});
+  var html='';
+  tabs.forEach(function(t,idx){
+    var active=_statusTab===t?' active':'';
+    var numCls=warnTabs[t]?' status-tab-num-warn':dangerTabs[t]?' status-tab-num-danger':'';
+    html+='<button class="status-tab'+active+'" onclick="onStatusTab(\''+t+'\')">'+labels[idx]+' <span class="status-tab-num'+numCls+'">'+counts[t]+'</span></button>';
+  });
+  document.getElementById('statusTabs').innerHTML=html;
 }
 
 function renderTable(){
-  _projItems=buildProjData();
-  var kw=document.getElementById('filterKeyword').value.trim().toLowerCase();
-  var dist=document.getElementById('filterDistrict').value;
-  var street=document.getElementById('filterStreet').value;
-  if(kw)_projItems=_projItems.filter(function(p){return p.project.toLowerCase().indexOf(kw)>-1||(p.street||'').toLowerCase().indexOf(kw)>-1;});
-  if(dist!=='all')_projItems=_projItems.filter(function(p){return p.district===dist;});
-  if(street!=='all')_projItems=_projItems.filter(function(p){return p.street===street;});
-  var total=_projItems.length,start=(_page-1)*_pageSize,pageItems=_projItems.slice(start,start+_pageSize),h='';
+  loadData();
+  var eng=document.getElementById('filterEngineer').value;
+  var src=document.getElementById('filterSource').value;
+  var ft=document.getElementById('filterType').value;
+  if(_statusTab!=='all')_items=_items.filter(function(i){return i.status===_statusTab;});
+  if(eng!=='all')_items=_items.filter(function(i){return i.engineerName===eng;});
+  if(src!=='all')_items=_items.filter(function(i){return i.source===src;});
+  if(ft!=='all')_items=_items.filter(function(i){return i.type===ft;});
+  // Sort by reportTime descending
+  _items.sort(function(a,b){return(b.reportTime||'').localeCompare(a.reportTime||'');});
 
-  var fsTag={};fsTag['设置中']='tag-success';fsTag['即将到期']='tag-warning';fsTag['已到期']='tag-default';
-  var psTag={};psTag['在建']='tag-success';psTag['停工']='tag-danger';psTag['竣工验收']='tag-info';
-
-  pageItems.forEach(function(p,idx){
-    var fsCls=fsTag[p.fenceStatus]||'tag-default';
-    var psCls=psTag[p.projStatus]||'tag-default';
+  var total=_items.length,start=(_page-1)*_pageSize,pageItems=_items.slice(start,start+_pageSize),h='';
+  pageItems.forEach(function(i,idx){
+    var sc=i.status==='待整改'?'待整改':i.status==='整改逾期'?'整改逾期':'整改完成';
+    var sCls=i.status==='待整改'?'tag-warning':i.status==='整改逾期'?'tag-danger':'tag-success';
     h+='<tr><td>'+(start+idx+1)+'</td>'+
-      '<td style="text-align:left"><a class="table-action-link" href="supervisor-issue-project.html?project='+encodeURIComponent(p.project)+'">'+esc(p.project)+'</a></td>'+
-      '<td><span class="tag '+psCls+'">'+esc(p.projStatus)+'</span></td>'+
-      '<td><span class="tag '+fsCls+'">'+esc(p.fenceStatus)+'</span></td>'+
-      '<td>'+esc(p.removeDate)+'</td>'+
-      '<td><span style="color:var(--color-warning);font-weight:var(--font-weight-bold)">'+p.pending+'</span></td>'+
-      '<td><span style="color:var(--color-danger);font-weight:var(--font-weight-bold)">'+p.overdue+'</span></td>'+
-      '<td>'+p.completed+'</td>'+
-      '<td><div class="table-actions"><a class="table-action-link" href="supervisor-issue-project.html?project='+encodeURIComponent(p.project)+'">详情</a></div></td></tr>';
+      '<td><span class="issue-type-text">'+esc(i.type||'')+'</span></td>'+
+      '<td style="text-align:left">'+esc(i.engineerName||'--')+'</td>'+
+      '<td>'+esc(i.street||'--')+'</td>'+
+      '<td>'+esc(i._constructUnit||i.responsibleUnit||'--')+'</td>'+
+      '<td>'+esc(i.source||'--')+'</td>'+
+      '<td><span class="tag '+sCls+'">'+sc+'</span></td>'+
+      '<td>'+esc(i.reportTime||'')+'</td>'+
+      '<td><div class="table-actions"><a class="table-action-link" href="supervisor-issue-detail.html?id='+i.id+'">详情</a></div></td></tr>';
   });
   if(!total)h='<tr><td colspan="9" style="padding:40px;color:var(--text-tertiary)">暂无数据</td></tr>';
   document.getElementById('tableBody').innerHTML=h;
@@ -226,45 +226,8 @@ function renderTable(){
   if(tp>8){phtml+='<button disabled>...</button><button onclick="goPage('+tp+')">'+tp+'</button>';}
   phtml+='<button '+(_page>=tp?'disabled':'')+' onclick="goPage('+(_page+1)+')">&gt;</button></div>';
   document.getElementById('paginationBar').innerHTML=phtml;
-  renderStatCards();
+  renderStatusTabs();
 }
-
-function renderStatCards(){
-  var all=_projItems;
-  var pending=all.reduce(function(s,p){return s+p.pending;},0);
-  var overdue=all.reduce(function(s,p){return s+p.overdue;},0);
-  var completed=all.reduce(function(s,p){return s+p.completed;},0);
-  var icons={
-    warn:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
-    danger:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
-    success:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>'
-  };
-  var cards=[
-    {key:'待整改',val:pending,cls:'warn'},
-    {key:'整改逾期',val:overdue,cls:'danger'},
-    {key:'累计整改完成',val:completed,cls:'success'}
-  ];
-  var h='';cards.forEach(function(c){h+='<div class="stat-card"><div class="stat-card-icon '+c.cls+'">'+icons[c.cls]+'</div><div class="stat-card-body"><div class="stat-card-val">'+c.val+'</div><div class="stat-card-lbl">'+c.key+'</div></div></div>';});
-  document.getElementById('statCards').innerHTML=h;
-}
-
-// Init district/street filters
-(function initFilters(){
-  var projects=MOCK_DATA.getProjects();
-  var dSet={},sSet={};
-  projects.forEach(function(p){
-    if(p.district)dSet[p.district]=true;
-    if(p.street)sSet[p.street]=true;
-  });
-  var dSel=document.getElementById('filterDistrict');
-  Object.keys(dSet).sort().forEach(function(d){
-    var o=document.createElement('option');o.value=d;o.textContent=d;dSel.appendChild(o);
-  });
-  var sSel=document.getElementById('filterStreet');
-  Object.keys(sSet).sort().forEach(function(s){
-    var o=document.createElement('option');o.value=s;o.textContent=s;sSel.appendChild(o);
-  });
-})();
 
 function goPage(p){_page=p;renderTable();}
 renderTable();

@@ -63,20 +63,14 @@ a{color:var(--text-link);text-decoration:none}::-webkit-scrollbar{width:6px}::-w
 .search-bar select,.search-bar input{height:var(--height-md);padding:0 var(--space-3);font-size:var(--font-size-sm);color:var(--text-primary);background:var(--bg-card);border:1px solid var(--border-color-default);border-radius:var(--border-radius-md);outline:none;font-family:var(--font-family)}
 .search-bar select:focus,.search-bar input:focus{border-color:var(--border-color-focus);box-shadow:0 0 0 2px var(--color-primary-50)}
 .search-bar input{min-width:220px}.search-bar select{min-width:110px}
-.stat-cards{display:flex;gap:var(--space-3);margin-bottom:var(--space-4)}
-.stat-card{flex:1;background:var(--bg-card);border:1px solid var(--border-color-light);border-radius:var(--border-radius-lg);padding:var(--space-4) var(--space-5);box-shadow:var(--shadow-card);display:flex;align-items:center;gap:var(--space-4);cursor:default;transition:box-shadow var(--transition-fast)}
-.stat-card:hover{box-shadow:var(--shadow-md)}
-.stat-card-icon{width:44px;height:44px;border-radius:var(--border-radius-md);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.stat-card-icon.warn{background:var(--color-warning-light);color:var(--color-warning)}
-.stat-card-icon.danger{background:var(--color-danger-light);color:var(--color-danger)}
-.stat-card-icon.success{background:var(--color-success-light);color:var(--color-success)}
-.stat-card-icon.info{background:var(--color-info-light);color:var(--color-info)}
-.stat-card-icon svg{width:22px;height:22px}
-.stat-card-body{display:flex;flex-direction:column;min-width:0}
-.stat-card-val{font-size:var(--font-size-2xl);font-weight:var(--font-weight-bold);color:var(--text-title);line-height:1.1}
-.stat-card-lbl{font-size:var(--font-size-xs);color:var(--text-tertiary);margin-top:2px;white-space:nowrap}
+.stat-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-3);margin-bottom:var(--space-4)}
+.stat-card{background:var(--bg-card);border:1px solid var(--border-color-light);border-radius:var(--border-radius-lg);padding:var(--space-3) var(--space-4);box-shadow:var(--shadow-card);position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:2px 0 0 2px}
+.stat-card.warn::before{background:var(--color-warning)}.stat-card.info::before{background:var(--color-info)}.stat-card.danger::before{background:var(--color-danger)}.stat-card.success::before{background:var(--color-success)}
+.stat-card-lbl{font-size:var(--font-size-xs);color:var(--text-tertiary);margin-bottom:var(--space-1)}
+.stat-card-val{font-size:var(--font-size-xl);font-weight:var(--font-weight-bold);color:var(--text-title);line-height:1.2}
 .table-wrap{width:100%;overflow-x:auto}
-.table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:var(--font-size-sm)}
+.table{width:100%;border-collapse:collapse;font-size:var(--font-size-sm)}
 .table th{background:var(--color-gray-100);color:var(--text-secondary);font-weight:var(--font-weight-medium);font-size:var(--font-size-xs);text-align:center;padding:var(--space-3) var(--space-3);border-bottom:1px solid var(--border-color-light);white-space:nowrap}
 .table td{padding:var(--space-3) var(--space-3);border-bottom:1px solid var(--border-color-light);text-align:center}
 .table tbody tr:hover td{background:var(--color-primary-50)}
@@ -114,160 +108,3 @@ a{color:var(--text-link);text-decoration:none}::-webkit-scrollbar{width:6px}::-w
 <div class="page-header"><div class="page-title">问题闭环处置</div></div>
 
 <div class="stat-cards" id="statCards" style="margin-bottom:var(--space-4)"></div>
-
-
-	<div class="card"><div class="search-bar" style="margin-bottom:0">
-	  <select id="filterDistrict" onchange="renderTable()"><option value="all">全部区域</option></select>
-		  <select id="filterStreet" onchange="renderTable()"><option value="all">全部街道</option></select>
-		  <input type="text" id="filterKeyword" placeholder="搜索项目名称" oninput="renderTable()">
-	  <button class="btn btn-primary btn-sm" onclick="renderTable()"><svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>查询</button>
-	  <button class="btn btn-ghost btn-sm" onclick="document.getElementById('filterKeyword').value='';document.getElementById('filterDistrict').value='all';document.getElementById('filterStreet').value='all';renderTable()"><svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>重置</button>
-	  <button class="btn btn-primary" onclick="window.location.href='supervisor-issue-report.html'" style="margin-left:auto">新增围挡问题</button>
-	</div></div>
-
-	<div class="card" style="padding:0">
-	<div class="table-wrap">
-	  <table class="table">
-	    <thead><tr>
-	      <th style="width:32px">序号</th><th style="text-align:left;width:240px;overflow:hidden;text-overflow:ellipsis">项目名称</th><th style="width:72px">项目状态</th><th style="width:72px">围挡状态</th><th style="width:90px">计划拆除时间</th><th style="width:64px">待整改</th><th style="width:72px">整改逾期</th><th style="width:80px">累计整改完成</th><th style="width:70px">操作</th>
-	    </tr></thead>
-	    <tbody id="tableBody"></tbody>
-	  </table>
-	</div>
-	<div class="pagination" id="paginationBar"><span>共 0 条</span><div class="pagination-btns"></div></div>
-	</div>
-</main>
-</div></div>
-
-<script src="../shared_data.js"></script>
-<script src="../mock-data.js"></script>
-<script>
-var _projItems=[],_page=1,_pageSize=10;
-function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-
-function buildProjData(){
-  var allIssues=MOCK_DATA.getClosureIssues();
-  var map={};
-  // Group issues by project
-  allIssues.forEach(function(i){
-    var key=i._projectName||'未知项目';
-    if(!map[key]){
-      map[key]={
-        project:key,
-        street:i.street||'—',
-        constructUnit:i._constructUnit||i.responsibleUnit||'—',
-        pending:0,overdue:0,completed:0,hoardings:[]
-      };
-    }
-    if(i.status==='待整改')map[key].pending++;
-    else if(i.status==='整改逾期')map[key].overdue++;
-    else if(i.status==='整改完成')map[key].completed++;
-    map[key].hoardings.push(i);
-  });
-  // Merge with MOCK_DATA project info for status/dates
-  var projects=MOCK_DATA.getProjects();
-  var result=[];
-  Object.keys(map).forEach(function(k){
-    var entry=map[k];
-    // Find project info
-    var proj=null;
-    projects.forEach(function(p){if(p.name===k)proj=p;});
-    if(proj){
-      entry.projStatus=proj.status||'在建';
-      entry.district=proj.district||'';
-      // Compute aggregate fence status (priority: 即将到期 > 设置中 > 已到期)
-      var fs={};
-      (proj.hoardings||[]).forEach(function(h){fs[h.fenceStatus]=true;});
-      entry.fenceStatus=fs['即将到期']?'即将到期':fs['设置中']?'设置中':'已到期';
-      // Earliest planRemoveDate
-      var earliest='';
-      (proj.hoardings||[]).forEach(function(h){if(h.planRemoveDate&&(!earliest||h.planRemoveDate<earliest))earliest=h.planRemoveDate;});
-      entry.removeDate=earliest||'—';
-    }else{
-      entry.projStatus='—';entry.fenceStatus='—';entry.removeDate='—';
-    }
-    result.push(entry);
-  });
-  return result;
-}
-
-function renderTable(){
-  _projItems=buildProjData();
-  var kw=document.getElementById('filterKeyword').value.trim().toLowerCase();
-  var dist=document.getElementById('filterDistrict').value;
-  var street=document.getElementById('filterStreet').value;
-  if(kw)_projItems=_projItems.filter(function(p){return p.project.toLowerCase().indexOf(kw)>-1||(p.street||'').toLowerCase().indexOf(kw)>-1;});
-  if(dist!=='all')_projItems=_projItems.filter(function(p){return p.district===dist;});
-  if(street!=='all')_projItems=_projItems.filter(function(p){return p.street===street;});
-  var total=_projItems.length,start=(_page-1)*_pageSize,pageItems=_projItems.slice(start,start+_pageSize),h='';
-
-  var fsTag={};fsTag['设置中']='tag-success';fsTag['即将到期']='tag-warning';fsTag['已到期']='tag-default';
-  var psTag={};psTag['在建']='tag-success';psTag['停工']='tag-danger';psTag['竣工验收']='tag-info';
-
-  pageItems.forEach(function(p,idx){
-    var fsCls=fsTag[p.fenceStatus]||'tag-default';
-    var psCls=psTag[p.projStatus]||'tag-default';
-    h+='<tr><td>'+(start+idx+1)+'</td>'+
-      '<td style="text-align:left"><a class="table-action-link" href="supervisor-issue-project.html?project='+encodeURIComponent(p.project)+'">'+esc(p.project)+'</a></td>'+
-      '<td><span class="tag '+psCls+'">'+esc(p.projStatus)+'</span></td>'+
-      '<td><span class="tag '+fsCls+'">'+esc(p.fenceStatus)+'</span></td>'+
-      '<td>'+esc(p.removeDate)+'</td>'+
-      '<td><span style="color:var(--color-warning);font-weight:var(--font-weight-bold)">'+p.pending+'</span></td>'+
-      '<td><span style="color:var(--color-danger);font-weight:var(--font-weight-bold)">'+p.overdue+'</span></td>'+
-      '<td>'+p.completed+'</td>'+
-      '<td><div class="table-actions"><a class="table-action-link" href="supervisor-issue-project.html?project='+encodeURIComponent(p.project)+'">详情</a></div></td></tr>';
-  });
-  if(!total)h='<tr><td colspan="9" style="padding:40px;color:var(--text-tertiary)">暂无数据</td></tr>';
-  document.getElementById('tableBody').innerHTML=h;
-
-  var tp=Math.ceil(total/_pageSize),phtml='<span>共 '+total+' 条</span><div class="pagination-btns">';
-  phtml+='<button '+(_page<=1?'disabled':'')+' onclick="goPage('+(_page-1)+')">&lt;</button>';
-  for(var p=1;p<=Math.min(tp,8);p++)phtml+='<button class="'+(p===_page?'active':'')+'" onclick="goPage('+p+')">'+p+'</button>';
-  if(tp>8){phtml+='<button disabled>...</button><button onclick="goPage('+tp+')">'+tp+'</button>';}
-  phtml+='<button '+(_page>=tp?'disabled':'')+' onclick="goPage('+(_page+1)+')">&gt;</button></div>';
-  document.getElementById('paginationBar').innerHTML=phtml;
-  renderStatCards();
-}
-
-function renderStatCards(){
-  var all=_projItems;
-  var pending=all.reduce(function(s,p){return s+p.pending;},0);
-  var overdue=all.reduce(function(s,p){return s+p.overdue;},0);
-  var completed=all.reduce(function(s,p){return s+p.completed;},0);
-  var icons={
-    warn:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
-    danger:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
-    success:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>'
-  };
-  var cards=[
-    {key:'待整改',val:pending,cls:'warn'},
-    {key:'整改逾期',val:overdue,cls:'danger'},
-    {key:'累计整改完成',val:completed,cls:'success'}
-  ];
-  var h='';cards.forEach(function(c){h+='<div class="stat-card"><div class="stat-card-icon '+c.cls+'">'+icons[c.cls]+'</div><div class="stat-card-body"><div class="stat-card-val">'+c.val+'</div><div class="stat-card-lbl">'+c.key+'</div></div></div>';});
-  document.getElementById('statCards').innerHTML=h;
-}
-
-// Init district/street filters
-(function initFilters(){
-  var projects=MOCK_DATA.getProjects();
-  var dSet={},sSet={};
-  projects.forEach(function(p){
-    if(p.district)dSet[p.district]=true;
-    if(p.street)sSet[p.street]=true;
-  });
-  var dSel=document.getElementById('filterDistrict');
-  Object.keys(dSet).sort().forEach(function(d){
-    var o=document.createElement('option');o.value=d;o.textContent=d;dSel.appendChild(o);
-  });
-  var sSel=document.getElementById('filterStreet');
-  Object.keys(sSet).sort().forEach(function(s){
-    var o=document.createElement('option');o.value=s;o.textContent=s;sSel.appendChild(o);
-  });
-})();
-
-function goPage(p){_page=p;renderTable();}
-renderTable();
-</script>
-</body>
-</html>
