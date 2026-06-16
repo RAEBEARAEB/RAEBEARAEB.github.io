@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
 <title>监管端APP - 深圳市建设施工围挡数字化管理系统</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
 /* ═══ Design Token ═══ */
 :root{
@@ -120,17 +121,17 @@ input,textarea,select{font-family:var(--font-family);outline:none}
 .fence-card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
 .fence-id{font-size:var(--font-sm);font-weight:var(--fw-heavy);color:var(--blue)}
 .fence-card-title{font-size:var(--font-md);font-weight:var(--fw-medium);margin-bottom:3px;line-height:1.4}
-.fence-card-addr{font-size:var(--font-xs);color:var(--text-sub);display:flex;align-items:center;gap:3px;margin-bottom:6px}
-.fence-card-addr svg{width:10px;height:10px;flex-shrink:0}
+.fence-card-subtitle{font-size:var(--font-xs);color:var(--text-sub);display:flex;align-items:center;margin-bottom:4px}
 .fence-card-tags{display:flex;gap:5px;flex-wrap:wrap}
 .tag{display:inline-block;font-size:10px;font-weight:var(--fw-medium);padding:3px 8px;border-radius:999px}
 .tag-setting{background:rgba(23,178,106,0.12);color:var(--green)}
 .tag-removing{background:rgba(245,180,0,0.12);color:var(--yellow)}
 .tag-overdue{background:rgba(229,72,77,0.12);color:var(--red)}
 .tag-removed{background:rgba(15,91,216,0.12);color:var(--blue)}
-.tag-normal{background:var(--gray-100);color:var(--gray-500)}
-.tag-pending{background:rgba(245,180,0,0.12);color:var(--yellow)}
-.tag-issue-overdue{background:rgba(229,72,77,0.12);color:var(--red)}
+.tag-issue{background:transparent;border:1px solid;padding:2px 7px;font-weight:var(--fw-regular)}
+.tag-issue--normal{border-color:var(--gray-300);color:var(--gray-500)}
+.tag-issue--pending{border-color:rgba(245,180,0,0.35);color:var(--yellow)}
+.tag-issue--overdue{border-color:rgba(229,72,77,0.35);color:var(--red)}
 
 /* ═══ Detail Tabs ═══ */
 .detail-tabs{display:flex;flex-shrink:0;background:var(--panel);border-bottom:1px solid var(--border);overflow-x:auto}
@@ -150,9 +151,10 @@ input,textarea,select{font-family:var(--font-family);outline:none}
 .detail-field-value{color:var(--text);word-break:break-all}
 .detail-sub-title{font-size:var(--font-sm);font-weight:var(--fw-heavy);padding:10px 0 4px;display:flex;align-items:center;gap:4px}
 .detail-sub-title::before{content:'';width:3px;height:12px;background:var(--blue);border-radius:2px}
-.detail-summary{display:flex;align-items:center;gap:6px;padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--border)}
-.detail-summary-id{font-size:var(--font-sm);font-weight:var(--fw-heavy);color:var(--blue)}
-.detail-summary-addr{font-size:var(--font-xs);color:var(--text-sub);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.detail-summary{display:flex;flex-direction:column;gap:4px;padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--border)}
+.detail-summary-top{display:flex;align-items:center;gap:6px;min-width:0}
+.detail-summary-id{font-size:var(--font-sm);font-weight:var(--fw-heavy);color:var(--blue);min-width:0}
+.detail-summary-tags{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 
 /* ═══ Map (SVG-based) ═══ */
 .map-placeholder{height:200px;background:#E8E4D8;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--text-tertiary);gap:6px;border-radius:var(--radius-lg);margin-bottom:12px;overflow:hidden;position:relative}
@@ -304,7 +306,9 @@ input,textarea,select{font-family:var(--font-family);outline:none}
 
 @media(max-width:420px){.phone-frame{width:100%;height:100%;margin:0;border-radius:0;box-shadow:none}.phone-notch,.phone-home-indicator{display:none}}
 </style>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="../shared_data.js"></script>
+<script src="../mock-data.js"></script>
 </head>
 <body>
 <div class="phone-frame" id="phoneFrame">
@@ -328,13 +332,34 @@ input,textarea,select{font-family:var(--font-family);outline:none}
     </div>
     <div style="padding:8px 16px;background:var(--panel)" id="detailSummary"></div>
     <div class="detail-tabs" id="detailTabs">
-      <span class="detail-tab active" data-tab="project" onclick="switchDetailTab(this)">项目工程</span>
-      <span class="detail-tab" data-tab="fence" onclick="switchDetailTab(this)">围挡信息</span>
+      <span class="detail-tab active" data-tab="basic" onclick="switchDetailTab(this)">基本信息</span>
       <span class="detail-tab" data-tab="patrol" onclick="switchDetailTab(this)">巡查记录</span>
-      <span class="detail-tab" data-tab="verify" onclick="switchDetailTab(this)">校核记录</span>
-      <span class="detail-tab" data-tab="change" onclick="switchDetailTab(this)">变更记录</span>
+      <span class="detail-tab" data-tab="verifyChange" onclick="switchDetailTab(this)">校核变更</span>
     </div>
     <div class="screen-body"><div class="detail-content" id="detailContent"></div></div>
+  </div>
+
+  <!-- Screen 2.5: 项目围挡列表 -->
+  <div class="screen" id="screenProjectHoards">
+    <div class="nav-bar">
+      <div class="nav-bar-inner">
+        <button class="nav-bar-back" onclick="goBack()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button>
+        <span class="nav-bar-title" id="projHoardsTitle">项目围挡</span>
+        <span class="nav-bar-right"></span>
+      </div>
+    </div>
+    <div class="screen-body">
+      <div style="height:220px;margin:12px 16px 0;border-radius:var(--radius-lg);overflow:hidden;border:1px solid var(--border)" id="projectMapContainer"></div>
+      <div style="display:flex;gap:10px;padding:8px 16px 0;font-size:var(--font-xs)">
+        <div style="display:flex;align-items:center;gap:4px"><div style="width:16px;height:2px;background:#D13B2F"></div><span style="color:var(--text-sub)">项目红线</span></div>
+        <div style="display:flex;align-items:center;gap:4px"><div style="width:16px;height:0;border-bottom:2px dashed #1862D4"></div><span style="color:var(--text-sub)">围挡范围</span></div>
+        <div style="display:flex;align-items:center;gap:4px"><div style="width:8px;height:8px;border-radius:50%;background:#1862D4"></div><span style="color:var(--text-sub)">出入口</span></div>
+      </div>
+      <div class="section" style="margin-top:8px;padding-bottom:8px">
+        <div class="section-head"><span class="section-title">围挡记录</span></div>
+        <div class="fence-list" id="projectHoardsList"></div>
+      </div>
+    </div>
   </div>
 
   <!-- Screen 3: 校核围挡 -->
@@ -397,45 +422,96 @@ input,textarea,select{font-family:var(--font-family);outline:none}
 
 <script>
 /* ═══════════════════════════════════════════
-   Data from SD (shared_data.js)
+   Data from MOCK_DATA (mock-data.js)
    ═══════════════════════════════════════════ */
 
-// Build fenceData from SD
+var STATUS_KEY={ '设置中':'setting','即将到期':'removing','已到期':'removed' };
+var STATUS_LABEL={ setting:'设置中',removing:'即将到期',removed:'已到期' };
+var ISSUE_KEY={ '正常':'normal','待整改':'pending','整改逾期':'overdue','待审核':'pending','审核通过':'passed','退回整改':'pending' };
+
+// Build fenceData from MOCK_DATA.getHoardings() — the authoritative data source
 const fenceData=(function(){
-  var allFences=SD.getAllFences();
-  var statusKeyMap={'设置中':'setting','超期未拆除':'overdue','即将拆除':'removing','已拆除':'removed'};
-  var issueKeyMap={'正常':'normal','有问题':'pending'};
-  return allFences.map(function(f){
-    var eng=f.engineer;
-    var proj=f.project;
-    var statusKey=statusKeyMap[eng.fenceStatus]||'setting';
-    var issueKey=eng.issueStatus==='有问题'?'pending':'normal';
-    if(statusKey==='overdue')issueKey='overdue';
+  return MOCK_DATA.getHoardings().map(function(h){
+    var stKey=STATUS_KEY[h.fenceStatus]||'setting';
+    var issLabel=h.issueStatus||'正常';
+    var issKey=ISSUE_KEY[issLabel]||'normal';
+    if(stKey==='removed')issKey='overdue';
     return{
-      id:f.fenceId,project:proj.name,eng:eng.name,address:eng.address||proj.address,
-      status:eng.fenceStatus||'设置中',statusKey:statusKey,
-      issue:eng.issueStatus==='有问题'?'待整改':'正常',issueKey:issueKey,
-      length:eng.length||0,height:eng.height||2.5,setDate:eng.setupDate||'',removeDate:eng.planRemoveDate||'',
-      material:eng.material||'装配式钢结构喷绘围挡',street:proj.street||'',person:proj.constructContact?proj.constructContact.split(' ')[0]:'',
-      phone:'',style:'规范围挡',promotion:'公益宣传画',area:(eng.area||0)+' m²',scope:'人行道局部占道',entrances:(eng.entrances||[]).length,
-      shapes:eng.shapes||[],
-      projects:[{name:proj.name,regulate:proj.regulatorUnit||'',engs:[
-        {name:eng.name,district:proj.district||'',address:eng.address||proj.address,
-         buildUnit:proj.buildUnit||'',buildContact:proj.buildContact||'',
-         unit:proj.constructUnit||'',constructContact:proj.constructContact||'',
-         supervisor:proj.supervisorUnit||'',
-         designUnit:proj.designUnit||'',
-         sDate:eng.setupDate||'',eDate:eng.planRemoveDate||''}
-      ]}]
+      id:h.id,
+      project:h.projectName, eng:h.engineerName,
+      address:h.address||h.projectAddress,
+      status:h.fenceStatus||'设置中', statusKey:stKey,
+      issue:issLabel, issueKey:issKey,
+      length:h.length||0, height:h.height||2.5,
+      material:h.material||'装配式钢结构喷绘围挡',
+      fenceStyle:h.fenceStyle||'标准型',
+      publicityContent:h.publicityContent||'—',
+      roadOccupation:h.roadOccupation||'—',
+      roadOccupationArea:(h.roadOccupationArea||0)+' ㎡',
+      setupDate:h.setupDate||'—',
+      planRemoveDate:h.planRemoveDate||'—',
+      custodyLabel:(h.custodyStart||'—')+' ~ '+(h.custodyEnd||'—'),
+      fenceResponsible:h.fenceResponsible||'—',
+      fenceResponsiblePhone:h.fenceResponsiblePhone||'—',
+      street:h.projectStreet||'—', district:h.projectDistrict||'—',
+      needVerify:h.needVerify||'',
+      unitName:h.constructUnit||'—',
+      entrances:(h.entrances||[]).length,
+      buildUnit:h.buildUnit||'—', buildContact:h.buildContact||'—',
+      constructUnit:h.constructUnit||'—', constructContact:h.constructContact||'—',
+      supervisorUnit:h.supervisorUnit||'—',
+      regulatorUnit:h.regulatorUnit||'—',
+      designUnit:h.designUnit||'—',
+      planPeriod:(h.custodyStart||'')+' ~ '+(h.custodyEnd||''),
+      engStatus:h.engStatus||'—',
+      projectId:h.projectId
     };
   });
+})();
+
+// Build projectFenceData — aggregate by project, status priority: 即将到期 > 设置中 > 已到期
+var projectFenceData=(function(){
+  var map={};
+  fenceData.forEach(function(f){
+    var key=f.project;
+    if(!map[key]){
+      map[key]={
+        project:f.project,district:f.district,street:f.street,
+        hoardings:[],statusSet:{},
+        earliestRemoveDate:null
+      };
+    }
+    map[key].hoardings.push(f);
+    if(f.statusKey)map[key].statusSet[f.statusKey]=true;
+    if(f.planRemoveDate&&f.planRemoveDate!=='—'){
+      if(!map[key].earliestRemoveDate||f.planRemoveDate<map[key].earliestRemoveDate){
+        map[key].earliestRemoveDate=f.planRemoveDate;
+      }
+    }
+  });
+  var statusPriority=['removing','setting','removed'];
+  var statusLabel={'removing':'即将到期','setting':'设置中','removed':'已到期'};
+  var result=[];
+  Object.keys(map).forEach(function(k){
+    var entry=map[k];
+    var aggStatus='setting';
+    for(var i=0;i<statusPriority.length;i++){
+      if(entry.statusSet[statusPriority[i]]){aggStatus=statusPriority[i];break;}
+    }
+    entry.aggStatusKey=aggStatus;
+    entry.aggStatusLabel=statusLabel[aggStatus]||'设置中';
+    entry.hoardingCount=entry.hoardings.length;
+    entry.removeDate=entry.earliestRemoveDate||'—';
+    result.push(entry);
+  });
+  return result;
 })();
 
 // Build overviewData from fenceData
 const overviewData=(function(){
   var total=1286;
   var issue=fenceData.filter(function(f){return f.issueKey==='pending'||f.issueKey==='overdue'}).length;
-  var overdue=fenceData.filter(function(f){return f.statusKey==='overdue'}).length;
+  var overdue=fenceData.filter(function(f){return f.statusKey==='removed'}).length;
   var removing=fenceData.filter(function(f){return f.statusKey==='removing'}).length;
   var setting=fenceData.filter(function(f){return f.statusKey==='setting'}).length;
   var removed=fenceData.filter(function(f){return f.statusKey==='removed'}).length;
@@ -451,74 +527,98 @@ const overviewData=(function(){
 })();
 
 const todoData=(function(){
-  var verifyItems=fenceData.slice(0,Math.min(4,Math.ceil(fenceData.length*0.3))).map(function(f){
+  var verifyItems=fenceData.filter(function(f){return f.needVerify==='是'}).slice(0,4).map(function(f){
     return{id:f.id,name:f.project+' · '+f.eng};
   });
   var reviewItems=fenceData.filter(function(f){return f.issueKey==='pending'||f.issueKey==='overdue'}).slice(0,2).map(function(f){
     return{id:f.id,name:f.project+' · '+f.eng};
   });
+  if(!verifyItems.length)verifyItems=fenceData.slice(0,2).map(function(f){return{id:f.id,name:f.project+' · '+f.eng};});
   return[
     {type:'verify',title:'待校核围挡',count:verifyItems.length,desc:verifyItems.length+'条围挡信息待校核',icon:'verify',items:verifyItems},
     {type:'review',title:'整改审核',count:reviewItems.length,desc:reviewItems.length+'条整改待审核',icon:'review',items:reviewItems}
   ];
 })();
 
-// Patrol data built from SD
+// Patrol data from MOCK_DATA
 const patrolData=(function(){
   var pd={};
+  var allIssues = (typeof MOCK_DATA !== 'undefined' && MOCK_DATA.getStreetIssues) ? MOCK_DATA.getStreetIssues() : [];
   fenceData.forEach(function(f){
-    var records=SD.getPatrolRecords(f.id);
-    if(records.length>0){
-      var daysMap={};
-      records.forEach(function(r){
-        var dateStr=r.date||'2026-05-14';
-        var parts=dateStr.split('-');
-        var dayLabel=parts[1]+'月'+parts[2]+'日';
-        var d=new Date(dateStr);
-        var weekdays=['日','一','二','三','四','五','六'];
-        if(!daysMap[dayLabel]){
-          daysMap[dayLabel]={date:dayLabel,weekday:'星期'+weekdays[d.getDay()],records:[]};
+    var hoard=MOCK_DATA.findHoard(f.id);
+    if(!hoard||!hoard.patrolRecords||!hoard.patrolRecords.length)return;
+    var records=hoard.patrolRecords;
+    var daysMap={};
+    records.forEach(function(r){
+      var dateStr=r.date||'2026-05-14';
+      var parts=dateStr.split('-');
+      var dayLabel=parts[1]+'月'+parts[2]+'日';
+      var d=new Date(dateStr);
+      var weekdays=['日','一','二','三','四','五','六'];
+      if(!daysMap[dayLabel]){
+        daysMap[dayLabel]={date:dayLabel,weekday:'星期'+weekdays[d.getDay()],records:[]};
+      }
+      var hasIssue = r.result==='异常'||r.result==='有问题';
+      var matchedIssue = null;
+      if(hasIssue){
+        for(var mi=0; mi<allIssues.length; mi++){
+          if(allIssues[mi].fenceId === f.id && allIssues[mi].source === '项目巡检'){ matchedIssue = allIssues[mi]; break; }
         }
-        daysMap[dayLabel].records.push({
-          time:'09:00',person:r.inspector,unit:'',location:'',
-          hasIssue:r.result==='有问题',
-          issueDesc:r.issues&&r.issues.length>0?r.issues.join('、'):'',
-          panoSrc:'alma',
-          panoScenes:[{name:'全景',src:'alma'}]
-        });
+      }
+      daysMap[dayLabel].records.push({
+        time:r.time||'09:00',person:r.inspector,unit:hoard.constructUnit||'',location:hoard.address||'',
+        hasIssue:hasIssue,
+        issueType:matchedIssue?matchedIssue.type:'—',
+        issueLoc:matchedIssue&&matchedIssue.location?(matchedIssue.location.addr||matchedIssue.location.lat+', '+matchedIssue.location.lng):'—',
+        issueDesc:r.issues&&r.issues.length>0?r.issues.join('、'):'',
+        panoSrc:r.panoramaSrc||'alma',
+        panoScenes:[{name:'全景',src:r.panoramaSrc||'alma'}]
       });
-      pd[f.id]={monthCount:records.length,totalPhotos:records.length*3,days:Object.values(daysMap)};
-    }
+    });
+    // Enrich with issue type/location from YZY issues
+    var allIssues = MOCK_DATA.getStreetIssues();
+    var enrichedDays = Object.values(daysMap);
+    enrichedDays.forEach(function(day){
+      day.records.forEach(function(rec){
+        if(rec.hasIssue){
+          var matched = null;
+          for(var mi=0; mi<allIssues.length; mi++){
+            if(allIssues[mi].fenceId === f.id && allIssues[mi].source === '项目巡检'){ matched = allIssues[mi]; break; }
+          }
+          rec.issueType = matched ? matched.type : '—';
+          rec.issueLoc = matched && matched.location ? (matched.location.addr || matched.location.lat+', '+matched.location.lng) : '—';
+        }
+      });
+    });
+    pd[f.id]={monthCount:records.length,totalPhotos:records.length*3,engName:f.eng,days:enrichedDays};
   });
   return pd;
 })();
 
-// Verify records built from SD
+// Verify records from MOCK_DATA
 const verifyRecords=(function(){
   var vr={};
   fenceData.forEach(function(f){
-    var records=SD.getVerifyRecords(f.id);
-    if(records.length>0){
-      vr[f.id]=records.map(function(r){
-        return{time:r.date,person:r.verifier+'（'+r.unit+' · '+r.role+'）',role:r.type,type:'verify',
-          fields:r.field?[{label:r.field,old:r.before||'—',new:r.after||'—'}]:[]};
-      });
-    }
+    var hoard=MOCK_DATA.findHoard(f.id);
+    if(!hoard||!hoard.verifyRecords||!hoard.verifyRecords.length)return;
+    vr[f.id]=hoard.verifyRecords.map(function(r){
+      return{time:r.date,person:r.verifier+'（'+r.unit+' · '+r.role+'）',role:r.type,type:'verify',
+        fields:r.field?[{label:r.field,old:r.before||'—',new:r.after||'—'}]:[]};
+    });
   });
   return vr;
 })();
 
-// Change records built from SD
+// Change records from MOCK_DATA
 const changeRecords=(function(){
   var cr={};
   fenceData.forEach(function(f){
-    var records=SD.getChangeRecords(f.id);
-    if(records.length>0){
-      cr[f.id]=records.map(function(r){
-        return{time:r.date,person:r.changer+'（'+r.unit+' · '+r.role+'）',role:r.type,type:'change',
-          fields:r.field?[{label:r.field,old:r.before||'—',new:r.after||'—'}]:[]};
-      });
-    }
+    var hoard=MOCK_DATA.findHoard(f.id);
+    if(!hoard||!hoard.changeRecords||!hoard.changeRecords.length)return;
+    cr[f.id]=hoard.changeRecords.map(function(r){
+      return{time:r.date,person:r.changer+'（'+r.unit+' · '+r.role+'）',role:r.type,type:'change',
+        fields:r.field?[{label:r.field,old:r.before||'—',new:r.after||'—'}]:[]};
+    });
   });
   return cr;
 })();
@@ -545,7 +645,7 @@ function goBack(){
 /* ═══════════════════════════════════════════
    Workbench Rendering
    ═══════════════════════════════════════════ */
-let currentFilter='issue',inlineSearchKeyword='';
+let currentFilter='all',inlineSearchKeyword='';
 
 function renderWorkbench(){
   var d=overviewData,html='';
@@ -561,13 +661,11 @@ function renderWorkbench(){
     html+='<div class="todo-row" onclick="openTodoModal(\''+t.type+'\')"><div class="todo-icon '+ic+'">'+(t.type==='verify'?'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>':'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>')+'</div><div class="todo-info"><div class="todo-info-title">'+t.title+'</div><div class="todo-info-desc">'+t.desc+'</div></div><span class="todo-action">'+at+'</span></div>';
   });
   html+='</div>';
-  // Fence List
-  var ic2=fenceData.filter(function(f){return f.issueKey==='pending'||f.issueKey==='overdue'}).length;
-  var oc=fenceData.filter(function(f){return f.statusKey==='overdue'}).length;
-  var rc=fenceData.filter(function(f){return f.statusKey==='removing'}).length;
-  var sc=fenceData.filter(function(f){return f.statusKey==='setting'}).length;
-  var dc=fenceData.filter(function(f){return f.statusKey==='removed'}).length;
-  html+='<div class="section" style="padding-bottom:8px"><div class="section-head"><span class="section-title">围挡列表</span><button class="toggle-btn" onclick="showScreen(\'screenMapOverview\')">地图总览</button></div><div class="search-bar" style="padding:0 0 8px"><div class="search-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input class="search-input" type="text" placeholder="搜索围挡编号、项目名称、地址" oninput="handleInlineSearch(this.value)"></div></div><div class="chips"><span class="chip'+(currentFilter==='all'?' active':'')+'" data-filter="all" onclick="setFilter(this)">全部 <small>'+fenceData.length+'</small></span><span class="chip'+(currentFilter==='issue'?' active':'')+'" data-filter="issue" onclick="setFilter(this)">问题 <small>'+ic2+'</small></span><span class="chip'+(currentFilter==='overdue'?' active':'')+'" data-filter="overdue" onclick="setFilter(this)">超期 <small>'+oc+'</small></span><span class="chip'+(currentFilter==='removing'?' active':'')+'" data-filter="removing" onclick="setFilter(this)">即将拆除 <small>'+rc+'</small></span><span class="chip'+(currentFilter==='setting'?' active':'')+'" data-filter="setting" onclick="setFilter(this)">设置中 <small>'+sc+'</small></span><span class="chip'+(currentFilter==='removed'?' active':'')+'" data-filter="removed" onclick="setFilter(this)">已拆除 <small>'+dc+'</small></span></div><div class="fence-list" id="fenceList"></div></div>';
+  // Fence List (project-level) — filter by fence status
+  var sc=projectFenceData.filter(function(p){return p.aggStatusKey==='setting'}).length;
+  var rc=projectFenceData.filter(function(p){return p.aggStatusKey==='removing'}).length;
+  var dc=projectFenceData.filter(function(p){return p.aggStatusKey==='removed'}).length;
+  html+='<div class="section" style="padding-bottom:8px"><div class="section-head"><span class="section-title">围挡列表</span><button class="toggle-btn" onclick="showScreen(\'screenMapOverview\')">地图总览</button></div><div class="search-bar" style="padding:0 0 8px"><div class="search-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input class="search-input" type="text" placeholder="搜索项目名称、区域" oninput="handleInlineSearch(this.value)"></div></div><div class="chips"><span class="chip'+(currentFilter==='all'?' active':'')+'" data-filter="all" onclick="setFilter(this)">全部 <small>'+projectFenceData.length+'</small></span><span class="chip'+(currentFilter==='setting'?' active':'')+'" data-filter="setting" onclick="setFilter(this)">设置中 <small>'+sc+'</small></span><span class="chip'+(currentFilter==='removing'?' active':'')+'" data-filter="removing" onclick="setFilter(this)">即将到期 <small>'+rc+'</small></span><span class="chip'+(currentFilter==='removed'?' active':'')+'" data-filter="removed" onclick="setFilter(this)">已到期 <small>'+dc+'</small></span></div><div class="fence-list" id="fenceList"></div></div>';
   document.getElementById('workbenchBody').innerHTML=html;
   renderFenceList();
 }
@@ -576,31 +674,108 @@ function setFilter(el){document.querySelectorAll('.chips .chip').forEach(functio
 function setFilterByChip(k){currentFilter=k;renderWorkbench();setTimeout(function(){var s=document.querySelector('.section:last-child');if(s)s.scrollIntoView({behavior:'smooth'})},100)}
 function handleInlineSearch(v){inlineSearchKeyword=v.trim();renderFenceList()}
 
+// ═══ Project-level fence cards ═══
+var statusTag={removing:'tag-removing',setting:'tag-setting',removed:'tag-removed'};
+var statusLabel={removing:'即将到期',setting:'设置中',removed:'已到期'};
+
 function renderFenceList(){
   var list=document.getElementById('fenceList');if(!list)return;
-  var filtered;
-  if(currentFilter==='all')filtered=fenceData;
-  else if(currentFilter==='issue')filtered=fenceData.filter(function(f){return f.issueKey==='pending'||f.issueKey==='overdue'});
-  else filtered=fenceData.filter(function(f){return f.statusKey===currentFilter});
-  if(inlineSearchKeyword){var kw=inlineSearchKeyword.toLowerCase();filtered=filtered.filter(function(f){return f.id.toLowerCase().indexOf(kw)!==-1||f.project.toLowerCase().indexOf(kw)!==-1||f.address.toLowerCase().indexOf(kw)!==-1})}
-  if(!filtered.length){list.innerHTML='<div class="empty-state"><span>暂无围挡数据</span></div>';return}
-  var sm={setting:'tag-setting',removing:'tag-removing',overdue:'tag-overdue',removed:'tag-removed'};
-  var im={normal:'tag-normal',pending:'tag-pending',overdue:'tag-issue-overdue'};
-  list.innerHTML=filtered.map(function(f){
-    return '<div class="fence-card" onclick="openDetail('+fenceData.indexOf(f)+')"><div class="fence-card-top"><span class="fence-id">'+f.id+'</span></div><div class="fence-card-title">'+f.project+' · '+f.eng+'</div><div class="fence-card-addr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>'+f.address+'</div><div class="fence-card-tags"><span class="tag '+(sm[f.statusKey]||'')+'">'+f.status+'</span><span class="tag '+(im[f.issueKey]||'')+'">'+f.issue+'</span></div></div>';
+  var filtered=projectFenceData;
+  if(currentFilter!=='all'){
+    filtered=projectFenceData.filter(function(p){return p.aggStatusKey===currentFilter;});
+  }
+  if(inlineSearchKeyword){var kw=inlineSearchKeyword.toLowerCase();filtered=filtered.filter(function(p){return p.project.toLowerCase().indexOf(kw)!==-1||p.district.toLowerCase().indexOf(kw)!==-1})}
+  if(!filtered.length){list.innerHTML='<div class="empty-state"><span>暂无项目数据</span></div>';return}
+  list.innerHTML=filtered.map(function(p,i){
+    var idx=projectFenceData.indexOf(p);
+    return '<div class="fence-card" onclick="openProjectHoards('+idx+')">'+
+      '<div class="fence-card-title" style="font-size:var(--font-md);font-weight:var(--fw-heavy)">'+p.project+'</div>'+
+      '<div class="fence-card-subtitle">计划拆除时间：'+p.removeDate+'</div>'+
+      '<div class="fence-card-tags"><span class="tag '+statusTag[p.aggStatusKey]+'">'+p.aggStatusLabel+'</span><span class="tag tag-default" style="margin-left:4px">'+p.hoardingCount+'条围挡</span></div>'+
+    '</div>';
   }).join('');
 }
 
-/* ═══════════════════════════════════════════
-   Detail Page
-   ═══════════════════════════════════════════ */
-var currentFence=null;
-function openDetail(idx){
+// ═══ Project Hoardings Screen ═══
+var currentProject=null;
+var projectMap=null;
+
+function openProjectHoards(idx){
+  currentProject=projectFenceData[idx];if(!currentProject)return;
+  document.getElementById('projHoardsTitle').textContent=currentProject.project;
+  renderProjectHoards();
+  showScreen('screenProjectHoards');
+  setTimeout(function(){initProjectMap(currentProject);},50);
+}
+
+function renderProjectHoards(){
+  var list=document.getElementById('projectHoardsList');if(!list)return;
+  var sm={setting:'tag-setting',removing:'tag-removing',removed:'tag-overdue'};
+  var im={normal:'tag-issue tag-issue--normal',pending:'tag-issue tag-issue--pending',overdue:'tag-issue tag-issue--overdue'};
+  list.innerHTML=currentProject.hoardings.map(function(f){
+    var nv=f.needVerify==='是'?' <span style="color:#C47D00;font-size:10px;font-weight:var(--fw-medium)">· 待校核</span>':'';
+    var fi=fenceData.indexOf(f);
+    return '<div class="fence-card" onclick="openDetailFromProject('+fi+')">'+
+      '<div class="fence-card-top"><span class="fence-id">'+f.eng+'</span><span class="tag '+(sm[f.statusKey]||'')+'">'+f.status+'</span></div>'+
+      '<div class="fence-card-subtitle">'+f.unitName+'</div>'+
+      '<div class="fence-card-tags">'+
+        '<span class="tag '+(im[f.issueKey]||'')+'">'+f.issue+'</span>'+nv+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+function initProjectMap(projEntry){
+  var el=document.getElementById('projectMapContainer');if(!el)return;
+  if(projectMap){projectMap.remove();projectMap=null;}
+  projectMap=L.map(el,{zoomControl:false,attributionControl:false});
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:18}).addTo(projectMap);
+
+  var projects=MOCK_DATA.getProjects();
+  var proj=null;
+  projects.forEach(function(p){if(p.name===projEntry.project)proj=p;});
+  var allLayers=[];
+
+  // Project redline
+  if(proj&&proj.redlineGeo&&proj.redlineGeo.length>0){
+    var rl=proj.redlineGeo.map(function(p){return[p[0],p[1]];});
+    var rlLayer=L.polygon(rl,{color:'#D13B2F',weight:2,fill:false}).addTo(projectMap);
+    allLayers.push(rlLayer);
+    projectMap.setView([proj.lat,proj.lng],15);
+  }
+
+  // All hoardings' gpsShape
+  projEntry.hoardings.forEach(function(f){
+    var hoard=MOCK_DATA.findHoard(f.id);
+    if(!hoard||!hoard.gpsShape||!hoard.gpsShape.length)return;
+    var fs=hoard.gpsShape.map(function(p){return[p[0],p[1]];});
+    var fl=L.polygon(fs,{color:'#1862D4',weight:2,dashArray:'6 4',fillColor:'rgba(24,98,212,0.10)',fillOpacity:1}).addTo(projectMap);
+    allLayers.push(fl);
+    if(hoard.entrances){
+      hoard.entrances.forEach(function(e){
+        var mk=L.circleMarker([e.lat,e.lng],{radius:5,color:'#1862D4',fillColor:'#1862D4',fillOpacity:1,weight:2}).addTo(projectMap);
+        allLayers.push(mk);
+      });
+    }
+  });
+
+  if(allLayers.length>0){
+    var group=L.featureGroup(allLayers);
+    try{projectMap.fitBounds(group.getBounds(),{padding:[30,30]});}catch(e){}
+  }else if(proj){
+    projectMap.setView([proj.lat,proj.lng],15);
+  }else{
+    projectMap.setView([22.548,114.061],15);
+  }
+}
+
+function openDetailFromProject(idx){
   currentFence=fenceData[idx];if(!currentFence)return;
-  var f=currentFence,sm={setting:'tag-setting',removing:'tag-removing',overdue:'tag-overdue',removed:'tag-removed'},im={normal:'tag-normal',pending:'tag-pending',overdue:'tag-issue-overdue'};
-  document.getElementById('detailSummary').innerHTML='<div class="detail-summary"><span class="detail-summary-id">'+f.id+'</span><span class="detail-summary-addr">'+f.address+'</span><span class="tag '+(sm[f.statusKey]||'')+'">'+f.status+'</span><span class="tag '+(im[f.issueKey]||'')+'">'+f.issue+'</span></div>';
+  var f=currentFence,sm={setting:'tag-setting',removing:'tag-removing',removed:'tag-overdue'},im={normal:'tag-issue tag-issue--normal',pending:'tag-issue tag-issue--pending',overdue:'tag-issue tag-issue--overdue'};
+  var nv=f.needVerify==='是'?'<span class="tag" style="border:1px solid #C47D00;color:#C47D00;font-size:10px;padding:0 5px;border-radius:2px;margin-left:6px;font-weight:var(--fw-medium)">待校核</span>':'';
+  document.getElementById('detailSummary').innerHTML='<div class="detail-summary"><div class="detail-summary-top"><span class="detail-summary-id">'+f.project+' · '+f.eng+'</span>'+nv+'</div><div class="detail-summary-tags"><span class="tag '+(sm[f.statusKey]||'')+'">'+f.status+'</span><span class="tag '+(im[f.issueKey]||'')+'">'+f.issue+'</span></div></div>';
   document.querySelectorAll('#detailTabs .detail-tab').forEach(function(t,i){t.classList.toggle('active',i===0)});
-  renderDetailTab('project');
+  renderDetailTab('basic');
   showScreen('screenDetail');
 }
 
@@ -608,113 +783,150 @@ function switchDetailTab(el){document.querySelectorAll('#detailTabs .detail-tab'
 
 function df(l,v){return '<div class="detail-field"><span class="detail-field-label">'+l+'</span><span class="detail-field-value">'+v+'</span></div>'}
 
-function buildFenceSvg(f){
-  // Generate SVG map showing redline, fence range, and entrances
-  var id=f.id;
-  var html='<svg width="100%" height="100%" viewBox="0 0 358 200">'+
-    '<defs><pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M 20 0 L 0 0 0 20" fill="none" stroke="#D5D0C4" stroke-width="0.5"/></pattern></defs>'+
-    '<rect width="100%" height="100%" fill="url(#grid)"/>'+
-    // Project redline
-    '<polygon points="30,15 328,15 328,185 30,185" fill="none" stroke="#D13B2F" stroke-width="2"/>'+
-    '<text x="34" y="30" style="font-size:10px;fill:#D13B2F;font-weight:600">项目红线</text>';
-  // Fence range - support multi-shape
-  if(f.shapes&&f.shapes.length>0){
-    var allPts=[];f.shapes.forEach(function(s){allPts=allPts.concat(s.points)});
-    var lats=allPts.map(function(p){return p[0]}),lngs=allPts.map(function(p){return p[1]});
-    var minLat=Math.min.apply(null,lats),maxLat=Math.max.apply(null,lats);
-    var minLng=Math.min.apply(null,lngs),maxLng=Math.max.apply(null,lngs);
-    var padX=40,padY=35;
-    var sx=(358-2*padX)/(maxLng-minLng||1),sy=(200-2*padY)/(maxLat-minLat||1);
-    function tx(lng){return padX+(lng-minLng)*sx}
-    function ty(lat){return padY+(maxLat-lat)*sy}
-    f.shapes.forEach(function(s){
-      var pts=s.points.map(function(p){return tx(p[1])+','+ty(p[0])}).join(' ');
-      if(s.type==='line'){
-        html+='<polyline points="'+pts+'" fill="none" stroke="#1862D4" stroke-width="2"/>';
-      }else{
-        html+='<polygon points="'+pts+'" fill="rgba(24,98,212,0.06)" stroke="#1862D4" stroke-width="2" stroke-dasharray="8 4"/>';
+var detailMap=null;
+function initDetailMap(f){
+  var el=document.getElementById('detailMapContainer');
+  if(!el)return;
+  if(detailMap){detailMap.remove();detailMap=null;}
+  detailMap=L.map(el,{zoomControl:false,attributionControl:false});
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:18}).addTo(detailMap);
+
+  // Get GPS data from mock — findHoard returns enriched hoard with projectId
+  var hoard=MOCK_DATA.findHoard(f.id);
+
+  // Find project via hoard.projectId (SD+MOCK fence-to-project mapping differs)
+  var projects=MOCK_DATA.getProjects();
+  var proj=null;
+  if(hoard&&hoard.projectId){
+    projects.forEach(function(p){if(p.id===hoard.projectId)proj=p;});
+  }
+
+  // Build combined layer group for fitBounds
+  var allLayers=[];
+
+  // ── Project redline ──
+  if(proj&&proj.redlineGeo&&proj.redlineGeo.length>0){
+    var rl=proj.redlineGeo.map(function(p){return[p[0],p[1]];});
+    var redlineLayer=L.polygon(rl,{color:'#D13B2F',weight:2,fill:false}).addTo(detailMap);
+    allLayers.push(redlineLayer);
+  }
+
+  // ── Fence range (gpsShape) ──
+  if(hoard&&hoard.gpsShape&&hoard.gpsShape.length>0){
+    var fs=hoard.gpsShape.map(function(p){return[p[0],p[1]];});
+    var fenceLayer=L.polygon(fs,{color:'#1862D4',weight:2,dashArray:'6 4',fillColor:'rgba(24,98,212,0.10)',fillOpacity:1}).addTo(detailMap);
+    allLayers.push(fenceLayer);
+  }
+
+  // ── Entrance markers (this fence) ──
+  if(hoard&&hoard.entrances){
+    hoard.entrances.forEach(function(e){
+      var mk=L.circleMarker([e.lat,e.lng],{radius:5,color:'#1862D4',fillColor:'#1862D4',fillOpacity:1,weight:2})
+        .bindTooltip(e.name||'出入口',{direction:'top',offset:[0,-8]})
+        .addTo(detailMap);
+      allLayers.push(mk);
+    });
+  }
+
+  // ── Other fence blocks (same project, different fenceId) ──
+  if(proj&&proj.hoardings){
+    proj.hoardings.forEach(function(h){
+      if(h.id===f.id)return;
+      if(!h.gpsShape||!h.gpsShape.length)return;
+      var ofs=h.gpsShape.map(function(p){return[p[0],p[1]];});
+      var otherLayer=L.polygon(ofs,{color:'#3D7FED',weight:1.5,dashArray:'4 3',fillColor:'rgba(61,127,237,0.06)',fillOpacity:1}).addTo(detailMap);
+      allLayers.push(otherLayer);
+      if(h.entrances){
+        h.entrances.forEach(function(e){
+          var omk=L.circleMarker([e.lat,e.lng],{radius:4,color:'#3D7FED',fillColor:'#3D7FED',fillOpacity:0.7,weight:1.5}).addTo(detailMap);
+          allLayers.push(omk);
+        });
       }
     });
-  }else{
-    html+='<polygon points="55,40 303,40 303,160 55,160" fill="rgba(24,98,212,0.06)" stroke="#1862D4" stroke-width="2" stroke-dasharray="8 4"/>';
   }
-  html+='<text x="59" y="55" style="font-size:10px;fill:#1862D4;font-weight:600">围挡范围</text>'+
-    // Fence ID
-    '<text x="179" y="105" style="font-size:13px;fill:var(--text);text-anchor:middle;font-weight:700">'+id+'</text>'+
-    // Entrances
-    '<circle cx="179" cy="40" r="6" fill="#1862D4"/><text x="179" y="34" style="font-size:9px;fill:#1862D4;text-anchor:middle;font-weight:600">出入口1</text>'+
-    (f.entrances>=2?'<circle cx="303" cy="100" r="6" fill="#1862D4"/><text x="303" y="118" style="font-size:9px;fill:#1862D4;text-anchor:middle;font-weight:600">出入口2</text>':'')+
-    (f.entrances>=3?'<circle cx="55" cy="100" r="6" fill="#1862D4"/><text x="55" y="118" style="font-size:9px;fill:#1862D4;text-anchor:middle;font-weight:600">出入口3</text>':'')+
-  '</svg>';
-  return html;
+
+  // ── Fit bounds (cover redline + all fence shapes) ──
+  if(allLayers.length>0){
+    var group=L.featureGroup(allLayers);
+    try{detailMap.fitBounds(group.getBounds(),{padding:[30,30]});}catch(e){}
+  }else if(proj){
+    detailMap.setView([proj.lat,proj.lng],15);
+  }else{
+    detailMap.setView([22.548,114.061],15);
+  }
 }
 
 function renderDetailTab(tab){
   var c=document.getElementById('detailContent'),f=currentFence;if(!f)return;
-  if(tab==='project'){
-    var html='';
-    html+='<div class="detail-sub-title">所属项目工程</div>';
-    if(f.projects){html+=f.projects.map(function(p){
-      return '<div class="proj-card"><div class="proj-card-header"><div class="proj-card-icon">P</div><div class="proj-card-name">'+p.name+'</div><div class="proj-card-count">'+p.engs.length+' 项工程</div></div>'+
-        (p.regulate?'<div class="eng-field-row" style="background:var(--blue-50);padding:6px 12px;border-radius:var(--radius-md);margin:6px 12px"><span class="eng-field-label" style="color:var(--blue-deep)">监管单位：</span><span class="eng-field-value" style="color:var(--blue-deep);font-weight:var(--fw-heavy)">'+p.regulate+'</span></div>':'')+
-        p.engs.map(function(e,ei){
-          return '<div class="eng-sub'+(ei===0?' expanded':'')+'" onclick="this.classList.toggle(\'expanded\')"><div class="eng-sub-header"><span class="eng-sub-toggle">▶</span><span class="eng-sub-name">'+e.name+'</span></div><div class="eng-sub-body">'+
-            '<div class="eng-field-row" style="background:var(--blue-50);padding:4px 8px;border-radius:var(--radius-sm);margin-bottom:4px"><span class="eng-field-label">计划工期：</span><span class="eng-field-value" style="color:var(--blue-deep);font-weight:var(--fw-medium)">'+e.sDate+' 至 '+e.eDate+'</span></div>'+
-            df2('所属区域',e.district)+df2('地址',e.address)+df2('建设单位',e.buildUnit)+df2('建设单位联系人',e.buildContact)+df2('施工单位',e.unit)+df2('施工单位联系人',e.constructContact)+df2('监理单位',e.supervisor)+df2('设计单位',e.designUnit)+
-          '</div></div>';
-        }).join('')+
-      '</div>';
-    }).join('')}
-    html+='<div class="detail-sub-title">计划信息</div><div class="detail-section"><div class="detail-fields">'+df('计划拆除日期',f.removeDate||'未设置')+df('围挡变更计划','<span style="color:var(--blue)">下载查看</span>')+'</div></div>';
-    c.innerHTML=html;
-  }
-  else if(tab==='fence'){
+  if(tab==='basic'){
     if(!f.length){c.innerHTML='<div class="empty-state"><span>该围挡尚未建档</span></div>';return}
     var html='';
-    // SVG Map with redline, fence range, entrances
-    html+='<div class="map-placeholder">'+buildFenceSvg(f)+
-      '<div class="map-legend"><div class="map-legend-item"><span class="map-legend-line" style="background:#D13B2F"></span>项目红线</div><div class="map-legend-item"><span class="map-legend-line" style="background:#1862D4;border:none;border-bottom:2px dashed #1862D4;height:0"></span>围挡范围</div><div class="map-legend-item"><span class="map-legend-dot" style="background:#1862D4"></span>出入口</div></div>'+
-      '<div class="map-address-bar"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>'+f.address+'</div>'+
-      '<div class="map-info-bar">已绘制围挡范围 · '+f.entrances+' 个出入口</div></div>';
+    // ── 1. 围挡范围地图（本体信息首位）──
+    html+='<div class="detail-sub-title">围挡范围</div>';
+    html+='<div style="position:relative;height:220px;border-radius:var(--radius-lg);overflow:hidden;margin-bottom:12px;border:1px solid var(--border)" id="detailMapContainer"></div>';
+    html+='<div style="display:flex;gap:10px;margin-bottom:12px;font-size:var(--font-xs)">'+
+      '<div style="display:flex;align-items:center;gap:4px"><div style="width:16px;height:2px;background:#D13B2F"></div><span style="color:var(--text-sub)">项目红线</span></div>'+
+      '<div style="display:flex;align-items:center;gap:4px"><div style="width:16px;height:0;border-bottom:2px dashed #1862D4"></div><span style="color:var(--text-sub)">围挡范围</span></div>'+
+      '<div style="display:flex;align-items:center;gap:4px"><div style="width:8px;height:8px;border-radius:50%;background:#1862D4"></div><span style="color:var(--text-sub)">出入口</span></div>'+
+    '</div>';
+    // ── 2. 围挡本体信息 ──
     html+='<div class="detail-sub-title">围挡本体信息</div><div class="detail-section"><div class="detail-fields">'+
-      df('围挡长度',f.length+' m')+df('围挡高度',f.height+' m')+df('围挡设置时间',f.setDate)+df('围挡拆除时间',f.removeDate||'未设置')+
-      df('围挡材质',f.material)+df('所属街道',f.street)+df('围挡责任人',f.person)+df('围挡责任人联系电话',f.phone)+
-      df('围挡风格',f.style||'未设置')+df('宣传画/公益广告',f.promotion||'未设置')+df('出入口','共'+f.entrances+'个')+
+      df('围挡长度',f.length+' m')+df('围挡高度',f.height+' m')+
+      df('围挡材质',f.material)+df('围挡风格',f.fenceStyle)+
+      df('宣传画/公益广告',f.publicityContent)+df('管护期限',f.custodyLabel)+
+      df('围挡设置时间',f.setupDate)+df('计划拆除时间',f.planRemoveDate)+
+      df('所属街道',f.street)+
+      df('围挡责任人',f.fenceResponsible)+df('围挡责任人联系电话',f.fenceResponsiblePhone)+
+      df('出入口','共'+f.entrances+'个')+
     '</div></div>';
+    // ── 3. 围挡占道信息 ──
     html+='<div class="detail-sub-title">围挡占道信息</div><div class="detail-section"><div class="detail-fields">'+
-      df('占道面积',f.area)+df('占道范围',f.scope||'未设置')+df('交通组织方案','<span style="color:var(--blue)">下载查看</span>')+
+      df('占道范围',f.roadOccupation)+df('占道面积',f.roadOccupationArea)+
+    '</div></div>';
+    // ── 4. 关联项目工程 ──
+    html+='<div class="detail-sub-title">关联项目工程</div><div class="detail-section"><div class="detail-fields">'+
+      df('所属项目',f.project)+df('关联工程',f.eng)+df('工程状态',f.engStatus)+
+      df('所属区域',f.district)+df('项目地址',f.address)+
+      df('监管单位',f.regulatorUnit)+df('建设单位',f.buildUnit)+df('建设单位联系人',f.buildContact)+
+      df('施工单位',f.constructUnit)+df('施工单位联系人',f.constructContact)+
+      df('监理单位',f.supervisorUnit)+df('设计单位',f.designUnit)+
+      df('工程计划工期',f.planPeriod)+
+    '</div></div>';
+    // ── 5. 计划信息 ──
+    html+='<div class="detail-sub-title">计划信息</div><div class="detail-section"><div class="detail-fields">'+
+      df('计划拆除日期',f.planRemoveDate)+df('围挡变更计划','<span style="color:var(--blue)">下载查看</span>')+
     '</div></div>';
     c.innerHTML=html;
+    setTimeout(function(){initDetailMap(f)},50);
   }
   else if(tab==='patrol'){
-    var pd=patrolData[f.id];
-    if(!pd){c.innerHTML='<div class="empty-state"><span>暂无巡查记录</span></div>';return}
+    var pd2=patrolData[f.id];
+    if(!pd2){c.innerHTML='<div class="empty-state"><span>暂无巡查记录</span></div>';return}
     var html='<div class="segmented"><span class="segmented-btn active">最近7天</span><span class="segmented-btn">本月</span></div>';
-    html+='<div class="patrol-stat">本月已巡检 <strong>'+pd.monthCount+'</strong> 次 · 累计 <strong>'+pd.totalPhotos+'</strong> 张全景照片</div>';
-    html+=pd.days.map(function(d){
+    html+='<div class="patrol-stat">本月已巡检 <strong>'+pd2.monthCount+'</strong> 次 · 累计 <strong>'+pd2.totalPhotos+'</strong> 张全景照片</div>';
+    html+=pd2.days.map(function(d){
       return '<div class="patrol-day-header">'+d.date+' '+d.weekday+' <span class="patrol-day-count">'+d.records.length+'条</span></div>'+
         d.records.map(function(r){
           var panoData=encodeURIComponent(JSON.stringify(r.panoScenes||[]));
           return '<div class="patrol-card"><div class="patrol-card-body">'+
-            '<div class="patrol-thumb" onclick="openPanorama(\''+r.panoSrc+'\',\''+r.time+'\',this.getAttribute(\'data-pano\') )" data-pano=\''+panoData+'\'>'+
+            '<div class="patrol-thumb" onclick="openPanorama(\''+r.panoSrc+'\',\''+r.time+'\',this.getAttribute(\'data-pano\'))" data-pano=\''+panoData+'\'>'+
               '<div class="patrol-thumb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg><span class="patrol-thumb-label">'+(r.panoScenes?r.panoScenes.length:1)+'张</span></div>'+
               '<span class="patrol-thumb-time">'+r.time+'</span></div>'+
-            '<div class="patrol-info"><div class="patrol-person">'+r.person+'</div><div class="patrol-unit">'+r.unit+'</div><div class="patrol-location"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>'+r.location+'</div></div></div>'+
-            (r.hasIssue?'<div class="patrol-issue-bar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>'+r.issueDesc+'</div>':'')+
-            '<div class="patrol-card-actions"><span class="patrol-action-btn" onclick="openPanorama(\''+r.panoSrc+'\',\''+r.time+'\',this.getAttribute(\'data-pano\'))" data-pano=\''+panoData+'\'>查看全景</span><span class="patrol-action-btn" onclick="showToast(\'下载全景照片\')">下载</span></div></div>';
+            '<div class="patrol-info"><div class="patrol-person">'+r.person+'</div><div class="patrol-unit">'+r.unit+'</div></div></div>'+
+            (r.hasIssue?'<div class="patrol-issue-bar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;margin-top:2px"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><div><div style="font-size:11px;color:#4a5568;margin-bottom:2px">关联工程：'+pd2.engName+'</div><div style="font-size:11px;color:#4a5568;margin-bottom:2px">问题类型：'+r.issueType+'</div><div>'+r.issueDesc+'</div><div style="font-size:10px;color:#718096;margin-top:2px">问题位置：'+r.issueLoc+'</div></div></div>':'')+
+            '<div class="patrol-card-actions"><span class="patrol-action-btn" onclick="openPanorama(\''+r.panoSrc+'\',\''+r.time+'\',this.getAttribute(\'data-pano\'))" data-pano=\''+panoData+'\'>查看全景</span></div></div>';
         }).join('');
     }).join('');
     c.innerHTML=html;
   }
-  else if(tab==='verify'){
-    var vr=verifyRecords[f.id];
-    if(!vr||!vr.length){c.innerHTML='<div class="empty-state"><span>暂无校核记录</span></div>';return}
-    c.innerHTML=buildTimeline(vr);
-  }
-  else if(tab==='change'){
-    var cr=changeRecords[f.id];
-    if(!cr||!cr.length){c.innerHTML='<div class="empty-state"><span>暂无变更记录</span></div>';return}
-    c.innerHTML=buildTimeline(cr);
+  else if(tab==='verifyChange'){
+    var vr=verifyRecords[f.id]||[];
+    var cr=changeRecords[f.id]||[];
+    // Merge both timelines, sorted by time descending
+    var merged=vr.concat(cr);
+    merged.sort(function(a,b){return a.time>b.time?-1:a.time<b.time?1:0});
+    if(!merged.length){c.innerHTML='<div class="empty-state"><span>暂无校核变更记录</span></div>';return}
+    c.innerHTML=buildTimeline(merged);
   }
 }
 
@@ -738,41 +950,59 @@ function buildTimeline(records){
    Map Overview
    ═══════════════════════════════════════════ */
 function renderMapOverview(){
-  var colors={setting:'#17b26a',overdue:'#e5484d',removing:'#f5b400',removed:'var(--blue)'};
-  // SVG map with all fences
-  var svgParts=['<svg width="100%" height="100%" viewBox="0 0 390 520">',
-    '<defs><pattern id="mgrid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M 20 0 L 0 0 0 20" fill="none" stroke="#D5D0C4" stroke-width="0.5"/></pattern></defs>',
-    '<rect width="100%" height="100%" fill="url(#mgrid)"/>'];
-  // Mock positions for each fence
-  var positions=[
-    {x:60,y:60,w:120,h:80},{x:220,y:50,w:100,h:90},{x:50,y:200,w:140,h:70},
-    {x:230,y:180,w:110,h:80},{x:80,y:330,w:100,h:60},{x:240,y:320,w:110,h:70},
-    {x:60,y:430,w:130,h:60},{x:240,y:430,w:100,h:60},{x:130,y:140,w:100,h:50},
-    {x:50,y:290,w:90,h:50},{x:230,y:260,w:110,h:50},{x:120,y:480,w:100,h:30}
-  ];
-  fenceData.forEach(function(f,i){
-    var p=positions[i]||{x:50+i*30,y:50,w:100,h:60};
-    var col=colors[f.statusKey]||'#1862D4';
-    svgParts.push('<polygon points="'+p.x+','+p.y+' '+(p.x+p.w)+','+p.y+' '+(p.x+p.w)+','+(p.y+p.h)+' '+p.x+','+(p.y+p.h)+'" fill="'+col+'22" stroke="'+col+'" stroke-width="1.5" stroke-dasharray="4 2" onclick="openDetailFromMap('+i+')"/>');
-    if(f.shapes){f.shapes.forEach(function(s){if(s.type==='line'){svgParts.push('<polyline points="'+(p.x+4)+','+(p.y+p.h/2)+' '+(p.x+p.w/2)+','+(p.y+4)+' '+(p.x+p.w-4)+','+(p.y+p.h/2)+'" fill="none" stroke="'+col+'" stroke-width="1.5"/>');}})}
-    svgParts.push('<text x="'+(p.x+p.w/2)+'" y="'+(p.y+p.h/2+4)+'" style="font-size:8px;fill:'+col+';text-anchor:middle;font-weight:600">'+f.id.replace('WD-2026-','')+'</text>');
-  });
-  svgParts.push('</svg>');
+  // Color by aggregate status
+  var colors={setting:'#17b26a',removing:'#f5b400',removed:'#1862D4'};
+  // Build full-screen map with bottom sheet
+  var html='';
+  html+='<div style="position:absolute;inset:0" id="mapOverviewMap"></div>'+
+    '<div class="map-overview-legend"><div class="map-legend-item"><span class="map-legend-dot" style="background:#17b26a"></span>设置中</div><div class="map-legend-item"><span class="map-legend-dot" style="background:#f5b400"></span>即将到期</div><div class="map-legend-item"><span class="map-legend-dot" style="background:#1862D4"></span>已到期</div></div>'+
+    '<div class="map-overview-list"><div style="font-size:var(--font-md);font-weight:var(--fw-heavy);margin-bottom:8px">辖区围挡 · '+projectFenceData.length+'个项目</div>';
 
-  var html='<div style="width:100%;height:100%;position:relative">'+svgParts.join('')+
-    '<div class="map-overview-legend"><div class="map-legend-item"><span class="map-legend-dot" style="background:#17b26a"></span>设置中</div><div class="map-legend-item"><span class="map-legend-dot" style="background:#f5b400"></span>即将拆除</div><div class="map-legend-item"><span class="map-legend-dot" style="background:#e5484d"></span>超期</div><div class="map-legend-item"><span class="map-legend-dot" style="background:var(--blue)"></span>已拆除</div></div>'+
-    '<div class="map-overview-list"><div style="font-size:var(--font-md);font-weight:var(--fw-heavy);margin-bottom:8px">辖区围挡 · '+fenceData.length+'条</div>';
-  fenceData.forEach(function(f,i){
-    var col=colors[f.statusKey]||'var(--blue)';
-    html+='<div class="map-overview-item" onclick="openDetailFromMap('+i+')"><div class="map-overview-dot" style="background:'+col+'"></div><div class="map-overview-info"><div class="map-overview-id">'+f.id+'</div><div class="map-overview-addr">'+f.address+'</div><div class="map-overview-tags"><span class="tag '+(f.statusKey==='setting'?'tag-setting':f.statusKey==='overdue'?'tag-overdue':f.statusKey==='removing'?'tag-removing':'tag-removed')+'">'+f.status+'</span></div></div></div>';
+  // Project cards in bottom sheet
+  projectFenceData.forEach(function(p,i){
+    var col=colors[p.aggStatusKey]||'#1862D4';
+    html+='<div class="map-overview-item" onclick="openProjectHoards('+i+')">'+
+      '<div class="map-overview-dot" style="background:'+col+'"></div>'+
+      '<div class="map-overview-info"><div class="map-overview-id">'+p.project+'</div>'+
+      '<div class="map-overview-addr">'+p.removeDate+' · '+p.street+'</div>'+
+      '<div class="map-overview-tags"><span class="tag '+(p.aggStatusKey==='setting'?'tag-setting':p.aggStatusKey==='removed'?'tag-overdue':'tag-removing')+'">'+p.aggStatusLabel+'</span><span class="tag tag-default" style="margin-left:4px">'+p.hoardingCount+'条围挡</span></div>'+
+      '</div></div>';
   });
-  html+='</div></div>';
+  html+='</div>';
   document.getElementById('mapOverviewBody').innerHTML=html;
-}
 
-function openDetailFromMap(idx){
-  openDetail(idx);
-  // Need to go back past map overview when going back from detail
+  // Init Leaflet map with all project redlines + fence shapes
+  setTimeout(function(){
+    var el=document.getElementById('mapOverviewMap');if(!el)return;
+    var overviewMap=L.map(el,{zoomControl:false,attributionControl:false});
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:18}).addTo(overviewMap);
+    var allLayers=[];
+    var projects=MOCK_DATA.getProjects();
+    projects.forEach(function(proj){
+      // Project redline
+      if(proj.redlineGeo&&proj.redlineGeo.length>0){
+        var rl=proj.redlineGeo.map(function(p){return[p[0],p[1]];});
+        allLayers.push(L.polygon(rl,{color:'#D13B2F',weight:2,fill:false}).addTo(overviewMap));
+      }
+      // Fence shapes
+      (proj.hoardings||[]).forEach(function(h){
+        if(!h.gpsShape||!h.gpsShape.length)return;
+        var fs=h.gpsShape.map(function(p){return[p[0],p[1]];});
+        allLayers.push(L.polygon(fs,{color:'#1862D4',weight:1.5,dashArray:'5 3',fillColor:'rgba(24,98,212,0.08)',fillOpacity:1}).addTo(overviewMap));
+        if(h.entrances){
+          h.entrances.forEach(function(e){
+            allLayers.push(L.circleMarker([e.lat,e.lng],{radius:3,color:'#1862D4',fillColor:'#1862D4',fillOpacity:1,weight:1}).addTo(overviewMap));
+          });
+        }
+      });
+    });
+    if(allLayers.length>0){
+      var group=L.featureGroup(allLayers);
+      try{overviewMap.fitBounds(group.getBounds(),{padding:[20,20]});}catch(e){}
+    }else{
+      overviewMap.setView([22.548,114.061],13);
+    }
+  },100);
 }
 
 /* ═══════════════════════════════════════════
@@ -820,17 +1050,17 @@ function renderVerifyContent(){
     '<div class="verify-field full"><span class="verify-field-label">围挡范围</span><div class="verify-map-compare"><span class="verify-field-old">（5点位 · 2出入口）</span><span style="color:var(--text-tertiary)">→</span><span class="verify-field-new">（6点位 · 3出入口）</span></div></div>'+
     '<div class="verify-field"><span class="verify-field-label">围挡长度</span><span class="verify-field-old">300 m</span><span style="color:var(--text-tertiary);margin:0 4px">→</span><input class="verify-field-input" type="text" value="'+f.length+' m"></div>'+
     '<div class="verify-field"><span class="verify-field-label">围挡高度</span><span class="verify-field-old">2.0 m</span><span style="color:var(--text-tertiary);margin:0 4px">→</span><input class="verify-field-input" type="text" value="'+f.height+' m"></div>'+
-    '<div class="verify-field"><span class="verify-field-label">围挡设置时间</span><span class="verify-field-old">'+f.setDate+'</span><input class="verify-field-input" type="date" value="'+f.setDate+'" style="flex:1"></div>'+
+    '<div class="verify-field"><span class="verify-field-label">围挡设置时间</span><span class="verify-field-old">'+f.setupDate+'</span><input class="verify-field-input" type="date" value="'+f.setupDate+'" style="flex:1"></div>'+
     '<div class="verify-field"><span class="verify-field-label">围挡拆除时间</span><span class="verify-field-old">2026-03-20</span><span style="color:var(--text-tertiary);margin:0 4px">→</span><input class="verify-field-input" type="date" value="2026-06-30"></div>'+
     '<div class="verify-field"><span class="verify-field-label">围挡材质</span><span class="verify-field-old">临时围挡</span><span style="color:var(--text-tertiary);margin:0 4px">→</span><input class="verify-field-input" type="text" value="'+f.material+'"></div>'+
     '<div class="verify-field"><span class="verify-field-label">所属街道</span><input class="verify-field-input" type="text" value="'+f.street+'" style="flex:1"></div>'+
-    '<div class="verify-field"><span class="verify-field-label">围挡责任人</span><input class="verify-field-input" type="text" value="'+f.person+'" style="flex:1"></div>'+
-    '<div class="verify-field"><span class="verify-field-label">责任人联系电话</span><input class="verify-field-input" type="text" value="'+f.phone+'" style="flex:1"></div>'+
-    '<div class="verify-field"><span class="verify-field-label">围挡风格</span><input class="verify-field-input" type="text" value="'+(f.style||'')+'" style="flex:1"></div>'+
-    '<div class="verify-field"><span class="verify-field-label">宣传画/公益广告</span><input class="verify-field-input" type="text" value="'+(f.promotion||'')+'" style="flex:1"></div></div>';
+    '<div class="verify-field"><span class="verify-field-label">围挡责任人</span><input class="verify-field-input" type="text" value="'+f.fenceResponsible+'" style="flex:1"></div>'+
+    '<div class="verify-field"><span class="verify-field-label">责任人联系电话</span><input class="verify-field-input" type="text" value="'+f.fenceResponsiblePhone+'" style="flex:1"></div>'+
+    '<div class="verify-field"><span class="verify-field-label">围挡风格</span><input class="verify-field-input" type="text" value="'+f.fenceStyle+'" style="flex:1"></div>'+
+    '<div class="verify-field"><span class="verify-field-label">宣传画/公益广告</span><input class="verify-field-input" type="text" value="'+f.publicityContent+'" style="flex:1"></div></div>';
   html+='<div class="verify-section"><div class="verify-section-title">围挡占道信息</div>'+
-    '<div class="verify-field"><span class="verify-field-label">占道面积</span><input class="verify-field-input" type="text" value="'+f.area+'" style="flex:1"></div>'+
-    '<div class="verify-field"><span class="verify-field-label">占道范围</span><input class="verify-field-input" type="text" value="'+(f.scope||'')+'" style="flex:1"></div>'+
+    '<div class="verify-field"><span class="verify-field-label">占道面积</span><input class="verify-field-input" type="text" value="'+f.roadOccupationArea+'" style="flex:1"></div>'+
+    '<div class="verify-field"><span class="verify-field-label">占道范围</span><input class="verify-field-input" type="text" value="'+f.roadOccupation+'" style="flex:1"></div>'+
     '<div class="verify-field"><span class="verify-field-label">交通组织方案</span><span style="color:var(--blue);font-size:var(--font-xs)">交通组织方案_v2.pdf</span></div></div>';
   html+='<div class="verify-section"><div class="verify-section-title">校核意见</div><div style="padding:12px 14px"><textarea class="form-textarea-mobile" placeholder="请输入校核意见（选填）" style="min-height:60px"></textarea></div></div>';
   vc.innerHTML=html;
@@ -852,8 +1082,11 @@ function handleSearch(keyword){
   var kw=keyword.toLowerCase();
   var filtered=fenceData.filter(function(f){return f.id.toLowerCase().indexOf(kw)!==-1||f.project.toLowerCase().indexOf(kw)!==-1||f.address.toLowerCase().indexOf(kw)!==-1});
   if(!filtered.length){list.innerHTML='<div class="empty-state"><span>未找到匹配围挡</span></div>';return}
-  var sm={setting:'tag-setting',removing:'tag-removing',overdue:'tag-overdue',removed:'tag-removed'},im={normal:'tag-normal',pending:'tag-pending',overdue:'tag-issue-overdue'};
-  list.innerHTML=filtered.map(function(f){return '<div class="fence-card" onclick="openDetail('+fenceData.indexOf(f)+')"><div class="fence-card-top"><span class="fence-id">'+f.id+'</span></div><div class="fence-card-title">'+f.project+' · '+f.eng+'</div><div class="fence-card-addr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>'+f.address+'</div><div class="fence-card-tags"><span class="tag '+(sm[f.statusKey]||'')+'">'+f.status+'</span><span class="tag '+(im[f.issueKey]||'')+'">'+f.issue+'</span></div></div>'}).join('');
+  var sm={setting:'tag-setting',removing:'tag-removing',removed:'tag-overdue'},im={normal:'tag-issue tag-issue--normal',pending:'tag-issue tag-issue--pending',overdue:'tag-issue tag-issue--overdue'};
+  list.innerHTML=filtered.map(function(f){
+    var nv=f.needVerify==='是'?'<span class="tag" style="border:1px solid #C47D00;color:#C47D00;font-size:10px;padding:0 5px;border-radius:2px;margin-left:4px;font-weight:var(--fw-medium)">待校核</span>':'';
+    return '<div class="fence-card" onclick="openDetailFromProject('+fenceData.indexOf(f)+')"><div class="fence-card-title">'+f.eng+'</div><div class="fence-card-subtitle">'+f.unitName+nv+'</div><div class="fence-card-tags"><span class="tag '+(sm[f.statusKey]||'')+'">'+f.status+'</span><span class="tag '+(im[f.issueKey]||'')+'">'+f.issue+'</span></div></div>';
+  }).join('');
 }
 
 /* ═══════════════════════════════════════════

@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
+<title>项目端APP - 深圳市建设施工围挡数字化管理系统</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+/* ═══ Design Token ═══ */
+:root{
+  --bg:#eef4fb;--panel:#ffffff;--panel-2:#f6f9fe;
+  --blue:#0f5bd8;--blue-deep:#0a2f6f;--blue-soft:#dce9ff;
+  --blue-50:#EBF2FF;--blue-100:#C6D9FF;--blue-200:#9DBEFF;
+  --blue-500:#1862D4;--blue-600:#104FAD;
+  --gray-0:#FFF;--gray-50:#F7F8FA;--gray-100:#F0F1F5;--gray-200:#E3E6ED;
+  --gray-300:#C6CBD8;--gray-400:#9CA3B0;--gray-500:#6B7280;--gray-600:#4B5563;
+  --gray-700:#374151;--gray-800:#1F2937;--gray-900:#111827;
+  --green:#17b26a;--green-light:#E6F4EA;
+  --yellow:#f5b400;--yellow-light:#FEF3CD;
+  --red:#e5484d;--red-light:#FDECEA;
+  --text:#10233f;--text-sub:#5e718d;--text-tertiary:#9CA3B0;
+  --border:rgba(16,35,63,0.08);
+  --shadow-sm:0 1px 2px rgba(0,0,0,0.04);--shadow-md:0 8px 20px rgba(20,52,107,0.06);--shadow-lg:0 12px 28px rgba(23,51,105,0.08);
+  --radius-sm:4px;--radius-md:8px;--radius-lg:14px;--radius-xl:20px;
+  --font-family:"PingFang SC","Microsoft YaHei","Helvetica Neue",Arial,sans-serif;
+  --font-xs:11px;--font-sm:12px;--font-md:14px;--font-lg:16px;--font-xl:18px;
+  --fw-regular:400;--fw-medium:500;--fw-bold:600;--fw-heavy:700;
+  --safe-top:47px;--safe-bottom:34px;--tab-bar-height:50px;
+  --fast:0.15s ease;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{font-family:var(--font-family);font-size:var(--font-md);color:var(--text);background:linear-gradient(180deg,#f3f7fd,#eaf1fb);line-height:1.5;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;height:100%;overflow:hidden}
+a{color:var(--blue);text-decoration:none}
+button{font-family:var(--font-family);cursor:pointer;border:none;background:none}
+input,textarea,select{font-family:var(--font-family);outline:none}
+
+/* ═══ Phone Frame ═══ */
+.phone-frame{position:relative;width:390px;height:844px;margin:20px auto;background:linear-gradient(180deg,#f7faff,#edf4ff);border-radius:40px;overflow:hidden;box-shadow:0 0 0 2px #1a1a1a,0 0 0 6px #333,0 0 0 8px #1a1a1a,0 20px 60px rgba(0,0,0,0.3)}
+.phone-notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:126px;height:34px;background:#000;border-radius:0 0 20px 20px;z-index:999}
+.phone-home-indicator{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:134px;height:5px;background:rgba(0,0,0,0.15);border-radius:3px;z-index:999}
+
+/* ═══ Screen System ═══ */
+.screen{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;background:linear-gradient(180deg,#f7faff,#edf4ff);transform:translateX(100%);opacity:0;transition:transform 0.3s cubic-bezier(0.4,0,0.2,1),opacity 0.3s ease;will-change:transform,opacity}
+.screen.active{transform:translateX(0);opacity:1;z-index:10}
+.screen.behind{transform:translateX(-30%);opacity:0.5;z-index:5}
+
+/* ═══ Nav Bar ═══ */
+.nav-bar{flex-shrink:0;padding-top:var(--safe-top);background:var(--panel);border-bottom:1px solid var(--border);position:relative;z-index:50}
+.nav-bar-inner{display:flex;align-items:center;height:44px;padding:0 16px}
+.nav-bar-title{flex:1;text-align:center;font-size:var(--font-lg);font-weight:var(--fw-heavy);color:var(--text)}
+.nav-bar-back{width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:var(--blue);border-radius:var(--radius-md)}
+.nav-bar-back:active{background:var(--gray-100)}
+.nav-bar-right{width:60px;text-align:right;font-size:var(--font-sm);color:var(--blue);font-weight:var(--fw-medium)}
+
+/* ═══ Tab Bar ═══ */
+.tab-bar{flex-shrink:0;padding-bottom:var(--safe-bottom);background:var(--panel);border-top:1px solid var(--border);display:flex;align-items:stretch;height:calc(var(--tab-bar-height) + var(--safe-bottom));position:relative;z-index:100}
+.tab-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--text-tertiary);transition:color var(--fast);padding-top:4px}
+.tab-item.active{color:var(--blue)}
+.tab-item:active{opacity:0.7}
+.tab-icon{width:24px;height:24px;position:relative}
+.tab-label{font-size:10px;font-weight:var(--fw-medium)}
+.tab-item-scan{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--blue);padding-top:2px}
+.tab-scan-btn{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--blue-deep));display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(24,98,212,0.35);margin-top:-16px}
+.tab-scan-btn svg{color:white}
+.tab-scan-label{font-size:10px;font-weight:var(--fw-medium);color:var(--blue)}
+.tab-badge{position:absolute;top:-2px;right:-4px;min-width:14px;height:14px;background:var(--red);color:white;font-size:9px;font-weight:var(--fw-heavy);border-radius:7px;display:flex;align-items:center;justify-content:center;padding:0 3px;line-height:1}
+
+/* ═══ Scroll Body ═══ */
+.screen-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.screen-body::-webkit-scrollbar{display:none}
+
+/* ═══ Project Context Bar ═══ */
+.project-context-bar{flex-shrink:0;padding:calc(var(--safe-top) + 10px) 16px 10px;background:linear-gradient(135deg,#0c3d97,#0f5bd8 60%,#3d86ff);color:white;display:flex;align-items:center;justify-content:space-between;position:relative;overflow:hidden}
+.project-context-bar::after{content:'';position:absolute;top:-30px;right:-30px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,0.06)}
+.project-context-info{flex:1;min-width:0;position:relative;z-index:1}
+.project-context-name{font-size:var(--font-md);font-weight:var(--fw-heavy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.project-context-sub{font-size:var(--font-xs);opacity:0.8;margin-top:2px}
+.project-context-switch{flex-shrink:0;margin-left:12px;padding:6px 12px;background:rgba(255,255,255,0.2);border-radius:var(--radius-lg);font-size:var(--font-sm);color:white;font-weight:var(--fw-medium);position:relative;z-index:1}
+.project-context-switch:active{background:rgba(255,255,255,0.3)}
+
+/* ═══ Engineering Cards ═══ */
+.eng-card-list{padding:8px 16px;display:flex;flex-direction:column;gap:8px}
+.eng-card{background:var(--panel);border-radius:var(--radius-lg);padding:12px;box-shadow:var(--shadow-sm);border:1px solid var(--border)}
+.eng-card--unfiled{border:1.5px dashed var(--gray-300);background:var(--panel-2)}
+.eng-card-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.eng-card-left{flex:1;min-width:0}
+.eng-card-name{font-size:var(--font-md);font-weight:var(--fw-heavy);color:var(--text)}
+.eng-card-meta{font-size:var(--font-xs);color:var(--text-sub);margin-top:2px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.eng-card-meta .dot{width:3px;height:3px;border-radius:50%;background:var(--gray-300)}
+.eng-card-tags{display:flex;gap:4px;margin-top:4px}
+.status-tag{font-size:var(--font-xs);padding:2px 8px;border-radius:999px;font-weight:var(--fw-medium)}
+.status-tag--setting{background:rgba(23,178,106,0.12);color:var(--green)}
+.status-tag--removing{background:rgba(245,180,0,0.12);color:var(--yellow)}
+.status-tag--overdue{background:rgba(229,72,77,0.12);color:var(--red)}
+.status-tag--removed{background:rgba(15,91,216,0.12);color:var(--blue)}
+.status-tag--issue{background:rgba(229,72,77,0.12);color:var(--red)}
+.status-tag--normal{background:rgba(23,178,106,0.12);color:var(--green)}
+.eng-card-right{display:flex;gap:6px;flex-shrink:0}
+.eng-card-btn{padding:6px 10px;font-size:var(--font-xs);border-radius:var(--radius-md);font-weight:var(--fw-medium);white-space:nowrap}
+.eng-card-btn:active{opacity:0.7}
+.eng-card-btn--primary{background:var(--blue);color:white}
+.eng-card-btn--outline{background:var(--panel);color:var(--text);border:1px solid var(--gray-300)}
+.eng-card-btn--danger{background:var(--panel);color:var(--red);border:1px solid var(--red)}
+
+/* ═══ Home Map (Leaflet) ═══ */
+.home-map{margin:4px 16px 8px;background:var(--panel);border-radius:var(--radius-xl);overflow:hidden;box-shadow:var(--shadow-sm);border:1px solid var(--border)}
+.home-map-header{display:flex;align-items:center;justify-content:space-between;padding:8px 12px 0}
+.home-map-title{font-size:var(--font-sm);font-weight:var(--fw-heavy)}
+.home-map-expand{font-size:var(--font-xs);color:var(--blue)}
+.home-map-view{width:100%;height:180px;margin-top:4px}
+.home-map-info{padding:8px 12px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);font-size:var(--font-xs);color:var(--text-sub)}
+.home-map-info strong{color:var(--text);font-weight:var(--fw-medium)}
+
+/* ═══ Calendar ═══ */
+.calendar-section{margin:0 16px 12px;background:var(--panel);border-radius:var(--radius-xl);padding:14px;box-shadow:var(--shadow-sm);border:1px solid var(--border)}
+.calendar-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.calendar-title{font-size:var(--font-md);font-weight:var(--fw-heavy)}
+.calendar-nav{display:flex;gap:4px}
+.calendar-nav-btn{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:var(--radius-md);color:var(--text-sub);font-size:var(--font-md)}
+.calendar-nav-btn:active{background:var(--gray-100)}
+.calendar-weekdays{display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:4px}
+.calendar-weekday{text-align:center;font-size:var(--font-xs);color:var(--text-tertiary);padding:4px 0;font-weight:var(--fw-medium)}
+.calendar-days{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.calendar-day{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:var(--radius-md);position:relative;font-size:var(--font-sm);color:var(--text)}
+.calendar-day:active{background:var(--gray-100)}
+.calendar-day--today{font-weight:var(--fw-heavy);color:var(--blue)}
+.calendar-day--other{color:var(--text-tertiary);opacity:0.5}
+.calendar-dot{width:6px;height:6px;border-radius:50%;position:absolute;bottom:4px}
+.calendar-dot--done{background:var(--green)}
+.calendar-dot--issue{background:var(--red)}
+.calendar-dot--miss{border:1.5px solid var(--yellow);background:transparent}
+.calendar-summary{margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:var(--font-xs);color:var(--text-sub);display:flex;gap:12px;justify-content:center}
+.calendar-summary span{display:flex;align-items:center;gap:4px}
+
+/* ═══ Detail ═══ */
+.detail-tabs{display:flex;flex-shrink:0;background:var(--panel);border-bottom:1px solid var(--border);overflow-x:auto}
+.detail-tabs::-webkit-scrollbar{display:none}
+.detail-tab{flex:1;min-width:0;padding:10px 0;text-align:center;font-size:var(--font-sm);color:var(--text-sub);font-weight:var(--fw-medium);position:relative;white-space:nowrap;cursor:pointer}
+.detail-tab.active{color:var(--blue);font-weight:var(--fw-heavy)}
+.detail-tab.active::after{content:'';position:absolute;bottom:0;left:20%;right:20%;height:2.5px;background:var(--blue);border-radius:2px}
+.detail-content{padding:12px 16px 20px}
+.detail-section{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:12px;box-shadow:var(--shadow-sm)}
+.detail-section-title{font-size:var(--font-md);font-weight:var(--fw-heavy);padding:12px 14px 8px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px}
+.detail-section-title::before{content:'';width:3px;height:14px;background:var(--blue);border-radius:2px}
+.detail-fields{padding:8px 14px 12px}
+.detail-field{display:flex;padding:5px 0;font-size:var(--font-sm)}
+.detail-field-label{color:var(--text-sub);min-width:110px;flex-shrink:0}
+.detail-field-value{color:var(--text);word-break:break-all}
+
+/* ═══ Timeline ═══ */
+.timeline{position:relative;padding-left:24px}
+.timeline::before{content:'';position:absolute;left:7px;top:8px;bottom:8px;width:2px;background:var(--gray-200)}
+.timeline-item{position:relative;margin-bottom:16px}
+.timeline-item:last-child{margin-bottom:0}
+.timeline-dot{position:absolute;left:-24px;top:6px;width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.timeline-dot.verify{background:var(--blue-50);border:2px solid var(--blue)}
+.timeline-dot.change{background:var(--yellow-light);border:2px solid var(--yellow)}
+.timeline-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-sm)}
+.timeline-card-header{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--panel-2);border-bottom:1px solid var(--border)}
+.timeline-time{font-size:var(--font-xs);font-weight:var(--fw-heavy)}
+.timeline-role{font-size:10px;padding:2px 8px;border-radius:999px;font-weight:var(--fw-medium)}
+.timeline-role.verify-role{background:var(--blue-50);color:var(--blue)}
+.timeline-role.change-role{background:var(--yellow-light);color:#9E6600}
+.timeline-card-body{padding:10px 12px}
+.timeline-person{font-size:var(--font-xs);color:var(--text-sub);margin-bottom:4px}
+.timeline-field{display:flex;align-items:baseline;gap:4px;padding:4px 0;font-size:var(--font-xs);flex-wrap:wrap}
+.timeline-field-label{color:var(--text-sub);white-space:nowrap;min-width:60px}
+.timeline-field-old{color:var(--text-tertiary);text-decoration:line-through;background:var(--red-light);padding:1px 4px;border-radius:2px}
+.timeline-field-arrow{color:var(--text-tertiary)}
+.timeline-field-new{color:var(--blue-deep);font-weight:var(--fw-medium);background:var(--blue-50);padding:1px 4px;border-radius:2px}
+
+/* ═══ Patrol ═══ */
+.patrol-stat{padding:10px 0;font-size:var(--font-xs);color:var(--text-sub)}
+.patrol-stat strong{color:var(--blue)}
+.patrol-day-header{font-size:var(--font-sm);font-weight:var(--fw-heavy);padding:8px 0 6px;display:flex;align-items:center;gap:8px}
+.patrol-day-header::after{content:'';flex:1;height:1px;background:var(--gray-200)}
+.patrol-card{background:var(--panel);border-radius:var(--radius-lg);border:1px solid var(--border);overflow:hidden;margin-bottom:10px;box-shadow:var(--shadow-sm)}
+.patrol-card-body{display:flex;gap:10px;padding:12px}
+.patrol-thumb{width:80px;height:60px;border-radius:var(--radius-md);flex-shrink:0;overflow:hidden;position:relative;cursor:pointer;background:linear-gradient(135deg,var(--blue-100),var(--blue-200))}
+.patrol-thumb-icon{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.patrol-thumb-icon svg{width:20px;height:20px;color:var(--blue);opacity:0.7}
+.patrol-thumb-label{font-size:9px;color:var(--blue-deep);font-weight:var(--fw-heavy);background:rgba(24,98,212,0.15);padding:1px 6px;border-radius:3px;margin-top:2px}
+.patrol-thumb-time{position:absolute;bottom:2px;left:0;right:0;text-align:center;font-size:9px;color:rgba(0,0,0,0.45)}
+.patrol-info{flex:1;min-width:0}
+.patrol-person{font-size:var(--font-sm);font-weight:var(--fw-medium);margin-bottom:2px}
+.patrol-unit{font-size:var(--font-xs);color:var(--text-sub);margin-bottom:2px}
+.patrol-location{font-size:var(--font-xs);color:var(--text-sub);display:flex;align-items:center;gap:3px}
+.patrol-issue-bar{background:var(--yellow-light);padding:6px 12px;font-size:var(--font-xs);color:#9E6600;font-weight:var(--fw-medium);display:flex;align-items:center;gap:4px}
+.patrol-card-actions{display:flex;border-top:1px solid var(--border)}
+.patrol-action-btn{flex:1;padding:8px;text-align:center;font-size:var(--font-xs);color:var(--blue);font-weight:var(--fw-medium)}
+.patrol-action-btn:active{background:var(--gray-50)}
+.patrol-action-btn+.patrol-action-btn{border-left:1px solid var(--border)}
+.segmented{display:flex;background:var(--gray-100);border-radius:var(--radius-md);padding:2px;margin-bottom:10px}
+.segmented-btn{flex:1;padding:6px 0;text-align:center;font-size:var(--font-sm);color:var(--text-sub);font-weight:var(--fw-medium);border-radius:6px;cursor:pointer}
+.segmented-btn.active{background:var(--panel);color:var(--text);box-shadow:var(--shadow-sm)}
+
+/* ═══ Panorama Viewer ═══ */
+.pano-viewer{position:relative;width:100%;height:240px;background:#1a1a2e;border-radius:var(--radius-lg);overflow:hidden;margin-bottom:12px}
+.pano-viewer-overlay{position:absolute;inset:0;background:radial-gradient(circle at 30% 40%,rgba(24,98,212,0.15),transparent 60%),radial-gradient(circle at 70% 60%,rgba(23,178,106,0.1),transparent 50%)}
+.pano-cross{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:24px;height:24px;border:2px solid rgba(255,255,255,0.6);border-radius:50%;pointer-events:none;z-index:4}
+.pano-top{position:absolute;top:10px;left:10px;right:10px;display:flex;justify-content:space-between;z-index:5}
+.pano-pill{height:28px;padding:0 10px;border-radius:14px;border:1px solid rgba(255,255,255,0.2);background:rgba(0,0,0,0.4);color:#fff;font-size:var(--font-xs);display:flex;align-items:center;gap:4px}
+.pano-thumbs{position:absolute;bottom:8px;left:8px;right:8px;display:flex;gap:6px;overflow-x:auto;z-index:5}
+.pano-thumbs::-webkit-scrollbar{display:none}
+.pano-thumb-item{width:60px;height:42px;border-radius:var(--radius-sm);border:2px solid rgba(255,255,255,0.3);flex-shrink:0;overflow:hidden;position:relative;background:linear-gradient(135deg,var(--blue-100),var(--blue-200))}
+.pano-thumb-item.active{border-color:var(--blue);box-shadow:0 0 0 2px rgba(24,144,255,0.35)}
+.pano-thumb-item span{position:absolute;left:0;right:0;bottom:0;font-size:9px;text-align:center;background:rgba(0,0,0,0.5);color:#fff;padding:1px 0}
+
+/* ═══ QR ═══ */
+.qr-container{display:flex;flex-direction:column;align-items:center;padding:40px 32px;text-align:center}
+.qr-box{width:220px;height:220px;background:white;border-radius:var(--radius-xl);display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-md);margin-bottom:20px;border:1px solid var(--border)}
+.qr-placeholder{width:180px;height:180px;background:repeating-linear-gradient(0deg,transparent,transparent 9px,#333 9px,#333 10px),repeating-linear-gradient(90deg,transparent,transparent 9px,#333 9px,#333 10px);opacity:0.12;border-radius:var(--radius-md)}
+.qr-fid{font-size:var(--font-xl);font-weight:var(--fw-heavy)}
+.qr-name{font-size:var(--font-md);color:var(--text-sub);margin-top:4px}
+.qr-addr{font-size:var(--font-sm);color:var(--text-tertiary);margin-top:2px}
+.qr-download-btn{margin-top:24px;padding:10px 40px;background:var(--blue);color:white;border-radius:var(--radius-lg);font-size:var(--font-md);font-weight:var(--fw-medium)}
+.qr-download-btn:active{background:var(--blue-deep)}
+
+/* ═══ Profile ═══ */
+.profile-header{text-align:center;padding:24px 16px 16px;background:var(--panel);border-bottom:1px solid var(--border)}
+.profile-avatar{width:56px;height:56px;border-radius:50%;margin:0 auto 8px;background:linear-gradient(135deg,var(--blue),var(--blue-deep));color:white;display:flex;align-items:center;justify-content:center;font-size:var(--font-xl);font-weight:var(--fw-heavy)}
+.profile-name{font-size:var(--font-lg);font-weight:var(--fw-heavy)}
+.profile-org{font-size:var(--font-sm);color:var(--text-sub);margin-top:2px}
+.profile-menu{padding:8px 16px}
+.profile-menu-item{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border)}
+.profile-menu-item:active{background:var(--gray-50)}
+.profile-menu-label{font-size:var(--font-md)}
+.profile-menu-arrow{color:var(--text-tertiary);font-size:var(--font-sm)}
+
+/* ═══ Notifications ═══ */
+.notif-list{padding:8px 16px}
+.notif-item{display:flex;gap:10px;padding:12px 0;border-bottom:1px solid var(--border)}
+.notif-icon{width:36px;height:36px;border-radius:var(--radius-lg);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:var(--font-lg)}
+.notif-icon--verify{background:var(--blue-50);color:var(--blue)}
+.notif-icon--rectify{background:var(--red-light);color:var(--red)}
+.notif-icon--system{background:var(--gray-100);color:var(--gray-500)}
+.notif-body{flex:1;min-width:0}
+.notif-title{font-size:var(--font-md);font-weight:var(--fw-medium)}
+.notif-desc{font-size:var(--font-sm);color:var(--text-sub);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.notif-time{font-size:var(--font-xs);color:var(--text-tertiary);margin-top:2px}
+
+/* ═══ Modals ═══ */
+.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.45);z-index:200;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.25s ease}
+.modal-overlay.show{opacity:1;pointer-events:auto}
+.modal-sheet{width:100%;max-width:390px;background:var(--panel);border-radius:16px 16px 0 0;padding:20px 16px;padding-bottom:calc(20px + var(--safe-bottom));transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.4,0,0.2,1)}
+.modal-overlay.show .modal-sheet{transform:translateY(0)}
+.modal-handle{width:36px;height:4px;background:var(--gray-300);border-radius:2px;margin:0 auto 16px}
+.modal-title{font-size:var(--font-lg);font-weight:var(--fw-heavy);text-align:center;margin-bottom:16px}
+.switch-list{max-height:320px;overflow-y:auto}
+.switch-item{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--border)}
+.switch-item:active{background:var(--gray-50)}
+.switch-item-info{flex:1;min-width:0}
+.switch-item-name{font-size:var(--font-md);font-weight:var(--fw-medium)}
+.switch-item-sub{font-size:var(--font-xs);color:var(--text-sub);margin-top:2px}
+.switch-item-check{color:var(--blue);font-size:var(--font-lg)}
+.add-options{display:flex;flex-direction:column;gap:10px}
+.add-option{display:flex;align-items:center;gap:12px;padding:14px;background:var(--panel-2);border-radius:var(--radius-lg);border:1px solid var(--border)}
+.add-option:active{background:var(--gray-100)}
+.add-option-icon{width:40px;height:40px;border-radius:var(--radius-lg);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.add-option-icon--new{background:var(--blue-50);color:var(--blue)}
+.add-option-icon--link{background:var(--green-light);color:var(--green)}
+.add-option-title{font-size:var(--font-md);font-weight:var(--fw-medium)}
+.add-option-desc{font-size:var(--font-xs);color:var(--text-sub);margin-top:2px}
+.add-warning{margin-top:12px;padding:10px;background:var(--yellow-light);border-radius:var(--radius-md);font-size:var(--font-xs);color:#9E6600;display:flex;align-items:center;gap:6px}
+.delete-confirm-body{text-align:center;padding:8px 0}
+.delete-confirm-icon{width:56px;height:56px;border-radius:50%;margin:0 auto 12px;background:var(--red-light);color:var(--red);display:flex;align-items:center;justify-content:center;font-size:28px}
+.delete-confirm-text{font-size:var(--font-md);margin-bottom:4px}
+.delete-confirm-detail{font-size:var(--font-sm);color:var(--text-sub)}
+.delete-confirm-btns{display:flex;gap:10px;margin-top:20px}
+.delete-confirm-btn{flex:1;padding:12px 0;border-radius:var(--radius-lg);font-size:var(--font-md);font-weight:var(--fw-medium);text-align:center}
+.delete-confirm-btn--cancel{background:var(--gray-100);color:var(--text)}
+.delete-confirm-btn--delete{background:var(--red);color:white}
+.delete-confirm-btn--cancel:active,.delete-confirm-btn--delete:active{opacity:0.7}
+.patrol-form-group{margin-bottom:14px}
+.patrol-form-label{font-size:var(--font-sm);font-weight:var(--fw-medium);margin-bottom:6px}
+.patrol-form-input{width:100%;padding:10px 12px;border:1px solid var(--gray-300);border-radius:var(--radius-md);font-size:var(--font-md);color:var(--text);background:var(--panel)}
+.patrol-form-input:focus{border-color:var(--blue)}
+.patrol-radio-group{display:flex;gap:10px}
+.patrol-radio{flex:1;padding:10px;text-align:center;border:1px solid var(--gray-300);border-radius:var(--radius-md);font-size:var(--font-sm)}
+.patrol-radio.active{border-color:var(--blue);color:var(--blue);background:var(--blue-50)}
+.patrol-submit-btn{width:100%;padding:12px;background:var(--blue);color:white;border-radius:var(--radius-lg);font-size:var(--font-md);font-weight:var(--fw-medium);margin-top:8px}
+.patrol-submit-btn:active{background:var(--blue-deep)}
+
+/* ═══ Toast ═══ */
+.toast{position:fixed;top:80px;left:50%;transform:translateX(-50%) translateY(-20px);background:rgba(0,0,0,0.75);color:white;padding:10px 20px;border-radius:20px;font-size:var(--font-sm);z-index:500;opacity:0;transition:all 0.3s ease;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+<script src="../shared_data.js"></script>
+</head>
+<body>
+<div class="phone-frame">
+  <div class="phone-screen">
+    <div class="phone-notch"></div>
+    <div class="phone-home-indicator"></div>
+
+    <!-- Screen: Home -->
+    <div class="screen active" id="screenHome">
+      <div class="project-context-bar" id="projectContextBar"></div>
+      <div class="screen-body" id="homeBody"></div>
+      <div class="tab-bar" id="mainTabBar"></div>
+    </div>
+
+    <!-- Screen: Detail -->
+    <div class="screen" id="screenDetail">
+      <div class="nav-bar"><div class="nav-bar-inner">
+        <button class="nav-bar-back" onclick="goBack()">‹</button>
+        <div class="nav-bar-title">围挡详情</div>
+        <div class="nav-bar-right"></div>
+      </div></div>
+      <div class="detail-tabs" id="detailTabs"></div>
+      <div class="screen-body"><div class="detail-content" id="detailBody"></div></div>
+    </div>
+
+    <!-- Screen: Map -->
+    <div class="screen" id="screenMap">
+      <div class="nav-bar"><div class="nav-bar-inner">
+        <button class="nav-bar-back" onclick="goBack()">‹</button>
+        <div class="nav-bar-title">地图总览</div>
+        <div class="nav-bar-right"></div>
+      </div></div>
+      <div class="screen-body" id="mapBody"></div>
+    </div>
+
+    <!-- Screen: QR -->
+    <div class="screen" id="screenQR">
+      <div class="nav-bar"><div class="nav-bar-inner">
+        <button class="nav-bar-back" onclick="goBack()">‹</button>
+        <div class="nav-bar-title">围挡二维码</div>
+        <div class="nav-bar-right"></div>
+      </div></div>
+      <div class="screen-body" id="qrBody"></div>
+    </div>
+
+    <!-- Screen: ScanResult -->
+    <div class="screen" id="screenScanResult">
+      <div class="nav-bar"><div class="nav-bar-inner">
+        <button class="nav-bar-back" onclick="goBack()">‹</button>
+        <div class="nav-bar-title">扫码结果</div>
+        <div class="nav-bar-right"></div>
+      </div></div>
+      <div class="screen-body" id="scanResultBody"></div>
+    </div>
+
+    <!-- Screen: PatrolList -->
+    <div class="screen" id="screenPatrolList">
+      <div class="nav-bar"><div class="nav-bar-inner">
+        <button class="nav-bar-back" onclick="goBack()">‹</button>
+        <div class="nav-bar-title">巡检记录</div>
+        <div class="nav-bar-right"></div>
+      </div></div>
+      <div class="screen-body" id="patrolListBody"></div>
+    </div>
+
+    <!-- Screen: Panorama -->
+    <div class="screen" id="screenPanorama">
+      <div class="nav-bar"><div class="nav-bar-inner">
+        <button class="nav-bar-back" onclick="goBack()">‹</button>
+        <div class="nav-bar-title">全景查看</div>
+        <div class="nav-bar-right"></div>
+      </div></div>
+      <div class="screen-body" id="panoramaBody"></div>
+    </div>
+
+    <!-- Screen: Notifications -->
+    <div class="screen" id="screenNotifications">
+      <div class="nav-bar"><div class="nav-bar-inner">
+        <button class="nav-bar-back" onclick="goBack()">‹</button>
+        <div class="nav-bar-title">消息</div>
+        <div class="nav-bar-right"></div>
+      </div></div>
+      <div class="screen-body" id="notificationsBody"></div>
+    </div>
+
+    <!-- Screen: Profile -->
+    <div class="screen" id="screenProfile">
+      <div class="nav-bar"><div class="nav-bar-inner">
+        <div class="nav-bar-title">我的</div>
+        <div class="nav-bar-right"></div>
+      </div></div>
+      <div class="screen-body" id="profileBody"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Modals -->
+<div class="modal-overlay" id="modalProjectSwitch">
+  <div class="modal-sheet"><div class="modal-handle"></div><div class="modal-title">切换项目</div><div class="switch-list" id="switchList"></div></div>
+</div>
+<div class="modal-overlay" id="modalAddFence">
+  <div class="modal-sheet"><div class="modal-handle"></div><div class="modal-title">新增围挡</div>
+    <div class="add-options">
+      <button class="add-option" onclick="showToast('跳转新增围挡页面')"><div class="add-option-icon add-option-icon--new">+</div><div><div class="add-option-title">新增围挡</div><div class="add-option-desc">为当前工程创建一条新围挡记录</div></div></button>
+      <button class="add-option" onclick="showToast('跳转关联围挡页面')"><div class="add-option-icon add-option-icon--link">🔗</div><div><div class="add-option-title">关联现有围挡</div><div class="add-option-desc">搜索并关联一条已有的围挡记录</div></div></button>
+    </div>
+    <div class="add-warning" id="addFenceWarning" style="display:none">⚠ 项目红线未绘制，建议先完善项目红线信息</div>
+  </div>
+</div>
+<div class="modal-overlay" id="modalDelete">
+  <div class="modal-sheet"><div class="modal-handle"></div>
+    <div class="delete-confirm-body"><div class="delete-confirm-icon">!</div><div class="delete-confirm-text">确认删除此围挡记录？</div><div class="delete-confirm-detail" id="deleteDetail"></div></div>
+    <div class="delete-confirm-btns"><button class="delete-confirm-btn delete-confirm-btn--cancel" onclick="closeModal('modalDelete')">取消</button><button class="delete-confirm-btn delete-confirm-btn--delete" onclick="doDelete()">确认删除</button></div>
+  </div>
+</div>
+<div class="modal-overlay" id="modalAddPatrol">
+  <div class="modal-sheet"><div class="modal-handle"></div><div class="modal-title">新增巡检</div>
+    <div class="patrol-form-group"><div class="patrol-form-label">巡检日期</div><input class="patrol-form-input" type="date" value="2026-05-14"></div>
+    <div class="patrol-form-group"><div class="patrol-form-label">巡检工程</div><input class="patrol-form-input" value="基坑围护工程" readonly></div>
+    <div class="patrol-form-group"><div class="patrol-form-label">巡检结果</div><div class="patrol-radio-group"><button class="patrol-radio active" onclick="selectPatrolResult(this)">正常</button><button class="patrol-radio" onclick="selectPatrolResult(this)">有问题</button></div></div>
+    <div class="patrol-form-group"><div class="patrol-form-label">问题描述</div><input class="patrol-form-input" placeholder="请输入问题描述（选填）"></div>
+    <button class="patrol-submit-btn" onclick="closeModal('modalAddPatrol');showToast('巡检已提交')">提交巡检</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ═══ Data from SD (shared_data.js) ═══ */
+const projectData=(function(){
+  return SD.getProjects().map(function(p){
+    return{
+      id:p.id,name:p.name,redline:p.redlineStatus==='已绘制',
+      engs:(p.engineers||[]).map(function(e){
+        return{
+          name:e.name,address:e.address||p.address,
+          fid:e.fenceId,filed:!!e.fenceId,
+          fenceStatus:e.fenceStatus?({'设置中':'setting','超期未拆除':'overdue','即将拆除':'removing','已拆除':'removed'}[e.fenceStatus]||'setting'):null,
+          issueStatus:e.issueStatus==='有问题'?'issue':'normal',
+          length:(e.length||0)+'m',area:(e.area||0)+'㎡',
+          material:e.material||'',manager:p.constructContact?p.constructContact.split(' ')[0]:'',
+          managerPhone:'',height:(e.height||0)+'m',
+          entranceCount:(e.entrances||[]).length,
+          setupDate:e.setupDate||'',planRemoveDate:e.planRemoveDate||'',
+          address2:e.address||p.address
+        };
+      })
+    };
+  });
+})();
+
+const calendarData=(function(){
+  var cd={};
+  projectData.forEach(function(p){
+    cd[p.id]={'2026-05':{done:[1,2,4,5,6,8,9,11,12],issue:[7,13],today:new Date().getDate()}};
+  });
+  return cd;
+})();
+
+// Verify records built from SD
+const verifyRecords=(function(){
+  var vr={};
+  projectData.forEach(function(p){
+    p.engs.forEach(function(eng){
+      if(eng.fid){
+        var records=SD.getVerifyRecords(eng.fid);
+        if(records.length>0){
+          vr[eng.fid]=records.map(function(r){
+            return{time:r.date,person:r.verifier+'（'+r.unit+' · '+r.role+'）',role:r.type,type:'verify',
+              fields:r.field?[{label:r.field,old:r.before||'—',new:r.after||'—'}]:[]};
+          });
+        }
+      }
+    });
+  });
+  return vr;
+})();
+
+// Change records built from SD
+const changeRecords=(function(){
+  var cr={};
+  projectData.forEach(function(p){
+    p.engs.forEach(function(eng){
+      if(eng.fid){
+        var records=SD.getChangeRecords(eng.fid);
+        if(records.length>0){
+          cr[eng.fid]=records.map(function(r){
+            return{time:r.date,person:r.changer+'（'+r.unit+' · '+r.role+'）',role:r.type,type:'change',
+              fields:r.field?[{label:r.field,old:r.before||'—',new:r.after||'—'}]:[]};
+          });
+        }
+      }
+    });
+  });
+  return cr;
+})();
+
+// Fence scope data from SD
+const fenceScopeData=(function(){
+  var fsd={};
+  projectData.forEach(function(p){
+    p.engs.forEach(function(eng){
+      if(eng.fid){
+        var fence=SD.getFence(eng.fid);
+        if(fence&&fence.engineer&&fence.engineer.shapes&&fence.engineer.shapes.length>0){
+          fsd[eng.fid]={shapes:fence.engineer.shapes};
+        }
+      }
+    });
+  });
+  return fsd;
+})();
+function getFenceScopeData(fid){
+  return fenceScopeData[fid]||null;
+}
+
+// Patrol data built from MOCK_DATA
+const patrolData=(function(){
+  var pd={};
+  projectData.forEach(function(p){
+    p.engs.forEach(function(eng){
+      if(eng.fid){
+        var hoard = MOCK_DATA.findHoard(eng.fid);
+        if(!hoard||!hoard.patrolRecords||!hoard.patrolRecords.length)return;
+        var records=hoard.patrolRecords;
+        var daysMap={};
+        records.forEach(function(r){
+          var dateStr=r.date||'2026-05-14';
+          var parts=dateStr.split('-');
+          var dayLabel=parts[1]+'月'+parts[2]+'日';
+          var d=new Date(dateStr);
+          var weekdays=['日','一','二','三','四','五','六'];
+          if(!daysMap[dayLabel]){
+            daysMap[dayLabel]={date:dayLabel,weekday:'星期'+weekdays[d.getDay()],records:[]};
+          }
+          daysMap[dayLabel].records.push({
+            time:r.time||'09:00',person:r.inspector,unit:'项目方自查',location:hoard.address||'',
+            hasIssue:r.result==='异常'||r.result==='有问题',
+            issueDesc:r.issues&&r.issues.length>0?r.issues.join('、'):'',
+            panoSrc:r.panoramaSrc||'alma',
+            panoScenes:[{name:'全景',src:r.panoramaSrc||'alma'}]
+          });
+        });
+        if(!records.length)return;
+          var allIssues = MOCK_DATA.getStreetIssues();
+          var enrichedDays = Object.values(daysMap);
+          enrichedDays.forEach(function(day){
+            day.records.forEach(function(rec){
+              if(rec.hasIssue){
+                var matched = null;
+                for(var mi=0; mi<allIssues.length; mi++){
+                  if(allIssues[mi].fenceId === eng.fid && allIssues[mi].source === '项目巡检'){ matched = allIssues[mi]; break; }
+                }
+                rec.issueType = matched ? matched.type : '—';
+                rec.issueLoc = matched && matched.location ? (matched.location.addr || matched.location.lat+', '+matched.location.lng) : '—';
+              }
+            });
+          });
+        pd[eng.fid]={monthCount:records.length,totalPhotos:records.length*3,engName:eng.name,fid:eng.fid,days:enrichedDays};
+        }
+    });
+  });
+  return pd;
+})();
+
+const notifData=[
+  {id:1,type:'verify',title:'校核反馈',desc:'WD-2026-0001 围挡校核通过',time:'2026-05-10 14:30',read:false},
+  {id:2,type:'rectify',title:'整改通知',desc:'WD-2026-0005 围挡底部松动，请尽快处理',time:'2026-05-08 09:15',read:false},
+  {id:3,type:'system',title:'系统通知',desc:'您的围挡 WD-2026-0001 即将到期',time:'2026-05-01 10:00',read:true}
+];
+
+/* ═══ State ═══ */
+let currentProjectIdx=0,detailEngIdx=0,detailTabIdx=0,deleteEngIdx=-1;
+let calendarYear=2026,calendarMonth=5;
+const screenStack=['screenHome'];
+const tabs=[
+  {id:'screenHome',label:'我的围挡',icon:'🏠'},
+  {id:'screenPatrolList',label:'巡检',icon:'📋'},
+  {id:'scan',label:'扫码',icon:'📷'},
+  {id:'screenNotifications',label:'消息',icon:'🔔',badge:2},
+  {id:'screenProfile',label:'我的',icon:'👤'}
+];
+
+/* ═══ Navigation ═══ */
+function showScreen(id){
+  const top=document.getElementById(screenStack[screenStack.length-1]);
+  if(top)top.classList.remove('active');
+  if(top)top.classList.add('behind');
+  screenStack.push(id);
+  const next=document.getElementById(id);
+  if(next){next.classList.remove('behind');next.classList.add('active');}
+  renderScreen(id);
+}
+function goBack(){
+  if(screenStack.length<=1)return;
+  const cur=document.getElementById(screenStack.pop());
+  if(cur)cur.classList.remove('active');
+  const prev=document.getElementById(screenStack[screenStack.length-1]);
+  if(prev){prev.classList.remove('behind');prev.classList.add('active');}
+}
+function switchTab(idx){
+  const tab=tabs[idx];
+  if(tab.id==='scan'){showScreen('screenScanResult');return;}
+  while(screenStack.length>1){const s=document.getElementById(screenStack.pop());if(s)s.classList.remove('active','behind');}
+  if(tab.id==='screenHome'){document.getElementById('screenHome').classList.add('active');}
+  else{showScreen(tab.id);}
+  renderTabBar(idx);
+}
+function renderScreen(id){
+  switch(id){
+    case 'screenHome':renderHome();break;
+    case 'screenDetail':renderDetail();break;
+    case 'screenMap':renderMap();break;
+    case 'screenQR':renderQR();break;
+    case 'screenScanResult':renderScanResult();break;
+    case 'screenPatrolList':renderPatrolList();break;
+    case 'screenNotifications':renderNotifications();break;
+    case 'screenProfile':renderProfile();break;
+  }
+}
+
+/* ═══ Render: Home ═══ */
+function renderHome(){
+  renderProjectContext();renderHomeContent();renderTabBar(0);
+}
+function renderProjectContext(){
+  const p=projectData[currentProjectIdx];
+  document.getElementById('projectContextBar').innerHTML=`<div class="project-context-info"><div class="project-context-name">${p.name}</div><div class="project-context-sub">${p.engs.length}项工程${p.redline?' · 红线已绘制':' · 红线未绘制'}</div></div><button class="project-context-switch" onclick="openModal('modalProjectSwitch');renderProjectSwitchList()">切换 ▾</button>`;
+}
+function renderHomeContent(){
+  const p=projectData[currentProjectIdx];
+  let html='<div class="eng-card-list">';
+  p.engs.forEach((eng,idx)=>{html+=eng.filed?renderFiledCard(eng,idx):renderUnfiledCard(eng,idx);});
+  html+='</div>'+renderHomeMap()+'<div id="calendarMount"></div>';
+  document.getElementById('homeBody').innerHTML=html;
+  renderCalendarInto();
+  // Init Leaflet map
+  setTimeout(initHomeMap,50);
+}
+function renderFiledCard(eng,idx){
+  const sm={setting:'设置中',removing:'即将拆除',overdue:'超期未拆除',removed:'已拆除'};
+  const sc={setting:'status-tag--setting',removing:'status-tag--removing',overdue:'status-tag--overdue',removed:'status-tag--removed'};
+  const ic=eng.issueStatus==='issue'?'status-tag--issue':'status-tag--normal';
+  return `<div class="eng-card" onclick="openDetail(${idx})"><div class="eng-card-row"><div class="eng-card-left"><div class="eng-card-name">${eng.name} <span style="font-size:var(--font-xs);color:var(--blue);font-weight:var(--fw-regular)">${eng.fid}</span></div><div class="eng-card-meta"><span>${eng.length}</span><span class="dot"></span><span>${eng.material}</span><span class="dot"></span><span>${eng.manager}</span></div><div class="eng-card-tags"><span class="status-tag ${sc[eng.fenceStatus]||'status-tag--setting'}">${sm[eng.fenceStatus]||eng.fenceStatus}</span><span class="status-tag ${ic}">${eng.issueStatus==='issue'?'有问题':'正常'}</span></div></div><div class="eng-card-right" onclick="event.stopPropagation()"><button class="eng-card-btn eng-card-btn--outline" onclick="showToast('跳转变更页面')">变更</button><button class="eng-card-btn eng-card-btn--outline" onclick="showQR(${idx})">二维码</button><button class="eng-card-btn eng-card-btn--danger" onclick="confirmDelete(${idx})">删除</button></div></div></div>`;
+}
+function renderUnfiledCard(eng,idx){
+  return `<div class="eng-card eng-card--unfiled"><div class="eng-card-row"><div class="eng-card-left"><div class="eng-card-name">${eng.name} <span style="font-size:var(--font-xs);color:var(--text-tertiary);font-weight:var(--fw-regular)">未建档</span></div><div class="eng-card-meta"><span>${eng.address}</span></div></div><div class="eng-card-right"><button class="eng-card-btn eng-card-btn--primary" onclick="event.stopPropagation();openAddFence(${idx})">去建档</button></div></div></div>`;
+}
+function renderHomeMap(){
+  const p=projectData[currentProjectIdx];
+  const filedEngs=p.engs.filter(e=>e.filed);
+  if(!filedEngs.length)return '';
+  const eng=filedEngs[0];
+  return `<div class="home-map"><div class="home-map-header"><div class="home-map-title">围挡地图</div><button class="home-map-expand" onclick="showMap(0)">全屏查看 ›</button></div><div class="home-map-view" id="homeMapContainer"></div><div class="home-map-info"><div><strong>${eng.fid}</strong> · ${eng.address}</div><div>${eng.length} · ${eng.entranceCount}个出入口</div></div></div>`;
+}
+let homeMap=null;
+function initHomeMap(){
+  const el=document.getElementById('homeMapContainer');
+  if(!el||homeMap)return;
+  homeMap=L.map(el,{zoomControl:false,attributionControl:false,dragging:false,scrollWheelZoom:false,doubleClickZoom:false,touchZoom:false});
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:18}).addTo(homeMap);
+  homeMap.setView([22.5362,113.9485],17);
+  // Redline
+  L.rectangle([[22.5370,113.9470],[22.5354,113.9500]],{color:'#D13B2F',weight:2,fill:false,dashArray:null}).addTo(homeMap);
+  // Fence range - multi-shape
+  var firstEng=projectData[currentProjectIdx].engs.filter(function(e){return e.filed})[0];
+  var fid=firstEng?firstEng.fid:'WD-2026-0001';
+  var fenceScope=getFenceScopeData(fid);
+  if(fenceScope&&fenceScope.shapes){
+    fenceScope.shapes.forEach(function(shape){
+      if(shape.type==='line'){
+        L.polyline(shape.points,{color:'#1862D4',weight:3}).addTo(homeMap);
+      }else{
+        L.polygon(shape.points,{color:'#1862D4',weight:2,dashArray:'6 4',fillColor:'rgba(24,98,212,0.08)'}).addTo(homeMap);
+      }
+    });
+  }
+  // Entrances
+  L.circleMarker([22.5367,113.9485],{radius:5,color:'#1862D4',fillColor:'#1862D4',fillOpacity:1,weight:2}).addTo(homeMap);
+  L.circleMarker([22.5362,113.9496],{radius:5,color:'#1862D4',fillColor:'#1862D4',fillOpacity:1,weight:2}).addTo(homeMap);
+}
+
+/* ═══ Calendar ═══ */
+function renderCalendarInto(){
+  const m=document.getElementById('calendarMount');
+  if(m)m.innerHTML=buildCalendarHtml();
+}
+function buildCalendarHtml(){
+  const pId=projectData[currentProjectIdx].id;
+  const key=calendarYear+'-'+String(calendarMonth).padStart(2,'0');
+  const data=(calendarData[pId]&&calendarData[pId][key])||{done:[],issue:[],today:null};
+  const today=data.today||14;
+  const weekdays=['一','二','三','四','五','六','日'];
+  const firstDay=new Date(calendarYear,calendarMonth-1,1);
+  const daysInMonth=new Date(calendarYear,calendarMonth,0).getDate();
+  let startDow=firstDay.getDay()-1;if(startDow<0)startDow=6;
+  let html=`<div class="calendar-section"><div class="calendar-header"><div class="calendar-title">${calendarYear}年${calendarMonth}月巡检</div><div class="calendar-nav"><button class="calendar-nav-btn" onclick="changeMonth(-1)">‹</button><button class="calendar-nav-btn" onclick="changeMonth(1)">›</button></div></div><div class="calendar-weekdays">${weekdays.map(w=>`<div class="calendar-weekday">${w}</div>`).join('')}</div><div class="calendar-days">`;
+  for(let i=0;i<startDow;i++)html+='<div class="calendar-day calendar-day--other"></div>';
+  for(let d=1;d<=daysInMonth;d++){
+    const isToday=d===today&&calendarMonth===5&&calendarYear===2026;
+    let dot='';
+    if(data.issue.includes(d))dot='<div class="calendar-dot calendar-dot--issue"></div>';
+    else if(data.done.includes(d))dot='<div class="calendar-dot calendar-dot--done"></div>';
+    else if(d<today)dot='<div class="calendar-dot calendar-dot--miss"></div>';
+    const click=d<=today?`onclick="onCalendarDay(${d})"`:'';
+    html+=`<div class="calendar-day ${isToday?'calendar-day--today':''}" ${click}>${d}${dot}</div>`;
+  }
+  html+=`</div><div class="calendar-summary"><span><div class="calendar-dot calendar-dot--done" style="position:static;width:8px;height:8px;"></div> 已巡检 ${data.done.length}天</span><span><div class="calendar-dot calendar-dot--issue" style="position:static;width:8px;height:8px;"></div> 有问题 ${data.issue.length}天</span><span><div class="calendar-dot calendar-dot--miss" style="position:static;width:8px;height:8px;"></div> 未巡检 ${Math.max(0,today-1-data.done.length-data.issue.length)}天</span></div></div>`;
+  return html;
+}
+function changeMonth(delta){calendarMonth+=delta;if(calendarMonth>12){calendarMonth=1;calendarYear++;}if(calendarMonth<1){calendarMonth=12;calendarYear--;}renderCalendarInto();}
+function onCalendarDay(d){
+  const pId=projectData[currentProjectIdx].id;
+  const key=calendarYear+'-'+String(calendarMonth).padStart(2,'0');
+  const data=(calendarData[pId]&&calendarData[pId][key])||{done:[],issue:[],today:14};
+  if(data.done.includes(d)||data.issue.includes(d)){showScreen('screenPatrolList');}
+  else if(d===data.today){openModal('modalAddPatrol');}
+}
+
+/* ═══ Tab Bar ═══ */
+function renderTabBar(activeIdx){
+  let html='';
+  tabs.forEach((t,i)=>{
+    if(t.id==='scan'){
+      html+=`<button class="tab-item-scan" onclick="switchTab(${i})"><div class="tab-scan-btn"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2"/><line x1="7" y1="12" x2="17" y2="12"/></svg></div><div class="tab-scan-label">${t.label}</div></button>`;
+    } else {
+      const badge=t.badge?`<div class="tab-badge">${t.badge}</div>`:'';
+      html+=`<button class="tab-item ${i===activeIdx?'active':''}" onclick="switchTab(${i})"><div class="tab-icon">${t.icon}${badge}</div><div class="tab-label">${t.label}</div></button>`;
+    }
+  });
+  document.getElementById('mainTabBar').innerHTML=html;
+}
+
+/* ═══ Project Switch ═══ */
+function renderProjectSwitchList(){
+  let html='';
+  projectData.forEach((p,i)=>{
+    html+=`<button class="switch-item" onclick="switchProject(${i})"><div class="switch-item-info"><div class="switch-item-name">${p.name}</div><div class="switch-item-sub">${p.engs.length}项工程 · ${p.redline?'红线已绘制':'红线未绘制'}</div></div>${i===currentProjectIdx?'<div class="switch-item-check">✓</div>':''}</button>`;
+  });
+  document.getElementById('switchList').innerHTML=html;
+}
+function switchProject(idx){currentProjectIdx=idx;homeMap=null;closeModal('modalProjectSwitch');renderHome();}
+
+/* ═══ Detail ═══ */
+function openDetail(engIdx){detailEngIdx=engIdx;detailTabIdx=0;showScreen('screenDetail');}
+function renderDetail(){
+  const eng=projectData[currentProjectIdx].engs[detailEngIdx];
+  const tabNames=['项目信息','围挡信息','巡查记录','校核记录','变更记录'];
+  let tabsHtml='';
+  tabNames.forEach((n,i)=>{tabsHtml+=`<span class="detail-tab ${i===detailTabIdx?'active':''}" onclick="switchDetailTab(${i})">${n}</span>`;});
+  document.getElementById('detailTabs').innerHTML=tabsHtml;
+  let body='';
+  switch(detailTabIdx){
+    case 0:body=renderDetailProject(eng);break;
+    case 1:body=renderDetailFence(eng);break;
+    case 2:body=renderDetailPatrol(eng);break;
+    case 3:body=renderDetailVerify(eng);break;
+    case 4:body=renderDetailChange(eng);break;
+  }
+  document.getElementById('detailBody').innerHTML=body;
+  if(detailTabIdx===1)setTimeout(initDetailMap,50);
+}
+function switchDetailTab(idx){detailTabIdx=idx;renderDetail();}
+let detailMap=null;
+function initDetailMap(){
+  const el=document.getElementById('detailMapContainer');
+  if(!el)return;
+  if(detailMap){detailMap.remove();detailMap=null;}
+  detailMap=L.map(el,{zoomControl:false,attributionControl:false});
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:18}).addTo(detailMap);
+  detailMap.setView([22.5362,113.9485],17);
+  L.rectangle([[22.5370,113.9470],[22.5354,113.9500]],{color:'#D13B2F',weight:2,fill:false}).addTo(detailMap);
+  // Fence range - multi-shape
+  var eng=projectData[currentProjectIdx].engs[detailEngIdx];
+  var fid=eng?eng.fid:'WD-2026-0001';
+  var fenceScope=getFenceScopeData(fid);
+  if(fenceScope&&fenceScope.shapes){
+    fenceScope.shapes.forEach(function(shape){
+      if(shape.type==='line'){
+        L.polyline(shape.points,{color:'#1862D4',weight:3}).addTo(detailMap);
+      }else{
+        L.polygon(shape.points,{color:'#1862D4',weight:2,dashArray:'6 4',fillColor:'rgba(24,98,212,0.08)'}).addTo(detailMap);
+      }
+    });
+  }
+  L.circleMarker([22.5367,113.9485],{radius:5,color:'#1862D4',fillColor:'#1862D4',fillOpacity:1}).addTo(detailMap);
+  L.circleMarker([22.5362,113.9496],{radius:5,color:'#1862D4',fillColor:'#1862D4',fillOpacity:1}).addTo(detailMap);
+}
+function df(l,v){return `<div class="detail-field"><span class="detail-field-label">${l}</span><span class="detail-field-value">${v}</span></div>`}
+function renderDetailProject(eng){
+  const p=projectData[currentProjectIdx];
+  return `<div class="detail-content"><div class="detail-section"><div class="detail-section-title">所属项目</div><div class="detail-fields">${df('项目名称',p.name)}${df('项目红线',p.redline?'已绘制':'未绘制')}${df('工程名称',eng.name)}${df('工程地址',eng.address)}</div></div><div class="detail-section"><div class="detail-section-title">计划信息</div><div class="detail-fields">${df('围挡设置时间',eng.setupDate||'-')}${df('计划拆除日期',eng.planRemoveDate||'未设置')}</div></div></div>`;
+}
+function renderDetailFence(eng){
+  return `<div class="detail-content"><div style="height:200px;border-radius:var(--radius-lg);overflow:hidden;margin-bottom:12px;border:1px solid var(--border)" id="detailMapContainer"></div><div style="display:flex;gap:8px;margin-bottom:12px;font-size:var(--font-xs)"><div style="display:flex;align-items:center;gap:4px"><div style="width:16px;height:2px;background:#D13B2F"></div><span style="color:var(--text-sub)">项目红线</span></div><div style="display:flex;align-items:center;gap:4px"><div style="width:16px;height:0;border-bottom:2px dashed #1862D4"></div><span style="color:var(--text-sub)">围挡范围</span></div><div style="display:flex;align-items:center;gap:4px"><div style="width:16px;height:2px;background:#1862D4"></div><span style="color:var(--text-sub)">围挡线段</span></div><div style="display:flex;align-items:center;gap:4px"><div style="width:8px;height:8px;border-radius:50%;background:#1862D4"></div><span style="color:var(--text-sub)">出入口</span></div></div><div class="detail-section"><div class="detail-section-title">围挡本体信息</div><div class="detail-fields">${df('围挡编号',eng.fid||'-')}${df('围挡状态',eng.fenceStatus==='setting'?'设置中':eng.fenceStatus)}${df('围挡长度',eng.length||'-')}${df('围挡面积',eng.area||'-')}${df('围挡高度',eng.height||'-')}${df('围挡材质',eng.material||'-')}${df('出入口数量',(eng.entranceCount||'-')+'个')}${df('围挡责任人',eng.manager||'-')}${df('联系电话',eng.managerPhone||'-')}</div></div><div class="detail-section"><div class="detail-section-title">围挡占道信息</div><div class="detail-fields">${df('占道面积',eng.area||'-')}</div></div></div>`;
+}
+function renderDetailPatrol(eng){
+  const pd=patrolData[eng.fid];
+  if(!pd)return '<div class="detail-content"><div style="text-align:center;padding:40px;color:var(--text-sub)">暂无巡查记录</div></div>';
+  let html=`<div class="detail-content"><div class="segmented"><span class="segmented-btn active">最近7天</span><span class="segmented-btn">本月</span></div><div class="patrol-stat">本月已巡检 <strong>${pd.monthCount}</strong> 次 · 累计 <strong>${pd.totalPhotos}</strong> 张全景照片</div>`;
+  html+=pd.days.map(d=>{
+    return `<div class="patrol-day-header">${d.date} ${d.weekday} <span style="font-size:var(--font-xs);color:var(--text-sub);font-weight:var(--fw-regular)">${d.records.length}条</span></div>`+
+      d.records.map(r=>{
+        const panoData=encodeURIComponent(JSON.stringify(r.panoScenes||[]));
+        return `<div class="patrol-card"><div class="patrol-card-body"><div class="patrol-thumb" onclick="openPanorama('${r.panoSrc}','${r.time}',this.getAttribute('data-pano'))" data-pano='${panoData}'><div class="patrol-thumb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg><span class="patrol-thumb-label">${(r.panoScenes||[]).length}张</span></div><span class="patrol-thumb-time">${r.time}</span></div><div class="patrol-info"><div class="patrol-person">${r.person}</div><div class="patrol-unit">${r.unit}</div><div class="patrol-location">${r.location}</div></div></div>${r.hasIssue?`<div class="patrol-issue-bar"><div style="font-size:11px;color:#4a5568;margin-bottom:2px">关联工程：${pd.engName||'—'}</div><div style="font-size:11px;color:#4a5568;margin-bottom:2px">问题类型：${r.issueType||'—'}</div><div>${r.issueDesc}</div><div style="font-size:10px;color:#718096;margin-top:2px">问题位置：${r.issueLoc||'—'}</div></div>`:''}<div class="patrol-card-actions"><span class="patrol-action-btn" onclick="openPanorama('${r.panoSrc}','${r.time}',this.getAttribute('data-pano'))" data-pano='${panoData}'>查看全景</span></div></div>`;
+      }).join('');
+  }).join('');
+  return html+'</div>';
+}
+function renderDetailVerify(eng){
+  const vr=verifyRecords[eng.fid];
+  if(!vr||!vr.length)return '<div class="detail-content"><div style="text-align:center;padding:40px;color:var(--text-sub)">暂无校核记录</div></div>';
+  return '<div class="detail-content">'+buildTimeline(vr)+'</div>';
+}
+function renderDetailChange(eng){
+  const cr=changeRecords[eng.fid];
+  if(!cr||!cr.length)return '<div class="detail-content"><div style="text-align:center;padding:40px;color:var(--text-sub)">暂无变更记录</div></div>';
+  return '<div class="detail-content">'+buildTimeline(cr)+'</div>';
+}
+function buildTimeline(records){
+  return '<div class="timeline">'+records.map(v=>{
+    return `<div class="timeline-item"><div class="timeline-dot ${v.type}">${v.type==='verify'?'<svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>':'<svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="var(--yellow)" stroke-width="3"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>'}</div><div class="timeline-card"><div class="timeline-card-header"><div><span class="timeline-time">${v.time}</span></div><span class="timeline-role ${v.type==='verify'?'verify-role':'change-role'}">${v.role}</span></div><div class="timeline-card-body"><div class="timeline-person">${v.person}</div>${v.fields.map(fl=>`<div class="timeline-field"><span class="timeline-field-label">${fl.label}</span><span class="timeline-field-old">${fl.old}</span><span class="timeline-field-arrow">→</span><span class="timeline-field-new">${fl.new}</span></div>`).join('')}</div></div></div>`;
+  }).join('')+'</div>';
+}
+
+/* ═══ QR ═══ */
+function showQR(idx){detailEngIdx=idx;showScreen('screenQR');}
+function renderQR(){
+  const eng=projectData[currentProjectIdx].engs[detailEngIdx];
+  document.getElementById('qrBody').innerHTML=`<div class="qr-container"><div class="qr-box"><div class="qr-placeholder"></div></div><div><div class="qr-fid">${eng.fid||'-'}</div><div class="qr-name">${projectData[currentProjectIdx].name} · ${eng.name}</div><div class="qr-addr">${eng.address}</div></div><button class="qr-download-btn" onclick="showToast('二维码已保存')">下载二维码</button></div>`;
+}
+
+/* ═══ Map ═══ */
+function showMap(idx){detailEngIdx=idx;showScreen('screenMap');}
+let fullMap=null;
+function renderMap(){
+  const eng=projectData[currentProjectIdx].engs[detailEngIdx];
+  document.getElementById('mapBody').innerHTML=`<div id="fullMapContainer" style="width:100%;height:400px;"></div><div style="padding:12px 16px;background:var(--panel);border-top:1px solid var(--border)"><div style="font-size:var(--font-md);font-weight:var(--fw-heavy)">${eng.fid||'-'}</div><div style="font-size:var(--font-sm);color:var(--text-sub);margin-top:2px">${eng.address}</div><div style="font-size:var(--font-xs);color:var(--text-sub);margin-top:2px">${eng.length} · ${eng.entranceCount}个出入口</div></div>`;
+  setTimeout(()=>{
+    const el=document.getElementById('fullMapContainer');if(!el)return;
+    if(fullMap){fullMap.remove();fullMap=null;}
+    fullMap=L.map(el,{zoomControl:true,attributionControl:false});
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:18}).addTo(fullMap);
+    fullMap.setView([22.5362,113.9485],17);
+    L.rectangle([[22.5370,113.9470],[22.5354,113.9500]],{color:'#D13B2F',weight:2,fill:false}).addTo(fullMap);
+    // Fence range - multi-shape
+    var fid=eng?eng.fid:'WD-2026-0001';
+    var fenceScope=getFenceScopeData(fid);
+    if(fenceScope&&fenceScope.shapes){
+      fenceScope.shapes.forEach(function(shape){
+        if(shape.type==='line'){
+          L.polyline(shape.points,{color:'#1862D4',weight:3}).addTo(fullMap);
+        }else{
+          L.polygon(shape.points,{color:'#1862D4',weight:2,dashArray:'6 4',fillColor:'rgba(24,98,212,0.08)'}).addTo(fullMap);
+        }
+      });
+    }
+    L.circleMarker([22.5367,113.9485],{radius:6,color:'#1862D4',fillColor:'#1862D4',fillOpacity:1}).addTo(fullMap);
+    L.circleMarker([22.5362,113.9496],{radius:6,color:'#1862D4',fillColor:'#1862D4',fillOpacity:1}).addTo(fullMap);
+  },50);
+}
+
+/* ═══ Panorama ═══ */
+let currentPanoScenes=[];
+function openPanorama(src,time,scenesData){
+  try{currentPanoScenes=JSON.parse(decodeURIComponent(scenesData));}catch(e){currentPanoScenes=[{name:'全景',src}];}
+  renderPanorama(src,time,0);
+  showScreen('screenPanorama');
+}
+function renderPanorama(src,time,activeIdx){
+  let html=`<div style="padding:12px 16px"><div class="pano-viewer"><div class="pano-viewer-overlay"></div><div class="pano-cross"></div><div class="pano-top"><span class="pano-pill"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg> ${time}</span><span class="pano-pill">场景 ${activeIdx+1}/${currentPanoScenes.length}</span></div><div style="position:absolute;inset:0;background:url('https://pannellum.org/images/${src}.jpg') center/cover"></div><div class="pano-thumbs">`;
+  currentPanoScenes.forEach((s,i)=>{html+=`<div class="pano-thumb-item ${i===activeIdx?'active':''}" onclick="renderPanorama('${s.src}','${time}',${i})"><span>${s.name}</span></div>`;});
+  html+=`</div></div><div class="detail-section"><div class="detail-section-title">场景信息</div><div class="detail-fields">${df('拍摄时间',time)}${df('场景名称',currentPanoScenes[activeIdx]?currentPanoScenes[activeIdx].name:'-')}${df('场景数',currentPanoScenes.length+'个')}</div></div></div>`;
+  document.getElementById('panoramaBody').innerHTML=html;
+}
+
+/* ═══ Scan ═══ */
+function renderScanResult(){
+  document.getElementById('scanResultBody').innerHTML=`<div style="padding:40px 24px;text-align:center"><div style="font-size:48px;margin-bottom:16px">📷</div><div style="font-size:var(--font-lg);font-weight:var(--fw-heavy);margin-bottom:8px">扫码功能</div><div style="font-size:var(--font-sm);color:var(--text-sub)">点击此处模拟扫码</div><button style="margin-top:24px;padding:10px 32px;background:var(--blue);color:white;border-radius:var(--radius-lg)" onclick="mockScan()">模拟扫码</button></div>`;
+}
+function mockScan(){
+  var p=projectData[currentProjectIdx];
+  var eng=p&&p.engs[0]?p.engs[0]:null;
+  var fid=eng&&eng.fid?eng.fid:'WD-2026-0001';
+  var statusLabel=eng&&eng.fenceStatus?{'setting':'设置中','overdue':'超期未拆除','removing':'即将拆除','removed':'已拆除'}[eng.fenceStatus]||'设置中':'设置中';
+  var statusClass=eng&&eng.fenceStatus?'status-tag--'+eng.fenceStatus:'status-tag--setting';
+  var issueLabel=eng&&eng.issueStatus==='issue'?'有问题':'正常';
+  var issueClass=eng&&eng.issueStatus==='issue'?'status-tag--issue':'status-tag--normal';
+  document.getElementById('scanResultBody').innerHTML=`<div style="padding:16px"><div style="background:var(--panel);border-radius:var(--radius-lg);padding:16px;margin-bottom:12px;border:1px solid var(--border)"><div style="font-size:var(--font-lg);font-weight:var(--fw-heavy)">`+fid+`</div><div style="font-size:var(--font-sm);color:var(--text-sub);margin-top:4px">`+(p?p.name:'')+` · `+(eng?eng.name:'')+`</div><div style="display:flex;gap:6px;margin-top:8px"><span class="status-tag `+statusClass+`">`+statusLabel+`</span><span class="status-tag `+issueClass+`">`+issueLabel+`</span></div></div><button style="width:100%;padding:12px;background:var(--blue);color:white;border-radius:var(--radius-lg);font-weight:var(--fw-medium)" onclick="openDetail(0)">查看详情</button></div>`;
+}
+
+/* ═══ Patrol List ═══ */
+function renderPatrolList(){
+  let html='<div style="padding:8px 0">';
+  const allPatrols=Object.entries(patrolData);
+  allPatrols.forEach(([fid,pd])=>{
+    html+=`<div style="padding:0 16px;margin-bottom:8px"><div style="font-size:var(--font-sm);font-weight:var(--fw-heavy);margin-bottom:4px">${fid}</div></div>`;
+    pd.days.forEach(d=>{
+      d.records.forEach(r=>{
+        const panoData=encodeURIComponent(JSON.stringify(r.panoScenes||[]));
+        html+=`<div class="patrol-card" style="margin:0 16px 8px"><div class="patrol-card-body"><div class="patrol-thumb" onclick="openPanorama('${r.panoSrc}','${r.time}',this.getAttribute('data-pano'))" data-pano='${panoData}'><div class="patrol-thumb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg><span class="patrol-thumb-label">${(r.panoScenes||[]).length}张</span></div></div><div class="patrol-info"><div class="patrol-person">${r.person}</div><div class="patrol-unit">${d.date} ${r.time}</div><div class="patrol-location">${r.location}</div></div></div>${r.hasIssue?`<div class="patrol-issue-bar"><div style="font-size:11px;color:#4a5568;margin-bottom:2px">关联工程：${pd.engName||'—'}</div><div style="font-size:11px;color:#4a5568;margin-bottom:2px">问题类型：${r.issueType||'—'}</div><div>${r.issueDesc}</div><div style="font-size:10px;color:#718096;margin-top:2px">问题位置：${r.issueLoc||'—'}</div></div>`:''}</div>`;
+      });
+    });
+  });
+  html+='</div>';
+  document.getElementById('patrolListBody').innerHTML=html;
+}
+
+/* ═══ Notifications ═══ */
+function renderNotifications(){
+  let html='<div class="notif-list">';
+  notifData.forEach(n=>{
+    const ic=n.type==='verify'?'notif-icon--verify':n.type==='rectify'?'notif-icon--rectify':'notif-icon--system';
+    const icon=n.type==='verify'?'📋':n.type==='rectify'?'⚠':'📢';
+    html+=`<div class="notif-item"><div class="notif-icon ${ic}">${icon}</div><div class="notif-body"><div class="notif-title">${n.title}</div><div class="notif-desc">${n.desc}</div><div class="notif-time">${n.time}</div></div></div>`;
+  });
+  html+='</div>';
+  document.getElementById('notificationsBody').innerHTML=html;
+}
+
+/* ═══ Profile ═══ */
+function renderProfile(){
+  document.getElementById('profileBody').innerHTML=`<div class="profile-header"><div class="profile-avatar">张</div><div class="profile-name">张工</div><div class="profile-org">深圳市XX建设有限公司</div></div><div class="profile-menu"><div class="profile-menu-item"><span class="profile-menu-label">我的项目</span><span class="profile-menu-arrow">›</span></div><div class="profile-menu-item"><span class="profile-menu-label">围挡管理</span><span class="profile-menu-arrow">›</span></div><div class="profile-menu-item"><span class="profile-menu-label">巡检记录</span><span class="profile-menu-arrow">›</span></div><div class="profile-menu-item"><span class="profile-menu-label">关于系统</span><span class="profile-menu-arrow">›</span></div></div>`;
+}
+
+/* ═══ Modals ═══ */
+function openModal(id){document.getElementById(id).classList.add('show');}
+function closeModal(id){document.getElementById(id).classList.remove('show');}
+function openAddFence(idx){
+  const p=projectData[currentProjectIdx];
+  document.getElementById('addFenceWarning').style.display=p.redline?'none':'block';
+  openModal('modalAddFence');
+}
+function confirmDelete(idx){
+  deleteEngIdx=idx;
+  const eng=projectData[currentProjectIdx].engs[idx];
+  document.getElementById('deleteDetail').textContent=eng.fid+' · '+eng.name+' · '+eng.address;
+  openModal('modalDelete');
+}
+function doDelete(){closeModal('modalDelete');showToast('围挡记录已删除');}
+function selectPatrolResult(el){el.parentElement.querySelectorAll('.patrol-radio').forEach(b=>b.classList.remove('active'));el.classList.add('active');}
+document.querySelectorAll('.modal-overlay').forEach(m=>{m.addEventListener('click',function(e){if(e.target===this)this.classList.remove('show');});});
+
+/* ═══ Toast ═══ */
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);}
+
+/* ═══ Init ═══ */
+renderHome();
+</script>
+</body>
+</html>

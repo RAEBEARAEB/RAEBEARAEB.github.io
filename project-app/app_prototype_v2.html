@@ -80,9 +80,9 @@ body{font-family:var(--font-family);background:#eef4fb;display:flex;justify-cont
 
 .tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;font-size:var(--font-xs);font-weight:var(--fw-medium);white-space:nowrap}
 .tag-blue{background:rgba(15,91,216,0.12);color:var(--blue)}
-.tag-green{background:rgba(23,178,106,0.12);color:var(--green)}
 .tag-yellow{background:rgba(245,180,0,0.12);color:var(--yellow)}
 .tag-red{background:rgba(229,72,77,0.12);color:var(--red)}
+.tag-green{background:rgba(22,178,106,.12);color:var(--green)}
 .tag-gray{background:rgba(156,163,176,0.12);color:var(--gray-500)}
 
 .field-row{display:flex;padding:7px 0;font-size:var(--font-sm)}
@@ -401,6 +401,7 @@ body{font-family:var(--font-family);background:#eef4fb;display:flex;justify-cont
 .text-primary{color:var(--text-primary)}.text-secondary{color:var(--text-secondary)}.text-tertiary{color:var(--text-tertiary)}
 .mt-2{margin-top:8px}.mt-3{margin-top:12px}.mb-2{margin-bottom:8px}.mb-3{margin-bottom:12px}
 .hidden{display:none!important}
+
 </style>
 </head>
 <body>
@@ -1325,6 +1326,14 @@ function renderDetail(){
   html+=infoRow('围挡面积',f.area?f.area+' m²':'--');
   html+=infoRow('围挡风格',f.fenceStyle);
   html+=infoRow('宣传画/公益广告',f.publicityContent);
+  // 围挡状态 / 问题状态 / 是否待校核
+  var fsTagMap={'设置中':'<span class="tag tag-blue">设置中</span>','即将到期':'<span class="tag tag-yellow">即将到期</span>','已到期':'<span class="tag tag-gray">已到期</span>'};
+  var isTagMap={'正常':'<span class="tag tag-green">正常</span>','待整改':'<span class="tag tag-red">待整改</span>','整改逾期':'<span class="tag tag-red">整改逾期</span>'};
+  var nv=f.needVerify||'';
+  var nvHtml=nv==='是'?'<span class="tag tag-yellow">待校核</span>':(nv==='否'?'<span class="tag tag-gray">无需校核</span>':'—');
+  html+=infoRowHtml('围挡状态',fsTagMap[f.fenceStatus]||f.fenceStatus||'—');
+  html+=infoRowHtml('问题状态',isTagMap[f.issueStatus]||f.issueStatus||'—');
+  html+=infoRowHtml('是否待校核',nvHtml);
 
   // ── 关联项目工程 ──
   html+='<div class="detail-sub-title">关联项目工程</div>';
@@ -1561,6 +1570,9 @@ function closeFullscreenViewer(){
   document.getElementById('fullscreenIframe').src='';
 }
 
+function infoRowHtml(label,html){
+  return '<div class="info-item"><div class="info-label">'+label+'</div><div class="info-value">'+(html||'—')+'</div></div>';
+}
 function infoRow(label,value){
   return '<div class="info-item"><div class="info-label">'+label+'</div><div class="info-value">'+(value||'--')+'</div></div>';
 }

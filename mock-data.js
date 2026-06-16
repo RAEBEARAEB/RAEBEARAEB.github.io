@@ -7,7 +7,7 @@
 
   function getInitialData() {
     return {
-      version: 3,
+      version: 5,
       updatedAt: new Date().toISOString(),
       projects: [
         /* ── 项目 1：福田 ── */
@@ -73,11 +73,20 @@
               ],
               changeRecords: [
                 { id: 'cr1', changer: '刘伟', unit: '深圳市市政工程总公司', role: '施工人员', date: '2026-05-01 14:00', type: '变更操作', content: '围挡高度变更，由2.0m调整为2.5m', field: '围挡高度', before: '2.0m', after: '2.5m' },
-                { id: 'cr2', changer: '刘伟', unit: '深圳市市政工程总公司', role: '施工人员', date: '2026-03-20 10:00', type: '新增围挡', content: '新增围挡档案', field: '', before: '', after: '' }
+                { id: 'cr2', changer: '刘伟', unit: '深圳市市政工程总公司', role: '施工人员', date: '2026-03-20 10:00', type: '新增围挡', content: '新增围挡档案', field: '', before: '', after: '' },
+                { id: 'cr3', changer: '刘伟', unit: '深圳市市政工程总公司', role: '施工人员', date: '2026-06-08 09:30', type: '变更操作', content: '围挡范围图斑调整，新增1处出入口', field: '围挡范围 · 出入口', before: '（地图对比）', after: '（地图对比）' }
               ],
               patrolRecords: [
                 { id: 'pr2', date: '2026-05-07', time: '09:15', inspector: '陈刚', result: '正常', issues: [], panoramaSrc: 'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492' },
-                { id: 'pr1', date: '2026-05-14', time: '14:30', inspector: '刘伟', result: '正常', issues: [], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' }
+                { id: 'pr1', date: '2026-05-14', time: '14:30', inspector: '刘伟', result: '正常', issues: [], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' },
+                { id: 'pr8', date: '2026-05-02', time: '08:30', inspector: '刘伟', result: '正常', issues: [], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' },
+                { id: 'pr9', date: '2026-05-05', time: '10:00', inspector: '陈刚', result: '正常', issues: [], panoramaSrc: 'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492' },
+                { id: 'pr10', date: '2026-05-09', time: '15:20', inspector: '刘伟', result: '异常', issues: ['围挡面板轻微污渍'], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' },
+                { id: 'pr11', date: '2026-05-12', time: '09:00', inspector: '陈刚', result: '正常', issues: [], panoramaSrc: 'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492' },
+                { id: 'pr12', date: '2026-05-16', time: '11:30', inspector: '刘伟', result: '正常', issues: [], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' },
+                { id: 'pr13', date: '2026-05-20', time: '08:00', inspector: '陈刚', result: '正常', issues: [], panoramaSrc: 'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492' },
+                { id: 'pr14', date: '2026-05-23', time: '14:15', inspector: '刘伟', result: '正常', issues: [], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' },
+                { id: 'pr15', date: '2026-05-26', time: '10:45', inspector: '陈刚', result: '正常', issues: [], panoramaSrc: 'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492' }
               ]
             },
             {
@@ -116,7 +125,14 @@
               verifyRecords: [],
               changeRecords: [],
               patrolRecords: [
-                { id: 'pr3', date: '2026-05-10', time: '10:00', inspector: '刘伟', result: '异常', issues: ['围挡高度不足'], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' }
+                { id: 'pr3', date: '2026-05-10', time: '10:00', inspector: '刘伟', result: '异常', issues: ['围挡高度不足'], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' },
+                { id: 'pr16', date: '2026-05-03', time: '08:50', inspector: '陈刚', result: '正常', issues: [], panoramaSrc: 'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492' },
+                { id: 'pr17', date: '2026-05-06', time: '14:00', inspector: '刘伟', result: '正常', issues: [], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' },
+                { id: 'pr18', date: '2026-05-13', time: '09:30', inspector: '陈刚', result: '正常', issues: [], panoramaSrc: 'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492' },
+                { id: 'pr19', date: '2026-05-17', time: '16:00', inspector: '刘伟', result: '异常', issues: ['围挡连接件松动'], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' },
+                { id: 'pr20', date: '2026-05-21', time: '10:20', inspector: '陈刚', result: '正常', issues: [], panoramaSrc: 'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492' },
+                { id: 'pr21', date: '2026-05-24', time: '13:15', inspector: '刘伟', result: '正常', issues: [], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' },
+                { id: 'pr22', date: '2026-05-27', time: '09:10', inspector: '陈刚', result: '正常', issues: [], panoramaSrc: 'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492' }
               ]
             },
             {
@@ -156,7 +172,11 @@
               ],
               changeRecords: [],
               patrolRecords: [
-                { id: 'pr4', date: '2026-05-08', time: '11:00', inspector: '陈刚', result: '异常', issues: ['围挡材质不符合规范', '已到期未拆除'], panoramaSrc: 'https://vsleem.com/scene/realsee/share?projectId=2183&patrolId=eff873ee90a9c39da9731b17789f9291&pointId=4d55d097-2e0d-4db5-b88a-a313b002cf2b&rotate=1.8900753669526844,-0.09621686902020032&authCode=70c29c3c9b5a40c8acd5567358e1c78b' }
+                { id: 'pr4', date: '2026-05-08', time: '11:00', inspector: '陈刚', result: '异常', issues: ['围挡材质不符合规范', '已到期未拆除'], panoramaSrc: 'https://vsleem.com/scene/realsee/share?projectId=2183&patrolId=eff873ee90a9c39da9731b17789f9291&pointId=4d55d097-2e0d-4db5-b88a-a313b002cf2b&rotate=1.8900753669526844,-0.09621686902020032&authCode=70c29c3c9b5a40c8acd5567358e1c78b' },
+                { id: 'pr23', date: '2026-05-18', time: '08:30', inspector: '刘伟', result: '正常', issues: [], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' },
+                { id: 'pr24', date: '2026-05-22', time: '15:00', inspector: '陈刚', result: '正常', issues: [], panoramaSrc: 'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492' },
+                { id: 'pr25', date: '2026-05-25', time: '10:30', inspector: '刘伟', result: '正常', issues: [], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' },
+                { id: 'pr26', date: '2026-05-28', time: '09:45', inspector: '陈刚', result: '正常', issues: [], panoramaSrc: 'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492' }
               ]
             }
           ]
@@ -270,7 +290,7 @@
   }
 
   /* ── 加载或初始化 ── */
-  var CURRENT_VERSION = 4;
+  var CURRENT_VERSION = 5;
   var stored = localStorage.getItem(STORAGE_KEY);
   if (stored) {
     var parsed = JSON.parse(stored);
@@ -438,9 +458,11 @@
 
   /** 围挡问题类型字典（属地管理 / 群众端共用） */
   window.MOCK_DATA.STREET_ISSUE_TYPES = [
-    '围挡损毁','围挡倒塌','围挡倾斜','围挡缺失','围挡污损',
-    '围挡占道超限','围挡超高不足','围挡基础松动','公益广告破损',
-    '围挡安全隐患','应建未建围挡','其他'
+    '围挡破损','围挡脏污','围挡缺失','围挡基础松动',
+    '围挡占道超限','张贴小广告','应建未建围挡',
+    '公益广告污损','公益广告内容不合时宜','公益广告画面不连贯影响整体美观',
+    '围挡安全隐患','围挡喷淋不符合要求','围挡二维码内容不全',
+    '无围挡维护责任人信息','其他'
   ];
 
   /** 获取问题类型字典 */
@@ -463,12 +485,22 @@
     function d(s) { var t = new Date(now); t.setDate(t.getDate() - s); return t.toISOString().slice(0,10); }
     function _img(w,h,txt,c1,c2) { return "data:image/svg+xml," + encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' width='"+w+"' height='"+h+"'><rect width='"+w+"' height='"+h+"' fill='"+c1+"'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='14' fill='"+c2+"' font-family='sans-serif'>"+txt+"</text></svg>"); }
     return [
-      { id: 'YZY-001', type: '围挡损毁', fenceId: 'WD-2026-0001', fenceAddr: '福田区福华三路', details: '围挡面板破裂约0.5㎡，金属框架外露存在安全风险', status: '待整改', source: '街道上报', reportTime: d(1)+' 08:30:15', engineerName: '管道铺设工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png'], location: { lat: 22.549, lng: 114.060, addr: '福田区福华三路与金田路交汇处' } },
-      { id: 'YZY-002', type: '占道违规', fenceId: 'WD-2026-0002', fenceAddr: '福田区福华三路西侧', details: '施工材料大量占据人行道，行人被迫绕行机动车道，存在严重安全隐患', status: '退回整改', source: '群众上报', reportTime: d(3)+' 15:00:00', engineerName: '沟槽开挖工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png','../围挡破损.png'], location: { lat: 22.548, lng: 114.059, addr: '福田区福华三路西侧' } },
-      { id: 'YZY-003', type: '围挡倒塌', fenceId: 'WD-2026-0003', fenceAddr: '南山区科技南路', details: '围挡整体向西侧倒塌约15米，底部基础完全裸露', status: '待审核', source: '监管巡查', reportTime: d(5)+' 10:15:30', engineerName: '道路恢复工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png'], location: { lat: 22.537, lng: 113.952, addr: '南山区科技南路' } },
-      { id: 'YZY-004', type: '围挡倾斜', fenceId: 'WD-2026-0004', fenceAddr: '南山区科技园路', details: '基坑围护工程围挡向东倾斜约10度，基础部分外露', status: '审核通过', source: '街道上报', reportTime: d(10)+' 11:00:00', engineerName: '基坑围护工程', responsibleUnit: '中建三局集团有限公司', photos: ['../围挡破损.png'], location: { lat: 22.535, lng: 113.948, addr: '南山区科技园路' } },
+      { id: 'YZY-001', type: '围挡破损', fenceId: 'WD-2026-0001', fenceAddr: '福田区福华三路', details: '围挡面板破裂约0.5㎡，金属框架外露存在安全风险', status: '审核通过', source: '街道上报', reportTime: d(1)+' 08:30:15', engineerName: '管道铺设工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png'], location: { lat: 22.549, lng: 114.060, addr: '福田区福华三路与金田路交汇处' } },
+      { id: 'YZY-002', type: '围挡占道超限', fenceId: 'WD-2026-0002', fenceAddr: '福田区福华三路西侧', details: '施工材料大量占据人行道，行人被迫绕行机动车道，存在严重安全隐患', status: '退回整改', source: '群众上报', reportTime: d(3)+' 15:00:00', engineerName: '沟槽开挖工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png','../围挡破损.png'], location: { lat: 22.548, lng: 114.059, addr: '福田区福华三路西侧' } },
+      { id: 'YZY-003', type: '围挡安全隐患', fenceId: 'WD-2026-0003', fenceAddr: '南山区科技南路', details: '围挡整体向西侧倒塌约15米，底部基础完全裸露', status: '待审核', source: '监管巡查', reportTime: d(5)+' 10:15:30', engineerName: '道路恢复工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png'], location: { lat: 22.537, lng: 113.952, addr: '南山区科技南路' } },
+      { id: 'YZY-004', type: '围挡基础松动', fenceId: 'WD-2026-0004', fenceAddr: '南山区科技园路', details: '基坑围护工程围挡向东倾斜约10度，基础部分外露', status: '审核通过', source: '街道上报', reportTime: d(10)+' 11:00:00', engineerName: '基坑围护工程', responsibleUnit: '中建三局集团有限公司', photos: ['../围挡破损.png'], location: { lat: 22.535, lng: 113.948, addr: '南山区科技园路' } },
       { id: 'YZY-005', type: '围挡安全隐患', fenceId: 'WD-2026-0001', fenceAddr: '福田区福华三路', details: '围挡底部焊接点锈蚀严重，存在倒塌风险，限期整改已超15天未完成', status: '整改逾期', source: '街道上报', reportTime: d(15)+' 09:00:00', engineerName: '管道铺设工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png','../围挡破损.png'], location: { lat: 22.549, lng: 114.060, addr: '福田区福华三路' } },
-      { id: 'YZY-006', type: '围挡缺失', fenceId: 'WD-2026-0002', fenceAddr: '福田区福华三路西侧', details: '围挡局部缺失约2米，行人可穿行进入施工区域，存在安全隐患', status: '待接收', source: '街道上报', reportTime: d(0)+' 07:45:00', engineerName: '沟槽开挖工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png'], location: { lat: 22.548, lng: 114.059, addr: '福田区福华三路西侧' } }
+      { id: 'YZY-006', type: '围挡缺失', fenceId: 'WD-2026-0002', fenceAddr: '福田区福华三路西侧', details: '围挡局部缺失约2米，行人可穿行进入施工区域，存在安全隐患', status: '待接收', source: '街道上报', reportTime: d(0)+' 07:45:00', engineerName: '沟槽开挖工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png'], location: { lat: 22.548, lng: 114.059, addr: '福田区福华三路西侧' } },
+      { id: 'YZY-007', type: '围挡破损', fenceId: 'WD-2026-0001', fenceAddr: '福田区福华三路', details: '巡检中发现围挡面板出现裂缝，面积约0.3㎡，已修复完成', status: '审核通过', source: '项目巡检', reportTime: d(2)+' 14:20:00', engineerName: '管道铺设工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png'], location: { lat: 22.549, lng: 114.060, addr: '福田区福华三路与金田路交汇处' } },
+      { id: 'YZY-008', type: '围挡脏污', fenceId: 'WD-2026-0005', fenceAddr: '南山区科技南路', details: '巡检中发现围挡表面有大面积泥浆污渍，影响市容', status: '待整改', source: '项目巡检', reportTime: d(7)+' 10:00:00', engineerName: '主体结构工程', responsibleUnit: '中建三局集团有限公司', photos: ['../围挡破损.png'], location: { lat: 22.536, lng: 113.958, addr: '南山区科技南路18号' } },
+      // ── 福田项目自查已整改 demo ──
+      { id: 'YZY-011', type: '围挡基础松动', fenceId: 'WD-2026-0001', fenceAddr: '福田区福华三路', details: '巡检中发现围挡底部基础螺栓松动3处，已当日加固修复', status: '审核通过', source: '项目巡检', reportTime: d(8)+' 09:20:00', engineerName: '管道铺设工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png'], location: { lat: 22.550, lng: 114.061, addr: '福田区福华三路与金田路交汇处' } },
+      { id: 'YZY-012', type: '围挡脏污', fenceId: 'WD-2026-0002', fenceAddr: '福田区福华三路西侧', details: '巡检中发现围挡表面有泥浆泼溅痕迹约2㎡，已清洗完毕', status: '审核通过', source: '项目巡检', reportTime: d(9)+' 14:50:00', engineerName: '沟槽开挖工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png'], location: { lat: 22.547, lng: 114.060, addr: '福田区福华三路西侧' } },
+      { id: 'YZY-013', type: '围挡喷淋不符合要求', fenceId: 'WD-2026-0001', fenceAddr: '福田区福华三路', details: '巡检中发现围挡喷淋头堵塞2处导致降尘效果不达标，已疏通更换', status: '审核通过', source: '项目巡检', reportTime: d(11)+' 16:30:00', engineerName: '管道铺设工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png'], location: { lat: 22.549, lng: 114.062, addr: '福田区福华三路与金田路交汇处' } },
+      { id: 'YZY-014', type: '围挡二维码内容不全', fenceId: 'WD-2026-0003', fenceAddr: '福田区福华三路东侧', details: '巡检中发现围挡二维码缺少责任人联系电话，已重新制作张贴', status: '审核通过', source: '项目巡检', reportTime: d(12)+' 11:10:00', engineerName: '道路恢复工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png'], location: { lat: 22.547, lng: 114.063, addr: '福田区福华三路东侧' } },
+      // ── 应建未建围挡 demo ──
+      { id: 'YZY-009', type: '应建未建围挡', fenceId: '', fenceAddr: '', details: '粤海街道科技南路与滨海大道交汇处，根据规划要求此处应设置围挡但至今未建', status: '待整改', source: '街道上报', reportTime: d(4)+' 09:30:00', engineerName: '', responsibleUnit: '', street: '粤海街道', projectName: '', photos: ['../围挡破损.png'], location: { lat: 22.538, lng: 113.955, addr: '南山区粤海街道科技南路与滨海大道交汇处' } },
+      { id: 'YZY-010', type: '应建未建围挡', fenceId: '', fenceAddr: '', details: '黄贝街道深南东路北侧工地出入口处未按规定设置围挡，存在安全隐患', status: '待整改', source: '街道上报', reportTime: d(6)+' 14:00:00', engineerName: '', responsibleUnit: '', street: '黄贝街道', projectName: '', photos: ['../围挡破损.png'], location: { lat: 22.550, lng: 114.140, addr: '罗湖区黄贝街道深南东路北侧' } }
     ];
   }
 
@@ -564,12 +596,15 @@
         if (f) {
           i._projectName = f.projectName || '';
           i._constructUnit = f.constructUnit || '';
-          i._street = f.street || '';
+          // fence street comes from project data: `getHoardingsByStreet` maps p.street → f.street
+          i.street = i.street || f.street || '';
+          i._street = i.street;
           i._district = f.district || '';
         }
       }
       if (!i._projectName) i._projectName = i.projectName || '';
       if (!i._constructUnit) i._constructUnit = i.responsibleUnit || '';
+      if (!i.street) i.street = i._street || '';
       if (!i.source) i.source = '街道上报';
       // Closure data
       i._rectification = (closureData.rectifications || {})[i.id] || null;
@@ -636,5 +671,79 @@
   /** 保存街道问题列表（内部使用） */
   window.MOCK_DATA._saveIssues = function (issues) {
     try { localStorage.setItem('YZY_STREET_ISSUES', JSON.stringify(issues)); } catch (e) {}
+  };
+
+  /* ═══════════════════════════════════════════════════════════════════
+     围挡管理评价 — 评分引擎（月度周期，按项目维度）
+     ═══════════════════════════════════════════════════════════════════ */
+  function _daysInMonth(y,m){return new Date(y,m,0).getDate();}
+  function _getGrade(s){
+    if(s>=85)return{grade:'优秀',cls:'excellent',icon:'🏆'};
+    if(s>=70)return{grade:'良好',cls:'good',icon:'✅'};
+    if(s>=55)return{grade:'警示',cls:'warn',icon:'⚠️'};
+    return{grade:'差',cls:'poor',icon:'❌'};
+  }
+  window.MOCK_DATA.getProjectScores = function(year, month) {
+    var now=new Date();if(!year)year=now.getFullYear();if(!month)month=now.getMonth()+1;
+    var days=_daysInMonth(year,month);
+    var expectedPatrolDays=Math.round(days*0.6);
+    var monthPrefix=year+'-'+String(month).padStart(2,'0');
+    var projects=this.getProjects();
+    var allHoards=this.getHoardings();
+    var issues=this.getStreetIssues();
+    var results=[];
+    projects.forEach(function(proj){
+      var projHoards=allHoards.filter(function(h){return h.projectName===proj.name;});
+      // D1(1): 围挡信息录入 (10pts)
+      var hasFence=projHoards.length>0?10:0;
+      // D1(2): 日常巡检频率 (30pts)
+      var pDates={};
+      projHoards.forEach(function(h){(h.patrolRecords||[]).forEach(function(p){if(p.date&&p.date.indexOf(monthPrefix)===0)pDates[p.date]=true;});});
+      var actualDays=Object.keys(pDates).length;
+      var patrolRate=expectedPatrolDays>0?Math.min(1,actualDays/expectedPatrolDays):0;
+      var patrolScore=Math.round(30*patrolRate);
+      var d1=hasFence===0?0:(hasFence+patrolScore);
+      // D2(1): 问题发现率 (30pts)
+      var self=0,supervisor=0,street=0;
+      projHoards.forEach(function(h){issues.forEach(function(iss){if(iss.fenceId===h.id){if(iss.source==='项目巡检')self++;else if(iss.source==='监管巡查')supervisor++;else if(iss.source==='街道上报')street++;}});});
+      var totalF=self+supervisor+street;
+      var discRate=totalF>0?self/totalF:0;
+      var discScore=Math.round(30*discRate);
+      // D2(2): 整改完成率 (30pts)
+      var tR=0,cR=0;
+      projHoards.forEach(function(h){issues.forEach(function(iss){if(iss.fenceId===h.id){tR++;if(iss.status==='审核通过'||iss.status==='已通过')cR++;}});});
+      var rectRate=tR>0?cR/tR:1;
+      var rectScore=Math.round(30*rectRate);
+      var d2=d1===0?0:(discScore+rectScore);
+      var total=d1+d2;
+      var grade=_getGrade(total);
+      // 提升建议
+      var sug=[];
+      if(hasFence===0)sug.push('您的项目尚未录入围挡信息，请尽快在围挡档案管理中完成围挡登记');
+      else{
+        if(patrolRate<0.5)sug.push('您的日常巡检频率偏低（当前'+actualDays+'天/应巡检'+expectedPatrolDays+'天），建议加强日常巡检频次');
+        else if(patrolRate<0.8)sug.push('您的日常巡检频率有提升空间（当前'+actualDays+'天/应巡检'+expectedPatrolDays+'天），建议保持每日巡检习惯');
+        if(discRate<0.5&&totalF>0)sug.push('您的自查问题发现率较低（'+Math.round(discRate*100)+'%），建议巡检中加强对围挡破损、脏污等常见问题的关注');
+        if(rectRate<0.7&&tR>0)sug.push('您的整改及时率较低（'+Math.round(rectRate*100)+'%），建议收到整改通知后48小时内完成整改');
+        if(d2<10&&d1>0)sug.push('您的问题发现与整改维度过低，建议建立内部巡检-整改闭环机制');
+      }
+      if(!sug.length)sug.push('各项指标表现良好，请继续保持当前管理水平和巡检习惯');
+      results.push({projectId:proj.id,projectName:proj.name,district:proj.district||'',hasFence:hasFence,d1_1:hasFence,d1_2:patrolScore,d1:d1,d2_1:discScore,d2_2:rectScore,d2:d2,total:total,grade:grade.grade,gradeCls:grade.cls,gradeIcon:grade.icon,actualPatrolDays:actualDays,expectedPatrolDays:expectedPatrolDays,patrolRate:patrolRate,selfFound:self,totalFound:totalF,discoveryRate:discRate,completedRectify:cR,totalRectify:tR,rectifyRate:rectRate,suggestions:sug,hoardingsCount:projHoards.length});
+    });
+    results.sort(function(a,b){return a.total-b.total;});
+    return results;
+  };
+  window.MOCK_DATA.getScoreSummary = function(){
+    var s=this.getProjectScores();
+    var r={total:s.length,excellent:0,good:0,warn:0,poor:0,newPoor:[],byDistrict:{}};
+    s.forEach(function(x){
+      if(x.grade==='优秀')r.excellent++;else if(x.grade==='良好')r.good++;else if(x.grade==='警示')r.warn++;else{r.poor++;r.newPoor.push(x);}
+      if(!r.byDistrict[x.district])r.byDistrict[x.district]={excellent:0,good:0,warn:0,poor:0};
+      if(x.grade==='优秀')r.byDistrict[x.district].excellent++;
+      else if(x.grade==='良好')r.byDistrict[x.district].good++;
+      else if(x.grade==='警示')r.byDistrict[x.district].warn++;
+      else r.byDistrict[x.district].poor++;
+    });
+    return r;
   };
 })();
