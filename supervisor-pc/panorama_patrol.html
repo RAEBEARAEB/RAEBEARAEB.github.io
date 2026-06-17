@@ -876,19 +876,18 @@ function renderPatrolRecordsPC() {
       html += '<div class="'+cardCls+'" data-patrol-id="'+(r.id||'')+'" onclick="openPatrolDetailModal(\x27'+(r.id||'')+'\x27)">';
       html += '<div class="patrol-record-pc-header">';
       html += '<span class="patrol-record-pc-date">'+escH(r.date||'--')+' '+escH(r.time||'')+'</span>';
-      html += '<span class="patrol-record-pc-result '+resultCls+'">'+resultTag+'</span>';
+      var issueCount = r.issues ? r.issues.length : (r.hasIssue?1:0);
+      if (issueCount > 0) {
+        html += '<span class="patrol-record-pc-result abnormal">'+issueCount+'个问题</span>';
+      } else {
+        html += '<span class="patrol-record-pc-result normal">正常</span>';
+      }
       html += '</div>';
       html += '<div class="patrol-record-pc-person">巡检人：'+escH(r.inspector||'--')+'</div>';
-      if (r.issues&&r.issues.length) {
-        html += '<div class="patrol-record-pc-issues">';
-        r.issues.forEach(function(iss){
-          html += '<div class="patrol-record-pc-issue-item"><i class="fas fa-exclamation-circle" style="color:var(--danger-500);font-size:11px"></i> '+escH(iss)+'</div>';
-        });
-        html += '</div>';
-      } else if (r.remark) {
+      if (r.remark && (!r.issues || !r.issues.length)) {
         html += '<div class="patrol-record-pc-remark">备注：'+escH(r.remark)+'</div>';
       }
-      html += '<div class="patrol-record-pc-actions"><button class="patrol-record-pc-view-btn" onclick="event.stopPropagation();viewPatrolPanorama(\x27'+(r.id||'')+'\x27)"><i class="fas fa-play"></i> 查看</button></div>';
+      html += '<div class="patrol-record-pc-actions"><button class="patrol-record-pc-view-btn" onclick="event.stopPropagation();viewPatrolDetail(\x27'+(r.id||'')+'\x27)">查看详情</button></div>';
       html += '</div>';
     });
   }
@@ -898,29 +897,37 @@ function renderPatrolRecordsPC() {
   if (em) em.style.display = (!activeFenceId || !patrolSelectedDate || !records.length) ? 'block' : 'none';
 }
 
-function viewPatrolPanorama(rid) {
+function viewPatrolDetail(rid) {
   var rec = (window._patrolRecordsCache||[]).find(function(r){return r.id === rid;});
-  if (!rec||!rec.panoramaSrc) { toast('该记录暂无全景照片'); return; }
-  activePatrolRecord = rec;
-  document.getElementById('center-placeholder').style.display = 'none';
-  loadPano(rec.panoramaSrc);
-  renderCalendarAndRecords();
-  toast('已加载全景照片');
+  if (!rec) { toast('未找到该巡检记录'); return; }
+  // Navigate to patrol detail page with panorama return context
+  var fence = null;
+  for (var i=0;i<allHoardings.length;i++) { if (allHoardings[i].id===activeFenceId) { fence=allHoardings[i]; break; } }
+  var url = '../project-pc/patrol_issue_record.html?mode=view&patrolId='+encodeURIComponent(rid);
+  url += '&source=panorama';
+  if (fence) {
+    if (fence.projectName) url += '&project='+encodeURIComponent(fence.projectName);
+    if (fence.engineerName) url += '&engineering='+encodeURIComponent(fence.engineerName);
+  }
+  if (activeFenceId) url += '&fenceId='+encodeURIComponent(activeFenceId);
+  if (patrolSelectedDate) url += '&patrolDate='+encodeURIComponent(patrolSelectedDate);
+  window.open(url, '_blank');
 }
 
 function openPatrolDetailModal(rid) {
   var rec = (window._patrolRecordsCache||[]).find(function(r){return r.id === rid;});
   if (!rec) return;
   var body = document.getElementById('patrol-detail-body');
-  var hasIssue = rec.issues && rec.issues.length;
-  var remarkLabel = hasIssue ? '问题详情' : '备注';
-  var remarkContent = hasIssue ? rec.issues.join('、') : (rec.remark || '');
+  var issueCount = rec.issues ? rec.issues.length : (rec.hasIssue?1:0);
+  var hasIssue = issueCount > 0;
   body.innerHTML =
     '<div class="form-group"><label class="form-label"><span style="color:var(--color-danger)">*</span> 巡检时间</label><div class="form-value-display">'+escH(rec.date||'—')+'   '+escH(rec.time||'')+'</div></div>'+
     '<div class="form-group"><label class="form-label">巡检人</label><div class="form-value-display">'+escH(rec.inspector||'—')+'</div></div>'+
     '<div class="form-group"><label class="form-label"><span style="color:var(--color-danger)">*</span> 全景照片链接</label><div class="form-value-display" style="word-break:break-all">'+escH(rec.panoramaSrc||'—')+'</div></div>'+
-    '<div class="form-group"><label class="form-label">是否存在问题项</label><div class="form-value-display">'+(hasIssue?'<span style="color:var(--color-danger);font-weight:var(--font-weight-medium)">是</span>':'<span style="color:var(--color-gray-600)">否</span>')+'</div></div>'+
-    '<div class="form-group"><label class="form-label">'+remarkLabel+'</label><div class="form-value-display" style="white-space:pre-wrap;line-height:var(--line-height-normal)">'+escH(remarkContent||'—')+'</div></div>';
+    '<div class="form-group"><label class="form-label">是否存在问题项</label><div class="form-value-display">'+(hasIssue?'<span style="color:var(--color-danger);font-weight:var(--font-weight-medium)">是（'+issueCount+'个）</span>':'<span style="color:var(--color-gray-600)">否</span>')+'</div></div>';
+  if (r.remark && !hasIssue) {
+    body.innerHTML += '<div class="form-group"><label class="form-label">备注</label><div class="form-value-display" style="white-space:pre-wrap;line-height:var(--line-height-normal)">'+escH(r.remark||'—')+'</div></div>';
+  }
   document.getElementById('patrol-detail-modal').classList.add('show');
 }
 
@@ -1080,6 +1087,30 @@ function toast(m,isErr) {
    Init
    ═══════════════════════════════════════════ */
 initIssueTypeSelect(); loadData(); renderProjectList(); toggleRightPanel(false);
+
+// Support returning from patrol detail page with pre-selected fence
+(function(){
+  var m = window.location.search.match(/fenceId=([^&]+)/);
+  if (m) {
+    var fid = decodeURIComponent(m[1]);
+    setTimeout(function(){
+      var fence = null;
+      for (var i=0;i<allHoardings.length;i++) { if (allHoardings[i].id===fid) { fence=allHoardings[i]; break; } }
+      if (fence && fence.projectName) {
+        togProj(fence.projectName);
+        setTimeout(function(){
+          selFence(fid);
+          var dm = window.location.search.match(/patrolDate=([^&]+)/);
+          if (dm) {
+            patrolSelectedDate = decodeURIComponent(dm[1]);
+            loadPatrolRecords();
+            refreshCalendar();
+          }
+        }, 200);
+      }
+    }, 300);
+  }
+})();
 </script>
 </body>
 </html>

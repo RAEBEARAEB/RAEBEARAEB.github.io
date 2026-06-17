@@ -343,8 +343,14 @@
                     }
                     db.close();
                     if (found) {
+                        // Normalize old-format issues (string → object)
+                        if (found.issues && Array.isArray(found.issues)) {
+                            found.issues = found.issues.map(function(iss){
+                                if (typeof iss === 'string') return {type: iss, detail: iss};
+                                return iss;
+                            });
+                        }
                         patrolRecord = found;
-                        // Load existing issues
                         loadExistingIssues(found);
                         initPatrolPage();
                     } else {
@@ -479,42 +485,83 @@
 
     // Open an issue from the patrol detail view → navigates to issue detail page
     function openIssueFromPatrol(idx) {
-        var issueId = '';
-        if (idx >= 0 && patrolRecord.issues && patrolRecord.issues[idx]) {
-            // Try to find matching YZY issue by fenceId + type
-            var fenceId = getQueryParam('fenceId') || '';
-            var iss = patrolRecord.issues[idx];
+        var fenceId = getQueryParam('fenceId') || '';
+        var iss = (patrolRecord.issues && idx >= 0 && idx < patrolRecord.issues.length) ? patrolRecord.issues[idx] : null;
+        if (!iss || !iss.type) { alert('问题数据不完整'); return; }
+
+        // Search YZY issues by fenceId + type (relaxed matching)
+        var allIssues = (window.MOCK_DATA && window.MOCK_DATA.getStreetIssues) ? window.MOCK_DATA.getStreetIssues() : [];
+        var matchedId = null;
+        for (var i = 0; i < allIssues.length; i++) {
+            if (allIssues[i].fenceId === fenceId && allIssues[i].type === iss.type) {
+                matchedId = allIssues[i].id; break;
+            }
+        }
+        if (!matchedId) {
+            // Try localStorage directly
             try {
                 var raw = localStorage.getItem('YZY_STREET_ISSUES');
                 if (raw) {
                     var all = JSON.parse(raw);
-                    for (var i = 0; i < all.length; i++) {
-                        if (all[i].fenceId === fenceId && all[i].type === iss.type && all[i].details === iss.detail) {
-                            issueId = all[i].id;
-                            break;
+                    for (var j = 0; j < all.length; j++) {
+                        if (all[j].fenceId === fenceId && all[j].type === iss.type) {
+                            matchedId = all[j].id; break;
                         }
                     }
                 }
             } catch(e) {}
-        } else {
-            // Fallback: use YZY match
-            var yzy = findMatchedYZYIssue(patrolRecord);
-            if (yzy) issueId = yzy.id;
         }
-        if (issueId) {
-            var url = 'patrol-issue-detail.html?id=' + encodeURIComponent(issueId);
-            var patrolId = getQueryParam('patrolId');
-            if (patrolId) url += '&patrolId=' + encodeURIComponent(patrolId);
-            var eng = getQueryParam('engineering');
-            if (eng) url += '&engineering=' + encodeURIComponent(eng);
-            window.location.href = url;
-        } else {
-            alert('未找到关联的问题记录');
-        }
+        if (!matchedId) { alert('未找到关联的问题记录'); return; }
+
+        var url = 'patrol-issue-detail.html?id=' + encodeURIComponent(matchedId);
+        var patrolId = getQueryParam('patrolId');
+        if (patrolId) url += '&patrolId=' + encodeURIComponent(patrolId);
+        var eng = getQueryParam('engineering');
+        if (eng) url += '&engineering=' + encodeURIComponent(eng);
+        if (fenceId) url += '&fenceId=' + encodeURIComponent(fenceId);
+        window.location.href = url;
     }
 
     function loadDemoData() {
-        // Use demo data matching the patrol record
+        // Try loading from MOCK_DATA hoardings patrol records when IndexedDB fails
+        var fenceId = getQueryParam('fenceId') || '';
+        var patrolId = getQueryParam('patrolId') || '';
+        if (window.MOCK_DATA && fenceId && patrolId) {
+            var hoard = window.MOCK_DATA.findHoard(fenceId);
+            if (hoard && hoard.patrolRecords) {
+                for (var i = 0; i < hoard.patrolRecords.length; i++) {
+                    var pr = hoard.patrolRecords[i];
+                    if (pr.id === patrolId || ('pr'+i === patrolId)) {
+                        var issuesArray = [];
+                        if (pr.issues && Array.isArray(pr.issues)) {
+                            issuesArray = pr.issues.map(function(iss) {
+                                if (typeof iss === 'string') {
+                                    // Convert old string format to object
+                                    return {type: iss, detail: iss};
+                                }
+                                return iss;
+                            });
+                        }
+                        patrolRecord = {
+                            id: pr.id || patrolId,
+                            date: pr.date || '',
+                            time: pr.time || '09:00',
+                            person: pr.inspector || '—',
+                            unit: hoard.constructUnit || '—',
+                            remark: pr.remark || '',
+                            hasIssue: issuesArray.length > 0 || pr.result === '异常',
+                            panoramaSrc: pr.panoramaSrc || '',
+                            issues: issuesArray,
+                            issueType: issuesArray.length > 0 ? issuesArray[0].type : ''
+                        };
+                        issueList = issuesArray.slice();
+                        initPatrolPage();
+                        return;
+                    }
+                }
+            }
+        }
+        // Fallback: hardcoded demo
         patrolRecord = {
             id: 'demo_patrol_001',
             date: new Date().toISOString().split('T')[0],
@@ -1490,7 +1537,18 @@
     function goBack() {
         // Auto-save before going back
         saveIssuesToDB();
-        if (window.opener) { window.close(); }
+        var source = getQueryParam('source');
+        if (source === 'panorama') {
+            // Return to panorama patrol page with fence pre-selected
+            var fenceId = getQueryParam('fenceId') || '';
+            var patrolDate = getQueryParam('patrolDate') || '';
+            var url = '../supervisor-pc/panorama_patrol.html';
+            var params = [];
+            if (fenceId) params.push('fenceId='+encodeURIComponent(fenceId));
+            if (patrolDate) params.push('patrolDate='+encodeURIComponent(patrolDate));
+            if (params.length) url += '?'+params.join('&');
+            window.location.href = url;
+        } else if (window.opener) { window.close(); }
         else { history.back(); }
     }
 
