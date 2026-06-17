@@ -7,7 +7,7 @@
 
   function getInitialData() {
     return {
-      version: 5,
+      version: 8,
       updatedAt: new Date().toISOString(),
       projects: [
         /* ── 项目 1：福田 ── */
@@ -81,7 +81,7 @@
                 { id: 'pr1', date: '2026-05-14', time: '14:30', inspector: '刘伟', result: '正常', issues: [], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' },
                 { id: 'pr8', date: '2026-05-02', time: '08:30', inspector: '刘伟', result: '正常', issues: [], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' },
                 { id: 'pr9', date: '2026-05-05', time: '10:00', inspector: '陈刚', result: '正常', issues: [], panoramaSrc: 'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492' },
-                { id: 'pr10', date: '2026-05-09', time: '15:20', inspector: '刘伟', result: '异常', issues: ['围挡面板轻微污渍'], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' },
+                { id: 'pr10', date: '2026-05-09', time: '15:20', inspector: '刘伟', result: '异常', issues: [{type:'围挡脏污', detail:'围挡面板表面有轻微泥浆污渍，面积约0.2㎡，不影响结构安全但需清洁'}], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' },
                 { id: 'pr11', date: '2026-05-12', time: '09:00', inspector: '陈刚', result: '正常', issues: [], panoramaSrc: 'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492' },
                 { id: 'pr12', date: '2026-05-16', time: '11:30', inspector: '刘伟', result: '正常', issues: [], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' },
                 { id: 'pr13', date: '2026-05-20', time: '08:00', inspector: '陈刚', result: '正常', issues: [], panoramaSrc: 'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492' },
@@ -125,11 +125,11 @@
               verifyRecords: [],
               changeRecords: [],
               patrolRecords: [
-                { id: 'pr3', date: '2026-05-10', time: '10:00', inspector: '刘伟', result: '异常', issues: ['围挡高度不足'], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' },
+                { id: 'pr3', date: '2026-05-10', time: '10:00', inspector: '刘伟', result: '异常', issues: [{type:'围挡尺寸不合规', detail:'围挡实测高度2.0m，低于规范要求的2.5m标准高度，需立即调整'}], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' },
                 { id: 'pr16', date: '2026-05-03', time: '08:50', inspector: '陈刚', result: '正常', issues: [], panoramaSrc: 'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492' },
                 { id: 'pr17', date: '2026-05-06', time: '14:00', inspector: '刘伟', result: '正常', issues: [], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' },
                 { id: 'pr18', date: '2026-05-13', time: '09:30', inspector: '陈刚', result: '正常', issues: [], panoramaSrc: 'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492' },
-                { id: 'pr19', date: '2026-05-17', time: '16:00', inspector: '刘伟', result: '异常', issues: ['围挡连接件松动'], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' },
+                { id: 'pr19', date: '2026-05-17', time: '16:00', inspector: '刘伟', result: '异常', issues: [{type:'围挡基础松动', detail:'围挡面板之间连接螺栓松动3处，连接件存在脱落风险，需紧固或更换'}], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' },
                 { id: 'pr20', date: '2026-05-21', time: '10:20', inspector: '陈刚', result: '正常', issues: [], panoramaSrc: 'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492' },
                 { id: 'pr21', date: '2026-05-24', time: '13:15', inspector: '刘伟', result: '正常', issues: [], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' },
                 { id: 'pr22', date: '2026-05-27', time: '09:10', inspector: '陈刚', result: '正常', issues: [], panoramaSrc: 'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492' }
@@ -172,7 +172,7 @@
               ],
               changeRecords: [],
               patrolRecords: [
-                { id: 'pr4', date: '2026-05-08', time: '11:00', inspector: '陈刚', result: '异常', issues: ['围挡材质不符合规范', '已到期未拆除'], panoramaSrc: 'https://vsleem.com/scene/realsee/share?projectId=2183&patrolId=eff873ee90a9c39da9731b17789f9291&pointId=4d55d097-2e0d-4db5-b88a-a313b002cf2b&rotate=1.8900753669526844,-0.09621686902020032&authCode=70c29c3c9b5a40c8acd5567358e1c78b' },
+                { id: 'pr4', date: '2026-05-08', time: '11:00', inspector: '陈刚', result: '异常', issues: [{type:'围挡材质不符合规范', detail:'现场围挡使用PVC材质，不符合装配式钢结构喷绘围挡的设计要求，需更换为规范材质'},{type:'围挡超期未拆除', detail:'该围挡已于2025-06-01到期，至今未拆除，属于超期围挡，需立即拆除或办理延期手续'}], panoramaSrc: 'https://vsleem.com/scene/realsee/share?projectId=2183&patrolId=eff873ee90a9c39da9731b17789f9291&pointId=4d55d097-2e0d-4db5-b88a-a313b002cf2b&rotate=1.8900753669526844,-0.09621686902020032&authCode=70c29c3c9b5a40c8acd5567358e1c78b' },
                 { id: 'pr23', date: '2026-05-18', time: '08:30', inspector: '刘伟', result: '正常', issues: [], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' },
                 { id: 'pr24', date: '2026-05-22', time: '15:00', inspector: '陈刚', result: '正常', issues: [], panoramaSrc: 'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492' },
                 { id: 'pr25', date: '2026-05-25', time: '10:30', inspector: '刘伟', result: '正常', issues: [], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' },
@@ -290,7 +290,7 @@
   }
 
   /* ── 加载或初始化 ── */
-  var CURRENT_VERSION = 5;
+  var CURRENT_VERSION = 8;
   var stored = localStorage.getItem(STORAGE_KEY);
   if (stored) {
     var parsed = JSON.parse(stored);
@@ -299,10 +299,16 @@
     } else {
       window.MOCK_DATA = getInitialData();
       localStorage.setItem(STORAGE_KEY, JSON.stringify(window.MOCK_DATA));
+      // Clear YZY issue cache so demo data reloads from code
+      localStorage.removeItem('YZY_STREET_ISSUES');
+      localStorage.removeItem('FENCE_ISSUE_CLOSURE');
     }
   } else {
     window.MOCK_DATA = getInitialData();
     localStorage.setItem(STORAGE_KEY, JSON.stringify(window.MOCK_DATA));
+    // Clear YZY issue cache so demo data reloads from code
+    localStorage.removeItem('YZY_STREET_ISSUES');
+    localStorage.removeItem('FENCE_ISSUE_CLOSURE');
   }
 
   /* ── 持久化方法 ── */
@@ -492,7 +498,7 @@
       { id: 'YZY-005', type: '围挡安全隐患', fenceId: 'WD-2026-0001', fenceAddr: '福田区福华三路', details: '围挡底部焊接点锈蚀严重，存在倒塌风险，限期整改已超15天未完成', status: '整改逾期', source: '街道上报', reportTime: d(15)+' 09:00:00', engineerName: '管道铺设工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png','../围挡破损.png'], location: { lat: 22.549, lng: 114.060, addr: '福田区福华三路' } },
       { id: 'YZY-006', type: '围挡缺失', fenceId: 'WD-2026-0002', fenceAddr: '福田区福华三路西侧', details: '围挡局部缺失约2米，行人可穿行进入施工区域，存在安全隐患', status: '待整改', source: '街道上报', reportTime: d(0)+' 07:45:00', engineerName: '沟槽开挖工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png'], location: { lat: 22.548, lng: 114.059, addr: '福田区福华三路西侧' } },
       { id: 'YZY-007', type: '围挡破损', fenceId: 'WD-2026-0001', fenceAddr: '福田区福华三路', details: '巡检中发现围挡面板出现裂缝，面积约0.3㎡，已修复完成', status: '整改完成', source: '项目巡检', reportTime: d(2)+' 14:20:00', engineerName: '管道铺设工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png'], location: { lat: 22.549, lng: 114.060, addr: '福田区福华三路与金田路交汇处' } },
-      { id: 'YZY-008', type: '围挡脏污', fenceId: 'WD-2026-0005', fenceAddr: '南山区科技南路', details: '巡检中发现围挡表面有大面积泥浆污渍，影响市容', status: '待整改', source: '项目巡检', reportTime: d(7)+' 10:00:00', engineerName: '主体结构工程', responsibleUnit: '中建三局集团有限公司', photos: ['../围挡破损.png'], location: { lat: 22.536, lng: 113.958, addr: '南山区科技南路18号' } },
+      { id: 'YZY-008', type: '围挡脏污', fenceId: 'WD-2026-0005', fenceAddr: '南山区科技南路', details: '巡检中发现围挡表面有大面积泥浆污渍，影响市容，已超过7天未处理', status: '整改逾期', source: '项目巡检', reportTime: d(20)+' 10:00:00', engineerName: '主体结构工程', responsibleUnit: '中建三局集团有限公司', photos: ['../围挡破损.png'], location: { lat: 22.536, lng: 113.958, addr: '南山区科技南路18号' } },
       // ── 福田项目自查已整改 demo ──
       { id: 'YZY-011', type: '围挡基础松动', fenceId: 'WD-2026-0001', fenceAddr: '福田区福华三路', details: '巡检中发现围挡底部基础螺栓松动3处，已当日加固修复', status: '整改完成', source: '项目巡检', reportTime: d(8)+' 09:20:00', engineerName: '管道铺设工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png'], location: { lat: 22.550, lng: 114.061, addr: '福田区福华三路与金田路交汇处' } },
       { id: 'YZY-012', type: '围挡脏污', fenceId: 'WD-2026-0002', fenceAddr: '福田区福华三路西侧', details: '巡检中发现围挡表面有泥浆泼溅痕迹约2㎡，已清洗完毕', status: '整改完成', source: '项目巡检', reportTime: d(9)+' 14:50:00', engineerName: '沟槽开挖工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png'], location: { lat: 22.547, lng: 114.060, addr: '福田区福华三路西侧' } },
@@ -500,7 +506,20 @@
       { id: 'YZY-014', type: '围挡二维码内容不全', fenceId: 'WD-2026-0003', fenceAddr: '福田区福华三路东侧', details: '巡检中发现围挡二维码缺少责任人联系电话，已重新制作张贴', status: '整改完成', source: '项目巡检', reportTime: d(12)+' 11:10:00', engineerName: '道路恢复工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png'], location: { lat: 22.547, lng: 114.063, addr: '福田区福华三路东侧' } },
       // ── 应建未建围挡 demo ──
       { id: 'YZY-009', type: '应建未建围挡', fenceId: '', fenceAddr: '', details: '粤海街道科技南路与滨海大道交汇处，根据规划要求此处应设置围挡但至今未建', status: '待整改', source: '街道上报', reportTime: d(4)+' 09:30:00', engineerName: '', responsibleUnit: '', street: '粤海街道', projectName: '', photos: ['../围挡破损.png'], location: { lat: 22.538, lng: 113.955, addr: '南山区粤海街道科技南路与滨海大道交汇处' } },
-      { id: 'YZY-010', type: '应建未建围挡', fenceId: '', fenceAddr: '', details: '黄贝街道深南东路北侧工地出入口处未按规定设置围挡，存在安全隐患', status: '待整改', source: '街道上报', reportTime: d(6)+' 14:00:00', engineerName: '', responsibleUnit: '', street: '黄贝街道', projectName: '', photos: ['../围挡破损.png'], location: { lat: 22.550, lng: 114.140, addr: '罗湖区黄贝街道深南东路北侧' } }
+      { id: 'YZY-010', type: '应建未建围挡', fenceId: '', fenceAddr: '', details: '黄贝街道深南东路北侧工地出入口处未按规定设置围挡，存在安全隐患', status: '待整改', source: '街道上报', reportTime: d(6)+' 14:00:00', engineerName: '', responsibleUnit: '', street: '黄贝街道', projectName: '', photos: ['../围挡破损.png'], location: { lat: 22.550, lng: 114.140, addr: '罗湖区黄贝街道深南东路北侧' } },
+      // ── 补充演示数据：多种状态+多种来源 ──
+      { id: 'YZY-015', type: '围挡破损', fenceId: 'WD-2026-0002', fenceAddr: '福田区福华三路西侧', details: '沟槽开挖工程围挡面板被施工机械碰撞导致大面积凹陷变形，面积约2㎡', status: '整改逾期', source: '监管巡查', reportTime: d(18)+' 15:30:00', engineerName: '沟槽开挖工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png','../围挡破损.png'], location: { lat: 22.547, lng: 114.060, addr: '福田区福华三路西侧' } },
+      { id: 'YZY-016', type: '围挡喷淋不符合要求', fenceId: 'WD-2026-0004', fenceAddr: '南山区科技园路', details: '基坑围护工程围挡喷淋系统水压不足，降尘效果不达标', status: '待整改', source: '监管巡查', reportTime: d(3)+' 16:00:00', engineerName: '基坑围护工程', responsibleUnit: '中建三局集团有限公司', photos: ['../围挡破损.png'], location: { lat: 22.535, lng: 113.956, addr: '南山区粤海街道科技园路' } },
+      { id: 'YZY-017', type: '围挡占道超限', fenceId: 'WD-2026-0005', fenceAddr: '南山区科技南路', details: '主体结构工程围挡外堆放的建筑材料超出占道许可范围约3m，影响非机动车通行', status: '待整改', source: '群众上报', reportTime: d(2)+' 09:45:00', engineerName: '主体结构工程', responsibleUnit: '中建三局集团有限公司', photos: ['../围挡破损.png'], location: { lat: 22.534, lng: 113.958, addr: '南山区粤海街道科技南路18号' } },
+      { id: 'YZY-018', type: '公益广告污损', fenceId: 'WD-2026-0001', fenceAddr: '福田区福华三路', details: '管道铺设工程围挡公益广告画面大面积褪色脱胶，公益广告内容已无法辨认', status: '整改逾期', source: '街道上报', reportTime: d(25)+' 11:20:00', engineerName: '管道铺设工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png','../围挡破损.png'], location: { lat: 22.550, lng: 114.062, addr: '福田区福华三路与金田路交汇处' } },
+      { id: 'YZY-019', type: '围挡安全隐患', fenceId: 'WD-2026-0004', fenceAddr: '南山区科技园路', details: '基坑围护工程围挡夜间照明设施损坏，施工区域夜间无警示灯光存在行人安全隐患', status: '待整改', source: '街道上报', reportTime: d(1)+' 20:10:00', engineerName: '基坑围护工程', responsibleUnit: '中建三局集团有限公司', photos: ['../围挡破损.png'], location: { lat: 22.537, lng: 113.958, addr: '南山区科技园路' } },
+      { id: 'YZY-020', type: '围挡脏污', fenceId: 'WD-2026-0002', fenceAddr: '福田区福华三路西侧', details: '沟槽开挖工程围挡被附近工地泥浆溅射大面积污染，已影响市容环境卫生', status: '待整改', source: '群众上报', reportTime: d(0)+' 08:00:00', engineerName: '沟槽开挖工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png','../围挡破损.png'], location: { lat: 22.548, lng: 114.059, addr: '福田区福华三路西侧' } },
+      // ── 巡检记录关联问题（1:1映射patrolRecord.issues）──
+      { id: 'YZY-021', type: '围挡脏污', fenceId: 'WD-2026-0001', fenceAddr: '福田区福华三路', details: '围挡面板表面有轻微泥浆污渍，面积约0.2㎡，不影响结构安全但需清洁', status: '待整改', source: '项目巡检', reportTime: '2026-05-09 15:20:00', engineerName: '管道铺设工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png'], location: { lat: 22.549, lng: 114.060, addr: '福田区福华三路与金田路交汇处' } },
+      { id: 'YZY-022', type: '围挡尺寸不合规', fenceId: 'WD-2026-0002', fenceAddr: '福田区福华三路西侧', details: '围挡实测高度2.0m，低于规范要求的2.5m标准高度，需立即调整', status: '待整改', source: '项目巡检', reportTime: '2026-05-10 10:00:00', engineerName: '沟槽开挖工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png'], location: { lat: 22.547, lng: 114.060, addr: '福田区福华三路西侧' } },
+      { id: 'YZY-023', type: '围挡基础松动', fenceId: 'WD-2026-0002', fenceAddr: '福田区福华三路西侧', details: '围挡面板之间连接螺栓松动3处，连接件存在脱落风险，需紧固或更换', status: '整改完成', source: '项目巡检', reportTime: '2026-05-17 16:00:00', engineerName: '沟槽开挖工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png','../围挡破损.png'], location: { lat: 22.548, lng: 114.062, addr: '福田区福华三路西侧' } },
+      { id: 'YZY-024', type: '围挡材质不符合规范', fenceId: 'WD-2026-0003', fenceAddr: '福田区福华三路东侧', details: '现场围挡使用PVC材质，不符合装配式钢结构喷绘围挡的设计要求，需更换为规范材质', status: '待整改', source: '项目巡检', reportTime: '2026-05-08 11:00:00', engineerName: '道路恢复工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png'], location: { lat: 22.547, lng: 114.063, addr: '福田区福华三路东侧' } },
+      { id: 'YZY-025', type: '围挡超期未拆除', fenceId: 'WD-2026-0003', fenceAddr: '福田区福华三路东侧', details: '该围挡已于2025-06-01到期，至今未拆除，属于超期围挡，需立即拆除或办理延期手续', status: '整改逾期', source: '项目巡检', reportTime: '2026-05-08 11:00:00', engineerName: '道路恢复工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png'], location: { lat: 22.546, lng: 114.062, addr: '福田区福华三路东侧' } }
     ];
   }
 
