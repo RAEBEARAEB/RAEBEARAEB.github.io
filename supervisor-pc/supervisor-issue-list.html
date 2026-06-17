@@ -119,9 +119,11 @@ a{color:var(--text-link);text-decoration:none}::-webkit-scrollbar{width:6px}::-w
 	<div class="card"><div class="search-bar" style="margin-bottom:0">
 	  <select id="filterDistrict" onchange="renderTable()"><option value="all">全部区域</option></select>
 		  <select id="filterStreet" onchange="renderTable()"><option value="all">全部街道</option></select>
+		  <select id="filterProjStatus" onchange="renderTable()"><option value="all">全部项目状态</option><option value="在建">在建</option><option value="停工">停工</option><option value="竣工验收">竣工验收</option></select>
+		  <select id="filterFenceStatus" onchange="renderTable()"><option value="all">全部围挡状态</option><option value="设置中">设置中</option><option value="即将到期">即将到期</option><option value="已到期">已到期</option></select>
 		  <input type="text" id="filterKeyword" placeholder="搜索项目名称" oninput="renderTable()">
 	  <button class="btn btn-primary btn-sm" onclick="renderTable()"><svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>查询</button>
-	  <button class="btn btn-ghost btn-sm" onclick="document.getElementById('filterKeyword').value='';document.getElementById('filterDistrict').value='all';document.getElementById('filterStreet').value='all';renderTable()"><svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>重置</button>
+	  <button class="btn btn-ghost btn-sm" onclick="document.getElementById('filterKeyword').value='';document.getElementById('filterDistrict').value='all';document.getElementById('filterStreet').value='all';document.getElementById('filterProjStatus').value='all';document.getElementById('filterFenceStatus').value='all';renderTable()"><svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>重置</button>
 
 </div></div>
 
@@ -199,6 +201,10 @@ function renderTable(){
   if(kw)_projItems=_projItems.filter(function(p){return p.project.toLowerCase().indexOf(kw)>-1||(p.street||'').toLowerCase().indexOf(kw)>-1;});
   if(dist!=='all')_projItems=_projItems.filter(function(p){return p.district===dist;});
   if(street!=='all')_projItems=_projItems.filter(function(p){return p.street===street;});
+  var ps=document.getElementById('filterProjStatus').value;
+  var fs=document.getElementById('filterFenceStatus').value;
+  if(ps!=='all')_projItems=_projItems.filter(function(p){return p.projStatus===ps;});
+  if(fs!=='all')_projItems=_projItems.filter(function(p){return p.fenceStatus===fs;});
   var total=_projItems.length,start=(_page-1)*_pageSize,pageItems=_projItems.slice(start,start+_pageSize),h='';
 
   var fsTag={};fsTag['设置中']='tag-success';fsTag['即将到期']='tag-warning';fsTag['已到期']='tag-default';

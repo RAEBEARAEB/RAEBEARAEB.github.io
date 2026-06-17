@@ -158,39 +158,14 @@
                         <span class="patrol-detail-row-label" id="patrol-detail-remarkLabel">备注</span>
                         <span class="patrol-detail-row-value" id="patrol-detail-remark" style="white-space:pre-wrap"></span>
                     </div>
-                    <!-- Issue fields (has issue) -->
-                    <div id="patrol-detail-issue-fields" style="display:none">
-                        <div class="patrol-detail-row">
-                            <span class="patrol-detail-row-label">问题类型</span>
-                            <span class="patrol-detail-row-value is-issue" id="patrol-detail-issue-type">—</span>
-                        </div>
-                        <div class="patrol-detail-row">
-                            <span class="patrol-detail-row-label">问题详情</span>
-                            <span class="patrol-detail-row-value" id="patrol-detail-issue-detail" style="white-space:pre-wrap">—</span>
-                        </div>
-                    <div class="patrol-detail-row">
-                        <span class="patrol-detail-row-label">问题位置</span>
-                        <div class="patrol-detail-row-value" style="overflow:visible">
-                            <div id="patrol-detail-issue-map" style="width:100%;height:220px;border-radius:6px;overflow:hidden;border:1px solid #333;background:#1a1a1a"></div>
-                            <div style="display:flex;gap:6px;margin-top:6px;font-size:10px;color:#aaa;white-space:nowrap">
-                                <span style="display:flex;align-items:center;gap:2px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#D13B2F;flex-shrink:0"></span>问题</span>
-                                <span style="display:flex;align-items:center;gap:2px"><span style="display:inline-block;width:10px;height:2px;background:#D13B2F;flex-shrink:0"></span>红线</span>
-                                <span style="display:flex;align-items:center;gap:2px"><span style="display:inline-block;width:10px;height:0;border-bottom:2px dashed #1862D4;flex-shrink:0"></span>围挡</span>
-                                <span style="display:flex;align-items:center;gap:2px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#1862D4;flex-shrink:0"></span>出入口</span>
-                            </div>
-                        </div>
+                </div>
+                <!-- Issue list (has issue) -->
+                <div id="patrol-detail-issue-list" style="display:none;padding:0 16px 16px">
+                    <div class="patrol-detail-sheet-header" style="margin-bottom:10px">
+                        <span class="patrol-detail-sheet-header-line"></span>
+                        <span class="patrol-detail-sheet-header-text">问题列表</span>
                     </div>
-                    <!-- Rectification fields -->
-                    <div id="patrol-detail-rectify-fields" style="display:none">
-                        <div class="patrol-detail-row">
-                            <span class="patrol-detail-row-label">整改说明</span>
-                            <span class="patrol-detail-row-value" id="patrol-detail-rectify-desc" style="white-space:pre-wrap">—</span>
-                        </div>
-                        <div class="patrol-detail-row">
-                            <span class="patrol-detail-row-label">整改照片</span>
-                            <span class="patrol-detail-row-value" id="patrol-detail-rectify-photos">—</span>
-                        </div>
-                    </div>
+                    <div id="patrol-detail-issue-items"></div>
                 </div>
             </div>
             <!-- ═══ AddIssue mode: screenshot button + issue list ═══ -->
@@ -502,6 +477,42 @@
         });
     }
 
+    // Open an issue from the patrol detail view → navigates to issue detail page
+    function openIssueFromPatrol(idx) {
+        var issueId = '';
+        if (idx >= 0 && patrolRecord.issues && patrolRecord.issues[idx]) {
+            // Try to find matching YZY issue by fenceId + type
+            var fenceId = getQueryParam('fenceId') || '';
+            var iss = patrolRecord.issues[idx];
+            try {
+                var raw = localStorage.getItem('YZY_STREET_ISSUES');
+                if (raw) {
+                    var all = JSON.parse(raw);
+                    for (var i = 0; i < all.length; i++) {
+                        if (all[i].fenceId === fenceId && all[i].type === iss.type && all[i].details === iss.detail) {
+                            issueId = all[i].id;
+                            break;
+                        }
+                    }
+                }
+            } catch(e) {}
+        } else {
+            // Fallback: use YZY match
+            var yzy = findMatchedYZYIssue(patrolRecord);
+            if (yzy) issueId = yzy.id;
+        }
+        if (issueId) {
+            var url = 'patrol-issue-detail.html?id=' + encodeURIComponent(issueId);
+            var patrolId = getQueryParam('patrolId');
+            if (patrolId) url += '&patrolId=' + encodeURIComponent(patrolId);
+            var eng = getQueryParam('engineering');
+            if (eng) url += '&engineering=' + encodeURIComponent(eng);
+            window.location.href = url;
+        } else {
+            alert('未找到关联的问题记录');
+        }
+    }
+
     function loadDemoData() {
         // Use demo data matching the patrol record
         patrolRecord = {
@@ -541,32 +552,32 @@
                 : '<span class="is-ok">否</span>';
             if (hasIssue) {
                 document.getElementById('patrol-detail-remark-row').style.display = 'none';
-                document.getElementById('patrol-detail-issue-fields').style.display = '';
-                // Issue fields from patrol record
-                var issue=patrolRecord.issues&&patrolRecord.issues[0];
-                document.getElementById('patrol-detail-issue-type').textContent = issue&&issue.type?issue.type:'—';
-                document.getElementById('patrol-detail-issue-detail').textContent = issue&&issue.detail?issue.detail:(remark||'—');
-                // Location from YZY matched issue + patrol record
-                var yzyIssue=findMatchedYZYIssue(patrolRecord);
-                var locLat=null,locLng=null;
-                if(issue&&issue.location&&issue.location.lat){locLat=issue.location.lat;locLng=issue.location.lng;}
-                else if(yzyIssue&&yzyIssue.location&&yzyIssue.location.lat){locLat=yzyIssue.location.lat;locLng=yzyIssue.location.lng;}
-                if(locLat!==null){
-                  setTimeout(function(){initIssueLocationMap(locLat,locLng);},100);
-                }
-                // Rectification fields
-                var rect=yzyIssue&&yzyIssue._rectification;
-                if(rect){
-                    document.getElementById('patrol-detail-rectify-fields').style.display = '';
-                    document.getElementById('patrol-detail-rectify-desc').textContent = rect.desc||'—';
-                    document.getElementById('patrol-detail-rectify-photos').innerHTML = rect.photos&&rect.photos.length?rect.photos.map(function(p){return '<img src="'+p+'" style="width:80px;height:80px;object-fit:cover;border-radius:4px;margin-right:6px;border:1px solid #333">';}).join(''):'—';
+                document.getElementById('patrol-detail-issue-list').style.display = '';
+                // Render issue list cards
+                var issues=patrolRecord.issues||[];
+                var itemsHtml='';
+                if(issues.length){
+                    issues.forEach(function(iss,i){
+                        itemsHtml+='<div class="issue-card" style="cursor:pointer;margin-bottom:8px" onclick="openIssueFromPatrol('+i+')">'+
+                            '<div class="issue-card-info">'+
+                                '<div class="issue-card-type">'+(iss.type||'—')+'</div>'+
+                                '<div class="issue-card-detail">'+(iss.detail||'—')+'</div>'+
+                            '</div>'+
+                        '</div>';
+                    });
                 }else{
-                    document.getElementById('patrol-detail-rectify-fields').style.display = 'none';
+                    // Fallback: single issue from remark
+                    itemsHtml='<div class="issue-card" style="cursor:pointer;margin-bottom:8px" onclick="openIssueFromPatrol(-1)">'+
+                        '<div class="issue-card-info">'+
+                            '<div class="issue-card-type">'+(patrolRecord.issueType||'—')+'</div>'+
+                            '<div class="issue-card-detail">'+(remark||'—')+'</div>'+
+                        '</div>'+
+                    '</div>';
                 }
+                document.getElementById('patrol-detail-issue-items').innerHTML=itemsHtml;
             } else {
                 document.getElementById('patrol-detail-remark-row').style.display = '';
-                document.getElementById('patrol-detail-issue-fields').style.display = 'none';
-                document.getElementById('patrol-detail-rectify-fields').style.display = 'none';
+                document.getElementById('patrol-detail-issue-list').style.display = 'none';
                 document.getElementById('patrol-detail-remarkLabel').textContent = '备注';
                 document.getElementById('patrol-detail-remark').textContent = remark || '—';
             }

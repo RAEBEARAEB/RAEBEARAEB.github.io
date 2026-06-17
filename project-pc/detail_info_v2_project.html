@@ -327,6 +327,32 @@ a:hover{color:var(--text-link-hover)}
 .patrol-loc-display:hover{border-color:var(--color-primary-500)}.patrol-loc-display:active{background:var(--color-primary-50)}
 .patrol-loc-display svg{flex-shrink:0}
 .patrol-loc-picked{border-color:var(--color-success);color:var(--color-success)}
+/* ── Multi-issue items ── */
+.patrol-issues-list{display:flex;flex-direction:column;gap:var(--space-3);margin-bottom:var(--space-3)}
+.patrol-issue-item{display:flex;gap:var(--space-2);align-items:flex-start;background:var(--color-gray-50);border:1px solid var(--border-color-light);border-radius:var(--border-radius-md);padding:var(--space-3);position:relative}
+.patrol-issue-item-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:var(--space-2)}
+.patrol-issue-item-body select,.patrol-issue-item-body textarea,.patrol-issue-item-body .patrol-issue-photo-row{width:100%}
+.patrol-issue-item-body select{height:28px;border:1px solid var(--border-color-default);border-radius:var(--border-radius-md);padding:0 var(--space-2);font-size:var(--font-size-xs);color:var(--text-primary);outline:none;font-family:var(--font-family);background:var(--bg-card)}
+.patrol-issue-item-body select:focus{border-color:var(--color-primary-500)}
+.patrol-issue-item-body textarea{height:60px;border:1px solid var(--border-color-default);border-radius:var(--border-radius-md);padding:var(--space-1) var(--space-2);font-size:var(--font-size-xs);color:var(--text-primary);outline:none;font-family:var(--font-family);resize:vertical;background:var(--bg-card)}
+.patrol-issue-item-body textarea:focus{border-color:var(--color-primary-500)}
+.patrol-issue-item-header{display:flex;align-items:center;justify-content:space-between;font-size:var(--font-size-xs);font-weight:var(--font-weight-bold);color:var(--text-secondary);margin-bottom:2px}
+.patrol-issue-del-btn{width:22px;height:22px;flex-shrink:0;border:none;background:none;cursor:pointer;color:var(--text-tertiary);font-size:16px;display:flex;align-items:center;justify-content:center;border-radius:var(--border-radius-sm);margin-top:4px}
+.patrol-issue-del-btn:hover{color:var(--color-danger);background:var(--color-danger-light)}
+.patrol-issue-photo-row{display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+.patrol-issue-photo-add{width:52px;height:52px;border:1.5px dashed var(--color-gray-300);border-radius:var(--border-radius-md);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;color:var(--text-tertiary);font-size:10px;gap:2px;background:var(--bg-card)}
+.patrol-issue-photo-add:hover{border-color:var(--color-primary-300);color:var(--color-primary-500)}
+.patrol-issue-photo-thumb{width:52px;height:52px;border-radius:var(--border-radius-md);overflow:hidden;position:relative;border:1px solid var(--border-color-light)}
+.patrol-issue-photo-thumb img{width:100%;height:100%;object-fit:cover}
+.patrol-issue-photo-thumb .photo-del{position:absolute;top:1px;right:1px;width:16px;height:16px;border-radius:50%;background:rgba(0,0,0,0.55);color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;cursor:pointer}
+.patrol-issue-loc-row{display:flex;align-items:center;gap:var(--space-2)}
+.patrol-issue-loc-btn{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;font-size:var(--font-size-xs);color:var(--color-primary-500);cursor:pointer;background:var(--bg-card);border:1px solid var(--color-primary-300);border-radius:var(--border-radius-md)}
+.patrol-issue-loc-btn:hover{border-color:var(--color-primary-500);background:var(--color-primary-50)}
+.patrol-issue-loc-btn.picked{border-color:var(--color-success);color:var(--color-success)}
+.patrol-issue-loc-btn svg{width:12px;height:12px}
+.patrol-add-issue-btn{display:inline-flex;align-items:center;gap:4px;font-size:var(--font-size-sm);color:var(--color-primary-500);cursor:pointer;background:none;border:1px dashed var(--color-primary-300);border-radius:var(--border-radius-md);padding:var(--space-2) var(--space-3);width:100%;justify-content:center}
+.patrol-add-issue-btn:hover{background:var(--color-primary-50);border-color:var(--color-primary-500)}
+.patrol-add-issue-btn svg{width:14px;height:14px}
 /* Location picker overlay inside modal */
 .patrol-loc-overlay{position:absolute;inset:0;background:var(--bg-page);z-index:2000;display:none;flex-direction:column;border-radius:var(--border-radius-lg);overflow:hidden}
 .patrol-loc-overlay.show{display:flex}
@@ -687,10 +713,12 @@ textarea.form-input{height:80px;padding:var(--space-2) var(--space-3);resize:ver
                 </div>
                 <!-- No-issue: remark -->
                 <div class="form-group" id="patrolRemarkGroup"><label class="form-label" id="patrolRemarkLabel">备注</label><textarea class="form-input" id="patrolFormRemark" placeholder="请输入备注信息"></textarea></div>
-                <!-- Single issue: when hasIssue=yes -->
-                <div class="form-group" id="patrolIssueTypeGroup" style="display:none"><label class="form-label"><span style="color:var(--color-danger)">*</span> 问题类型</label><select id="patrolIssueType"><option value="">请选择问题类型</option></select></div>
-                <div class="form-group" id="patrolIssueDetailGroup" style="display:none"><label class="form-label"><span style="color:var(--color-danger)">*</span> 问题详情</label><textarea class="form-input" id="patrolFormIssueDetail" placeholder="请描述巡检发现的问题" style="height:80px"></textarea></div>
-                <div class="form-group" id="patrolIssueLocGroup" style="display:none"><label class="form-label"><span style="color:var(--color-danger)">*</span> 问题位置</label><div class="patrol-loc-display" onclick="openPatrolLocPicker()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg><span id="patrolLocText">点击选择问题位置</span><span style="margin-left:auto;font-size:var(--font-size-xs);color:var(--text-tertiary)">选择</span></div></div>
+                <!-- Multi-issue: when hasIssue=yes -->
+                <div class="form-group" id="patrolIssuesGroup" style="display:none">
+                  <label class="form-label"><span style="color:var(--color-danger)">*</span> 问题项 <span style="font-weight:var(--font-weight-regular);color:var(--text-tertiary);font-size:var(--font-size-xs)">（至少添加一个问题项）</span></label>
+                  <div class="patrol-issues-list" id="patrolIssuesList"></div>
+                  <button class="patrol-add-issue-btn" onclick="addPatrolIssue()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>添加问题项</button>
+                </div>
               </div>
               <!-- Location picker overlay (direct child of .modal) -->
               <div class="patrol-loc-overlay" id="patrolLocOverlay">
@@ -1473,7 +1501,8 @@ var ISSUE_TYPES=window.MOCK_DATA.getStreetIssueTypes();
 })();
 
 window.openAddModal=function(){
-  editingId=null;_patrolLoc=null;
+  editingId=null;_patrolIssues=[];
+  _patrolLocPickerIssueIdx=-1;
   document.getElementById('patrolModalTitle').textContent='新增巡检记录';
   var now=new Date();
   var dt=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0')+'T'+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
@@ -1481,10 +1510,6 @@ window.openAddModal=function(){
   document.getElementById('patrolFormPerson').value='张项目';
   document.getElementById('patrolFormPanoUrl').value='';
   document.getElementById('patrolFormRemark').value='';
-  document.getElementById('patrolFormIssueDetail').value='';
-  document.getElementById('patrolIssueType').value='';
-  document.getElementById('patrolLocText').textContent='点击选择问题位置';
-  document.querySelector('.patrol-loc-display').classList.remove('patrol-loc-picked');
   document.querySelector('input[name="patrolHasIssue"][value="no"]').checked=true;
   handleHasIssueChange();
   document.getElementById('patrolModal').classList.add('show');
@@ -1494,35 +1519,87 @@ window.closePatrolModal=function(){document.getElementById('patrolModal').classL
 window.handleHasIssueChange=function(){
   var hasIssue=document.querySelector('input[name="patrolHasIssue"]:checked').value==='yes';
   document.getElementById('patrolRemarkGroup').style.display=hasIssue?'none':'';
-  document.getElementById('patrolIssueTypeGroup').style.display=hasIssue?'':'none';
-  document.getElementById('patrolIssueDetailGroup').style.display=hasIssue?'':'none';
-  document.getElementById('patrolIssueLocGroup').style.display=hasIssue?'':'none';
+  document.getElementById('patrolIssuesGroup').style.display=hasIssue?'':'none';
+  if(hasIssue&&!_patrolIssues.length)addPatrolIssue();
+  if(!hasIssue)_patrolIssues=[];
 };
 
-// ── Location picker ──
-var _patrolLoc=null,_patrolLocMap=null,_patrolLocMarker=null;
-window.openPatrolLocPicker=function(){
+// ── Multi-issue management ──
+var _patrolIssues=[];
+var _patrolLocPickerIssueIdx=-1;
+var ISSUE_TYPES=window.MOCK_DATA.getStreetIssueTypes();
+
+(function initIssueTypeOptions(){
+  var sel=document.getElementById('patrolIssueType');
+  if(sel){ISSUE_TYPES.forEach(function(t){sel.innerHTML+='<option value="'+t+'">'+t+'</option>';});}
+})();
+
+window.addPatrolIssue=function(){
+  _patrolIssues.push({type:'',detail:'',photos:[],location:null});
+  renderPatrolIssues();
+};
+
+window.removePatrolIssue=function(idx){
+  _patrolIssues.splice(idx,1);
+  renderPatrolIssues();
+};
+
+window.onIssueFieldChange=function(idx,field,value){
+  _patrolIssues[idx][field]=value;
+};
+
+window.addIssuePhoto=function(idx){
+  var el=document.getElementById('issuePhotoInput_'+idx);if(el)el.click();
+};
+
+window.handleIssuePhotos=function(idx,e){
+  var files=e.target.files;if(!files||!files.length)return;
+  var iss=_patrolIssues[idx];
+  for(var i=0;i<files.length;i++){
+    if(iss.photos.length>=9)break;
+    (function(f){
+      var r=new FileReader();
+      r.onload=function(ev){iss.photos.push(ev.target.result);renderPatrolIssues();};
+      r.readAsDataURL(f);
+    })(files[i]);
+  }
+  e.target.value='';
+};
+
+window.removeIssuePhoto=function(issueIdx,photoIdx){
+  _patrolIssues[issueIdx].photos.splice(photoIdx,1);
+  renderPatrolIssues();
+};
+
+window.openIssueLocPicker=function(idx){
+  _patrolLocPickerIssueIdx=idx;
+  _patrolLoc=null;
   var modal=document.querySelector('#patrolModal .modal');
   if(modal){modal.style.width='900px';modal.style.maxWidth='95vw';modal.style.maxHeight='90vh';}
   document.getElementById('patrolLocOverlay').classList.add('show');
   setTimeout(function(){initPatrolLocMap();},150);
 };
+
+// ── Location picker (repurposed for per-issue) ──
+var _patrolLoc=null,_patrolLocMap=null;
 window.cancelPatrolLoc=function(){
   var modal=document.querySelector('#patrolModal .modal');
   if(modal){modal.style.width='';modal.style.maxWidth='';modal.style.maxHeight='';}
   document.getElementById('patrolLocOverlay').classList.remove('show');
   if(_patrolLocMap){_patrolLocMap.remove();_patrolLocMap=null;}
-  _patrolLocMarker=null;
+  _patrolLocPickerIssueIdx=-1;
 };
 window.confirmPatrolLoc=function(){
   if(!_patrolLoc){showToast('请将十字准星定位到问题位置','error');return}
+  if(_patrolLocPickerIssueIdx>=0&&_patrolLocPickerIssueIdx<_patrolIssues.length){
+    _patrolIssues[_patrolLocPickerIssueIdx].location={lat:_patrolLoc.lat,lng:_patrolLoc.lng};
+    renderPatrolIssues();
+  }
   var modal=document.querySelector('#patrolModal .modal');
   if(modal){modal.style.width='';modal.style.maxWidth='';modal.style.maxHeight='';}
-  document.getElementById('patrolLocText').textContent=_patrolLoc.lat.toFixed(5)+', '+_patrolLoc.lng.toFixed(5);
-  document.querySelector('.patrol-loc-display').classList.add('patrol-loc-picked');
   document.getElementById('patrolLocOverlay').classList.remove('show');
   if(_patrolLocMap){_patrolLocMap.remove();_patrolLocMap=null;}
-  _patrolLocMarker=null;
+  _patrolLocPickerIssueIdx=-1;
 };
 
 function initPatrolLocMap(){
@@ -1530,21 +1607,15 @@ function initPatrolLocMap(){
   if(_patrolLocMap){_patrolLocMap.remove();_patrolLocMap=null;}
   _patrolLocMap=L.map(el,{zoomControl:true,attributionControl:false});
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:18}).addTo(_patrolLocMap);
-
-  // Use defaultHoard's project info for map center
   var hoard=_defaultHoard;
   var projects=window.MOCK_DATA.getProjects();
   var proj=null;
   if(hoard&&hoard.projectId){projects.forEach(function(p){if(p.id===hoard.projectId)proj=p;});}
   var clat=proj?proj.lat:22.548, clng=proj?proj.lng:114.061;
   _patrolLocMap.setView([clat,clng],16);
-
-  // Project redline
   if(proj&&proj.redlineGeo&&proj.redlineGeo.length>0){
     L.polygon(proj.redlineGeo.map(function(p){return[p[0],p[1]];}),{color:'#D13B2F',weight:2,fill:false}).addTo(_patrolLocMap);
   }
-
-  // All fence gpsShapes in this project
   if(proj&&proj.hoardings){
     proj.hoardings.forEach(function(h){
       if(!h.gpsShape||!h.gpsShape.length)return;
@@ -1559,16 +1630,44 @@ function initPatrolLocMap(){
       }
     });
   }
-
-  // Center crosshair — update on map move
   _patrolLoc={lat:clat,lng:clng};
   _patrolLocMap.on('move',function(){
     var c=_patrolLocMap.getCenter();
     _patrolLoc={lat:c.lat,lng:c.lng};
     document.getElementById('patrolLocAddr').textContent=c.lat.toFixed(5)+', '+c.lng.toFixed(5);
   });
-  // Initial address text
   document.getElementById('patrolLocAddr').textContent=clat.toFixed(5)+', '+clng.toFixed(5);
+}
+
+function renderPatrolIssues(){
+  var list=document.getElementById('patrolIssuesList');if(!list)return;
+  if(!_patrolIssues.length){
+    list.innerHTML='<div style="font-size:var(--font-size-xs);color:var(--text-tertiary);padding:var(--space-4);text-align:center;border:1px dashed var(--border-color-light);border-radius:var(--border-radius-md)">暂无问题项，点击下方按钮添加</div>';
+    return;
+  }
+  list.innerHTML=_patrolIssues.map(function(iss,i){
+    var typeOpts=ISSUE_TYPES.map(function(t){
+      return '<option value="'+t+'"'+(iss.type===t?' selected':'')+'>'+t+'</option>';
+    }).join('');
+    var locText=iss.location?(iss.location.lat.toFixed(5)+', '+iss.location.lng.toFixed(5)):'点击选择位置';
+    var photosHtml=iss.photos.map(function(p,j){
+      return '<div class="patrol-issue-photo-thumb"><img src="'+p+'"><div class="photo-del" onclick="event.stopPropagation();removeIssuePhoto('+i+','+j+')">&times;</div></div>';
+    }).join('');
+    if(iss.photos.length<9){
+      photosHtml+='<div class="patrol-issue-photo-add" onclick="addIssuePhoto('+i+')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>上传照片</div>';
+    }
+    return '<div class="patrol-issue-item">'+
+      '<div class="patrol-issue-item-body">'+
+        '<div class="patrol-issue-item-header"><span>问题项 '+(i+1)+'</span></div>'+
+        '<select onchange="onIssueFieldChange('+i+','+'\'type\''+',this.value)"><option value="">— 请选择问题类型 —</option>'+typeOpts+'</select>'+
+        '<textarea placeholder="请描述问题详情" onchange="onIssueFieldChange('+i+','+'\'detail\''+',this.value)">'+iss.detail+'</textarea>'+
+        '<div class="patrol-issue-photo-row">'+photosHtml+'</div>'+
+        '<input type="file" id="issuePhotoInput_'+i+'" accept="image/*" capture="environment" multiple style="display:none" onchange="handleIssuePhotos('+i+',event)">'+
+        '<div class="patrol-issue-loc-row"><span style="font-size:var(--font-size-xs);color:var(--text-tertiary)">位置：</span><button class="patrol-issue-loc-btn'+(iss.location?' picked':'')+'" onclick="openIssueLocPicker('+i+')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg><span>'+locText+'</span></button></div>'+
+      '</div>'+
+      '<button class="patrol-issue-del-btn" onclick="removePatrolIssue('+i+')" title="删除此问题项">&times;</button>'+
+    '</div>';
+  }).join('');
 }
 
 window.savePatrolRecord=function(){
@@ -1577,27 +1676,33 @@ window.savePatrolRecord=function(){
   var panoUrl=document.getElementById('patrolFormPanoUrl').value.trim();
   var remark=document.getElementById('patrolFormRemark').value.trim();
   var hasIssue=document.querySelector('input[name="patrolHasIssue"]:checked').value==='yes';
-  var issueType=document.getElementById('patrolIssueType').value;
-  var issueDetail=document.getElementById('patrolFormIssueDetail').value.trim();
   if(!dt){showToast('请选择巡检时间','error');return}
   if(!person.trim()){showToast('请填写巡检人','error');return}
   if(!panoUrl){showToast('请填写全景照片链接','error');return}
+  // Validate issues
   if(hasIssue){
-    if(!issueType){showToast('请选择问题类型','error');return}
-    if(!issueDetail){showToast('请填写问题详情','error');return}
-    if(!_patrolLoc){showToast('请选择问题位置','error');return}
-    remark=issueDetail; // legacy compatibility
+    if(!_patrolIssues.length){showToast('请至少添加一个问题项','error');return}
+    for(var i=0;i<_patrolIssues.length;i++){
+      var iss=_patrolIssues[i];
+      if(!iss.type){showToast('请选择问题项'+(i+1)+'的问题类型','error');return}
+      if(!iss.detail.trim()){showToast('请填写问题项'+(i+1)+'的问题详情','error');return}
+      if(!iss.photos.length){showToast('问题项'+(i+1)+'请至少上传一张现场照片','error');return}
+      if(!iss.location){showToast('请选择问题项'+(i+1)+'的问题位置','error');return}
+    }
+    remark=_patrolIssues[0].detail; // legacy
   }
   var date=dt.split('T')[0],time=dt.split('T')[1]||'09:00';
-  var issues=hasIssue?[{type:issueType,detail:issueDetail,location:_patrolLoc?{lat:_patrolLoc.lat,lng:_patrolLoc.lng}:null}]:[];
+  var issues=hasIssue?_patrolIssues.map(function(iss){
+    return{type:iss.type,detail:iss.detail.trim(),location:iss.location,photos:iss.photos.slice()};
+  }):[];
   var rec={id:editingId||('r_'+Date.now()),date:date,time:time,person:person,unit:'深圳市市政工程总公司',location:'',remark:remark,hasIssue:hasIssue,panoramaSrc:panoUrl,issues:issues};
   if(editingId){
     var idx=patrolRecords.findIndex(function(r){return r.id===editingId});
     if(idx>=0)patrolRecords[idx]=rec;
   }else{patrolRecords.push(rec);}
   saveRecords(patrolRecords).then(function(){});
-  // Sync issue to YZY_STREET_ISSUES so it appears in 问题闭环处置
-  if(hasIssue){
+  // Sync each issue to YZY_STREET_ISSUES
+  if(hasIssue&&_patrolIssues.length>0){
     try{
       var params=new URLSearchParams(window.location.search);
       var engName=params.get('engineering')||_defaultHoard.engineerName||'';
@@ -1606,18 +1711,20 @@ window.savePatrolRecord=function(){
       var constructUnit=hoard?hoard.constructUnit||'':'';
       var existingIssues=[];
       try{var raw=localStorage.getItem('YZY_STREET_ISSUES');if(raw)existingIssues=JSON.parse(raw);}catch(e){}
-      existingIssues.unshift({
-        id:'CRUISE-'+new Date().getTime(),
-        type:issueType,fenceId:fenceId,fenceAddr:hoard?hoard.address:'',
-        details:issueDetail,
-        status:'待整改',source:'项目巡检',
-        reportTime:date+' '+time+':00',
-        engineerName:engName,responsibleUnit:constructUnit,
-        photos:[],
-        location:{lat:_patrolLoc?_patrolLoc.lat:(hoard&&hoard.gpsShape?hoard.gpsShape[0][0]:22.548),lng:_patrolLoc?_patrolLoc.lng:(hoard&&hoard.gpsShape?hoard.gpsShape[0][1]:114.061),addr:_patrolLoc?_patrolLoc.lat.toFixed(5)+', '+_patrolLoc.lng.toFixed(5):(hoard?hoard.address:'')}
+      _patrolIssues.forEach(function(iss,i){
+        existingIssues.unshift({
+          id:'CRUISE-'+new Date().getTime()+'-'+i,
+          type:iss.type,fenceId:fenceId,fenceAddr:hoard?hoard.address:'',
+          details:iss.detail.trim(),
+          status:'待整改',source:'项目巡检',
+          reportTime:date+' '+time+':00',
+          engineerName:engName,responsibleUnit:constructUnit,
+          photos:iss.photos.slice(),
+          location:{lat:iss.location?iss.location.lat:(hoard&&hoard.gpsShape?hoard.gpsShape[0][0]:22.548),lng:iss.location?iss.location.lng:(hoard&&hoard.gpsShape?hoard.gpsShape[0][1]:114.061),addr:iss.location?iss.location.lat.toFixed(5)+', '+iss.location.lng.toFixed(5):(hoard?hoard.address:'')}
+        });
       });
       localStorage.setItem('YZY_STREET_ISSUES',JSON.stringify(existingIssues));
-    }catch(e){console.error('Failed to sync issue to YZY',e);}
+    }catch(e){console.error('Failed to sync issues to YZY',e);}
   }
   closePatrolModal();
   render();

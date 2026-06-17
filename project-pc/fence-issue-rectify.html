@@ -238,7 +238,6 @@ function loadIssue(){
       th+='<div class="log-field"><span class="log-field-lbl">问题来源</span><span class="log-field-val">'+esc(_issue.source||'--')+'</span></div>';
       th+='<div class="log-field"><span class="log-field-lbl">操作人</span><span class="log-field-val">'+esc(t.person||'—')+'</span></div>';
     }
-    }
     if(t.type==='transfer'){
       th+='<div class="log-field"><span class="log-field-lbl">转派人</span><span class="log-field-val">'+esc(t.person||'—')+(t.unit?'（'+esc(t.unit)+'）':'')+'</span></div>';
       th+='<div class="log-field"><span class="log-field-lbl">原关联工程</span><span class="log-field-val">'+esc(_issue.engineerName||'—')+'</span></div>';

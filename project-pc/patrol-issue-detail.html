@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>围挡问题详情 - 深圳市建设施工围挡数字化管理系统</title>
+<title>巡检问题详情 - 深圳市建设施工围挡数字化管理系统</title>
 <style>
 :root {
   --color-primary-50:#EBF2FF;--color-primary-100:#C6D9FF;--color-primary-200:#9DBEFF;
@@ -155,11 +155,11 @@ a{color:var(--text-link);text-decoration:none;transition:color var(--transition-
 <li class="nav-group-label">围挡管理</li>
 <li class="nav-item"><a href="redline.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>项目红线管理</a></li>
 <li class="nav-item"><a href="index_v2_project.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>围挡档案管理</a></li>
-<li class="nav-item"><a href="fence-issue-list.html" class="active"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>问题闭环处置</a></li></ul>
+<li class="nav-item"><a href="patrol_issue_record.html" class="active"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>巡检记录</a></li></ul>
 <div class="sidebar-bottom"><div class="sidebar-version">v2.0.0 · 2026.06</div></div></aside>
 <main class="layout-main">
-<div class="breadcrumb"><span class="breadcrumb-item"><a href="index.html">首页</a></span><span class="breadcrumb-sep">/</span><span class="breadcrumb-item"><a href="fence-issue-list.html">问题闭环处置</a></span><span class="breadcrumb-sep">/</span><span class="breadcrumb-item">围挡问题详情</span></div>
-<div class="page-header-fixed"><div class="page-title"><span class="page-title-accent"></span>围挡问题详情</div><div class="page-header-actions"><button class="btn btn-ghost" onclick="history.back()">返回列表</button></div></div>
+<div class="breadcrumb"><span class="breadcrumb-item"><a href="index.html">首页</a></span><span class="breadcrumb-sep">/</span><span class="breadcrumb-item"><a href="patrol_issue_record.html">巡检记录</a></span><span class="breadcrumb-sep">/</span><span class="breadcrumb-item">巡检问题详情</span></div>
+<div class="page-header-fixed"><div class="page-title"><span class="page-title-accent"></span>巡检问题详情</div><div class="page-header-actions"><button class="btn btn-ghost" onclick="goBackToPatrol()">返回巡检记录</button></div></div>
 <div class="main-body">
 <nav class="section-nav" id="sectionNav">
 <a class="section-nav-item active" data-sec="sec-basic"><span class="section-nav-num">1</span>围挡问题信息</a>
@@ -183,6 +183,13 @@ L.Icon.Default.mergeOptions({
   shadowUrl:'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/images/marker-shadow.png'
 });
 var issueId=(window.location.search.match(/id=([^&]+)/)||[])[1],_issue=null;
+function goBackToPatrol(){
+  var patrolId=(window.location.search.match(/patrolId=([^&]+)/)||[])[1]||'';
+  var eng=(window.location.search.match(/engineering=([^&]+)/)||[])[1]||'';
+  var url='patrol_issue_record.html?mode=view&patrolId='+encodeURIComponent(patrolId);
+  if(eng)url+='&engineering='+encodeURIComponent(eng);
+  window.location.href=url;
+}
 function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
 function loadDetail(){
