@@ -161,7 +161,8 @@ input,textarea,select{font-family:var(--font-family);outline:none}
 .map-placeholder{height:200px;background:#E8E4D8;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--text-tertiary);gap:6px;border-radius:var(--radius-lg);margin-bottom:12px;overflow:hidden;position:relative}
 .map-legend{display:flex;gap:12px;padding:4px 10px;font-size:var(--font-xs);color:var(--text-sub);background:rgba(255,255,255,0.92);border-radius:var(--radius-sm);position:absolute;top:8px;left:8px;z-index:2;box-shadow:var(--shadow-sm)}
 .map-legend-item{display:flex;align-items:center;gap:4px}
-.map-legend-line{display:inline-block;width:16px;height:2px;border-radius:1px}
+.map-legend-line{display:inline-block;width:18px;height:2px;border-radius:1px;flex-shrink:0}
+.map-legend-dash{display:inline-block;width:18px;height:0;border-top:2px dashed #2F54EB;border-radius:0;flex-shrink:0}
 .map-legend-dot{display:inline-block;width:8px;height:8px;border-radius:50%}
 .map-address-bar{position:absolute;bottom:28px;left:0;right:0;display:flex;align-items:center;gap:4px;padding:6px 12px;background:linear-gradient(transparent,rgba(0,0,0,0.45));color:#fff;font-size:var(--font-xs);z-index:2}
 .map-info-bar{position:absolute;bottom:8px;left:8px;right:8px;display:flex;align-items:center;justify-content:center;padding:4px 10px;font-size:var(--font-xs);color:var(--text-sub);background:rgba(255,255,255,0.92);z-index:2;border-radius:var(--radius-sm);box-shadow:var(--shadow-sm)}
@@ -1257,60 +1258,159 @@ function buildTimeline(records){
 /* ═══════════════════════════════════════════
    Map Overview
    ═══════════════════════════════════════════ */
+var _overviewMap=null, _overviewFenceLayers={}, _overviewSelected=null;
 function renderMapOverview(){
-  // Color by aggregate status
-  var colors={setting:'#3BB346',removing:'#f5b400',removed:'#2F54EB'};
-  // Build full-screen map with bottom sheet
+  _overviewMap=null;_overviewFenceLayers={};_overviewSelected=null;
   var html='';
   html+='<div style="position:absolute;inset:0;z-index:1" id="mapOverviewMap"></div>'+
-    '<div class="map-overview-legend"><div class="map-legend-item"><span class="map-legend-dot" style="background:#3BB346"></span>设置中</div><div class="map-legend-item"><span class="map-legend-dot" style="background:#f5b400"></span>即将到期</div><div class="map-legend-item"><span class="map-legend-dot" style="background:#2F54EB"></span>已到期</div></div>'+
-    '<div class="map-overview-list"><div style="font-size:var(--font-md);font-weight:var(--fw-heavy);margin-bottom:8px">辖区围挡 · '+projectFenceData.length+'个项目</div>';
-
-  // Project cards in bottom sheet
-  projectFenceData.forEach(function(p,i){
-    var col=colors[p.aggStatusKey]||'#2F54EB';
-    html+='<div class="map-overview-item" onclick="openProjectHoards('+i+')">'+
-      '<div class="map-overview-dot" style="background:'+col+'"></div>'+
-      '<div class="map-overview-info"><div class="map-overview-name">'+p.project+'</div>'+
-      '<div class="map-overview-sub">计划拆除时间：'+p.removeDate+'</div>'+
-      '<div class="map-overview-tags"><span class="tag '+(p.aggStatusKey==='setting'?'tag-setting':p.aggStatusKey==='removed'?'tag-overdue':'tag-removing')+'">'+p.aggStatusLabel+'</span><span class="tag tag-default" style="margin-left:4px">'+p.hoardingCount+'条围挡</span></div>'+
-      '</div></div>';
-  });
-  html+='</div>';
+    // Legend: 项目红线 / 围挡范围 / 出入口
+    '<div class="map-overview-legend"><div class="map-legend-item"><span class="map-legend-line" style="background:#F93920"></span>项目红线</div><div class="map-legend-item"><span class="map-legend-dash"></span>围挡范围</div><div class="map-legend-item"><span class="map-legend-dot" style="background:#2F54EB"></span>出入口</div></div>'+
+    // Bottom: search box + info card
+    '<div class="map-overview-list" style="padding:12px 14px">'+
+      '<div class="search-wrap" style="margin-bottom:8px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input class="search-input" type="text" placeholder="搜索项目或工程名称" id="mapSearchInput" oninput="handleMapSearch(this.value)"></div>'+
+      '<div id="mapInfoCard" style="display:none"></div>'+
+    '</div>';
   document.getElementById('mapOverviewBody').innerHTML=html;
 
-  // Init Leaflet map with all project redlines + fence shapes
+  // Init Leaflet map
   setTimeout(function(){
     var el=document.getElementById('mapOverviewMap');if(!el)return;
-    var overviewMap=L.map(el,{zoomControl:false,attributionControl:false});
-    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:18}).addTo(overviewMap);
-    var allLayers=[];
+    _overviewMap=L.map(el,{zoomControl:false,attributionControl:false});
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:18}).addTo(_overviewMap);
+    var allLayers=[], fenceIdx=0;
     var projects=MOCK_DATA.getProjects();
     projects.forEach(function(proj){
-      // Project redline
-      if(proj.redlineGeo&&proj.redlineGeo.length>0){
+      // Project redline — always show
+      if(proj.redlineGeo&&proj.redlineGeo.length>=3){
         var rl=proj.redlineGeo.map(function(p){return[p[0],p[1]];});
-        allLayers.push(L.polygon(rl,{color:'#F93920',weight:2,fill:false}).addTo(overviewMap));
+        L.polygon(rl,{color:'#F93920',weight:2.5,fill:false,dashArray:'6 3'}).addTo(_overviewMap);
       }
-      // Fence shapes
+      // Fence shapes — only setting + removing
       (proj.hoardings||[]).forEach(function(h){
-        if(!h.gpsShape||!h.gpsShape.length)return;
+        var fk=(h.fenceStatus||'设置中');
+        if(fk==='已到期')return;
+        if(!h.gpsShape||h.gpsShape.length<2)return;
         var fs=h.gpsShape.map(function(p){return[p[0],p[1]];});
-        allLayers.push(L.polygon(fs,{color:'#2F54EB',weight:1.5,dashArray:'5 3',fillColor:'rgba(47,84,235,0.08)',fillOpacity:1}).addTo(overviewMap));
+        var poly=L.polygon(fs,{color:'#2F54EB',weight:1.8,dashArray:'5 3',fillColor:'rgba(47,84,235,0.06)',fillOpacity:1}).addTo(_overviewMap);
+        allLayers.push(poly);
+        // Store layer + fence data for click interaction
+        var fid=h.id;
+        _overviewFenceLayers[fid]={layer:poly, hoard:h, project:proj};
+        poly.on('click', function(e){
+          L.DomEvent.stopPropagation(e);
+          selectFenceOnMap(fid);
+        });
+        // Entrances
         if(h.entrances){
-          h.entrances.forEach(function(e){
-            allLayers.push(L.circleMarker([e.lat,e.lng],{radius:3,color:'#2F54EB',fillColor:'#2F54EB',fillOpacity:1,weight:1}).addTo(overviewMap));
+          h.entrances.forEach(function(ent){
+            var mk=L.circleMarker([ent.lat,ent.lng],{radius:4,color:'#2F54EB',fillColor:'#2F54EB',fillOpacity:0.8,weight:2}).addTo(_overviewMap);
+            mk.bindTooltip(ent.name||'出入口',{direction:'top'});
           });
         }
       });
     });
+    // Click on map background → deselect
+    _overviewMap.on('click',function(){deselectFenceOnMap();});
     if(allLayers.length>0){
       var group=L.featureGroup(allLayers);
-      try{overviewMap.fitBounds(group.getBounds(),{padding:[20,20]});}catch(e){}
+      try{_overviewMap.fitBounds(group.getBounds(),{padding:[20,20]});}catch(e){}
     }else{
-      overviewMap.setView([22.548,114.061],13);
+      _overviewMap.setView([22.548,114.061],13);
     }
   },100);
+}
+
+/* ── Map search ── */
+function handleMapSearch(kw){
+  var card=document.getElementById('mapInfoCard');
+  if(!kw.trim()){card.style.display='none';return}
+  var q=kw.toLowerCase(), results=[];
+  var projects=MOCK_DATA.getProjects();
+  projects.forEach(function(proj){
+    (proj.hoardings||[]).forEach(function(h){
+      var fk=h.fenceStatus||'设置中';if(fk==='已到期')return;
+      var pn=(proj.name||'').toLowerCase(), en=(h.engineerName||'').toLowerCase();
+      if(pn.indexOf(q)>=0||en.indexOf(q)>=0){
+        results.push({hoard:h, project:proj});
+      }
+    });
+  });
+  if(!results.length){card.style.display='none';return}
+  var html='<div style="font-size:var(--font-xs);color:var(--text-sub);margin-bottom:6px">找到 <strong>'+results.length+'</strong> 条记录</div>';
+  results.slice(0,15).forEach(function(r){
+    var h=r.hoard, p=r.project;
+    var st=h.fenceStatus||'设置中';
+    var stCls=st==='设置中'?'tag-setting':st==='即将到期'?'tag-removing':'tag-overdue';
+    html+='<div class="map-overview-item" onclick="locateFenceOnMap(\''+h.id+'\')" style="padding:8px 0">'+
+      '<div class="map-overview-info"><div class="map-overview-name" style="font-size:var(--font-sm)">'+p.name+'</div>'+
+      '<div class="map-overview-sub">'+h.engineerName+'</div>'+
+      '<div class="map-overview-tags"><span class="tag '+stCls+'" style="font-size:10px">'+st+'</span></div>'+
+      '</div></div>';
+  });
+  card.innerHTML=html;card.style.display='block';
+}
+
+/* ── Click to select fence ── */
+var _selectedStyle={color:'#2F54EB',weight:3.5,dashArray:null,fillColor:'rgba(47,84,235,0.15)',fillOpacity:1};
+var _defaultStyle={color:'#2F54EB',weight:1.8,dashArray:'5 3',fillColor:'rgba(47,84,235,0.06)',fillOpacity:1};
+
+function selectFenceOnMap(fid){
+  // Deselect previous
+  if(_overviewSelected&&_overviewFenceLayers[_overviewSelected]){
+    _overviewFenceLayers[_overviewSelected].layer.setStyle(_defaultStyle);
+  }
+  _overviewSelected=fid;
+  var entry=_overviewFenceLayers[fid];if(!entry)return;
+  entry.layer.setStyle(_selectedStyle);
+  // Fit to fence
+  var bounds=entry.layer.getBounds();
+  if(bounds.isValid())_overviewMap.fitBounds(bounds,{padding:[60,60],maxZoom:17});
+  // Show info card
+  showFenceInfoCard(entry.hoard, entry.project);
+}
+
+function deselectFenceOnMap(){
+  if(_overviewSelected&&_overviewFenceLayers[_overviewSelected]){
+    _overviewFenceLayers[_overviewSelected].layer.setStyle(_defaultStyle);
+  }
+  _overviewSelected=null;
+  var card=document.getElementById('mapInfoCard');
+  if(card)card.style.display='none';
+}
+
+function locateFenceOnMap(fid){
+  var entry=_overviewFenceLayers[fid];if(!entry)return;
+  var bounds=entry.layer.getBounds();
+  if(bounds.isValid())_overviewMap.fitBounds(bounds,{padding:[60,60],maxZoom:17});
+  selectFenceOnMap(fid);
+}
+
+/* ── Fence info card ── */
+function showFenceInfoCard(h, proj){
+  var st=h.fenceStatus||'设置中';
+  var stTag={'设置中':'tag-setting','即将到期':'tag-removing','已到期':'tag-overdue'};
+  var iss=h.issueStatus||'正常';
+  var issTag={'正常':'tag-issue tag-issue--normal','待整改':'tag-issue tag-issue--pending','整改逾期':'tag-issue tag-issue--overdue'};
+  // Find the fenceData index for this fence
+  var fidx=-1;
+  for(var i=0;i<fenceData.length;i++){if(fenceData[i].id===h.id){fidx=i;break;}}
+  var html='<div class="fence-card" onclick="openMapFenceDetail('+fidx+')" style="margin-top:4px">'+
+    '<div class="fence-card-title">'+proj.name+'</div>'+
+    '<div class="fence-card-subtitle">'+h.engineerName+'</div>'+
+    '<div class="fence-card-tags"><span class="tag '+(stTag[st]||'tag-setting')+'">'+st+'</span><span class="tag '+(issTag[iss]||'tag-issue--normal')+'" style="margin-left:4px">'+iss+'</span></div>'+
+  '</div>';
+  var card=document.getElementById('mapInfoCard');
+  card.innerHTML=html;card.style.display='block';
+}
+
+function openMapFenceDetail(idx){
+  currentFence=fenceData[idx];if(!currentFence)return;
+  var sm={setting:'tag-setting',removing:'tag-removing',removed:'tag-overdue'},im={normal:'tag-issue tag-issue--normal',pending:'tag-issue tag-issue--pending',overdue:'tag-issue tag-issue--overdue'};
+  var nv=currentFence.needVerify==='是'?'<span class="tag" style="border:1px solid #FC8800;color:#FC8800;font-size:10px;padding:0 5px;border-radius:2px;margin-left:6px;font-weight:var(--fw-medium)">待校核</span>':'';
+  document.getElementById('detailSummary').innerHTML='<div class="detail-summary"><div class="detail-summary-top"><span class="detail-summary-id">'+currentFence.project+' · '+currentFence.eng+'</span>'+nv+'</div><div class="detail-summary-tags"><span class="tag '+(sm[currentFence.statusKey]||'')+'">'+currentFence.status+'</span><span class="tag '+(im[currentFence.issueKey]||'')+'">'+currentFence.issue+'</span></div></div>';
+  document.querySelectorAll('#detailTabs .detail-tab').forEach(function(t,i){t.classList.toggle('active',i===0)});
+  renderDetailTab('basic');
+  showScreen('screenDetail');
 }
 
 /* ═══════════════════════════════════════════
