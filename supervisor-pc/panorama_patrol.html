@@ -400,6 +400,29 @@ a { color: var(--accent-500); text-decoration: none; }
 .patrol-record-pc-actions { display: flex; justify-content: flex-end; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--ink-100); }
 .patrol-record-pc-view-btn { display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border: 1px solid var(--ink-200); border-radius: var(--radius); background: var(--white); color: var(--ink-500); font-size: 11px; font-weight: 500; cursor: pointer; font-family: var(--font-base); transition: all .15s; }
 .patrol-record-pc-view-btn:hover { background: var(--ink-50); color: var(--ink-800); border-color: var(--ink-300); }
+.patrol-record-pc-report-btn { display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border: 1px solid var(--color-danger,#D13B2F); border-radius: var(--radius); background: var(--white); color: var(--color-danger,#D13B2F); font-size: 11px; font-weight: 500; cursor: pointer; font-family: var(--font-base); transition: all .15s; margin-left: 6px; }
+.patrol-record-pc-report-btn:hover { background: var(--color-danger-light,#FDECEA); }
+
+/* ── Issue Report Modal ── */
+.issue-report-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 12px; }
+.issue-report-item { display: flex; gap: 8px; align-items: flex-start; background: var(--ink-50); border: 1px solid var(--ink-100); border-radius: var(--radius-md); padding: 12px; position: relative; }
+.issue-report-item-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.issue-report-item-body select,.issue-report-item-body textarea { width: 100%; }
+.issue-report-item-body select { height: 30px; border: 1px solid var(--ink-200); border-radius: var(--radius); padding: 0 8px; font-size: 12px; color: var(--ink-800); background: var(--white); font-family: var(--font-base); }
+.issue-report-item-body textarea { height: 56px; border: 1px solid var(--ink-200); border-radius: var(--radius); padding: 6px 8px; font-size: 12px; color: var(--ink-800); font-family: var(--font-base); resize: vertical; background: var(--white); }
+.issue-report-photo-row { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+.issue-report-photo-add { width: 48px; height: 48px; border: 1.5px dashed var(--ink-200); border-radius: var(--radius-sm); display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; color: var(--ink-300); font-size: 10px; gap: 2px; background: var(--white); }
+.issue-report-photo-add:hover { border-color: var(--accent-400); color: var(--accent-500); }
+.issue-report-photo-thumb { width: 48px; height: 48px; border-radius: var(--radius-sm); overflow: hidden; position: relative; border: 1px solid var(--ink-100); }
+.issue-report-photo-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.issue-report-photo-thumb .photo-del { position: absolute; top: 1px; right: 1px; width: 16px; height: 16px; border-radius: 50%; background: rgba(0,0,0,.5); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 10px; cursor: pointer; }
+.issue-report-loc-row { display: flex; align-items: center; gap: 6px; }
+.issue-report-loc-btn { display: inline-flex; align-items: center; gap: 3px; padding: 3px 8px; font-size: 11px; color: var(--accent-500); cursor: pointer; background: var(--white); border: 1px solid var(--accent-300); border-radius: var(--radius-sm); font-family: var(--font-base); }
+.issue-report-loc-btn:hover { border-color: var(--accent-500); background: var(--accent-50); }
+.issue-report-del { width: 24px; height: 24px; flex-shrink: 0; border: none; background: none; cursor: pointer; color: var(--ink-300); font-size: 16px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-sm); margin-top: 2px; font-family: var(--font-base); }
+.issue-report-del:hover { color: var(--color-danger); background: var(--color-danger-light); }
+.issue-report-add-btn { display: inline-flex; align-items: center; gap: 4px; padding: 6px 14px; font-size: 12px; color: var(--accent-500); background: none; border: 1px dashed var(--accent-300); border-radius: var(--radius); cursor: pointer; font-family: var(--font-base); }
+.issue-report-add-btn:hover { background: var(--accent-50); border-color: var(--accent-500); }
 
 /* ── Standard Tags ── */
 .tag { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: var(--border-radius-tag,999px); font-size: var(--font-size-xs); font-weight: var(--font-weight-medium); white-space: nowrap; }
@@ -573,6 +596,21 @@ a { color: var(--accent-500); text-decoration: none; }
     <div class="modal-foot">
       <button class="btn btn-cancel" onclick="closeAnnotate()">取消</button>
       <button class="btn btn-primary" onclick="saveIssue()"><i class="fas fa-check" style="margin-right:4px;"></i>保存问题</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ Issue Report Modal ═══ -->
+<div class="modal-mask" id="issue-report-modal">
+  <div class="modal" style="width:680px;max-width:95vw">
+    <div class="modal-head"><span><i class="fas fa-exclamation-triangle modal-head-icon" style="color:var(--color-danger,#D13B2F)"></i>新增问题</span><button class="modal-close" onclick="closeIssueReport()">&times;</button></div>
+    <div class="modal-body" style="padding:16px 22px">
+      <div class="issue-report-list" id="issueReportList"></div>
+      <button class="issue-report-add-btn" onclick="addReportIssue()"><i class="fas fa-plus" style="font-size:10px"></i> 添加问题项</button>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-cancel" onclick="closeIssueReport()">取消</button>
+      <button class="btn btn-primary" onclick="saveIssueReport()">保存问题</button>
     </div>
   </div>
 </div>
@@ -887,7 +925,7 @@ function renderPatrolRecordsPC() {
       if (r.remark && (!r.issues || !r.issues.length)) {
         html += '<div class="patrol-record-pc-remark">备注：'+escH(r.remark)+'</div>';
       }
-      html += '<div class="patrol-record-pc-actions"><button class="patrol-record-pc-view-btn" onclick="event.stopPropagation();viewPatrolDetail(\x27'+(r.id||'')+'\x27)">查看详情</button></div>';
+      html += '<div class="patrol-record-pc-actions"><button class="patrol-record-pc-view-btn" onclick="event.stopPropagation();viewPatrolDetail(\x27'+(r.id||'')+'\x27)">查看详情</button><button class="patrol-record-pc-report-btn" onclick="event.stopPropagation();openIssueReport(\x27'+(r.id||'')+'\x27)">新增问题</button></div>';
       html += '</div>';
     });
   }
@@ -1046,6 +1084,157 @@ function saveIssue() {
   var ti=ci; if(annotateCanvas){var tc=document.createElement('canvas'),ms=120,sc=Math.min(ms/annotateCanvas.width,ms/annotateCanvas.height,1);tc.width=annotateCanvas.width*sc;tc.height=annotateCanvas.height*sc;var tx=tc.getContext('2d');tx.drawImage(document.getElementById('annotate-img'),0,0,tc.width,tc.height);tx.save();tx.scale(sc,sc);tx.drawImage(annotateCanvas,0,0);tx.restore();try{ti=tc.toDataURL('image/jpeg',0.7)}catch(e){}}
   issueList.push({id:'issue_'+Date.now(),type:it,detail:id,source:defaultSource,_persisted:false,location:{lat:pickedLocation.lat,lng:pickedLocation.lng,addr:pickedLocation.addr},screenshot:ci,thumbnail:ti,annotations:annotations.slice(),createdAt:new Date().toISOString()});
   closeAnnotate(); autoSave(); toast('问题已保存');
+}
+
+/* ═══ Issue Report Modal (from patrol record card) ═══ */
+var _reportIssues=[], _reportPatrolRec=null;
+
+function openIssueReport(rid){
+  var rec=(window._patrolRecordsCache||[]).find(function(r){return r.id===rid;});
+  if(!rec){toast('未找到该巡检记录',true);return;}
+  _reportPatrolRec=rec;
+  // Get default unit from fence
+  var fence=null;
+  for(var i=0;i<allHoardings.length;i++){if(allHoardings[i].id===activeFenceId){fence=allHoardings[i];break;}}
+  var defaultUnit=fence?fence.constructUnit||'':'';
+  _reportIssues=[{type:'',unit:defaultUnit,detail:'',photos:[],location:null}];
+  renderReportIssues();
+  document.getElementById('issue-report-modal').classList.add('show');
+}
+
+function closeIssueReport(){
+  document.getElementById('issue-report-modal').classList.remove('show');
+}
+
+function addReportIssue(){
+  var defaultUnit=_reportIssues.length>0?_reportIssues[0].unit:'';
+  _reportIssues.push({type:'',unit:defaultUnit,detail:'',photos:[],location:null});
+  renderReportIssues();
+}
+
+function removeReportIssue(idx){
+  _reportIssues.splice(idx,1); renderReportIssues();
+}
+
+function onReportFieldChange(idx,field,value){
+  _reportIssues[idx][field]=value;
+}
+
+function addReportPhoto(idx){
+  var el=document.getElementById('reportPhotoInput_'+idx);if(el)el.click();
+}
+
+function handleReportPhotos(idx,e){
+  var files=e.target.files;if(!files||!files.length)return;
+  var iss=_reportIssues[idx];
+  for(var k=0;k<Math.min(files.length,9-iss.photos.length);k++){
+    var fr=new FileReader();
+    fr.onload=(function(i){return function(ev){_reportIssues[i].photos.push(ev.target.result);renderReportIssues();};})(idx);
+    fr.readAsDataURL(files[k]);
+  }
+  e.target.value='';
+}
+
+function removeReportPhoto(idx,pIdx){
+  _reportIssues[idx].photos.splice(pIdx,1); renderReportIssues();
+}
+
+function pickReportLoc(idx){
+  if(!_leafletMap){toast('地图未加载，请在项目中操作',true);return;}
+  var fence=null;
+  for(var i=0;i<allHoardings.length;i++){if(allHoardings[i].id===activeFenceId){fence=allHoardings[i];break;}}
+  if(!fence||!fence.gpsShape||!fence.gpsShape.length){toast('围挡无GPS范围数据',true);return;}
+  var center=fence.gpsShape[0];
+  var popup=L.popup().setLatLng([center[0],center[1]]).setContent('点击地图选择问题位置<br><button onclick=\"confirmReportLoc('+idx+')\" style=\"margin-top:4px;padding:3px 8px;font-size:11px;cursor:pointer\">✅ 确认此位置</button>').openOn(_leafletMap);
+  _reportLocPicker={idx:idx, popup:popup};
+  _leafletMap.once('click',function(e){
+    _reportIssues[_reportLocPicker.idx].location={lat:e.latlng.lat,lng:e.latlng.lng};
+    _leafletMap.closePopup(_reportLocPicker.popup);
+    _reportLocPicker=null;
+    renderReportIssues();
+  });
+}
+var _reportLocPicker=null;
+
+function confirmReportLoc(idx){
+  var cp=_leafletMap.getCenter();
+  _reportIssues[idx].location={lat:cp.lat,lng:cp.lng};
+  _leafletMap.closePopup();
+  _reportLocPicker=null;
+  renderReportIssues();
+}
+
+function renderReportIssues(){
+  var list=document.getElementById('issueReportList');
+  if(!_reportIssues.length){_reportIssues=[{type:'',unit:'',detail:'',photos:[],location:null}];}
+  // Build unit options from project fences
+  var units=[];
+  var fence=null;
+  for(var i=0;i<allHoardings.length;i++){if(allHoardings[i].id===activeFenceId){fence=allHoardings[i];break;}}
+  if(fence&&fence.projectName){
+    var projs=MOCK_DATA.getProjects();
+    for(var pi=0;pi<projs.length;pi++){
+      if(projs[pi].name===fence.projectName){
+        (projs[pi].hoardings||[]).forEach(function(h){
+          if(h.constructUnit&&units.indexOf(h.constructUnit)<0)units.push(h.constructUnit);
+        });
+        break;
+      }
+    }
+  }
+  if(!units.length&&fence&&fence.constructUnit)units.push(fence.constructUnit);
+
+  list.innerHTML=_reportIssues.map(function(iss,i){
+    var typeOpts=ISSUE_TYPES.map(function(t){return'<option value="'+t+'"'+(iss.type===t?' selected':'')+'>'+t+'</option>';}).join('');
+    var unitOpts=units.map(function(u){return'<option value="'+u+'"'+(iss.unit===u?' selected':'')+'>'+u+'</option>';}).join('');
+    var locText=iss.location?(iss.location.lat.toFixed(5)+', '+iss.location.lng.toFixed(5)):'点击地图选点';
+    var photosHtml=iss.photos.map(function(p,j){return'<div class="issue-report-photo-thumb"><img src="'+p+'"><div class="photo-del" onclick="removeReportPhoto('+i+','+j+')">&times;</div></div>';}).join('');
+    if(iss.photos.length<9){photosHtml+='<div class="issue-report-photo-add" onclick="addReportPhoto('+i+')"><i class="fas fa-camera" style="font-size:14px"></i>拍照</div>';}
+    return'<div class="issue-report-item">'+
+      '<div class="issue-report-item-body">'+
+        '<div style="display:flex;align-items:center;justify-content:space-between;font-size:11px;font-weight:600;color:var(--ink-500)"><span>问题项 '+(i+1)+'</span></div>'+
+        '<select onchange="onReportFieldChange('+i+',\'type\',this.value)"><option value="">— 请选择问题类型 —</option>'+typeOpts+'</select>'+
+        '<select onchange="onReportFieldChange('+i+',\'unit\',this.value)"><option value="">— 请选择责任单位 —</option>'+unitOpts+'</select>'+
+        '<textarea placeholder="请描述问题详情" onchange="onReportFieldChange('+i+',\'detail\',this.value)">'+escH(iss.detail)+'</textarea>'+
+        '<div class="issue-report-photo-row">'+photosHtml+'</div>'+
+        '<input type="file" id="reportPhotoInput_'+i+'" accept="image/*" capture="environment" multiple style="display:none" onchange="handleReportPhotos('+i+',event)">'+
+        '<div class="issue-report-loc-row"><span style="font-size:11px;color:var(--ink-400)">位置：</span><button class="issue-report-loc-btn" onclick="pickReportLoc('+i+')"><i class="fas fa-map-marker-alt" style="font-size:10px"></i> '+locText+'</button></div>'+
+      '</div>'+
+      (_reportIssues.length>1?'<button class="issue-report-del" onclick="removeReportIssue('+i+')" title="删除">&times;</button>':'')+
+    '</div>';
+  }).join('');
+}
+
+function saveIssueReport(){
+  if(!activeFenceId){toast('请选择围挡',true);return;}
+  if(!_reportIssues.length){toast('请至少添加一个问题项',true);return;}
+  for(var i=0;i<_reportIssues.length;i++){
+    var iss=_reportIssues[i];
+    if(!iss.type){toast('请选择问题项'+(i+1)+'的问题类型',true);return;}
+    if(!iss.unit){toast('请选择问题项'+(i+1)+'的责任单位',true);return;}
+    if(!iss.detail.trim()){toast('请填写问题项'+(i+1)+'的问题详情',true);return;}
+    if(!iss.location){toast('请选择问题项'+(i+1)+'的问题位置',true);return;}
+  }
+  var fence=null;
+  for(var i=0;i<allHoardings.length;i++){if(allHoardings[i].id===activeFenceId){fence=allHoardings[i];break;}}
+  if(!fence){toast('未找到围挡数据',true);return;}
+  var now=new Date();var dt=now.toISOString().slice(0,19).replace('T',' ');
+  var existingIssues=[];
+  try{var raw=localStorage.getItem('YZY_STREET_ISSUES');if(raw)existingIssues=JSON.parse(raw);}catch(e){}
+  _reportIssues.forEach(function(iss,i){
+    existingIssues.unshift({
+      id:'RPT-'+Date.now()+'-'+i,
+      type:iss.type,fenceId:activeFenceId,fenceAddr:fence.address||'',
+      details:iss.detail.trim(),
+      status:'待整改',source:'监管巡查',
+      reportTime:dt,
+      engineerName:fence.engineerName||'',responsibleUnit:iss.unit,
+      photos:iss.photos.slice(),
+      location:{lat:iss.location.lat,lng:iss.location.lng,addr:fence.address||''}
+    });
+  });
+  localStorage.setItem('YZY_STREET_ISSUES',JSON.stringify(existingIssues));
+  closeIssueReport(); toast('已上报 '+_reportIssues.length+' 个问题');
 }
 
 /* ═══════════════════════════════════════════

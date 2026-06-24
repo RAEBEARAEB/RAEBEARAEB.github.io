@@ -608,6 +608,7 @@
                         itemsHtml+='<div class="issue-card" style="cursor:pointer;margin-bottom:8px" onclick="openIssueFromPatrol('+i+')">'+
                             '<div class="issue-card-info">'+
                                 '<div class="issue-card-type">'+(iss.type||'—')+'</div>'+
+                                (iss.unit?'<div class="issue-card-detail" style="font-size:11px;color:var(--text-sub)">责任单位：'+(iss.unit||'—')+'</div>':'')+
                                 '<div class="issue-card-detail">'+(iss.detail||'—')+'</div>'+
                             '</div>'+
                         '</div>';

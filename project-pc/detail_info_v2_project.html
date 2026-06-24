@@ -1535,7 +1535,9 @@ var ISSUE_TYPES=window.MOCK_DATA.getStreetIssueTypes();
 })();
 
 window.addPatrolIssue=function(){
-  _patrolIssues.push({type:'',detail:'',photos:[],location:null});
+  var defaultUnit='';
+  if(_defaultHoard&&_defaultHoard.constructUnit)defaultUnit=_defaultHoard.constructUnit;
+  _patrolIssues.push({type:'',detail:'',photos:[],location:null,unit:defaultUnit});
   renderPatrolIssues();
 };
 
@@ -1645,9 +1647,28 @@ function renderPatrolIssues(){
     list.innerHTML='<div style="font-size:var(--font-size-xs);color:var(--text-tertiary);padding:var(--space-4);text-align:center;border:1px dashed var(--border-color-light);border-radius:var(--border-radius-md)">暂无问题项，点击下方按钮添加</div>';
     return;
   }
+  // Build unit options safely
+  var units=[];
+  try{
+    if(_defaultHoard&&_defaultHoard.projectName&&typeof MOCK_DATA!=='undefined'){
+      var projs=MOCK_DATA.getProjects();
+      for(var pi=0;pi<projs.length;pi++){
+        if(projs[pi].name===_defaultHoard.projectName){
+          (projs[pi].hoardings||[]).forEach(function(h){
+            if(h.constructUnit&&units.indexOf(h.constructUnit)<0)units.push(h.constructUnit);
+          });
+          break;
+        }
+      }
+    }
+  }catch(e){}
+  if(!units.length&&_defaultHoard&&_defaultHoard.constructUnit)units.push(_defaultHoard.constructUnit);
   list.innerHTML=_patrolIssues.map(function(iss,i){
     var typeOpts=ISSUE_TYPES.map(function(t){
       return '<option value="'+t+'"'+(iss.type===t?' selected':'')+'>'+t+'</option>';
+    }).join('');
+    var unitOpts=units.map(function(u){
+      return '<option value="'+u+'"'+((iss.unit||'')===u?' selected':'')+'>'+u+'</option>';
     }).join('');
     var locText=iss.location?(iss.location.lat.toFixed(5)+', '+iss.location.lng.toFixed(5)):'点击选择位置';
     var photosHtml=iss.photos.map(function(p,j){
@@ -1659,8 +1680,9 @@ function renderPatrolIssues(){
     return '<div class="patrol-issue-item">'+
       '<div class="patrol-issue-item-body">'+
         '<div class="patrol-issue-item-header"><span>问题项 '+(i+1)+'</span></div>'+
-        '<select onchange="onIssueFieldChange('+i+','+'\'type\''+',this.value)"><option value="">— 请选择问题类型 —</option>'+typeOpts+'</select>'+
-        '<textarea placeholder="请描述问题详情" onchange="onIssueFieldChange('+i+','+'\'detail\''+',this.value)">'+iss.detail+'</textarea>'+
+        '<select onchange="onIssueFieldChange('+i+',&quot;type&quot;,this.value)"><option value="">— 请选择问题类型 —</option>'+typeOpts+'</select>'+
+        '<select onchange="onIssueFieldChange('+i+',&quot;unit&quot;,this.value)"><option value="">— 请选择责任单位 —</option>'+unitOpts+'</select>'+
+        '<textarea placeholder="请描述问题详情" onchange="onIssueFieldChange('+i+',&quot;detail&quot;,this.value)">'+(iss.detail||'')+'</textarea>'+
         '<div class="patrol-issue-photo-row">'+photosHtml+'</div>'+
         '<input type="file" id="issuePhotoInput_'+i+'" accept="image/*" capture="environment" multiple style="display:none" onchange="handleIssuePhotos('+i+',event)">'+
         '<div class="patrol-issue-loc-row"><span style="font-size:var(--font-size-xs);color:var(--text-tertiary)">位置：</span><button class="patrol-issue-loc-btn'+(iss.location?' picked':'')+'" onclick="openIssueLocPicker('+i+')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg><span>'+locText+'</span></button></div>'+
@@ -1685,6 +1707,7 @@ window.savePatrolRecord=function(){
     for(var i=0;i<_patrolIssues.length;i++){
       var iss=_patrolIssues[i];
       if(!iss.type){showToast('请选择问题项'+(i+1)+'的问题类型','error');return}
+      if(!iss.unit){showToast('请选择问题项'+(i+1)+'的责任单位','error');return}
       if(!iss.detail.trim()){showToast('请填写问题项'+(i+1)+'的问题详情','error');return}
       if(!iss.photos.length){showToast('问题项'+(i+1)+'请至少上传一张现场照片','error');return}
       if(!iss.location){showToast('请选择问题项'+(i+1)+'的问题位置','error');return}
@@ -1693,7 +1716,7 @@ window.savePatrolRecord=function(){
   }
   var date=dt.split('T')[0],time=dt.split('T')[1]||'09:00';
   var issues=hasIssue?_patrolIssues.map(function(iss){
-    return{type:iss.type,detail:iss.detail.trim(),location:iss.location,photos:iss.photos.slice()};
+    return{type:iss.type,unit:iss.unit||'',detail:iss.detail.trim(),location:iss.location,photos:iss.photos.slice()};
   }):[];
   var rec={id:editingId||('r_'+Date.now()),date:date,time:time,person:person,unit:'深圳市市政工程总公司',location:'',remark:remark,hasIssue:hasIssue,panoramaSrc:panoUrl,issues:issues};
   if(editingId){
@@ -1718,7 +1741,7 @@ window.savePatrolRecord=function(){
           details:iss.detail.trim(),
           status:'待整改',source:'项目巡检',
           reportTime:date+' '+time+':00',
-          engineerName:engName,responsibleUnit:constructUnit,
+          engineerName:engName,responsibleUnit:iss.unit||constructUnit,
           photos:iss.photos.slice(),
           location:{lat:iss.location?iss.location.lat:(hoard&&hoard.gpsShape?hoard.gpsShape[0][0]:22.548),lng:iss.location?iss.location.lng:(hoard&&hoard.gpsShape?hoard.gpsShape[0][1]:114.061),addr:iss.location?iss.location.lat.toFixed(5)+', '+iss.location.lng.toFixed(5):(hoard?hoard.address:'')}
         });
