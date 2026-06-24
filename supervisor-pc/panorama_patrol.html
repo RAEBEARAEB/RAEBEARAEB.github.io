@@ -140,6 +140,10 @@ a { color: var(--accent-500); text-decoration: none; }
 .panel-left-search { padding: 8px 12px; border-bottom: 1px solid var(--ink-100); flex-shrink: 0; display: flex; align-items: center; gap: 6px; background: var(--ink-50) }
 .panel-left-search input { flex: 1; border: none; outline: none; background: transparent; font-size: 12px; color: var(--ink-800); font-family: var(--font-base) }
 .panel-left-search input::placeholder { color: var(--ink-400) }
+.panel-left-filter { display: flex; gap: 0; padding: 6px 12px; border-bottom: 1px solid var(--ink-100); flex-shrink: 0; background: var(--ink-50) }
+.panel-left-filter .ftab { flex: 1; text-align: center; padding: 4px 0; font-size: 11px; font-weight: 500; color: var(--ink-400); cursor: pointer; border-radius: var(--radius); transition: all .15s; font-family: var(--font-base) }
+.panel-left-filter .ftab:hover { color: var(--ink-600); background: var(--ink-100) }
+.panel-left-filter .ftab.active { color: var(--white); background: var(--accent-500) }
 .panel-left-scroll { flex: 1; overflow-y: auto; padding: 6px 10px; }
 .project-card.hidden-by-search { display: none !important; }
 
@@ -488,6 +492,11 @@ a { color: var(--accent-500); text-decoration: none; }
             <i class="fas fa-search" style="color:var(--ink-400);font-size:12px"></i>
             <input type="text" placeholder="搜索项目/工程名称..." oninput="filterProjectList(this.value)">
           </div>
+          <div class="panel-left-filter">
+            <span class="ftab active" data-filter="all" onclick="setPatrolFilter('all',this)">全部</span>
+            <span class="ftab" data-filter="done" onclick="setPatrolFilter('done',this)">已巡检</span>
+            <span class="ftab" data-filter="undone" onclick="setPatrolFilter('undone',this)">未巡检</span>
+          </div>
           <div class="panel-left-scroll" id="project-list-scroll">
             <div class="fence-empty"><i class="fas fa-inbox"></i>加载中...</div>
           </div>
@@ -653,6 +662,15 @@ function initIssueTypeSelect() {
    Left Panel — Project List
    ═══════════════════════════════════════════ */
 var _projListCache = [];
+var _patrolFilter = 'all';
+
+function setPatrolFilter(filter, el) {
+  _patrolFilter = filter;
+  document.querySelectorAll('.panel-left-filter .ftab').forEach(function(t){t.classList.remove('active');});
+  if(el) el.classList.add('active');
+  var kw = document.querySelector('.panel-left-search input');
+  renderProjectList(kw ? kw.value : '');
+}
 
 function renderProjectList(keyword) {
   var scrollEl = document.getElementById('project-list-scroll');
@@ -660,6 +678,17 @@ function renderProjectList(keyword) {
   if (!scrollEl) return;
   var projectMap = {};
   allHoardings.forEach(function(h) { if (!projectMap[h.projectName]) projectMap[h.projectName] = []; projectMap[h.projectName].push(h); });
+  // Count patrol status
+  var today=new Date();var td=today.getFullYear()+'-'+pad2(today.getMonth()+1)+'-'+pad2(today.getDate());
+  var doneCnt=0, undoneCnt=0;
+  allHoardings.forEach(function(h){
+    var found=false;if(h.patrolRecords){h.patrolRecords.forEach(function(r){if(r.date===td)found=true;});}
+    if(found)doneCnt++;else undoneCnt++;
+  });
+  document.querySelectorAll('.panel-left-filter .ftab').forEach(function(t){
+    if(t.dataset.filter==='done')t.textContent='已巡检 '+doneCnt;
+    else if(t.dataset.filter==='undone')t.textContent='未巡检 '+undoneCnt;
+  });
   var projectList = [];
   allProjects.forEach(function(p) { projectList.push({ project: p, hoardings: projectMap[p.name] || [] }); });
   projectList.sort(function(a,b) { return (a.project.status==='在建'?0:1)-(b.project.status==='在建'?0:1); });
@@ -690,11 +719,18 @@ function renderProjectList(keyword) {
       htm += '<div class="fence-item" style="cursor:default;color:var(--ink-400)"><div class="fence-item-info"><div class="fence-item-name">暂无围挡记录</div></div></div>';
     } else {
       hoardings.forEach(function(h) {
+        var todayPatrolled=false;
+        var today=new Date();var td=today.getFullYear()+'-'+pad2(today.getMonth()+1)+'-'+pad2(today.getDate());
+        if(h.patrolRecords){h.patrolRecords.forEach(function(r){if(r.date===td)todayPatrolled=true;});}
+        // Apply patrol status filter
+        if(_patrolFilter==='done'&&!todayPatrolled)return;
+        if(_patrolFilter==='undone'&&todayPatrolled)return;
         var fid = h.id, fd = h.fenceStatus==='设置中'?'setting':h.fenceStatus==='即将到期'?'expiring':'normal';
         htm += '<div class="fence-item" id="fence-'+fid+'" onclick="event.stopPropagation();selFence(\''+escA(fid)+'\')">';
+        var patrolStatus=todayPatrolled?'<span style="color:var(--green,#3BB346);font-size:11px;font-weight:500">今日已巡检</span>':'<span style="color:var(--red,#F93920);font-size:11px;font-weight:500">今日未巡检</span>';
         htm += '<div class="fence-item-info"><div class="fence-item-name">'+escH(h.engineerName||'--')+'</div>';
         htm += '<div class="fence-item-sub">'+escH(h.constructUnit||'--')+'</div>';
-        htm += '<div class="fence-item-sub">'+(h.custodyStart||'--')+' ~ '+(h.custodyEnd||'--')+'</div></div>';
+        htm += '<div class="fence-item-sub">'+patrolStatus+'</div></div>';
         htm += '<span class="fence-item-status '+fd+'">'+escH(h.fenceStatus||'--')+'</span></div>';
       });
     }
@@ -1265,6 +1301,7 @@ function destroyInlineLocMap(){if(inlineLocMap){try{inlineLocMap.remove()}catch(
    ═══════════════════════════════════════════ */
 function escH(s){var d=document.createElement('div');d.textContent=s||'';return d.innerHTML}
 function escA(s){return String(s||'').replace(/'/g,"\\'").replace(/"/g,'&quot;')}
+function pad2(n){return n<10?'0'+n:''+n;}
 function toast(m,isErr) {
   var ct = document.getElementById('toast-container');
   var e = document.createElement('div'); e.className = 'toast'+(isErr?' error':''); e.textContent = m;
@@ -1276,6 +1313,14 @@ function toast(m,isErr) {
    Init
    ═══════════════════════════════════════════ */
 initIssueTypeSelect(); loadData(); renderProjectList(); toggleRightPanel(false);
+// Auto-expand all projects & select first fence with patrol records
+setTimeout(function(){
+  document.querySelectorAll('.project-card').forEach(function(c){c.classList.add('expanded');});
+  // Find first fence that has patrol records
+  for(var i=0;i<allHoardings.length;i++){
+    var h=allHoardings[i]; if(h.patrolRecords&&h.patrolRecords.length>0){selFence(h.id);break;}
+  }
+},200);
 
 // Support returning from patrol detail page with pre-selected fence
 (function(){
