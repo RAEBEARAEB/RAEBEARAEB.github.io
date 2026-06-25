@@ -62,10 +62,11 @@ html,body{font-family:var(--font-family);font-size:var(--font-md);color:var(--te
 .btm-arrow:active{background:rgba(255,255,255,.3)}
 .btm-arrow svg{width:16px;height:16px;color:#fff}
 .btm-btns{flex:1;display:flex;gap:8px;justify-content:center}
-.btm-btn{flex:1;height:36px;border-radius:var(--radius-md);border:none;font-size:var(--font-xs);font-weight:var(--fw-medium);cursor:pointer;color:#fff;background:rgba(255,255,255,.15);font-family:var(--font-family);display:flex;align-items:center;justify-content:center;gap:3px}
+.btm-btn{flex:1;height:42px;border-radius:var(--radius-md);border:none;font-size:var(--font-xs);font-weight:var(--fw-medium);cursor:pointer;color:#fff;background:rgba(255,255,255,.15);font-family:var(--font-family);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;padding:2px 4px}
+.btm-btn-sub{font-size:9px;font-weight:var(--fw-medium);opacity:.8}
+.btm-btn-sub.green{color:var(--green)}
+.btm-btn-sub.red{color:var(--red)}
 .btm-btn:active{background:rgba(255,255,255,.3)}
-.btm-btn.info,.btm-btn.issue{background:rgba(255,255,255,.15);color:#fff}
-.btm-btn.normal-status{background:rgba(255,255,255,.15);color:#fff}
 .btm-tag{display:inline-block;font-size:10px;padding:2px 6px;border-radius:999px}
 .btm-tag-green{display:inline-block;font-size:10px;padding:2px 6px;border-radius:999px;background:var(--green-light);color:var(--green)}
 .btm-tag-red{display:inline-block;font-size:10px;padding:2px 6px;border-radius:999px;background:var(--red-light);color:var(--red)}
@@ -294,21 +295,18 @@ function updateBottom(){
   var showArrows=isToday&&curIsPatrolled;
 
   var html='';
-  // Row 1: count centered above buttons
   if(showArrows&&todayCount>0){
     var pos=todayIdx+1;
-    html+='<div class="btm-count">第 '+pos+' / 今日共 '+todayCount+'</div>';
+    html+='<div class="btm-count">第 '+pos+' 条 / 今日共 '+todayCount+' 条巡检</div>';
   }
-  // Row 2: left arrow + buttons + right arrow
   html+='<div class="btm-row">';
   if(showArrows&&todayCount>0){
     html+='<div class="btm-arrow" onclick="prevFenceToday()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></div>';
   }
   html+='<div class="btm-btns">';
-  html+='<button class="btm-btn info" onclick="openDrawerTab(\'info\')">巡检信息</button>';
-  html+='<button class="btm-btn '+issueCls+'" onclick="openDrawerTab(\'issues\')">'+issueLabel+'</button>';
+  html+='<button class="btm-btn" onclick="openDrawerTab(\'info\')">巡检信息<span class="btm-btn-sub '+(isAb?'red':'green')+'">'+(isAb?ic+'个问题':'正常')+'</span></button>';
+  html+='<button class="btm-btn" onclick="openQuickReport()">新增问题</button>';
   html+='</div>';
-  html+='<button class="fab-report" onclick="openQuickReport()" title="快速上报问题">!</button>';
   if(showArrows&&todayCount>0){
     html+='<div class="btm-arrow" onclick="nextFenceToday()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div>';
   }
