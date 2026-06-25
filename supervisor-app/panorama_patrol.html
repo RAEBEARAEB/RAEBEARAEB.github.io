@@ -238,7 +238,7 @@ function openViewer(fid){
     if(!records.length){showToast('该围挡暂无巡检记录');return;}
   }
   var data=JSON.stringify({fid:fid, date:records[0].date, panoSrc:records[0].panoramaSrc||''});
-  window.location.href='panorama_viewer.html?data='+encodeURIComponent(data);
+  window.location.href='panorama_viewer_v2.html?data='+encodeURIComponent(data);
 }
 
 /* ── Date Picker ── */
