@@ -247,6 +247,28 @@ a:hover{color:var(--text-link-hover)}
 .score-left-score .score-body-content{margin:auto 0}
 .score-left-dims{padding-left:20px;border-left:1px solid #F3F4F6;display:flex;flex-direction:column;height:100%}
 .score-left-dims .score-dim-list{margin:auto 0;width:100%}
+/* 连续性奖励 */
+.score-reward{border-top:1px dashed #E3E6ED;margin-top:12px;padding-top:10px}
+.score-reward-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.score-reward-title span:first-child{font-size:12px;color:#9CA3AF}
+.score-reward-total{font-size:12px;font-weight:500}
+.score-reward-item{display:flex;align-items:center;margin-bottom:8px}
+.score-reward-item:last-child{margin-bottom:0}
+.score-reward-name{font-size:12px;color:#374151;white-space:nowrap;margin-right:12px}
+.score-reward-dots-wrap{flex:1;display:flex;align-items:center;margin-right:12px}
+.score-reward-dots{display:flex;align-items:center;gap:4px}
+.score-reward-dot{width:7px;height:7px;border-radius:50%;border:1.5px solid #D1D5DB;background:transparent;flex-shrink:0}
+.score-reward-dot.fill{background:#1862D4;border-color:#1862D4}
+.score-reward-dot.earned{background:#1A9042;border-color:#1A9042}
+.score-reward-progress{font-size:11px;color:#9CA3AF;margin-left:8px}
+.score-reward-value{font-size:var(--font-size-sm);font-weight:var(--font-weight-medium);color:#1F2937;white-space:nowrap}
+.score-reward-value.earned{color:#1A9042}
+.score-reward-value.zero{color:#9CA3AF}
+/* 问号tooltip */
+.score-reward-help-wrap{position:relative}
+.score-reward-help{display:inline-flex;align-items:center;justify-content:center;width:13px;height:13px;border-radius:50%;border:1px solid #9CA3AF;font-size:10px;color:#9CA3AF;margin-left:4px;cursor:pointer;vertical-align:middle}
+.score-reward-help-wrap .score-help-tip{position:absolute;bottom:calc(100% + 8px);left:0;background:#1F2937;color:#fff;font-size:12px;border-radius:4px;padding:10px 12px;max-width:260px;line-height:1.7;white-space:normal;word-break:break-all;pointer-events:none;opacity:0;transition:opacity .15s;z-index:999;display:none}
+.score-reward-help-wrap:hover .score-help-tip{display:block;opacity:1}
 .score-left-dims{padding-left:20px;border-left:1px solid #F3F4F6}
 /* 自定义日期范围弹窗 */
 .custom-range-pop{display:none;position:absolute;top:100%;right:0;margin-top:6px;background:#fff;border:1px solid #E3E6ED;border-radius:6px;box-shadow:0 4px 16px rgba(0,0,0,0.1);padding:12px 14px;z-index:10;min-width:260px}
@@ -445,6 +467,7 @@ var SCORE_DATA = {};
         total: 84, grade: '良好', change: 1, changeDir: 'up',
         d1: {score: 41, max: 50, actualDays: 6, totalDays: 7},
         d2: {score: 43, max: 50, detail: '沟槽开挖工程自查超期1个（-5分）、监管超期0个'},
+        reward: {bonus: 0, patrolWeeks: 2, rectifyWeeks: 0},
         tips: [
           '沟槽开挖工程本周缺漏巡检2天，建议加强该工程日常巡检频次',
           '沟槽开挖工程自查发现问题后应在24小时内完成整改，避免扣分'
@@ -454,6 +477,7 @@ var SCORE_DATA = {};
         total: 90, grade: '优秀', change: 2, changeDir: 'up',
         d1: {score: 46, max: 50, actualDays: 6, totalDays: 7},
         d2: {score: 44, max: 50, detail: '自查超期0个 / 监管发现超期0个'},
+        reward: {bonus: 0, patrolWeeks: 2, rectifyWeeks: 0},
         tips: [
           '本周缺漏巡检1天，建议坚持每日巡检习惯',
           '距离连续3周满分仅差1周，下周继续保持可获得连续性奖励加分'
@@ -463,6 +487,7 @@ var SCORE_DATA = {};
         total: 75, grade: '良好', change: -3, changeDir: 'down',
         d1: {score: 35, max: 50, actualDays: 5, totalDays: 7},
         d2: {score: 40, max: 50, detail: '自查超期1个（-5分） / 监管发现超期0个'},
+        reward: {bonus: 0, patrolWeeks: 0, rectifyWeeks: 0},
         tips: [
           '本周缺漏巡检2天，巡检执行率偏低，建议坚持每日巡检习惯',
           '自查发现问题后应在24小时内完成整改，避免因整改超期被扣分'
@@ -472,6 +497,7 @@ var SCORE_DATA = {};
         total: 88, grade: '优秀', change: 1, changeDir: 'up',
         d1: {score: 43, max: 50, actualDays: 6, totalDays: 7},
         d2: {score: 45, max: 50, detail: '自查超期0个 / 监管发现超期0个'},
+        reward: {bonus: 0, patrolWeeks: 2, rectifyWeeks: 1},
         tips: [
           '本周缺漏巡检1天，建议坚持每日巡检习惯'
         ]
@@ -487,6 +513,7 @@ var SCORE_DATA = {};
         total: 78, grade: '良好', change: 2, changeDir: 'up',
         d1: {score: 37, max: 50, actualDays: 5, totalDays: 7},
         d2: {score: 41, max: 50, detail: '基坑围护工程自查超期1个（-5分）'},
+        reward: {bonus: 0, patrolWeeks: 2, rectifyWeeks: 0},
         tips: [
           '基坑围护工程本周仅巡检3天，巡检执行率严重偏低，建议优先提升该工程巡检频次',
           '基坑围护工程自查发现问题后应在24小时内完成整改，避免扣分'
@@ -496,18 +523,19 @@ var SCORE_DATA = {};
         total: 68, grade: '警示', change: -5, changeDir: 'down',
         d1: {score: 25, max: 50, actualDays: 3, totalDays: 7},
         d2: {score: 43, max: 50, detail: '自查超期1个（-5分） / 监管发现超期0个'},
+        reward: {bonus: 0, patrolWeeks: 0, rectifyWeeks: 0},
         tips: [
           '本周仅巡检3天，远低于应巡检天数7天，建议立即加强巡检安排',
           '已连续2周巡检执行率不足，若下周仍未改善将面临约谈提醒'
         ]
       },
       '主体结构工程': {
-        total: 88, grade: '优秀', change: 3, changeDir: 'up',
-        d1: {score: 48, max: 50, actualDays: 7, totalDays: 7},
-        d2: {score: 40, max: 50, detail: '自查超期1个（-5分） / 监管发现超期0个'},
+        total: 100, grade: '优秀', change: 5, changeDir: 'up',
+        d1: {score: 50, max: 50, actualDays: 7, totalDays: 7},
+        d2: {score: 50, max: 50, detail: '本周无超期未整改问题'},
+        reward: {bonus: 5, patrolWeeks: 3, rectifyWeeks: 3},
         tips: [
-          '巡检执行率满分，请继续保持每日巡检习惯',
-          '自查发现问题后应在24小时内完成整改，减少因超期导致的扣分'
+          '本周巡检与整改均满分，请继续保持当前管理水平和巡检习惯'
         ]
       }
     };
@@ -528,17 +556,23 @@ function getGradeIcon(grade) {
 }
 
 /* ═══ 历史评分折线图 ═══ */
-function _weekRange(dateStr) {
-  // dateStr like "6/16" → find that date and return "6/9-6/15" (Mon-Sun week)
+function _toMonday(dateStr) {
   var parts = dateStr.split('/');
   var m = parseInt(parts[0]), d = parseInt(parts[1]);
   var dt = new Date(2026, m - 1, d);
   var dow = dt.getDay(); // 0=Sun
   var monDelta = dow === 0 ? -6 : 1 - dow;
-  var mon = new Date(dt); mon.setDate(dt.getDate() + monDelta);
-  var sun = new Date(mon); sun.setDate(mon.getDate() + 6);
-  function fmt(dt) { return (dt.getMonth()+1) + '/' + dt.getDate(); }
-  return fmt(mon) + '-' + fmt(sun);
+  dt.setDate(dt.getDate() + monDelta);
+  return (dt.getMonth()+1) + '/' + dt.getDate();
+}
+
+function _weekRange(dateStr) {
+  // dateStr like "6/16" → return "6/15-6/21" (Mon-Sun for that week)
+  var mon = _toMonday(dateStr);
+  var parts = mon.split('/');
+  var dt = new Date(2026, parseInt(parts[0]) - 1, parseInt(parts[1]));
+  var sun = new Date(dt); sun.setDate(dt.getDate() + 6);
+  return mon + '-' + ((sun.getMonth()+1) + '/' + sun.getDate());
 }
 
 function _scoreGrade(score) {
@@ -550,8 +584,9 @@ function _scoreGrade(score) {
 
 function _enrichData(pts) {
   return pts.map(function(pt) {
+    var mon = _toMonday(pt.w);
     var nr = _weekRange(pt.w);
-    return {w: pt.w, s: pt.s, r: nr, g: _scoreGrade(pt.s)};
+    return {w: mon, s: pt.s, r: nr, g: _scoreGrade(pt.s)};
   });
 }
 
@@ -599,12 +634,12 @@ function makeScoreChartOption(xData, data, lastIdx) {
           '<span style="margin-left:6px;font-size:11px;color:' + getScoreColor(d.value) + '">' + grade + '</span></div>';
       }
     },
-    grid: {left: 36, right: 8, top: gTop, bottom: gBot},
+    grid: {left: 42, right: 8, top: gTop, bottom: gBot},
     graphic: [
-      {type:'text', left:2, top:yPct(27).toFixed(1)+'%', style:{text:'差', fontSize:10, fill:'#D13B2F', textAlign:'right'}, z:10},
-      {type:'text', left:2, top:yPct(62).toFixed(1)+'%', style:{text:'警示', fontSize:10, fill:'#D48A00', textAlign:'right'}, z:10},
-      {type:'text', left:2, top:yPct(77).toFixed(1)+'%', style:{text:'良好', fontSize:10, fill:'#1862D4', textAlign:'right'}, z:10},
-      {type:'text', left:2, top:yPct(92).toFixed(1)+'%', style:{text:'优秀', fontSize:10, fill:'#1A9042', textAlign:'right'}, z:10}
+      {type:'text', left: 2, top: yPct(27).toFixed(1)+'%', style:{text:'差', fontSize:12, fill:'#D13B2F', textAlign:'right'}, z:10},
+      {type:'text', left: 2, top: yPct(62).toFixed(1)+'%', style:{text:'警示', fontSize:12, fill:'#D48A00', textAlign:'right'}, z:10},
+      {type:'text', left: 2, top: yPct(77).toFixed(1)+'%', style:{text:'良好', fontSize:12, fill:'#1862D4', textAlign:'right'}, z:10},
+      {type:'text', left: 2, top: yPct(92).toFixed(1)+'%', style:{text:'优秀', fontSize:12, fill:'#1A9042', textAlign:'right'}, z:10}
     ],
     xAxis: {
       type: 'category', data: xData,
@@ -703,8 +738,9 @@ function genCustomHistData(startStr, endStr) {
   while (cur <= e) {
     var m = cur.getMonth() + 1, d = cur.getDate();
     var v = 60 + (Math.abs(hash) >> (idx * 2)) % 30;
-    var w = m + '/' + d;
-    var r = _weekRange(w);
+    var rawW = m + '/' + d;
+    var w = _toMonday(rawW);
+    var r = _weekRange(rawW);
     data.push({w: w, s: v, r: r, g: _scoreGrade(v)});
     cur.setDate(cur.getDate() + 1);
     idx++;
@@ -780,8 +816,42 @@ function renderScoreCard() {
       '<div class="score-dim-detail">' + detailText + '</div>' +
     '</div>';
   }
+  function rewardDots(n, earned) {
+    var h = '';
+    for (var i = 0; i < 3; i++) {
+      var cls = earned ? 'score-reward-dot earned' : (i < n ? 'score-reward-dot fill' : 'score-reward-dot');
+      h += '<span class="' + cls + '"></span>';
+    }
+    return h;
+  }
+  function rewardRow(label, weeks, points, earned) {
+    return '<div class="score-reward-item">' +
+      '<span class="score-reward-name">' + label + '</span>' +
+      '<span class="score-reward-dots-wrap">' +
+        '<span class="score-reward-dots">' + rewardDots(weeks, earned) + '</span>' +
+        '<span class="score-reward-progress">' + weeks + '/3周</span>' +
+      '</span>' +
+      '<span class="score-reward-value' + (earned ? ' earned' : ' zero') + '">' + (earned ? '+' + points + '分' : '+0分') + '</span>' +
+    '</div>';
+  }
+  function buildRewardHTML(r) {
+    if (!r) r = {bonus: 0, patrolWeeks: 0, rectifyWeeks: 0};
+    var bonusCls = r.bonus > 0 ? ' earned' : ' zero';
+    var patrolEarned = r.patrolWeeks >= 3;
+    var rectifyEarned = r.rectifyWeeks >= 3;
+    var helpTip = '巡检连续达标：连续3个自然周巡检执行率 = 100% 可得 +3分\n整改连续达标：连续3个自然周24小时整改完成率 = 100% 可得 +2分\n发现0个问题则不触发整改奖励\n加分最多至总分上限100分';
+    return '<div class="score-reward">' +
+      '<div class="score-reward-title">' +
+        '<span>连续性奖励<span class="score-reward-help-wrap"><span class="score-reward-help">?</span><span class="score-help-tip">' + helpTip.replace(/\n/g,'<br>') + '</span></span></span>' +
+        '<span class="score-reward-value' + bonusCls + '">本周 ' + (r.bonus > 0 ? '+' + r.bonus + '分' : '+0分') + '</span>' +
+      '</div>' +
+      rewardRow('巡检连续达标', r.patrolWeeks, 3, patrolEarned) +
+      rewardRow('整改连续达标', r.rectifyWeeks, 2, rectifyEarned) +
+    '</div>';
+  }
   var d1Detail = '本周实际巡检' + d.d1.actualDays + '天 / 应巡检' + d.d1.totalDays + '天';
   var d2Detail = d.d2.detail || '';
+  var rewardHTML = buildRewardHTML(d.reward);
   // Left column: score info + dims side by side
   body.innerHTML =
     '<div class="score-col">' +
@@ -799,6 +869,7 @@ function renderScoreCard() {
           '<div class="score-dim-list">' +
             dimRow(d.d1, '维度一：日常巡检执行率', d1Detail) +
             dimRow(d.d2, '维度二：问题发现与闭环', d2Detail) +
+            rewardHTML +
           '</div>' +
         '</div>' +
       '</div>' +
