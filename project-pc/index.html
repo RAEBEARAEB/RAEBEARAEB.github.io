@@ -337,8 +337,8 @@ a:hover{color:var(--text-link-hover)}
           <div class="page-desc">2026年5月8日 星期四</div>
         </div>
         <div class="page-actions">
-          <a href="detail_v2_project.html" class="btn btn-primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> 新增围挡</a>
-          <a href="#" class="btn btn-ghost">巡查上报</a>
+          <span style="display:none"><a href="detail_v2_project.html" class="btn btn-primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> 新增围挡</a>
+          <a href="#" class="btn btn-ghost">巡查上报</a></span>
         </div>
       </div>
 
@@ -460,15 +460,15 @@ var SCORE_DATA = {};
   // ── 福田中心区市政管网改造工程 ──
   if (iFt >= 0) {
     SCORE_DATA[names[iFt]] = {
-      engineers: ['全部工程', '管道铺设工程', '沟槽开挖工程', '道路恢复工程'],
+      engineers: ['全部工程', '管道铺设工程', '沟槽开挖工程', '道路恢复工程', '路面修复工程'],
       '全部工程': {
         total: 84, grade: '良好', change: 1, changeDir: 'up',
         d1: {score: 41, max: 50, actualDays: 6, totalDays: 7},
         d2: {score: 43, max: 50, detail: '沟槽开挖工程自查超期1个（-5分）、监管超期0个'},
         reward: {bonus: 0, patrolWeeks: 2, rectifyWeeks: 0},
         tips: [
-          '沟槽开挖工程本周缺漏巡检2天，建议加强该工程日常巡检频次',
-          '沟槽开挖工程自查发现问题后应在24小时内完成整改，避免扣分'
+          '沟槽开挖工程本周缺漏巡检2天，建议提升该工程巡检频次',
+          '沟槽开挖工程发现问题后应在24小时内完成整改，避免扣分'
         ]
       },
       '管道铺设工程': {
@@ -478,7 +478,8 @@ var SCORE_DATA = {};
         reward: {bonus: 0, patrolWeeks: 2, rectifyWeeks: 0},
         tips: [
           '本周缺漏巡检1天，建议坚持每日巡检习惯',
-          '距离连续3周满分仅差1周，下周继续保持可获得连续性奖励加分'
+          '本周整改满分，请继续保持当前管理水平',
+          '距离连续3周满分仅差1周，下周继续保持可获得巡检连续性奖励加分'
         ]
       },
       '沟槽开挖工程': {
@@ -487,7 +488,7 @@ var SCORE_DATA = {};
         d2: {score: 40, max: 50, detail: '自查超期1个（-5分） / 监管发现超期0个'},
         reward: {bonus: 0, patrolWeeks: 0, rectifyWeeks: 0},
         tips: [
-          '本周缺漏巡检2天，巡检执行率偏低，建议坚持每日巡检习惯',
+          '本周缺漏巡检2天，建议坚持每日巡检习惯',
           '自查发现问题后应在24小时内完成整改，避免因整改超期被扣分'
         ]
       },
@@ -497,7 +498,18 @@ var SCORE_DATA = {};
         d2: {score: 45, max: 50, detail: '自查超期0个 / 监管发现超期0个'},
         reward: {bonus: 0, patrolWeeks: 2, rectifyWeeks: 1},
         tips: [
-          '本周缺漏巡检1天，建议坚持每日巡检习惯'
+          '本周缺漏巡检1天，建议坚持每日巡检习惯',
+          '本周整改满分，请继续保持当前管理水平'
+        ]
+      },
+      '路面修复工程': {
+        total: 28, grade: '差', change: -20, changeDir: 'down',
+        d1: {score: 8, max: 50, actualDays: 1, totalDays: 7},
+        d2: {score: 20, max: 50, detail: '自查超期2个（-10分） / 监管发现超期2个（-20分）'},
+        reward: {bonus: 0, patrolWeeks: 0, rectifyWeeks: 0},
+        tips: [
+          '本周仅巡检1天，巡检执行率严重不足，建议立即建立每日巡检制度',
+          '自查问题超期2个，监管发现超期2个，建议24小时内完成整改以避免持续扣分'
         ]
       }
     };
@@ -513,8 +525,8 @@ var SCORE_DATA = {};
         d2: {score: 41, max: 50, detail: '基坑围护工程自查超期1个（-5分）'},
         reward: {bonus: 0, patrolWeeks: 2, rectifyWeeks: 0},
         tips: [
-          '基坑围护工程本周仅巡检3天，巡检执行率严重偏低，建议优先提升该工程巡检频次',
-          '基坑围护工程自查发现问题后应在24小时内完成整改，避免扣分'
+          '基坑围护工程本周仅巡检3天，建议提升该工程巡检频次',
+          '基坑围护工程发现问题后应在24小时内完成整改，避免扣分'
         ]
       },
       '基坑围护工程': {
@@ -524,7 +536,7 @@ var SCORE_DATA = {};
         reward: {bonus: 0, patrolWeeks: 0, rectifyWeeks: 0},
         tips: [
           '本周仅巡检3天，远低于应巡检天数7天，建议立即加强巡检安排',
-          '已连续2周巡检执行率不足，若下周仍未改善将面临约谈提醒'
+          '自查发现问题后应在24小时内完成整改，避免因整改超期被扣分'
         ]
       },
       '主体结构工程': {
@@ -533,7 +545,9 @@ var SCORE_DATA = {};
         d2: {score: 50, max: 50, detail: '本周无超期未整改问题'},
         reward: {bonus: 5, patrolWeeks: 3, rectifyWeeks: 3},
         tips: [
-          '本周巡检与整改均满分，请继续保持当前管理水平和巡检习惯'
+          '本周巡检与整改均满分，请继续保持当前管理水平和巡检习惯',
+          '已获得巡检连续性奖励+3分',
+          '已获得整改连续性奖励+5分'
         ]
       }
     };
