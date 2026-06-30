@@ -267,7 +267,7 @@ a:hover{color:var(--text-link-hover)}
 /* 问号tooltip */
 .score-reward-help-wrap{position:relative}
 .score-reward-help{display:inline-flex;align-items:center;justify-content:center;width:13px;height:13px;border-radius:50%;border:1px solid #9CA3AF;font-size:10px;color:#9CA3AF;margin-left:4px;cursor:pointer;vertical-align:middle}
-.score-reward-help-wrap .score-help-tip{position:absolute;bottom:calc(100% + 8px);left:0;background:#1F2937;color:#fff;font-size:12px;border-radius:4px;padding:10px 12px;max-width:260px;line-height:1.7;white-space:normal;word-break:break-all;pointer-events:none;opacity:0;transition:opacity .15s;z-index:999;display:none}
+.score-reward-help-wrap .score-help-tip{position:absolute;bottom:calc(100% + 8px);left:0;background:#1F2937;color:#fff;font-size:12px;border-radius:4px;padding:10px 12px;width:380px;line-height:1.8;white-space:normal;pointer-events:none;opacity:0;transition:opacity .15s;z-index:999;display:none}
 .score-reward-help-wrap:hover .score-help-tip{display:block;opacity:1}
 .score-left-dims{padding-left:20px;border-left:1px solid #F3F4F6}
 /* 自定义日期范围弹窗 */
@@ -395,7 +395,6 @@ a:hover{color:var(--text-link-hover)}
       <div class="card">
         <div class="card-header">
           <div class="card-title">待办事项 <span class="count-badge" id="todoBadge">0</span></div>
-          <span class="text-link">查看全部 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
         </div>
         <div class="card-body">
           <table class="table">
@@ -416,7 +415,6 @@ a:hover{color:var(--text-link-hover)}
       <div class="card">
         <div class="card-header">
           <div class="card-title">提醒事项</div>
-          <span class="text-link">查看全部 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
         </div>
         <div class="tab-bar">
           <button class="tab-btn active" data-filter="all" onclick="filterRemindTab(this)">全部<span class="tab-count" id="remindAllCount">(0)</span></button>
@@ -839,14 +837,14 @@ function renderScoreCard() {
     var bonusCls = r.bonus > 0 ? ' earned' : ' zero';
     var patrolEarned = r.patrolWeeks >= 3;
     var rectifyEarned = r.rectifyWeeks >= 3;
-    var helpTip = '巡检连续达标：连续3个自然周巡检执行率 = 100% 可得 +3分\n整改连续达标：连续3个自然周24小时整改完成率 = 100% 可得 +2分\n发现0个问题则不触发整改奖励\n加分最多至总分上限100分';
+    var helpTip = '连续3个自然周巡检执行率 =100%：+3分\n连续3个自然周24小时整改完成率 = 100%：+5分\n（发现问题为0时，24h整改完成率为0，总分上限100分）';
     return '<div class="score-reward">' +
       '<div class="score-reward-title">' +
         '<span>连续性奖励<span class="score-reward-help-wrap"><span class="score-reward-help">?</span><span class="score-help-tip">' + helpTip.replace(/\n/g,'<br>') + '</span></span></span>' +
         '<span class="score-reward-value' + bonusCls + '">本周 ' + (r.bonus > 0 ? '+' + r.bonus + '分' : '+0分') + '</span>' +
       '</div>' +
       rewardRow('巡检连续达标', r.patrolWeeks, 3, patrolEarned) +
-      rewardRow('整改连续达标', r.rectifyWeeks, 2, rectifyEarned) +
+      rewardRow('整改连续达标', r.rectifyWeeks, 5, rectifyEarned) +
     '</div>';
   }
   var d1Detail = '本周实际巡检' + d.d1.actualDays + '天 / 应巡检' + d.d1.totalDays + '天';
