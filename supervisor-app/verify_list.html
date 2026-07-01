@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
+<title>待校核围挡 - 监管端APP</title>
+<style>
+/* ═══ Design Token (匹配 supervision-app mobile style) ═══ */
+:root{
+  --blue-50:#E9EBFD;--blue-100:#C8CDFA;--blue-200:#A2ADF6;
+  --blue-300:#788CF3;--blue-400:#5670F0;--blue-500:#2F55EB;--blue-600:#294CDF;
+  --blue-700:#1C41D3;--blue-800:#0A35C7;--blue-900:#0D47A1;
+  --blue:var(--blue-500);--blue-deep:var(--blue-700);--blue-soft:var(--blue-50);
+  --gray-50:#F9F9F9;--gray-100:#E6E8EA;--gray-200:#C6CACD;
+  --gray-300:#A7ABB0;--gray-400:#888D92;--gray-500:#6B7075;--gray-600:#555B61;
+  --gray-700:#41464C;--gray-800:#2E3238;--gray-900:#1C1F23;--gray-0:#FFFFFF;
+  --bg:#F5F7FA;--panel:#FFFFFF;--panel-2:#F9F9F9;
+  --green:#3BB346;--green-light:rgba(59,179,70,0.10);
+  --yellow:#D0AA00;--yellow-light:rgba(208,170,0,0.10);
+  --orange:#FC8800;--orange-light:rgba(252,136,0,0.10);
+  --red:#F93920;--red-light:rgba(249,57,32,0.10);
+  --text:#555B61;--text-sub:#888D92;--text-tertiary:#A7ABB0;
+  --border:#E9F0F7;
+  --shadow-sm:0 4px 10px rgba(0,0,0,0.05);
+  --radius-sm:2px;--radius-md:4px;
+  --font-family:"PingFang SC","Microsoft YaHei","Helvetica Neue",Arial,sans-serif;
+  --font-xs:12px;--font-sm:12px;--font-md:14px;--font-lg:16px;--font-xl:18px;
+  --fw-regular:400;--fw-medium:500;--fw-bold:600;--fw-heavy:700;
+  --safe-top:47px;--safe-bottom:34px;--fast:0.15s ease;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{font-family:var(--font-family);font-size:var(--font-md);color:var(--text);background:var(--bg);line-height:1.5;-webkit-font-smoothing:antialiased;height:100%;overflow:hidden}
+button{font-family:var(--font-family);cursor:pointer;border:none;background:none}
+input,select{font-family:var(--font-family);outline:none}
+
+/* ═══ Phone Frame ═══ */
+.phone-frame{position:relative;width:390px;height:844px;margin:20px auto;background:var(--bg);border-radius:40px;overflow:hidden;box-shadow:0 0 0 2px #1a1a1a,0 0 0 6px #333,0 0 0 8px #1a1a1a,0 20px 60px rgba(0,0,0,0.3)}
+.phone-notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:126px;height:34px;background:#000;border-radius:0 0 20px 20px;z-index:999}
+.phone-home-indicator{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:134px;height:5px;background:rgba(0,0,0,0.15);border-radius:3px;z-index:999}
+
+/* ═══ Nav Bar ═══ */
+.nav-bar{flex-shrink:0;padding-top:var(--safe-top);background:var(--panel);border-bottom:1px solid var(--border)}
+.nav-bar-inner{display:flex;align-items:center;height:56px;padding:0 16px}
+.nav-bar-title{flex:1;text-align:center;font-size:var(--font-lg);font-weight:var(--fw-heavy);color:var(--gray-900)}
+.nav-bar-back{width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:var(--blue);border-radius:var(--radius-md);font-size:18px}
+.nav-bar-back:active{background:var(--gray-100)}
+
+/* ═══ Content ═══ */
+.screen-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column}
+.screen-body::-webkit-scrollbar{display:none}
+
+/* ═══ Search ═══ */
+.search-bar{padding:0 16px 8px}
+.search-wrap{display:flex;align-items:center;background:var(--gray-100);border-radius:20px;padding:0 12px;height:36px}
+.search-wrap svg{width:14px;height:14px;color:var(--text-tertiary);flex-shrink:0}
+.search-input{flex:1;border:none;background:none;font-size:var(--font-xs);margin-left:6px;color:var(--text);height:36px}
+.search-input::placeholder{color:var(--text-tertiary)}
+
+/* ═══ Filter Chips ═══ */
+.chips{display:flex;gap:6px;padding:0 16px 10px;overflow-x:auto}
+.chips::-webkit-scrollbar{display:none}
+.chip{white-space:nowrap;padding:6px 12px;border-radius:999px;font-size:var(--font-xs);font-weight:var(--fw-medium);background:var(--panel);color:var(--text-sub);border:1px solid var(--border);cursor:pointer;transition:all var(--fast);flex-shrink:0}
+.chip.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.chip small{opacity:0.7;margin-left:2px}
+
+/* ═══ Fence Card ═══ */
+.fence-list{padding:0 16px 16px}
+.fence-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 16px;margin-bottom:8px;cursor:pointer;box-shadow:var(--shadow-sm);transition:box-shadow var(--fast)}
+.fence-card:active{box-shadow:0 4px 10px rgba(0,0,0,0.08)}
+.fence-card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.fence-id{font-size:var(--font-sm);font-weight:var(--fw-heavy);color:var(--blue)}
+.fence-card-title{font-size:var(--font-md);font-weight:var(--fw-medium);margin-bottom:3px;line-height:1.4}
+.fence-card-subtitle{font-size:var(--font-xs);color:var(--text-sub);display:flex;align-items:center;margin-bottom:4px;gap:8px}
+.fence-card-tags{display:flex;gap:5px;flex-wrap:wrap}
+.fence-card-meta{display:flex;gap:8px;flex-wrap:wrap;font-size:var(--font-xs);color:var(--text-sub);margin-top:4px}
+.fence-card-meta span{padding:2px 6px;background:var(--gray-50);border-radius:var(--radius-sm)}
+
+.tag{display:inline-block;font-size:11px;font-weight:var(--fw-medium);padding:2px 8px;border-radius:999px;color:var(--text)}
+.tag-setting{background:var(--green-light);color:var(--green)}
+.tag-removing{background:var(--yellow-light);color:var(--yellow)}
+.tag-overdue{background:var(--red-light);color:var(--red)}
+.tag-verify{background:var(--orange-light);color:var(--orange)}
+
+.empty-state{text-align:center;padding:40px 16px;color:var(--text-tertiary)}
+</style>
+<script src="../shared_data.js"></script>
+<script src="../mock-data.js"></script>
+</head>
+<body>
+<div class="phone-frame">
+  <div class="phone-notch"></div>
+
+  <div style="display:flex;flex-direction:column;height:100%">
+    <!-- Nav Bar -->
+    <div class="nav-bar">
+      <div class="nav-bar-inner">
+        <a class="nav-bar-back" href="app_prototype.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></a>
+        <span class="nav-bar-title">待校核围挡</span>
+        <span style="width:32px;flex-shrink:0"></span>
+      </div>
+    </div>
+
+    <!-- Search -->
+    <div class="search-bar">
+      <div class="search-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input class="search-input" id="searchInput" placeholder="搜索围挡编号、项目或工程名称" oninput="renderList()">
+      </div>
+    </div>
+
+    <!-- Filter Chips -->
+    <div class="chips">
+      <button class="chip active" data-filter="all" onclick="setFilter(this,'all')">全部<small id="chipAll">(0)</small></button>
+      <button class="chip" data-filter="setting" onclick="setFilter(this,'setting')">设置中<small id="chipSetting">(0)</small></button>
+      <button class="chip" data-filter="soon" onclick="setFilter(this,'soon')">即将到期<small id="chipSoon">(0)</small></button>
+      <button class="chip" data-filter="expired" onclick="setFilter(this,'expired')">已到期<small id="chipExpired">(0)</small></button>
+    </div>
+
+    <!-- Fence List -->
+    <div class="screen-body">
+      <div class="fence-list" id="fenceList"></div>
+    </div>
+  </div>
+
+  <div class="phone-home-indicator"></div>
+</div>
+
+<script>
+var _verifyFences = [];
+var _currentFilter = 'all';
+
+function init() {
+  var allHoardings = MOCK_DATA.getHoardings();
+  _verifyFences = allHoardings.filter(function(h) {
+    return h.needVerify === '是';
+  });
+
+  // Chip counts
+  var counts = {all: _verifyFences.length, setting:0, soon:0, expired:0};
+  _verifyFences.forEach(function(f) {
+    if (f.fenceStatus === '设置中') counts.setting++;
+    else if (f.fenceStatus === '即将到期') counts.soon++;
+    else if (f.fenceStatus === '已到期') counts.expired++;
+  });
+  document.getElementById('chipAll').textContent = '('+counts.all+')';
+  document.getElementById('chipSetting').textContent = '('+counts.setting+')';
+  document.getElementById('chipSoon').textContent = '('+counts.soon+')';
+  document.getElementById('chipExpired').textContent = '('+counts.expired+')';
+
+  renderList();
+}
+
+function setFilter(btn, filter) {
+  document.querySelectorAll('.chip').forEach(function(c){c.classList.remove('active')});
+  btn.classList.add('active');
+  _currentFilter = filter;
+  renderList();
+}
+
+function renderList() {
+  var kw = (document.getElementById('searchInput').value||'').trim().toLowerCase();
+  var list = _verifyFences.slice();
+
+  // Filter by status
+  if (_currentFilter === 'setting') list = list.filter(function(f){return f.fenceStatus === '设置中'});
+  else if (_currentFilter === 'soon') list = list.filter(function(f){return f.fenceStatus === '即将到期'});
+  else if (_currentFilter === 'expired') list = list.filter(function(f){return f.fenceStatus === '已到期'});
+
+  // Search
+  if (kw) {
+    list = list.filter(function(f) {
+      return (f.id||'').toLowerCase().indexOf(kw) !== -1 ||
+             (f.projectName||'').toLowerCase().indexOf(kw) !== -1 ||
+             (f.engineerName||'').toLowerCase().indexOf(kw) !== -1 ||
+             (f.address||'').toLowerCase().indexOf(kw) !== -1;
+    });
+  }
+
+  // Sort: 设置中 first, then 即将到期, then 已到期
+  var order = {'设置中':1, '即将到期':2, '已到期':3};
+  list.sort(function(a,b){var oa=order[a.fenceStatus]||9;var ob=order[b.fenceStatus]||9;return oa-ob;});
+
+  var container = document.getElementById('fenceList');
+  if (!list.length) {
+    container.innerHTML = '<div class="empty-state">暂无待校核围挡</div>';
+    return;
+  }
+
+  var html = '';
+  var statusTag = {'设置中':'tag-setting','即将到期':'tag-removing','已到期':'tag-overdue'};
+
+  list.forEach(function(f) {
+    var tagCls = statusTag[f.fenceStatus] || 'tag-setting';
+    var engName = f.engineerName || '';
+    var unitName = f.constructUnit || '';
+
+    html += '<div class="fence-card" onclick="goVerify(\''+f.id+'\')">';
+    html += '<div class="fence-card-top"><span class="fence-id">'+engName+'</span><span class="tag '+tagCls+'">'+f.fenceStatus+'</span></div>';
+    html += '<div class="fence-card-subtitle">'+unitName+'</div>';
+    html += '</div>';
+  });
+
+  container.innerHTML = html;
+}
+
+function goVerify(fenceId) {
+  window.location.href = 'verify_detail.html?fenceId=' + encodeURIComponent(fenceId);
+}
+
+init();
+</script>
+</body>
+</html>

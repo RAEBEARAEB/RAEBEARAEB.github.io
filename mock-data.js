@@ -7,7 +7,7 @@
 
   function getInitialData() {
     return {
-      version: 12,
+      version: 13,
       updatedAt: new Date().toISOString(),
       projects: [
         /* ── 项目 1：福田 ── */
@@ -155,7 +155,8 @@
               ],
               changeRecords: [
                 { id: 'cr_g1', changer: '刘伟', unit: '深圳市市政工程总公司', role: '施工人员', date: '2026-04-20 14:30', type: '变更操作', content: '围挡材质变更，由彩钢板调整为装配式钢结构喷绘围挡', field: '围挡材质', before: '彩钢板', after: '装配式钢结构喷绘围挡' },
-                { id: 'cr_g2', changer: '刘伟', unit: '深圳市市政工程总公司', role: '施工人员', date: '2026-06-12 09:00', type: '变更操作', content: '围挡风格变更，由标准型调整为生态仿真绿篱型', field: '围挡风格', before: '标准型', after: '仿真绿篱' }
+                { id: 'cr_g2', changer: '刘伟', unit: '深圳市市政工程总公司', role: '施工人员', date: '2026-06-12 09:00', type: '变更操作', content: '围挡风格变更，由标准型调整为生态仿真绿篱型', field: '围挡风格', before: '标准型', after: '仿真绿篱' },
+                { id: 'cr_g3', changer: '刘伟', unit: '深圳市市政工程总公司', role: '施工人员', date: '2026-07-01 10:30', type: '变更操作', content: '围挡范围图斑调整，缩减北侧边界，新增1处材料通道出入口', field: '围挡范围 · 出入口', before: '（地图对比）', after: '（地图对比）' }
               ],
               patrolRecords: [
                 { id: 'pr3', date: '2026-05-10', time: '10:00', inspector: '刘伟', result: '异常', issues: [{type:'围挡尺寸不合规', unit:'深圳市市政工程总公司', detail:'围挡实测高度2.0m，低于规范要求的2.5m标准高度，需立即调整'}], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' },
@@ -454,7 +455,7 @@
   }
 
   /* ── 加载或初始化 ── */
-  var CURRENT_VERSION = 12;
+  var CURRENT_VERSION = 13;
   var stored = localStorage.getItem(STORAGE_KEY);
   if (stored) {
     var parsed = JSON.parse(stored);

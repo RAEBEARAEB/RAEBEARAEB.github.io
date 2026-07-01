@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
+<title>围挡校核 - 监管端APP</title>
+<style>
+:root{
+  --blue-50:#E9EBFD;--blue-100:#C8CDFA;--blue-200:#A2ADF6;
+  --blue-300:#788CF3;--blue-400:#5670F0;--blue-500:#2F55EB;--blue-600:#294CDF;
+  --blue-700:#1C41D3;--blue-800:#0A35C7;--blue-900:#0D47A1;
+  --blue:var(--blue-500);--blue-deep:var(--blue-700);--blue-soft:var(--blue-50);
+  --gray-50:#F9F9F9;--gray-100:#E6E8EA;--gray-200:#C6CACD;
+  --gray-300:#A7ABB0;--gray-400:#888D92;--gray-500:#6B7075;--gray-600:#555B61;
+  --gray-700:#41464C;--gray-800:#2E3238;--gray-900:#1C1F23;--gray-0:#FFFFFF;
+  --bg:#F5F7FA;--panel:#FFFFFF;--panel-2:#F9F9F9;
+  --green:#3BB346;--green-light:rgba(59,179,70,0.10);
+  --yellow:#D0AA00;--yellow-light:rgba(208,170,0,0.10);
+  --orange:#FC8800;--orange-light:rgba(252,136,0,0.10);
+  --red:#F93920;--red-light:rgba(249,57,32,0.10);
+  --text:#555B61;--text-sub:#888D92;--text-tertiary:#A7ABB0;
+  --border:#E9F0F7;
+  --shadow-sm:0 4px 10px rgba(0,0,0,0.05);
+  --radius-sm:2px;--radius-md:4px;
+  --font-family:"PingFang SC","Microsoft YaHei","Helvetica Neue",Arial,sans-serif;
+  --font-xs:12px;--font-sm:12px;--font-md:14px;--font-lg:16px;--font-xl:18px;
+  --fw-regular:400;--fw-medium:500;--fw-bold:600;--fw-heavy:700;
+  --safe-top:47px;--safe-bottom:34px;--fast:0.15s ease;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{font-family:var(--font-family);font-size:var(--font-md);color:var(--text);background:var(--bg);line-height:1.5;-webkit-font-smoothing:antialiased;height:100%;overflow:hidden}
+button{font-family:var(--font-family);cursor:pointer;border:none;background:none}
+textarea{font-family:var(--font-family);outline:none;resize:none}
+
+.phone-frame{position:relative;width:390px;height:844px;margin:20px auto;background:var(--bg);border-radius:40px;overflow:hidden;box-shadow:0 0 0 2px #1a1a1a,0 0 0 6px #333,0 0 0 8px #1a1a1a,0 20px 60px rgba(0,0,0,0.3)}
+.phone-notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:126px;height:34px;background:#000;border-radius:0 0 20px 20px;z-index:999}
+.phone-home-indicator{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:134px;height:5px;background:rgba(0,0,0,0.15);border-radius:3px;z-index:999}
+
+.nav-bar{flex-shrink:0;padding-top:var(--safe-top);background:var(--panel);border-bottom:1px solid var(--border)}
+.nav-bar-inner{display:flex;align-items:center;height:56px;padding:0 16px}
+.nav-bar-title{flex:1;text-align:center;font-size:var(--font-lg);font-weight:var(--fw-heavy);color:var(--gray-900)}
+.nav-bar-back{width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:var(--blue);border-radius:var(--radius-md);text-decoration:none}
+.nav-bar-back:active{background:var(--gray-100)}
+
+.screen-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:100px}
+.screen-body::-webkit-scrollbar{display:none}
+
+/* Sections */
+.sec{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;margin:0 16px 12px;box-shadow:var(--shadow-sm)}
+.sec-title{font-size:var(--font-md);font-weight:var(--fw-heavy);padding:12px 16px 8px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px;color:var(--text)}
+.sec-title::before{content:'';width:3px;height:14px;background:var(--blue);border-radius:2px}
+.sec-body{padding:6px 0}
+
+/* Field row */
+.field-row{display:flex;padding:8px 16px;border-bottom:1px solid var(--gray-50);font-size:var(--font-sm);align-items:flex-start}
+.field-row:last-child{border-bottom:none}
+.field-label{color:var(--text-sub);min-width:100px;flex-shrink:0;padding-top:1px}
+.field-value{color:var(--text);flex:1;min-width:0;word-break:break-all}
+
+/* Changed field inline highlighting */
+.field-row.changed{background:rgba(252,136,0,0.05)}
+.field-row.changed .field-value{display:flex;flex-direction:column;gap:3px}
+.field-row.changed .fv-old{font-size:11px;color:var(--text-tertiary);text-decoration:line-through}
+.field-row.changed .fv-new{font-size:var(--font-sm);color:var(--blue);font-weight:var(--fw-bold)}
+
+/* Opinion textarea (in modal) */
+.opinion-textarea{width:100%;height:80px;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-md);font-size:var(--font-sm);color:var(--text);background:var(--panel);line-height:1.5}
+.opinion-textarea:focus{border-color:var(--blue)}
+.opinion-textarea::placeholder{color:var(--text-tertiary)}
+.opinion-error{font-size:11px;color:var(--red);margin-top:4px;display:none}
+.verify-opt{flex:1;padding:10px 0;border-radius:var(--radius-md);font-size:var(--font-sm);font-weight:var(--fw-bold);border:1.5px solid;text-align:center;transition:all var(--fast);cursor:pointer;font-family:var(--font-family)}
+
+.verify-footer{position:absolute;bottom:0;left:0;right:0;padding:12px 16px 20px;background:var(--panel);border-top:1px solid var(--border);z-index:50;display:flex;gap:10px}
+.btn-verify-pass{flex:1;height:36px;border-radius:4px;background:var(--blue);color:#fff;font-size:var(--font-md);font-weight:var(--fw-medium);border:none}
+.btn-verify-pass:active{background:var(--blue-deep)}
+.btn-verify-reject{flex:1;height:36px;border-radius:4px;background:transparent;color:var(--text-sub);font-size:var(--font-md);font-weight:var(--fw-medium);border:1px solid rgba(136,141,146,0.30)}
+.btn-verify-reject:active{background:rgba(136,141,146,0.08)}
+.confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:999;display:none;align-items:center;justify-content:center}
+.confirm-overlay.open{display:flex}
+.confirm-box{background:var(--panel);border-radius:12px;padding:20px 20px 16px;width:300px;max-width:85vw;box-shadow:0 8px 30px rgba(0,0,0,0.15)}
+.confirm-title{font-size:var(--font-md);font-weight:var(--fw-bold);color:var(--text);margin-bottom:14px;text-align:center}
+.confirm-actions{display:flex;gap:10px;margin-top:14px}
+
+.summary-sticky{flex-shrink:0}
+.detail-summary{display:flex;flex-direction:column;gap:4px;padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--border)}
+.detail-summary-top{display:flex;align-items:center;gap:6px;min-width:0}
+.detail-summary-id{font-size:var(--font-sm);font-weight:var(--fw-heavy);color:var(--blue);min-width:0}
+.detail-summary-tags{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+
+/* Detail-style tags */
+.tag{display:inline-block;font-size:var(--font-xs);font-weight:var(--fw-medium);padding:3px 8px;border-radius:999px;color:var(--text)}
+.tag-setting{background:rgba(59,179,70,0.10);color:var(--green)}
+.tag-removing{background:rgba(208,170,0,0.10);color:var(--yellow)}
+.tag-overdue{background:rgba(249,57,32,0.10);color:var(--red)}
+.tag-removed{background:rgba(47,85,235,0.10);color:var(--blue)}
+.tag-issue{color:#fff;border:none;padding:1px 6px;font-size:11px;font-weight:var(--fw-medium)}
+.tag-issue--normal{background:#2F8C46}
+.tag-issue--pending{background:#C47D00}
+.tag-issue--overdue{background:#C43B2A}
+
+.toast{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--gray-800);color:#fff;padding:10px 18px;border-radius:8px;font-size:var(--font-md);z-index:200;opacity:0;transition:opacity 0.3s;pointer-events:none}
+.toast.show{opacity:1}
+/* Map */
+#verifyMap{width:100%;height:100%;background:#E8E4D8}
+.map-legend-dot{display:inline-block;width:8px;height:8px;border-radius:50%;flex-shrink:0}
+</style>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="../shared_data.js"></script>
+<script src="../mock-data.js"></script>
+</head>
+<body>
+<div class="phone-frame">
+  <div class="phone-notch"></div>
+
+  <div style="display:flex;flex-direction:column;height:100%">
+    <div class="nav-bar">
+      <div class="nav-bar-inner">
+        <a class="nav-bar-back" href="verify_list.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></a>
+        <span class="nav-bar-title">围挡校核</span>
+        <span style="width:32px;flex-shrink:0"></span>
+      </div>
+    </div>
+
+    <div class="summary-sticky" id="summarySticky"></div>
+    <div class="screen-body" id="screenBody"></div>
+
+    <div class="verify-footer">
+      <button class="btn-verify-pass" onclick="openConfirmModal('pass')">通过</button>
+      <button class="btn-verify-reject" onclick="openConfirmModal('reject')">不通过</button>
+    </div>
+  </div>
+
+  <!-- 二次确认弹窗 -->
+  <div class="confirm-overlay" id="confirmModal" onclick="if(event.target===this)closeConfirmModal()">
+    <div class="confirm-box" onclick="event.stopPropagation()">
+      <div class="confirm-title" id="confirmTitle"></div>
+      <textarea class="opinion-textarea" id="confirmOpinion" placeholder="请输入校核意见（不通过时为必填）"></textarea>
+      <div class="opinion-error" id="confirmError">校核不通过时，校核意见为必填项</div>
+      <div class="confirm-actions">
+        <button class="verify-opt" style="flex:1;color:var(--text-sub);border-color:var(--gray-200);background:var(--gray-50)" onclick="closeConfirmModal()">取消</button>
+        <button class="verify-opt" style="flex:1;color:#fff;border-color:var(--blue);background:var(--blue)" onclick="confirmSubmit()">确认提交</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="phone-home-indicator"></div>
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+var _fence = null;
+var _verifyResult = '';
+var _changedFields = {};
+
+// Map change record field names → display labels
+var FIELD_MAP = {
+  '围挡高度':'围挡高度','围挡长度':'围挡长度','围挡材质':'围挡材质','围挡样式':'围挡风格','围挡风格':'围挡风格',
+  '宣传画/公益广告':'宣传画/公益广告','宣传内容':'宣传画/公益广告',
+  '占道范围':'占道范围','占道面积':'占道面积','占道类型':'占道范围',
+  '围挡范围 · 出入口':'围挡范围','围挡面积':'围挡面积',
+  '围挡地址':'围挡地址','管护期限':'管护期限',
+  '计划拆除日期':'计划拆除日期','计划拆除时间':'计划拆除时间','围挡设置时间':'围挡设置时间','设置日期':'围挡设置时间',
+  '责任人':'围挡责任人','责任人电话':'围挡责任人联系电话',
+  '管护起始日期':'围挡设置时间','管护截止日期':'计划拆除时间',
+  '围挡范围':'围挡范围','出入口':'围挡范围'
+};
+
+function init() {
+  var params = new URLSearchParams(window.location.search);
+  var fenceId = params.get('fenceId') || '';
+  if (!fenceId) { showToast('未指定围挡'); return; }
+  _fence = MOCK_DATA.findHoard(fenceId);
+  if (!_fence) { showToast('围挡数据不存在'); return; }
+
+  // Build changed fields map from pending changes
+  var changeRecords = _fence.changeRecords || [];
+  var verifyRecords = _fence.verifyRecords || [];
+  var verifiedIds = {};
+  verifyRecords.forEach(function(vr){ verifiedIds[vr.changeId] = true; });
+
+  changeRecords.forEach(function(cr){
+    if (verifiedIds[cr.id]) return;
+    var fields = cr.field.split(' · ');
+    var befores = (cr.before||'').split(' · ');
+    var afters = (cr.after||'').split(' · ');
+    fields.forEach(function(fld, i){
+      var label = FIELD_MAP[fld] || fld;
+      _changedFields[label] = {
+        old: befores[i]||cr.before,
+        new: afters[i]||cr.after,
+        changeId: cr.id,
+        date: cr.date,
+        changer: cr.changer
+      };
+    });
+  });
+
+  renderContent();
+}
+
+function renderContent() {
+  var f = _fence;
+  if (!f) return;
+  var body = document.getElementById('screenBody');
+  var html = ''// ── Summary + Banner ──
+  var sm={'设置中':'tag-setting','即将到期':'tag-removing','已到期':'tag-overdue'};
+  var im={'正常':'tag-issue tag-issue--normal','待整改':'tag-issue tag-issue--pending','整改逾期':'tag-issue tag-issue--overdue'};
+  var fsTag=sm[f.fenceStatus]||'tag-setting';
+  var isTag=im[f.issueStatus]||'tag-issue tag-issue--normal';
+  var summaryHtml = '<div class="detail-summary">' +
+    '<div class="detail-summary-top"><span class="detail-summary-id">'+(f.projectName||'')+' · '+(f.engineerName||'')+'</span><span class="tag" style="border:1px solid var(--orange);color:var(--orange);font-size:10px;padding:0 5px;border-radius:2px;margin-left:6px;font-weight:var(--fw-medium)">待校核</span></div>' +
+    '<div class="detail-summary-tags"><span class="tag '+fsTag+'">'+(f.fenceStatus||'—')+'</span><span class="tag '+isTag+'">'+(f.issueStatus||'—')+'</span></div>' +
+    '</div>';
+  document.getElementById('summarySticky').innerHTML = summaryHtml;
+
+// ── Section 1: 围挡范围 + 出入口（合并）──
+  var entrances = f.entrances || [];
+  var rangeChanged = !!_changedFields['围挡范围'];
+  var rangeBadge = rangeChanged ? ' <span style="display:inline-flex;align-items:center;gap:3px;margin-left:6px;white-space:nowrap"><span style="display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;border:1px solid #FC8800;font-size:10px;color:#FC8800;font-weight:var(--fw-bold);flex-shrink:0">!</span><span style="font-size:11px;color:#FC8800;font-weight:var(--fw-medium)">有变更</span></span>' : '';
+  html += '<div class="sec">' +
+    '<div class="sec-title">围挡范围'+rangeBadge+'</div>' +
+    '<div class="sec-body" style="padding:10px 16px' + (rangeChanged ? ';background:rgba(252,136,0,0.05)' : '') + '">' +
+    '<div style="position:relative;height:200px;border-radius:var(--radius-md);overflow:hidden;border:1px solid var(--border)"><div id="verifyMap"></div><div style="position:absolute;top:6px;right:6px;z-index:999;display:flex;gap:8px;padding:3px 8px;font-size:11px;background:rgba(255,255,255,0.92);border-radius:var(--radius-sm);box-shadow:var(--shadow-sm)"><div style="display:flex;align-items:center;gap:3px"><div style="width:7px;height:7px;border-radius:50%;background:#1890FF"></div><span style="color:#6B7280">车辆</span></div><div style="display:flex;align-items:center;gap:3px"><div style="width:7px;height:7px;border-radius:50%;background:#52C41A"></div><span style="color:#6B7280">行人</span></div><div style="display:flex;align-items:center;gap:3px"><div style="width:7px;height:7px;border-radius:50%;background:#FAAD14"></div><span style="color:#6B7280">临时</span></div><div style="display:flex;align-items:center;gap:3px"><div style="width:7px;height:7px;border-radius:50%;background:#FF4D4F"></div><span style="color:#6B7280">其他</span></div></div></div>';
+  html += '<div style="display:flex;gap:10px;margin-top:8px;font-size:11px;color:var(--text-sub);flex-wrap:wrap"><div style="display:flex;align-items:center;gap:4px"><div style="width:16px;height:2px;background:#D13B2F"></div>项目红线</div><div style="display:flex;align-items:center;gap:4px"><div style="width:16px;height:0;border-bottom:2px dashed #2F55EB"></div>围挡范围</div><div style="display:flex;align-items:center;gap:4px"><div style="width:8px;height:8px;border-radius:50%;background:var(--blue)"></div>出入口</div></div></div></div>';
+
+  // ── Section 2: 围挡本体信息 ──
+  html += '<div class="sec"><div class="sec-title">围挡本体信息</div><div class="sec-body">';
+  html += fld('围挡长度', (f.length||'—')+' m');
+  html += fld('围挡高度', (f.height||'—')+' m');
+  html += fld('围挡材质', f.material||'—');
+  html += fld('围挡风格', f.fenceStyle||'—');
+  html += fld('宣传画/公益广告', f.publicityContent||'—');
+  html += fld('管护期限', (f.custodyStart||'—')+' ~ '+(f.custodyEnd||'—'));
+  html += fld('所属街道', f.projectStreet||'—');
+  html += fld('围挡责任人', f.fenceResponsible||'—');
+  html += fld('围挡责任人联系电话', f.fenceResponsiblePhone||'—');
+  html += '</div></div>';
+
+  // ── Section 3: 项目围挡计划信息 ──
+  html += '<div class="sec"><div class="sec-title">项目围挡计划信息</div><div class="sec-body">';
+  html += fld('围挡设置时间', f.setupDate||'—');
+  html += fld('计划拆除时间', f.planRemoveDate||'—');
+  html += fld('围挡变更计划', '<span style="color:var(--blue)">下载查看</span>');
+  html += '</div></div>';
+
+  // ── Section 4: 围挡占道信息 ──
+  html += '<div class="sec"><div class="sec-title">围挡占道信息</div><div class="sec-body">';
+  html += fld('占道范围', f.roadOccupation||'—');
+  html += fld('占道面积', (f.roadOccupationArea||'—')+' ㎡');
+  html += '</div></div>';
+
+  // ── Section 5: 关联项目工程 ──
+  html += '<div class="sec"><div class="sec-title">关联项目工程</div><div class="sec-body">';
+  html += fld('所属项目', f.projectName||'—');
+  html += fld('关联工程', f.engineerName||'—');
+  html += fld('工程状态', f.engStatus||'—');
+  html += fld('所属区域', f.projectDistrict||'—');
+  html += fld('工程地址', f.projectAddress||f.address||'—');
+  html += fld('监管单位', f.regulatorUnit||'—');
+  html += fld('建设单位', f.buildUnit||'—');
+  html += fld('建设单位联系人', (f.buildContact||'—'));
+  html += fld('施工单位', f.constructUnit||'—');
+  html += fld('施工单位联系人', (f.constructContact||'—'));
+  html += fld('监理单位', f.supervisorUnit||'—');
+  html += fld('设计单位', f.designUnit||'—');
+  html += '</div></div>';
+
+  body.innerHTML = html;
+  setTimeout(function(){ initVerifyMap(); }, 100);
+}
+
+var _verifyMap = null;
+function initVerifyMap() {
+  var el = document.getElementById('verifyMap');
+  if (!el || !_fence) return;
+  if (_verifyMap) { _verifyMap.remove(); _verifyMap = null; }
+
+  _verifyMap = L.map(el, {zoomControl: false, attributionControl: false});
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {maxZoom: 19}).addTo(_verifyMap);
+
+  var allBounds = [];
+
+  // Project redline
+  var projs = MOCK_DATA.getProjects();
+  var proj = null;
+  projs.forEach(function(p){ if (p.name === _fence.projectName) proj = p; });
+  if (proj && proj.redlineGeo && proj.redlineGeo.length >= 3) {
+    var rl = L.polygon(proj.redlineGeo, {color: '#D13B2F', weight: 2, fillColor: 'rgba(209,59,47,0.08)', fillOpacity: 0.5, interactive: false}).addTo(_verifyMap);
+    allBounds.push(rl.getBounds());
+  }
+
+  // Fence GPS shape
+  if (_fence.gpsShape && _fence.gpsShape.length >= 3) {
+    var shape = L.polygon(_fence.gpsShape, {color: '#2F55EB', weight: 2.5, dashArray: '8 4', fillColor: 'rgba(47,85,235,0.08)', fillOpacity: 0.5, interactive: true}).addTo(_verifyMap);
+    allBounds.push(shape.getBounds());
+  }
+
+  // Entrances — color dots by type
+  if (_fence.entrances) {
+    var entType = {vehicle:'车辆出入口', pedestrian:'行人出入口', temporary:'临时出入口', other:'其他'};
+    _fence.entrances.forEach(function(en){
+      var color = {vehicle:'#1890FF', pedestrian:'#52C41A', temporary:'#FAAD14', other:'#FF4D4F'}[en.type] || '#1890FF';
+      L.circleMarker([en.lat, en.lng], {radius:5, color:color, fillColor:color, fillOpacity:1, weight:2}).addTo(_verifyMap)
+        .bindTooltip(entType[en.type], {direction:'right'});
+    });
+  }
+
+  if (allBounds.length) {
+    var combined = allBounds[0];
+    for (var i = 1; i < allBounds.length; i++) combined.extend(allBounds[i]);
+    _verifyMap.fitBounds(combined, {padding: [10, 10]});
+  } else if (proj && proj.lat && proj.lng) {
+    _verifyMap.setView([proj.lat, proj.lng], 16);
+  } else {
+    _verifyMap.setView([22.548, 114.061], 15);
+  }
+}
+
+function fld(label, value) {
+  var cf = _changedFields[label];
+  if (!cf) {
+    return '<div class="field-row"><span class="field-label">'+label+'</span><span class="field-value">'+value+'</span></div>';
+  }
+  // Changed field — highlighted
+  return '<div class="field-row changed">'+
+    '<span class="field-label">'+label+'</span>'+
+    '<span class="field-value">'+
+      '<span class="fv-old">'+cf.old+'</span>'+
+      '<span class="fv-new">'+cf.new+'<span style="display:inline-flex;align-items:center;gap:3px;margin-left:6px;white-space:nowrap"><span style="display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;border:1px solid #FC8800;font-size:10px;color:#FC8800;font-weight:var(--fw-bold);flex-shrink:0">!</span><span style="font-size:11px;color:#FC8800;font-weight:var(--fw-medium)">有变更</span></span></span>'+
+    '</span>'+
+  '</div>';
+}
+
+function openConfirmModal(result) {
+  _verifyResult = result;
+  document.getElementById('confirmTitle').textContent = (result === 'pass' ? '确认校核通过？' : '确认校核不通过？');
+  document.getElementById('confirmOpinion').value = '';
+  document.getElementById('confirmOpinion').placeholder = (result === 'pass' ? '请输入校核意见（非必填）' : '请输入校核意见（必填）');
+  document.getElementById('confirmError').style.display = 'none';
+  document.getElementById('confirmModal').classList.add('open');
+}
+function closeConfirmModal() {
+  document.getElementById('confirmModal').classList.remove('open');
+}
+function confirmSubmit() {
+  var opinion = (document.getElementById('confirmOpinion').value||'').trim();
+  if (_verifyResult === 'reject' && !opinion) {
+    document.getElementById('confirmError').style.display = 'block';
+    return;
+  }
+  closeConfirmModal();
+
+  var now = new Date();
+  var dateStr = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0')+' '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+  var type = _verifyResult === 'pass' ? '校核通过' : '校核不通过';
+
+  var changeRecords = _fence.changeRecords || [];
+  var verifyRecords = _fence.verifyRecords || [];
+  var verifiedIds = {};
+  verifyRecords.forEach(function(vr){ verifiedIds[vr.changeId] = true; });
+
+  for (var i = 0; i < changeRecords.length; i++) {
+    var cr = changeRecords[i];
+    if (verifiedIds[cr.id]) continue;
+    verifyRecords.push({
+      id: 'vr_app_' + Date.now() + '_' + i,
+      verifier: '张建国',
+      unit: '深圳市南山区住房和建设局',
+      role: '监管人员',
+      date: dateStr,
+      type: type,
+      content: opinion || '校核通过',
+      changeId: cr.id,
+      field: cr.field,
+      before: cr.before,
+      after: cr.after
+    });
+  }
+
+  MOCK_DATA.updateHoard(_fence.id, {verifyRecords: verifyRecords, needVerify: '否'});
+  showToast('校核提交成功');
+  setTimeout(function() { window.location.href = 'verify_list.html'; }, 800);
+}
+
+function showToast(msg) {
+  var el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(function(){el.classList.remove('show')}, 1500);
+}
+
+init();
+</script>
+</body>
+</html>
