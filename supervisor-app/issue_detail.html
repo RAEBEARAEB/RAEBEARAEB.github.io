@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
+<title>围挡问题详情 - 监管端APP</title>
+<style>
+/* ═══ Design Token (matching app_prototype.html) ═══ */
+:root{
+  --blue-50:#E9EBFD;--blue-100:#C8CDFA;--blue-200:#A2ADF6;
+  --blue-300:#788CF3;--blue-400:#5670F0;--blue-500:#2F55EB;--blue-600:#294CDF;
+  --blue-700:#1C41D3;--blue-800:#0A35C7;--blue-900:#0D47A1;
+  --blue:var(--blue-500);--blue-deep:var(--blue-700);--blue-soft:var(--blue-50);
+  --gray-50:#F9F9F9;--gray-100:#E6E8EA;--gray-200:#C6CACD;
+  --gray-300:#A7ABB0;--gray-400:#888D92;--gray-500:#6B7075;--gray-600:#555B61;
+  --gray-700:#41464C;--gray-800:#2E3238;--gray-900:#1C1F23;--gray-0:#FFFFFF;
+  --bg:#F5F7FA;--panel:#FFFFFF;--panel-2:#F9F9F9;
+  --green:#3BB346;--green-light:rgba(59,179,70,0.10);
+  --yellow:#D0AA00;--yellow-light:rgba(208,170,0,0.10);
+  --orange:#FC8800;--orange-light:rgba(252,136,0,0.10);
+  --red:#F93920;--red-light:rgba(249,57,32,0.10);
+  --text:#555B61;--text-sub:#888D92;--text-tertiary:#A7ABB0;
+  --border:#E9F0F7;
+  --shadow-sm:0 4px 10px rgba(0,0,0,0.05);
+  --radius-sm:2px;--radius-md:4px;
+  --font-family:"PingFang SC","Microsoft YaHei","Helvetica Neue",Arial,sans-serif;
+  --font-xs:12px;--font-sm:12px;--font-md:14px;--font-lg:16px;--font-xl:18px;
+  --fw-regular:400;--fw-medium:500;--fw-bold:600;--fw-heavy:700;
+  --safe-top:47px;--safe-bottom:34px;--fast:0.15s ease;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{font-family:var(--font-family);font-size:var(--font-md);color:var(--text);background:var(--bg);line-height:1.5;-webkit-font-smoothing:antialiased;height:100%;overflow:hidden}
+.phone-frame{position:relative;width:390px;height:844px;margin:20px auto;background:var(--bg);border-radius:40px;overflow:hidden;box-shadow:0 0 0 2px #1a1a1a,0 0 0 6px #333,0 0 0 8px #1a1a1a,0 20px 60px rgba(0,0,0,0.3)}
+.phone-notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:126px;height:34px;background:#000;border-radius:0 0 20px 20px;z-index:999}
+.phone-home-indicator{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:134px;height:5px;background:rgba(0,0,0,0.15);border-radius:3px;z-index:999}
+
+.nav-bar{flex-shrink:0;padding-top:var(--safe-top);background:var(--panel);border-bottom:1px solid var(--border)}
+.nav-bar-inner{display:flex;align-items:center;height:56px;padding:0 16px}
+.nav-bar-title{flex:1;text-align:center;font-size:var(--font-lg);font-weight:var(--fw-heavy);color:var(--gray-900)}
+.nav-bar-back{width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:var(--blue);border-radius:var(--radius-md)}
+.nav-bar-back:active{background:var(--gray-100)}
+
+.screen-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.screen-body::-webkit-scrollbar{display:none}
+
+/* ── Detail section (matching app_prototype) ── */
+.detail-content{padding:12px 16px 20px}
+.detail-section{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;margin-bottom:12px;box-shadow:var(--shadow-sm)}
+.detail-section-title{font-size:var(--font-md);font-weight:var(--fw-heavy);padding:12px 16px 8px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px}
+.detail-section-title::before{content:'';width:3px;height:14px;background:var(--blue);border-radius:2px}
+.detail-fields{padding:8px 16px 12px}
+.detail-field{display:flex;padding:4px 0;font-size:var(--font-md)}
+.detail-field-label{color:var(--text-sub);min-width:80px;flex-shrink:0}
+.detail-field-value{color:var(--text);word-break:break-all}
+
+/* ── Map ── */
+.pid-map-wrap{height:220px;border-radius:var(--radius-md);overflow:hidden;border:1px solid var(--border)}
+.pid-photos{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.pid-photos img{width:72px;height:72px;object-fit:cover;border-radius:var(--radius-md);border:1px solid var(--border)}
+
+/* ── Timeline / log ── */
+.af-log{position:relative;padding-left:32px;margin-bottom:12px}
+.af-log::before{content:'';position:absolute;left:11px;top:0;bottom:0;width:1px;background:var(--gray-200)}
+.af-log-item{position:relative;margin-bottom:14px}
+.af-log-item:last-child{margin-bottom:0}
+.af-log-dot{position:absolute;left:-32px;top:4px;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px}
+.af-log-dot svg{width:14px;height:14px}
+.af-log-dot.report{background:var(--blue-50);color:var(--blue)}
+.af-log-dot.transfer{background:var(--orange-light);color:var(--orange)}
+.af-log-dot.rectify{background:var(--blue-50);color:var(--blue)}
+.af-log-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden}
+.af-log-head{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-bottom:1px solid var(--border);background:var(--panel-2)}
+.af-log-title{font-size:var(--font-xs);font-weight:var(--fw-heavy)}
+.af-log-time{font-size:10px;color:var(--text-tertiary)}
+.af-log-body{padding:8px 12px;font-size:var(--font-xs)}
+.af-field{display:flex;padding:5px 0;font-size:var(--font-sm)}
+.af-field-lbl{color:var(--text-sub);min-width:110px;flex-shrink:0}
+.af-field-val{color:var(--text);word-break:break-all}
+.af-photos{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.af-photos img{width:60px;height:60px;object-fit:cover;border-radius:var(--radius-sm);border:1px solid var(--border)}
+</style>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="../shared_data.js"></script>
+<script src="../mock-data.js"></script>
+</head>
+<body>
+<div class="phone-frame">
+  <div class="phone-notch"></div>
+  <div style="display:flex;flex-direction:column;height:100%">
+    <div class="nav-bar">
+      <div class="nav-bar-inner">
+        <a class="nav-bar-back" href="javascript:history.back()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></a>
+        <span class="nav-bar-title">围挡问题详情</span>
+        <span style="width:32px;flex-shrink:0"></span>
+      </div>
+    </div>
+    <div class="screen-body"><div class="detail-content" id="detailContent"></div></div>
+  </div>
+  <div class="phone-home-indicator"></div>
+</div>
+
+<script>
+var _issue = null, _hoard = null, _proj = null;
+
+function init() {
+  var issueId = decodeURIComponent((window.location.search.match(/id=([^&]+)/)||[])[1]||'');
+  if (!issueId) return;
+  _issue = MOCK_DATA.getClosureDetail(issueId);
+  if (!_issue) return;
+  // Get fence for map
+  if (_issue.fenceId) { _hoard = MOCK_DATA.findFenceById(_issue.fenceId); }
+  if (_hoard) {
+    var allP = MOCK_DATA.getProjects();
+    for (var i=0;i<allP.length;i++) { if (allP[i].name === _hoard.projectName) { _proj = allP[i]; break; } }
+  }
+  renderContent();
+}
+
+function renderContent() {
+  var iss = _issue, h = _hoard;
+  var issueStatus = iss.status || '待整改';
+  var stCls = {'待整改':'tag-issue--pending','整改逾期':'tag-issue--overdue'}[issueStatus]||'tag-issue--normal';
+
+  var html = '';
+
+  // ── Section 1: 问题信息 ──
+  html += '<div class="detail-section"><div class="detail-section-title">问题信息</div><div class="detail-fields">';
+  html += '<div class="detail-field"><span class="detail-field-label">问题类型</span><span class="detail-field-value" style="color:var(--blue);font-weight:var(--fw-bold)">'+(iss.type||'--')+'</span></div>';
+  html += '<div class="detail-field"><span class="detail-field-label">问题状态</span><span class="detail-field-value"><span style="display:inline-flex;align-items:center;padding:2px 10px;border-radius:999px;font-size:var(--font-xs);font-weight:var(--fw-medium);background:'+(issueStatus==='待整改'?'var(--yellow-light)':issueStatus==='整改逾期'?'var(--red-light)':'var(--green-light)')+';color:'+(issueStatus==='待整改'?'var(--orange)':issueStatus==='整改逾期'?'var(--red)':'var(--green)')+'">'+issueStatus+'</span></span></div>';
+  html += '<div class="detail-field"><span class="detail-field-label">问题来源</span><span class="detail-field-value">'+(iss.source||'--')+'</span></div>';
+  html += '<div class="detail-field"><span class="detail-field-label">关联项目</span><span class="detail-field-value">'+(iss._projectName||'--')+'</span></div>';
+  html += '<div class="detail-field"><span class="detail-field-label">关联工程</span><span class="detail-field-value">'+(iss.engineerName||(h?h.engineerName:'--'))+'</span></div>';
+  html += '<div class="detail-field"><span class="detail-field-label">责任单位</span><span class="detail-field-value">'+(iss._constructUnit||iss.responsibleUnit||(h?h.constructUnit:'--'))+'</span></div>';
+  html += '<div class="detail-field"><span class="detail-field-label">所属街道</span><span class="detail-field-value">'+(iss.street||(h?h.projectStreet:'--'))+'</span></div>';
+  html += '<div class="detail-field"><span class="detail-field-label">所属区域</span><span class="detail-field-value">'+(iss._district||(h?h.projectDistrict:'--'))+'</span></div>';
+  html += '<div class="detail-field"><span class="detail-field-label">上报时间</span><span class="detail-field-value">'+(iss.reportTime||'--')+'</span></div>';
+  html += '<div class="detail-field"><span class="detail-field-label">问题详情</span><span class="detail-field-value">'+(iss.details||'')+'</span></div>';
+  // 现场照片
+  if (iss.photos && iss.photos.length) {
+    html += '<div class="detail-field"><span class="detail-field-label">现场照片</span><span class="detail-field-value"><div class="pid-photos">'+iss.photos.map(function(p){return'<img src="'+p+'">'}).join('')+'</div></span></div>';
+  }
+  html += '</div></div>';
+
+  // ── Section 2: 问题位置地图 ──
+  html += '<div class="detail-section"><div class="detail-section-title">问题位置</div><div style="padding:8px 16px 12px"><div class="pid-map-wrap" id="pidMap"></div></div></div>';
+
+  // ── Section 3: 流转日志 ──
+  var logItems = [];
+  logItems.push({type:'report',title:'问题上报',time:iss.reportTime||'',person:iss.source==='项目巡检'?'刘伟':iss.source==='街道上报'?'李伟':iss.source==='监管巡查'?'张建国':iss.source==='群众上报'?'市民':'—',source:iss.source,desc:iss.details,photos:iss.photos});
+  var transfers = iss._transfers || [];
+  transfers.forEach(function(t){ logItems.push({type:'transfer',title:'问题转派',time:t.time,person:t.operator,unit:t.unit,desc:t.desc,originalEng:t.originalEng}); });
+  if (iss._rectification) {
+    var rct = iss._rectification;
+    logItems.push({type:'rectify',title:'整改处置',time:rct.rectTime,person:rct.rectifier,unit:rct.rectifierUnit,desc:rct.desc,photos:rct.photos});
+  }
+  logItems.sort(function(a,b){return(b.time||'').localeCompare(a.time||'')});
+
+  html += '<div class="detail-section"><div class="detail-section-title">流转日志</div><div class="detail-fields">';
+  html += '<div class="af-log">';
+  logItems.forEach(function(t){
+    var iconSvg='';
+    if(t.type==='report')iconSvg='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>';
+    else if(t.type==='transfer')iconSvg='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>';
+    else if(t.type==='rectify')iconSvg='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
+
+    html += '<div class="af-log-item"><div class="af-log-dot '+t.type+'">'+iconSvg+'</div><div class="af-log-card">'+
+      '<div class="af-log-head"><span class="af-log-title">'+t.title+'</span><span class="af-log-time">'+t.time+'</span></div>'+
+      '<div class="af-log-body">';
+    if(t.type==='report'){
+      html += '<div class="af-field"><span class="af-field-lbl">问题来源</span><span class="af-field-val">'+t.source+'</span></div>';
+      html += '<div class="af-field"><span class="af-field-lbl">操作人</span><span class="af-field-val">'+t.person+'</span></div>';
+    }
+    if(t.type==='transfer'){
+      html += '<div class="af-field"><span class="af-field-lbl">转派人</span><span class="af-field-val">'+t.person+(t.unit?'（'+t.unit+'）':'')+'</span></div>';
+      html += '<div class="af-field"><span class="af-field-lbl">原关联工程</span><span class="af-field-val">'+(t.originalEng||iss.engineerName||'—')+'</span></div>';
+      if(t.desc)html+='<div class="af-field"><span class="af-field-lbl">转派说明</span><span class="af-field-val">'+t.desc+'</span></div>';
+    }
+    if(t.type==='rectify'){
+      html += '<div class="af-field"><span class="af-field-lbl">处置人</span><span class="af-field-val">'+t.person+(t.unit?'（'+t.unit+'）':'')+'</span></div>';
+      if(t.desc)html+='<div class="af-field"><span class="af-field-lbl">整改说明</span><span class="af-field-val">'+t.desc+'</span></div>';
+      if(t.photos&&t.photos.length)html+='<div class="af-photos">'+t.photos.map(function(p){return'<img src="'+p+'">'}).join('')+'</div>';
+    }
+    html += '</div></div></div>';
+  });
+  if(!logItems.length)html+='<div style="text-align:center;color:var(--text-tertiary);font-size:var(--font-xs);padding:16px">暂无流转记录</div>';
+  html += '</div></div></div>';
+
+  document.getElementById('detailContent').innerHTML = html;
+
+  // Init map
+  setTimeout(function(){
+    var el=document.getElementById('pidMap');if(!el)return;
+    var m=L.map(el,{zoomControl:false,attributionControl:false});
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:18}).addTo(m);
+    var bounds=L.latLngBounds([]);
+    if(_proj&&_proj.redlineGeo&&_proj.redlineGeo.length>=3){
+      L.polygon(_proj.redlineGeo,{color:'#D13B2F',weight:2,fillOpacity:0.08,fillColor:'#D13B2F'}).addTo(m);
+      _proj.redlineGeo.forEach(function(p){bounds.extend(p);});
+    }
+    if(_hoard&&_hoard.gpsShape&&_hoard.gpsShape.length>=2){
+      L.polygon(_hoard.gpsShape,{color:'#2F55EB',weight:2,fillOpacity:0.1,fillColor:'#2F55EB',dashArray:'6 4'}).addTo(m);
+      _hoard.gpsShape.forEach(function(p){bounds.extend(p);});
+    }
+    if(_hoard&&_hoard.entrances){_hoard.entrances.forEach(function(e){
+      var c=e.type==='vehicle'?'#2F55EB':e.type==='pedestrian'?'#3BB346':'#2F55EB';
+      L.circleMarker([e.lat,e.lng],{radius:4,color:c,fillColor:c,fillOpacity:0.7,weight:2}).addTo(m).bindTooltip(e.name||'出入口',{direction:'top'});
+    });}
+    if(_issue.location&&_issue.location.lat){
+      L.circleMarker([_issue.location.lat,_issue.location.lng],{radius:7,color:'#F93920',fillColor:'#F93920',fillOpacity:0.9,weight:3}).addTo(m).bindPopup('<b>问题位置</b><br>'+_issue.location.addr||'');
+      bounds.extend([_issue.location.lat,_issue.location.lng]);
+    }
+    if(bounds.isValid())m.fitBounds(bounds.pad(0.2));
+    else if(_proj)m.setView([_proj.lat,_proj.lng],15);
+    else m.setView([22.548,114.061],15);
+    setTimeout(function(){m.invalidateSize();},200);
+  },400);
+}
+
+init();
+</script>
+</body>
+</html>

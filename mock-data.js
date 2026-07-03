@@ -7,7 +7,7 @@
 
   function getInitialData() {
     return {
-      version: 13,
+      version: 15,
       updatedAt: new Date().toISOString(),
       projects: [
         /* ── 项目 1：福田 ── */
@@ -455,7 +455,7 @@
   }
 
   /* ── 加载或初始化 ── */
-  var CURRENT_VERSION = 13;
+  var CURRENT_VERSION = 15;
   var stored = localStorage.getItem(STORAGE_KEY);
   if (stored) {
     var parsed = JSON.parse(stored);
@@ -782,6 +782,7 @@
       if (!i._constructUnit) i._constructUnit = i.responsibleUnit || '';
       if (!i.street) i.street = i._street || '';
       if (!i.source) i.source = '街道上报';
+      i._unregistered = !i.fenceId && !i._projectName;
       // Closure data
       i._rectification = (closureData.rectifications || {})[i.id] || null;
       i._audits = (closureData.audits || {})[i.id] || [];

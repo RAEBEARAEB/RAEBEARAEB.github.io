@@ -246,6 +246,7 @@ var _todayStr='',_todayFenceIds=[];
   if(!cur){showError('未找到围挡数据');return;}
   _curRecords=cur.patrolRecords.filter(function(r){return r.date===_curDate;}).sort(function(a,b){return(b.time||'').localeCompare(a.time||'');});
   if(!_curRecords.length){_curRecords=[{date:_curDate,time:'--',inspector:'--',result:'正常',panoramaSrc:'',issues:[]}];}
+  if(d.patrolId){ for(var ri=0;ri<_curRecords.length;ri++){if(_curRecords[ri].id===d.patrolId){_curRecIdx=ri;break;}} }
   var cd=new Date(_curDate+'T00:00:00');_calYear=cd.getFullYear();_calMonth=cd.getMonth()+1;_calSelDate=_curDate;
   // Compute today's patrolled fence IDs
   var td=new Date();_todayStr=td.getFullYear()+'-'+pad(td.getMonth()+1)+'-'+pad(td.getDate());

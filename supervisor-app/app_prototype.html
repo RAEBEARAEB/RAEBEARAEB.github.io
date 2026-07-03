@@ -106,6 +106,7 @@ input,textarea,select{font-family:var(--font-family);outline:none}
 .grid-icon-circle.patrol{background:var(--blue);color:#fff}
 .grid-icon-circle.verify{background:var(--blue-50);color:var(--blue)}
 .grid-icon-circle.review{background:var(--orange-light);color:var(--orange)}
+.grid-icon-circle.issue{background:var(--red-light);color:var(--red)}
 .grid-icon-circle svg{width:18px;height:18px}
 .grid-icon-label{font-size:var(--font-xs);font-weight:var(--fw-regular);color:var(--text);white-space:nowrap}
 .grid-icon-dot{position:absolute;top:4px;right:8px;min-width:16px;height:16px;padding:0 4px;background:var(--red);color:#fff;border-radius:8px;font-size:10px;font-weight:var(--fw-heavy);display:flex;align-items:center;justify-content:center;line-height:1}
@@ -833,7 +834,6 @@ function renderWorkbench(){
   html+='<div class="overview-card"><div class="overview-main"><span class="overview-num">'+d.total.toLocaleString()+'</span><span class="overview-label">全市围挡</span></div><div class="overview-grid"><div class="overview-metric danger" onclick="setFilterByChip(\'issue\')"><span class="overview-metric-val">'+d.issue+'</span><span class="overview-metric-lbl">问题围挡</span></div><div class="overview-metric danger"><span class="overview-metric-val">'+d.rectOverdue+'</span><span class="overview-metric-lbl">整改逾期</span></div><div class="overview-metric warning"><span class="overview-metric-val">'+d.pendingRectify+'</span><span class="overview-metric-lbl">待整改</span></div><div class="overview-metric success"><span class="overview-metric-val">'+d.rate+'</span><span class="overview-metric-lbl">整改完成率</span></div><div class="overview-metric danger" onclick="setFilterByChip(\'overdue\')"><span class="overview-metric-val">'+d.overdue+'</span><span class="overview-metric-lbl">超期未拆</span></div><div class="overview-metric warning" onclick="setFilterByChip(\'removing\')"><span class="overview-metric-val">'+d.removing+'</span><span class="overview-metric-lbl">即将拆除</span></div></div></div>';
   // 金刚区
   var verifyCount=fenceData.filter(function(f){return f.needVerify==='是'}).length;
-  var reviewCount=fenceData.filter(function(f){return f.issueKey==='pending'||f.issueKey==='overdue'}).length;
   html+='<div class="section" style="padding:12px 16px 10px"><div class="section-head" style="margin-bottom:8px"><span class="section-title">快捷功能</span></div>';
   html+='<div class="grid-icons">'+
     // 全景巡查
@@ -847,11 +847,10 @@ function renderWorkbench(){
       '<div class="grid-icon-circle verify"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div>'+
       '<div class="grid-icon-label">校核</div>'+
     '</div>'+
-    // 整改审核
-    '<div class="grid-icon-item" onclick="openTodoModal(\'review\')">'+
-      (reviewCount>0?'<span class="grid-icon-dot">'+reviewCount+'</span>':'')+
-      '<div class="grid-icon-circle review"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>'+
-      '<div class="grid-icon-label">审核</div>'+
+    // 问题
+    '<div class="grid-icon-item" onclick="window.location.href=\'issue_list.html\'">'+
+      '<div class="grid-icon-circle issue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>'+
+      '<div class="grid-icon-label">问题</div>'+
     '</div>'+
   '</div></div>';
   // Fence List (project-level) — filter by fence status
@@ -1680,8 +1679,8 @@ function openPatrolDetail(fenceId, patrolId){
   var rec=null;
   hoard.patrolRecords.forEach(function(r){if(r.id===patrolId)rec=r;});
   if(!rec)return;
-  _currentPatrol={fenceId:fenceId, patrolId:patrolId, record:rec, hoard:hoard};
-  renderPatrolDetail();showScreen('screenPatrolDetail');
+  var data=JSON.stringify({fid:fenceId, date:rec.date, patrolId:patrolId, panoSrc:rec.panoramaSrc||''});
+  window.location.href='panorama_viewer_v2.html?data='+encodeURIComponent(data);
 }
 
 function closePatrolDetail(){_currentPatrol=null;goBack();}
