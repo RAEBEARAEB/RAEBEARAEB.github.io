@@ -112,10 +112,11 @@ a{color:var(--text-link);text-decoration:none}::-webkit-scrollbar{width:6px}::-w
 
 <div class="card"><div class="search-bar" style="margin-bottom:0">
   <select id="filterEngineer" onchange="renderTable()"><option value="all">全部关联工程</option></select>
+  <select id="filterStreet" onchange="renderTable()" style="display:none"><option value="all">全部所属街道</option></select>
   <select id="filterSource" onchange="renderTable()"><option value="all">全部来源</option><option value="街道上报">街道上报</option><option value="群众上报">群众上报</option><option value="监管巡查">监管巡查</option><option value="项目巡检">项目巡检</option></select>
   <select id="filterType" onchange="renderTable()"><option value="all">全部类型</option></select>
   <button class="btn btn-primary btn-sm" onclick="renderTable()"><svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>查询</button>
-  <button class="btn btn-ghost btn-sm" onclick="document.getElementById('filterEngineer').value='all';document.getElementById('filterSource').value='all';_statusTab='all';renderTable()"><svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>重置</button>
+  <button class="btn btn-ghost btn-sm" onclick="document.getElementById('filterEngineer').value='all';document.getElementById('filterSource').value='all';document.getElementById('filterStreet').value='all';_statusTab='all';renderTable()"><svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>重置</button>
 </div></div>
 
 <div class="card" style="padding:0">
@@ -142,13 +143,22 @@ var _items=[],_page=1,_pageSize=10;
 function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
 // Set project name in UI
-document.getElementById('breadcrumbProj').textContent=_projName||'项目问题';
-document.getElementById('projPageTitle').textContent=(_projName||'项目')+' - 围挡问题';
+var _isUnregistered=_projName==='_unregistered';
+document.getElementById('breadcrumbProj').textContent=_isUnregistered?'未报建-应建未建围挡问题':(_projName||'项目问题');
+document.getElementById('projPageTitle').textContent=_isUnregistered?'未报建-应建未建围挡问题':((_projName||'项目')+' - 围挡问题');
+if(_isUnregistered){
+  document.getElementById('filterEngineer').style.display='none';
+  document.getElementById('filterStreet').style.display='';
+}
 
 function loadData(){
   _items=MOCK_DATA.getClosureIssues();
-  // Filter to this project only
-  _items=_items.filter(function(i){return (i._projectName||'')===_projName;});
+  // Filter to this project, or unregistered issues
+  if(_isUnregistered){
+    _items=_items.filter(function(i){return i._unregistered;});
+  }else{
+    _items=_items.filter(function(i){return (i._projectName||'')===_projName;});
+  }
 }
 
 (function initTypeFilter(){
@@ -159,6 +169,7 @@ function loadData(){
 
 // Init engineer filter from project data
 (function initEngineerFilter(){
+  if(_isUnregistered)return;
   var issues=MOCK_DATA.getClosureIssues();
   var engSet={};
   issues.forEach(function(i){
@@ -170,12 +181,26 @@ function loadData(){
   });
 })();
 
+// Init street filter (for unregistered issues)
+(function initStreetFilter(){
+  if(!_isUnregistered)return;
+  var issues=MOCK_DATA.getClosureIssues();
+  var streetSet={};
+  issues.forEach(function(i){
+    if(i._unregistered&&i.street)streetSet[i.street]=true;
+  });
+  var s=document.getElementById('filterStreet');if(!s)return;
+  Object.keys(streetSet).sort().forEach(function(st){
+    var o=document.createElement('option');o.value=st;o.textContent=st;s.appendChild(o);
+  });
+})();
+
 var _statusTab='all';
 
 function onStatusTab(tab){_statusTab=tab;_page=1;renderTable();}
 
 function renderStatusTabs(){
-  var all=MOCK_DATA.getClosureIssues().filter(function(i){return(i._projectName||'')===_projName;});
+  var all=MOCK_DATA.getClosureIssues().filter(function(i){return _isUnregistered?i._unregistered:((i._projectName||'')===_projName);});
   var tabs=['all','待整改','整改逾期','整改完成'];
   var labels=['全部','待整改','整改逾期','整改完成'];
   var warnTabs={'待整改':true};
@@ -200,6 +225,7 @@ function renderTable(){
   if(eng!=='all')_items=_items.filter(function(i){return i.engineerName===eng;});
   if(src!=='all')_items=_items.filter(function(i){return i.source===src;});
   if(ft!=='all')_items=_items.filter(function(i){return i.type===ft;});
+  if(_isUnregistered){var fst=document.getElementById('filterStreet').value;if(fst!=='all')_items=_items.filter(function(i){return i.street===fst;});}
   // Sort by reportTime descending
   _items.sort(function(a,b){return(b.reportTime||'').localeCompare(a.reportTime||'');});
 
@@ -207,9 +233,10 @@ function renderTable(){
   pageItems.forEach(function(i,idx){
     var sc=i.status==='待整改'?'待整改':i.status==='整改逾期'?'整改逾期':'整改完成';
     var sCls=i.status==='待整改'?'tag-warning':i.status==='整改逾期'?'tag-danger':'tag-success';
+    var engCol=_isUnregistered?'<span style="color:var(--text-tertiary)">—</span>':esc(i.engineerName||'--');
     h+='<tr><td>'+(start+idx+1)+'</td>'+
       '<td><span class="issue-type-text">'+esc(i.type||'')+'</span></td>'+
-      '<td style="text-align:left">'+esc(i.engineerName||'--')+'</td>'+
+      '<td style="text-align:left">'+engCol+'</td>'+
       '<td>'+esc(i.street||'--')+'</td>'+
       '<td>'+esc(i._constructUnit||i.responsibleUnit||'--')+'</td>'+
       '<td>'+esc(i.source||'--')+'</td>'+

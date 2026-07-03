@@ -118,12 +118,11 @@ a{color:var(--text-link);text-decoration:none}::-webkit-scrollbar{width:6px}::-w
 
 	<div class="card"><div class="search-bar" style="margin-bottom:0">
 	  <select id="filterDistrict" onchange="renderTable()"><option value="all">全部区域</option></select>
-		  <select id="filterStreet" onchange="renderTable()"><option value="all">全部街道</option></select>
-		  <select id="filterProjStatus" onchange="renderTable()"><option value="all">全部项目状态</option><option value="在建">在建</option><option value="停工">停工</option><option value="竣工验收">竣工验收</option></select>
+		  		  <select id="filterProjStatus" onchange="renderTable()"><option value="all">全部项目状态</option><option value="在建">在建</option><option value="停工">停工</option><option value="竣工验收">竣工验收</option></select>
 		  <select id="filterFenceStatus" onchange="renderTable()"><option value="all">全部围挡状态</option><option value="设置中">设置中</option><option value="即将到期">即将到期</option><option value="已到期">已到期</option></select>
 		  <input type="text" id="filterKeyword" placeholder="搜索项目名称" oninput="renderTable()">
 	  <button class="btn btn-primary btn-sm" onclick="renderTable()"><svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>查询</button>
-	  <button class="btn btn-ghost btn-sm" onclick="document.getElementById('filterKeyword').value='';document.getElementById('filterDistrict').value='all';document.getElementById('filterStreet').value='all';document.getElementById('filterProjStatus').value='all';document.getElementById('filterFenceStatus').value='all';renderTable()"><svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>重置</button>
+	  <button class="btn btn-ghost btn-sm" onclick="document.getElementById('filterKeyword').value='';document.getElementById('filterDistrict').value='all';document.getElementById('filterProjStatus').value='all';document.getElementById('filterFenceStatus').value='all';renderTable()"><svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>重置</button>
 
 </div></div>
 
@@ -149,9 +148,20 @@ function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/<
 
 function buildProjData(){
   var allIssues=MOCK_DATA.getClosureIssues();
+  // ── 虚拟项目：未报建-应建未建围挡 ──
+  var unregs=allIssues.filter(function(i){return i._unregistered;});
+  var virtualProj={
+    project:'未报建-应建未建围挡',
+    isVirtual:true,
+    pending:unregs.filter(function(i){return i.status==='待整改'}).length,
+    overdue:unregs.filter(function(i){return i.status==='整改逾期'}).length,
+    completed:unregs.filter(function(i){return i.status==='整改完成'}).length,
+    projStatus:'—',fenceStatus:'—',removeDate:'—',district:'',street:'—'
+  };
+  // ── 普通项目分组 ──
+  var normals=allIssues.filter(function(i){return !i._unregistered;});
   var map={};
-  // Group issues by project
-  allIssues.forEach(function(i){
+  normals.forEach(function(i){
     var key=i._projectName||'未知项目';
     if(!map[key]){
       map[key]={
@@ -166,22 +176,18 @@ function buildProjData(){
     else if(i.status==='整改完成')map[key].completed++;
     map[key].hoardings.push(i);
   });
-  // Merge with MOCK_DATA project info for status/dates
   var projects=MOCK_DATA.getProjects();
-  var result=[];
+  var result=[virtualProj];
   Object.keys(map).forEach(function(k){
     var entry=map[k];
-    // Find project info
     var proj=null;
     projects.forEach(function(p){if(p.name===k)proj=p;});
     if(proj){
       entry.projStatus=proj.status||'在建';
       entry.district=proj.district||'';
-      // Compute aggregate fence status (priority: 即将到期 > 设置中 > 已到期)
       var fs={};
       (proj.hoardings||[]).forEach(function(h){fs[h.fenceStatus]=true;});
       entry.fenceStatus=fs['即将到期']?'即将到期':fs['设置中']?'设置中':'已到期';
-      // Earliest planRemoveDate
       var earliest='';
       (proj.hoardings||[]).forEach(function(h){if(h.planRemoveDate&&(!earliest||h.planRemoveDate<earliest))earliest=h.planRemoveDate;});
       entry.removeDate=earliest||'—';
@@ -197,15 +203,19 @@ function renderTable(){
   _projItems=buildProjData();
   var kw=document.getElementById('filterKeyword').value.trim().toLowerCase();
   var dist=document.getElementById('filterDistrict').value;
-  var street=document.getElementById('filterStreet').value;
   if(kw)_projItems=_projItems.filter(function(p){return p.project.toLowerCase().indexOf(kw)>-1||(p.street||'').toLowerCase().indexOf(kw)>-1;});
   if(dist!=='all')_projItems=_projItems.filter(function(p){return p.district===dist;});
-  if(street!=='all')_projItems=_projItems.filter(function(p){return p.street===street;});
   var ps=document.getElementById('filterProjStatus').value;
   var fs=document.getElementById('filterFenceStatus').value;
-  if(ps!=='all')_projItems=_projItems.filter(function(p){return p.projStatus===ps;});
-  if(fs!=='all')_projItems=_projItems.filter(function(p){return p.fenceStatus===fs;});
-  var total=_projItems.length,start=(_page-1)*_pageSize,pageItems=_projItems.slice(start,start+_pageSize),h='';
+  if(ps!=='all')_projItems=_projItems.filter(function(p){return p.isVirtual||p.projStatus===ps;});
+  if(fs!=='all')_projItems=_projItems.filter(function(p){return p.isVirtual||p.fenceStatus===fs;});
+  var total=_projItems.length,start=(_page-1)*_pageSize;
+  // Pull out virtual project — always render it first, not included in pagination
+  var virtualItem=_projItems.length>0&&_projItems[0].isVirtual?_projItems[0]:null;
+  var normalItems=virtualItem?_projItems.slice(1):_projItems;
+  var pageItems=normalItems.slice(start,start+_pageSize),h='';
+  // Prepend virtual row regardless of page
+  if(virtualItem&&_page===1)pageItems.unshift(virtualItem);
 
   var fsTag={};fsTag['设置中']='tag-success';fsTag['即将到期']='tag-warning';fsTag['已到期']='tag-default';
   var psTag={};psTag['在建']='tag-success';psTag['停工']='tag-danger';psTag['竣工验收']='tag-info';
@@ -213,20 +223,23 @@ function renderTable(){
   pageItems.forEach(function(p,idx){
     var fsCls=fsTag[p.fenceStatus]||'tag-default';
     var psCls=psTag[p.projStatus]||'tag-default';
-    h+='<tr><td>'+(start+idx+1)+'</td>'+
-      '<td style="text-align:left"><a class="table-action-link" href="supervisor-issue-project.html?project='+encodeURIComponent(p.project)+'">'+esc(p.project)+'</a></td>'+
-      '<td><span class="tag '+psCls+'">'+esc(p.projStatus)+'</span></td>'+
-      '<td><span class="tag '+fsCls+'">'+esc(p.fenceStatus)+'</span></td>'+
-      '<td>'+esc(p.removeDate)+'</td>'+
+    var stickyCls=p.isVirtual?' style="position:sticky;top:0;z-index:5;background:#FFF;box-shadow:0 2px 4px rgba(0,0,0,0.06)"':'';
+    h+='<tr'+stickyCls+'><td>'+(start+idx+1)+'</td>'+
+      '<td style="text-align:left"><a class="table-action-link" href="supervisor-issue-project.html?project='+(p.isVirtual?'_unregistered':encodeURIComponent(p.project))+'">'+
+        (p.isVirtual?'<span style="color:var(--color-warning);font-weight:var(--font-weight-bold)">'+esc(p.project)+'</span>':esc(p.project))+
+      '</a></td>'+
+      '<td>'+(p.isVirtual?'—':'<span class="tag '+psCls+'">'+esc(p.projStatus)+'</span>')+'</td>'+
+      '<td>'+(p.isVirtual?'—':'<span class="tag '+fsCls+'">'+esc(p.fenceStatus)+'</span>')+'</td>'+
+      '<td>'+(p.isVirtual?'—':esc(p.removeDate))+'</td>'+
       '<td><span style="color:var(--color-warning);font-weight:var(--font-weight-bold)">'+p.pending+'</span></td>'+
       '<td><span style="color:var(--color-danger);font-weight:var(--font-weight-bold)">'+p.overdue+'</span></td>'+
       '<td>'+p.completed+'</td>'+
-      '<td><div class="table-actions"><a class="table-action-link" href="supervisor-issue-project.html?project='+encodeURIComponent(p.project)+'">详情</a></div></td></tr>';
+      '<td><div class="table-actions"><a class="table-action-link" href="supervisor-issue-project.html?project='+(p.isVirtual?'_unregistered':encodeURIComponent(p.project))+'">详情</a></div></td></tr>';
   });
-  if(!total)h='<tr><td colspan="9" style="padding:40px;color:var(--text-tertiary)">暂无数据</td></tr>';
+  if(!pageItems.length&&!virtualItem)h='<tr><td colspan="9" style="padding:40px;color:var(--text-tertiary)">暂无数据</td></tr>';
   document.getElementById('tableBody').innerHTML=h;
 
-  var tp=Math.ceil(total/_pageSize),phtml='<span>共 '+total+' 条</span><div class="pagination-btns">';
+  var tp=Math.ceil(normalItems.length/_pageSize),phtml='<span>共 '+total+' 条</span><div class="pagination-btns">';
   phtml+='<button '+(_page<=1?'disabled':'')+' onclick="goPage('+(_page-1)+')">&lt;</button>';
   for(var p=1;p<=Math.min(tp,8);p++)phtml+='<button class="'+(p===_page?'active':'')+'" onclick="goPage('+p+')">'+p+'</button>';
   if(tp>8){phtml+='<button disabled>...</button><button onclick="goPage('+tp+')">'+tp+'</button>';}
@@ -257,18 +270,13 @@ function renderStatCards(){
 // Init district/street filters
 (function initFilters(){
   var projects=MOCK_DATA.getProjects();
-  var dSet={},sSet={};
+  var dSet={};
   projects.forEach(function(p){
     if(p.district)dSet[p.district]=true;
-    if(p.street)sSet[p.street]=true;
   });
   var dSel=document.getElementById('filterDistrict');
   Object.keys(dSet).sort().forEach(function(d){
     var o=document.createElement('option');o.value=d;o.textContent=d;dSel.appendChild(o);
-  });
-  var sSel=document.getElementById('filterStreet');
-  Object.keys(sSet).sort().forEach(function(s){
-    var o=document.createElement('option');o.value=s;o.textContent=s;sSel.appendChild(o);
   });
 })();
 
