@@ -58,6 +58,9 @@ a:hover{color:var(--text-link-hover)}
 .header-action-btn:hover{background:var(--color-gray-50);color:var(--text-primary)}
 .header-action-btn svg{width:18px;height:18px}
 .header-badge{position:absolute;top:4px;right:4px;min-width:16px;height:16px;background:var(--color-danger);color:var(--text-inverse);font-size:10px;font-weight:var(--font-weight-bold);border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 4px;line-height:1;border:2px solid var(--bg-header)}
+.header-dashboard-btn{display:inline-flex;align-items:center;gap:6px;padding:0 16px;height:36px;font-size:var(--font-size-sm);font-weight:var(--font-weight-medium);color:#fff;background:linear-gradient(135deg,#1D4ED8,#2563EB,#3B82F6);border-radius:var(--border-radius-md);cursor:pointer;transition:all var(--transition-fast);white-space:nowrap;text-decoration:none;border:1px solid rgba(37,99,235,0.4);box-shadow:0 2px 10px rgba(29,78,216,0.25),inset 0 1px 0 rgba(255,255,255,0.15);font-family:var(--font-family)}
+.header-dashboard-btn:hover{background:linear-gradient(135deg,#1E40AF,#1D4ED8,#2563EB);box-shadow:0 4px 16px rgba(29,78,216,0.4),inset 0 1px 0 rgba(255,255,255,0.2);transform:translateY(-1px)}
+.header-dashboard-btn svg{width:16px;height:16px;flex-shrink:0}
 .header-user{display:flex;align-items:center;gap:var(--space-2);padding:0 var(--space-2);cursor:pointer;height:36px;border-radius:var(--border-radius-md);transition:background var(--transition-fast)}
 .header-user:hover{background:var(--color-gray-50)}
 .header-avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--color-primary-100),var(--color-primary-200));display:flex;align-items:center;justify-content:center;font-size:var(--font-size-xs);color:var(--color-primary-700);font-weight:var(--font-weight-medium)}
@@ -372,6 +375,7 @@ span.flatpickr-weekday{color:var(--text-secondary)}
       <span class="header-logo-text">深圳市建设施工围挡数字化管理系统</span>
     </div>
     <div class="header-right">
+      <a href="dashboard_map.html" class="header-dashboard-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="1" y="1" width="22" height="22" rx="2.5"/><line x1="1" y1="8" x2="23" y2="8"/><line x1="1" y1="16" x2="23" y2="16"/><line x1="8" y1="8" x2="8" y2="23"/><line x1="16" y1="8" x2="16" y2="23"/><circle cx="4" cy="4" r="1.2" fill="currentColor" stroke="none"/><circle cx="20" cy="12" r="2.5"/></svg>围挡一张图</a>
       <div class="header-action-group">
         <button class="header-action-btn" title="全屏"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg></button>
         <button class="header-action-btn" title="消息"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><span class="header-badge">3</span></button>
@@ -394,6 +398,8 @@ span.flatpickr-weekday{color:var(--text-secondary)}
         <li class="nav-item"><a href="index_v2.html" class="active"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>围挡档案管理</a></li>
         <li class="nav-item"><a href="panorama_patrol.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>全景巡查</a></li>
         <li class="nav-item"><a href="supervisor-issue-list.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>问题闭环处置</a></li>
+        <li class="nav-group-label">统计报表</li>
+        <li class="nav-item"><a href="score-management.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>围挡评分管理</a></li>
       </ul>
       <div class="sidebar-bottom"><div class="sidebar-version">v2.0.0 · 2026.04</div></div>
     </aside>
@@ -615,8 +621,8 @@ span.flatpickr-weekday{color:var(--text-secondary)}
           <div class="card-header"><div class="card-title"><span class="card-title-dot"></span>围挡占道信息</div></div>
           <div class="card-body">
             <div class="form-grid">
-              <div class="form-item full"><label class="form-label">占道范围</label><input type="text" class="form-input" placeholder="请描述占道范围，如：人行道占用宽度2m" value="人行道占用宽度2m"></div>
-              <div class="form-item"><label class="form-label"><span class="required">*</span>占道面积</label><div class="form-input-group"><input type="number" class="form-input" placeholder="请输入占道面积" value="156.8"><span class="form-input-suffix">㎡</span></div></div>
+              <div class="form-item"><label class="form-label"><span class="required">*</span>占道面积</label><div class="form-input-group"><input type="number" class="form-input" id="roadArea" placeholder="请输入占道面积" value="0" onchange="onRoadAreaChange()"><span class="form-input-suffix">㎡</span></div></div>
+              <div class="form-item full"><label class="form-label" id="roadRangeLabel">占道范围</label><input type="text" class="form-input" id="roadRange" placeholder="请描述占道范围，如：人行道占用宽度2m" value="人行道占用宽度2m"></div>
               <div class="form-item full"><label class="form-label">交通组织方案</label><div class="file-upload"><span class="file-upload-name">交通组织方案_v2.pdf</span></div><div class="form-hint">支持 .pdf、.doc、.docx 格式，文件大小不超过 20MB</div></div>
             </div>
           </div>
@@ -2233,7 +2239,7 @@ function toggleEngInfo(){
   setTimeout(function(){initFenceMap();renderEngInfoCard();},200);
   // Also render the card when project is already pre-populated
   if(document.getElementById('pairProjectInput')&&document.getElementById('pairProjectInput').value) renderEngInfoCard();
-  // ═══ 沿用围挡信息：检查已到期记录 ═══
+  // ═══ 沿用围挡信息：检查超期未拆记录 ═══
   setTimeout(function(){checkExpiredFenceForReuse()},400);
 })();
 
@@ -2248,7 +2254,7 @@ function seedDemoExpiredRecords(){
   try{localStorage.removeItem('fenceReused_v1')}catch(e){}
   try{localStorage.removeItem(EXP_KEY)}catch(e){}
   var defaults={};
-  // 罗湖区湖贝旧村改造项目 / 桩基工程 (对应列表页 FB-005, fenceStatus:已到期)
+  // 罗湖区湖贝旧村改造项目 / 桩基工程 (对应列表页 FB-005, fenceStatus:超期未拆)
   defaults['罗湖区湖贝旧村改造项目|||桩基工程']={
     project:'罗湖区湖贝旧村改造项目',engineering:'桩基工程',unit:'深圳市罗湖桩基施工有限公司',
     custodyStart:'2024-03-01',custodyEnd:'2026-05-10',
@@ -2360,7 +2366,7 @@ function handleReuseNo(){
 <div class="reuse-overlay" id="reuseOverlay">
   <div class="reuse-dialog">
     <div class="reuse-dialog-header"><span class="reuse-dialog-title">提示</span></div>
-    <div class="reuse-dialog-body">该项目下检测到<strong>已到期</strong>的围挡记录「<strong id="reuseEngName"></strong>」。<br>是否需要沿用该记录的围挡信息？<br><span style="font-size:12px;color:#9CA3B0">沿用后，除工程名称、责任单位、管护期限、围挡责任人及电话外，其余字段将自动带入。</span></div>
+    <div class="reuse-dialog-body">该项目下检测到<strong>超期未拆</strong>的围挡记录「<strong id="reuseEngName"></strong>」。<br>是否需要沿用该记录的围挡信息？<br><span style="font-size:12px;color:#9CA3B0">沿用后，除工程名称、责任单位、管护期限、围挡责任人及电话外，其余字段将自动带入。</span></div>
     <div class="reuse-dialog-footer">
       <button class="reuse-btn reuse-btn-no" onclick="handleReuseNo()">否，重新填写</button>
       <button class="reuse-btn reuse-btn-yes" onclick="handleReuseYes()">是，沿用信息</button>
@@ -2413,6 +2419,18 @@ function handleReuseNo(){
     if(DEMO_ENTRANCES.length>0) entrances=DEMO_ENTRANCES.slice();
     if(shapes.length>0||entrances.length>0) setTimeout(function(){ updateFenceSummary(); }, 150);
     return;
+  }
+  function onRoadAreaChange(){
+    var area=parseFloat(document.getElementById('roadArea')?.value)||0;
+    var label=document.getElementById('roadRangeLabel');
+    var range=document.getElementById('roadRange');
+    if(area!==0){
+      if(label)label.innerHTML='<span class="required">*</span>占道范围';
+      if(range)range.placeholder='请输入占道范围（必填）';
+    }else{
+      if(label)label.innerHTML='占道范围';
+      if(range)range.placeholder='请描述占道范围，如：人行道占用宽度2m';
+    }
   }
 
   /* ═══ 3. 从 MOCK_DATA 查找围挡记录 ═══ */

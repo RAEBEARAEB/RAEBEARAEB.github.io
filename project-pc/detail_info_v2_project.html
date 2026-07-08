@@ -558,8 +558,8 @@ textarea.form-input{height:80px;padding:var(--space-2) var(--space-3);resize:ver
             <div class="card-header"><div class="card-title"><span class="card-title-dot"></span>围挡占道信息</div></div>
             <div class="card-body">
               <div class="detail-grid">
-                <div class="detail-item"><span class="detail-label">占道范围</span><span class="detail-value">人行道占用宽度2m</span></div>
                 <div class="detail-item"><span class="detail-label">占道面积</span><span class="detail-value">156.8 ㎡</span></div>
+                <div class="detail-item"><span class="detail-label">占道范围</span><span class="detail-value">人行道占用宽度2m</span></div>
                 <div class="detail-item full"><span class="detail-label">交通组织方案</span><span class="detail-value"><span class="detail-file"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>交通组织方案_v2.pdf</span></span></div>
               </div>
             </div>
@@ -936,7 +936,7 @@ var projectData=SD.toProjectDataSimple();
 initMap();
 (function(){
   var h=_defaultHoard;if(!h)return;
-  var fsTag={'设置中':'<span class="tag tag-setting">设置中</span>','即将到期':'<span class="tag tag-soon">即将到期</span>','已到期':'<span class="tag tag-expired">已到期</span>'};
+  var fsTag={'已安装':'<span class="tag tag-setting">已安装</span>','超期未拆':'<span class="tag tag-overdue">超期未拆</span>','已拆除':'<span class="tag tag-expired">已拆除</span>'};
   document.getElementById('detailFenceStatusTag').innerHTML=fsTag[h.fenceStatus]||h.fenceStatus||'—';
   var isTag={'正常':'<span class="tag tag-ok">正常</span>','待整改':'<span class="tag tag-warn">待整改</span>','整改逾期':'<span class="tag tag-error">整改逾期</span>'};
   document.getElementById('detailIssueStatusTag').innerHTML=isTag[h.issueStatus]||h.issueStatus||'—';
@@ -1162,7 +1162,7 @@ function toggleEngInfo(){
   if(pn&&en){
     var h=MOCK_DATA.findByProjectAndEngineer(pn,en);
     if(h){
-      var canChange=h.fenceStatus==='设置中'||h.fenceStatus==='即将到期';
+      var canChange=h.fenceStatus==='已安装'||h.fenceStatus==='超期未拆';
       if(!canChange){
         var btn=document.getElementById('btnChangeInfo');
         if(btn)btn.style.display='none';

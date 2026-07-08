@@ -26,14 +26,14 @@ var SD=(function(){
           designUnit:'深圳市建筑设计研究总院有限公司',
           engineers:[
             {id:'e1',name:'基坑围护工程',engStatus:'在建',planPeriod:'2024-06-01 至 2025-12-31',fenceId:'WD-2026-0001',
-             fenceStatus:'设置中',issueStatus:'正常',length:320,height:2.5,area:156.8,material:'彩钢板',
+             fenceStatus:'已安装',issueStatus:'正常',length:320,height:2.5,area:156.8,material:'彩钢板',
              setupDate:'2025-09-15',planRemoveDate:'2027-06-30',
              address:'南山区粤海街道科技南路18号',
              shapes:[{type:'polygon',points:[[200,80],[350,60],[380,180],[280,200],[180,160]],label:'围挡范围 1',source:'manual'},{type:'polygon',points:[[420,40],[560,50],[580,150],[500,180],[400,130]],label:'围挡范围 2',source:'import'},{type:'polygon',points:[[600,100],[720,80],[740,170],[680,200],[590,170]],label:'围挡范围 3',source:'import'}],
              entrances:[{x:260,y:130,type:'vehicle',name:'主入口'},{x:520,y:110,type:'pedestrian',name:'次入口'},{x:680,y:160,type:'vehicle',name:'车行口'}]
             },
             {id:'e2',name:'主体结构工程',engStatus:'在建',planPeriod:'2025-01-15 至 2027-06-30',fenceId:'WD-2026-0001',
-             fenceStatus:'设置中',issueStatus:'正常',length:320,height:2.5,area:156.8,material:'彩钢板',
+             fenceStatus:'已安装',issueStatus:'正常',length:320,height:2.5,area:156.8,material:'彩钢板',
              setupDate:'2025-09-15',planRemoveDate:'2027-06-30',
              address:'南山区粤海街道科技南路18号',
              shapes:[],entrances:[]
@@ -58,7 +58,7 @@ var SD=(function(){
           designUnit:'深圳市清华苑建筑设计有限公司',
           engineers:[
             {id:'e4',name:'土方开挖工程',engStatus:'在建',planPeriod:'2024-11-01 至 2025-05-31',fenceId:'WD-2026-0004',
-             fenceStatus:'设置中',issueStatus:'正常',length:240,height:2.5,area:120.0,material:'彩钢板',
+             fenceStatus:'已安装',issueStatus:'正常',length:240,height:2.5,area:120.0,material:'彩钢板',
              setupDate:'2025-03-01',planRemoveDate:'2026-09-30',
              address:'宝安区新安街道兴华路南侧',
              shapes:[{type:'polygon',points:[[180,100],[320,70],[360,200],[260,230],[140,180]],label:'围挡范围',source:'manual'}],
@@ -84,7 +84,7 @@ var SD=(function(){
           designUnit:'深圳市市政设计研究院有限公司',
           engineers:[
             {id:'e6',name:'管道铺设工程',engStatus:'在建',planPeriod:'2024-03-01 至 2025-09-30',fenceId:'WD-2026-0002',
-             fenceStatus:'设置中',issueStatus:'正常',length:450,height:3.0,area:270.0,material:'彩钢板',
+             fenceStatus:'已安装',issueStatus:'正常',length:450,height:3.0,area:270.0,material:'彩钢板',
              setupDate:'2025-06-01',planRemoveDate:'2026-03-31',
              address:'福田区福华三路与金田路交汇处',
              shapes:[{type:'polygon',points:[[160,90],[310,60],[350,190],[250,220],[130,170]],label:'围挡范围',source:'manual'}],
@@ -109,7 +109,7 @@ var SD=(function(){
           designUnit:'深圳市华森建筑设计有限公司',
           engineers:[
             {id:'e8',name:'主体结构工程',engStatus:'停工',planPeriod:'2024-08-01 至 2026-06-30',fenceId:'WD-2026-0003',
-             fenceStatus:'超期未拆除',issueStatus:'有问题',length:560,height:2.5,area:280.0,material:'彩钢板',
+             fenceStatus:'已到期',issueStatus:'有问题',length:560,height:2.5,area:280.0,material:'彩钢板',
              setupDate:'2024-08-01',planRemoveDate:'2025-08-01',
              address:'龙华区民治街道民康路与民塘路交汇处',
              shapes:[{type:'polygon',points:[[190,110],[340,80],[370,210],[270,240],[150,190]],label:'围挡范围',source:'manual'}],
@@ -129,7 +129,7 @@ var SD=(function(){
           designUnit:'深圳市筑博建筑设计有限公司',
           engineers:[
             {id:'e9',name:'桩基工程',engStatus:'在建',planPeriod:'2025-01-01 至 2026-06-30',fenceId:'WD-2026-0005',
-             fenceStatus:'设置中',issueStatus:'正常',length:200,height:2.5,area:100.0,material:'彩钢板',
+             fenceStatus:'已安装',issueStatus:'正常',length:200,height:2.5,area:100.0,material:'彩钢板',
              setupDate:'2025-01-15',planRemoveDate:'2026-06-30',
              address:'罗湖区湖贝路与文锦中路交汇处',
              shapes:[{type:'polygon',points:[[170,95],[320,65],[355,195],[255,225],[135,175]],label:'围挡范围',source:'manual'}],
@@ -170,7 +170,7 @@ var SD=(function(){
           {id:'vr6',verifier:'刘明',unit:'深圳市福田区住房和建设局',role:'监管人员',date:'2026-05-12 09:30',type:'校核修正',content:'围挡长度校核，由400m修正为450m',field:'围挡长度',before:'400m',after:'450m',linkedChangeId:'cr5'}
         ],
         'WD-2026-0003':[
-          {id:'vr7',verifier:'王涛',unit:'深圳市龙华区住房和建设局',role:'监管人员',date:'2026-04-15 14:00',type:'校核修正',content:'围挡状态校核，标记为超期未拆除',field:'围挡状态',before:'设置中',after:'超期未拆除',linkedChangeId:'cr6'}
+          {id:'vr7',verifier:'王涛',unit:'深圳市龙华区住房和建设局',role:'监管人员',date:'2026-04-15 14:00',type:'校核修正',content:'围挡状态校核，标记为已到期除',field:'围挡状态',before:'已安装',after:'已到期除',linkedChangeId:'cr6'}
         ],
         'WD-2026-0005':[
           {id:'vr8',verifier:'赵磊',unit:'深圳市罗湖区住房和建设局',role:'监管人员',date:'2026-04-28 10:00',type:'校核通过',content:'围挡信息核实无误',field:'',before:'',after:'',linkedChangeId:'cr7'}
@@ -355,7 +355,7 @@ var SD=(function(){
 
   /* 辅助：获取围挡状态样式类 */
   function getStatusClass(status){
-    var map={'设置中':'status-setting','已设置':'status-set','即将拆除':'status-removing','超期未拆除':'status-overdue','已拆除':'status-removed'};
+    var map={'已安装':'status-setting','已设置':'status-set','即将拆除':'status-removing','已到期':'status-overdue','已拆除':'status-removed'};
     return map[status]||'status-setting';
   }
   function getStatusLabel(status){

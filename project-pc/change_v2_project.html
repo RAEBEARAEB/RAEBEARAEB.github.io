@@ -612,8 +612,8 @@ span.flatpickr-weekday{color:var(--text-secondary)}
           <div class="card-header"><div class="card-title"><span class="card-title-dot"></span>围挡占道信息</div></div>
           <div class="card-body">
             <div class="form-grid">
-              <div class="form-item full"><label class="form-label">占道范围</label><input type="text" class="form-input" placeholder="请描述占道范围，如：人行道占用宽度2m" value="人行道占用宽度2m"></div>
-              <div class="form-item"><label class="form-label"><span class="required">*</span>占道面积</label><div class="form-input-group"><input type="number" class="form-input" placeholder="请输入占道面积" value="156.8"><span class="form-input-suffix">㎡</span></div></div>
+              <div class="form-item"><label class="form-label"><span class="required">*</span>占道面积</label><div class="form-input-group"><input type="number" class="form-input" id="roadArea" placeholder="请输入占道面积" value="0" onchange="onRoadAreaChange()"><span class="form-input-suffix">㎡</span></div></div>
+              <div class="form-item full"><label class="form-label" id="roadRangeLabel">占道范围</label><input type="text" class="form-input" id="roadRange" placeholder="请描述占道范围，如：人行道占用宽度2m" value="人行道占用宽度2m"></div>
               <div class="form-item full"><label class="form-label">交通组织方案</label><div class="file-upload"><input type="file" id="trafficFile"><button type="button" class="file-upload-btn" onclick="document.getElementById('trafficFile').click()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>选择文件</button><span class="file-upload-name" id="trafficFileName">交通组织方案_v2.pdf</span></div><div class="form-hint">支持 .pdf、.doc、.docx 格式，文件大小不超过 20MB</div></div>
             </div>
           </div>
@@ -2067,12 +2067,28 @@ function handleSave(){
     }
   });
 }
+function onRoadAreaChange(){
+  var area=parseFloat(document.getElementById('roadArea')?.value)||0;
+  var label=document.getElementById('roadRangeLabel');
+  var range=document.getElementById('roadRange');
+  if(area!==0){
+    if(label)label.innerHTML='<span class="required">*</span>占道范围';
+    if(range)range.placeholder='请输入占道范围（必填）';
+  }else{
+    if(label)label.innerHTML='占道范围';
+    if(range)range.placeholder='请描述占道范围，如：人行道占用宽度2m';
+  }
+}
 function handleSubmit(){
   var inp=document.getElementById('pairProjectInput');
   var pn=inp?inp.value||'':'';
   var es=document.getElementById('engineerSelect');
   var en=es?es.value||'':'';
   if(!pn||!en){showToast('请先选择项目工程');return}
+  // 占道面积≠0时，占道范围必填
+  var roadArea=parseFloat(document.getElementById('roadArea')?.value)||0;
+  var roadRange=(document.getElementById('roadRange')?.value||'').trim();
+  if(roadArea!==0&&!roadRange){showToast('请输入占道范围');return}
   var overlay=document.createElement('div');
   overlay.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.45);z-index:9998;display:flex;align-items:center;justify-content:center';
   overlay.innerHTML='<div style="background:#fff;border-radius:6px;box-shadow:0 8px 30px rgba(0,0,0,0.15);width:420px;overflow:hidden">'

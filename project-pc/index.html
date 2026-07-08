@@ -1014,12 +1014,12 @@ function renderRemindList(filter) {
   var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   var items = [];
   hoardings.forEach(function(h) {
-    if (h.fenceStatus === '已到期') {
+    if (h.fenceStatus === '超期未拆') {
       var end = new Date(h.custodyEnd);
       end = new Date(end.getFullYear(), end.getMonth(), end.getDate());
       var days = Math.floor((today - end) / (1000 * 60 * 60 * 24));
       items.push({type: 'overdue', days: days, h: h});
-    } else if (h.fenceStatus === '即将到期') {
+    } else if (h.fenceStatus === '超期未拆') {
       var end2 = new Date(h.custodyEnd);
       end2 = new Date(end2.getFullYear(), end2.getMonth(), end2.getDate());
       var days2 = Math.floor((end2 - today) / (1000 * 60 * 60 * 24));
@@ -1063,7 +1063,7 @@ function renderRemindList(filter) {
     var info = pName ? pName + ' · ' + engName : engName;
     var detailHtml = '';
     if (it.type === 'overdue') {
-      detailHtml = '<span class="days-danger">已到期' + it.days + '天</span>';
+      detailHtml = '<span class="days-danger">超期未拆' + it.days + '天</span>';
     } else {
       detailHtml = '<span class="days-warning">距到期剩' + it.days + '天</span>';
     }

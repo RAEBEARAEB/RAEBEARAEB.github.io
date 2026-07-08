@@ -7,7 +7,7 @@
 
   function getInitialData() {
     return {
-      version: 15,
+      version: 21,
       updatedAt: new Date().toISOString(),
       projects: [
         /* ── 项目 1：福田 ── */
@@ -38,7 +38,7 @@
               id: 'WD-2026-0001',
               engineerName: '管道铺设工程',
               engStatus: '在建',
-              fenceStatus: '设置中',
+              fenceStatus: '已安装',
               issueStatus: '待整改',
               needVerify: '否',
               custodyStart: '2025-06-01',
@@ -121,7 +121,7 @@
               id: 'WD-2026-0002',
               engineerName: '沟槽开挖工程',
               engStatus: '在建',
-              fenceStatus: '即将到期',
+              fenceStatus: '已到期',
               issueStatus: '整改逾期',
               needVerify: '是',
               custodyStart: '2025-03-01',
@@ -229,14 +229,14 @@
               ],
               defaultDemo: false,
               verifyRecords: [
-                { id: 'vr3', verifier: '张建国', unit: '深圳市福田区住房和建设局', role: '监管人员', date: '2026-05-05 16:00', type: '校核不通过', content: '围挡状态已更新为到期，核实无误', changeId:'cr_rd1', field: '围挡状态', before: '设置中', after: '已到期' }
+                { id: 'vr3', verifier: '张建国', unit: '深圳市福田区住房和建设局', role: '监管人员', date: '2026-05-05 16:00', type: '校核不通过', content: '围挡状态已更新为到期，核实无误', changeId:'cr_rd1', field: '围挡状态', before: '已安装', after: '已到期' }
               ],
               changeRecords: [
-                { id: 'cr_rd1', changer: '刘伟', unit: '深圳市市政工程总公司', role: '施工人员', date: '2026-05-04 11:00', type: '变更操作', content: '围挡状态变更，由设置中调整为已到期', field: '围挡状态', before: '设置中', after: '已到期' },
+                { id: 'cr_rd1', changer: '刘伟', unit: '深圳市市政工程总公司', role: '施工人员', date: '2026-05-04 11:00', type: '变更操作', content: '围挡状态变更，由已安装调整为已到期', field: '围挡状态', before: '已安装', after: '已到期' },
                 { id: 'cr_rd2', changer: '刘伟', unit: '深圳市市政工程总公司', role: '施工人员', date: '2026-06-15 10:00', type: '变更操作', content: '计划拆除日期变更，申请延期至2026-09-30', field: '计划拆除时间', before: '2025-06-01', after: '2026-09-30' }
               ],
               patrolRecords: [
-                { id: 'pr4', date: '2026-05-08', time: '11:00', inspector: '陈刚', result: '异常', issues: [{type:'围挡材质不符合规范', unit:'深圳市市政工程总公司', detail:'现场围挡使用PVC材质，不符合装配式钢结构喷绘围挡的设计要求，需更换为规范材质'},{type:'围挡超期未拆除', unit:'深圳市市政工程总公司', detail:'该围挡已于2025-06-01到期，至今未拆除，属于超期围挡，需立即拆除或办理延期手续'}], panoramaSrc: 'https://vsleem.com/scene/realsee/share?projectId=2183&patrolId=eff873ee90a9c39da9731b17789f9291&pointId=4d55d097-2e0d-4db5-b88a-a313b002cf2b&rotate=1.8900753669526844,-0.09621686902020032&authCode=70c29c3c9b5a40c8acd5567358e1c78b' },
+                { id: 'pr4', date: '2026-05-08', time: '11:00', inspector: '陈刚', result: '异常', issues: [{type:'围挡材质不符合规范', unit:'深圳市市政工程总公司', detail:'现场围挡使用PVC材质，不符合装配式钢结构喷绘围挡的设计要求，需更换为规范材质'},{type:'围挡已到期除', unit:'深圳市市政工程总公司', detail:'该围挡已于2025-06-01到期，至今未拆除，属于超期围挡，需立即拆除或办理延期手续'}], panoramaSrc: 'https://vsleem.com/scene/realsee/share?projectId=2183&patrolId=eff873ee90a9c39da9731b17789f9291&pointId=4d55d097-2e0d-4db5-b88a-a313b002cf2b&rotate=1.8900753669526844,-0.09621686902020032&authCode=70c29c3c9b5a40c8acd5567358e1c78b' },
                 { id: 'pr23', date: '2026-05-18', time: '08:30', inspector: '刘伟', result: '正常', issues: [], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' },
                 { id: 'pr24', date: '2026-05-22', time: '15:00', inspector: '陈刚', result: '正常', issues: [], panoramaSrc: 'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492' },
                 { id: 'pr25', date: '2026-05-25', time: '10:30', inspector: '刘伟', result: '正常', issues: [], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' },
@@ -374,10 +374,50 @@
               ]
             },
             {
+              id: 'WD-2026-0007',
+              engineerName: '绿化迁移工程',
+              engStatus: '在建',
+              fenceStatus: '已安装',
+              issueStatus: '正常',
+              needVerify: '否',
+              custodyStart: '2025-09-01',
+              custodyEnd: '2026-08-15',
+              planRemoveDate: '2026-07-25',
+              setupDate: '2025-09-01',
+              length: 150,
+              height: 2.0,
+              area: 75.0,
+              material: '仿真绿篱围挡',
+              fenceStyle: '仿真绿篱',
+              publicityContent: '绿美深圳 共建家园',
+              roadOccupation: '人行道',
+              roadOccupationArea: 30,
+              fenceResponsible: '李明',
+              fenceResponsiblePhone: '13800138001',
+              address: '南山区科技南路18号东北角',
+              gpsShape: [
+                [22.536, 113.959],
+                [22.538, 113.959],
+                [22.538, 113.961],
+                [22.536, 113.961]
+              ],
+              entrances: [
+                { lat: 22.537, lng: 113.959, name: '绿篱入口', type: 'pedestrian' },
+                { lat: 22.537, lng: 113.961, name: '材料通道', type: 'temporary' }
+              ],
+              defaultDemo: false,
+              patrolRecords: [
+                { id: 'pr_lh1', date: '2026-05-28', time: '09:00', inspector: '李明', result: '正常', issues: [], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' },
+                { id: 'pr_lh2', date: '2026-06-10', time: '14:30', inspector: '李巡检', result: '正常', issues: [], panoramaSrc: 'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492' },
+                { id: 'pr_lh3', date: '2026-06-22', time: '08:45', inspector: '李明', result: '正常', issues: [], panoramaSrc: 'https://vsleem.com/scene/realsee/share?projectId=2183&patrolId=eff873ee90a9c39da9731b17789f9291&pointId=4d55d097-2e0d-4db5-b88a-a313b002cf2b&rotate=1.8900753669526844,-0.09621686902020032&authCode=70c29c3c9b5a40c8acd5567358e1c78b' },
+                { id: 'pr_lh4', date: '2026-07-02', time: '10:15', inspector: '李明', result: '正常', issues: [], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' }
+              ]
+            },
+            {
               id: 'WD-2026-0005',
               engineerName: '主体结构工程',
               engStatus: '在建',
-              fenceStatus: '设置中',
+              fenceStatus: '已安装',
               issueStatus: '正常',
               needVerify: '是',
               custodyStart: '2025-09-15',
@@ -445,7 +485,59 @@
                 { id: 'pr_gen_5104', date: '2026-07-27', time: '08:19', inspector: '刘伟', result: '正常', panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' },
                 { id: 'pr_gen_5109', date: '2026-07-29', time: '08:21', inspector: '李巡检', result: '异常', panoramaSrc: 'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492', issues: [{type:'围挡脏污', unit:'中建三局集团有限公司', detail:'围挡面板表面有泥浆污渍约0.5㎡，需清洁处理'}] },
                 { id: 'pr_gen_5114', date: '2026-07-31', time: '08:23', inspector: '陈刚', result: '正常', panoramaSrc: 'https://vsleem.com/scene/realsee/share?projectId=2183&patrolId=eff873ee90a9c39da9731b17789f9291&pointId=4d55d097-2e0d-4db5-b88a-a313b002cf2b&rotate=1.8900753669526844,-0.09621686902020032&authCode=70c29c3c9b5a40c8acd5567358e1c78b' },
-              
+
+              ]
+            },
+            {
+              id: 'WD-2026-0006',
+              engineerName: '土方回填工程',
+              engStatus: '竣工验收',
+              fenceStatus: '已到期',
+              issueStatus: '正常',
+              needVerify: '否',
+              custodyStart: '2024-11-01',
+              custodyEnd: '2025-04-30',
+              planRemoveDate: '2025-05-30',
+              setupDate: '2024-11-01',
+              length: 180,
+              height: 2.5,
+              area: 90.0,
+              material: '彩钢板',
+              fenceStyle: '标准型',
+              publicityContent: '文明施工 请勿靠近',
+              roadOccupation: '人行道',
+              roadOccupationArea: 25,
+              fenceResponsible: '王强',
+              fenceResponsiblePhone: '13900139001',
+              address: '南山区科技南路18号西侧',
+              gpsShape: [
+                [22.533, 113.955],
+                [22.534, 113.955],
+                [22.534, 113.958],
+                [22.533, 113.958]
+              ],
+              entrances: [
+                { lat: 22.5335, lng: 113.956, name: '车辆入口', type: 'vehicle' }
+              ],
+              defaultDemo: false,
+              demolishRecord: {
+                date: '2025-06-15',
+                file: '拆除完工验收报告_20250615.pdf',
+                note: '土方回填工程施工完毕，围挡已按要求拆除并恢复路面，现场验收合格',
+                operator: '王强',
+                operateTime: '2025-06-15T14:30:00'
+              },
+              verifyRecords: [
+                { id: 'vr_wq1', verifier: '张建国', unit: '深圳市南山区住房和建设局', role: '监管人员', date: '2025-06-18 09:30', type: '校核通过', content: '围挡已拆除完毕，路面恢复完好，责令清场手续齐全', changeId:'cr_wq1', field: '围挡状态', before: '已到期', after: '已拆除' }
+              ],
+              changeRecords: [
+                { id: 'cr_wq1', changer: '王强', unit: ' 中建三局集团有限公司', role: '施工人员', date: '2025-06-15 14:30', type: '拆除操作', content: '围挡已拆除，拆除时间：2025-06-15，说明：土方回填工程施工完毕，围挡已按要求拆除并恢复路面，现场验收合格', field: '围挡状态', before: '已到期', after: '已拆除', file: '拆除完工验收报告_20250615.pdf' }
+              ],
+              patrolRecords: [
+                { id: 'pr_wq1', date: '2025-02-15', time: '10:00', inspector: '王强', result: '正常', issues: [], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' },
+                { id: 'pr_wq2', date: '2025-03-15', time: '14:00', inspector: '李巡检', result: '正常', issues: [], panoramaSrc: 'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492' },
+                { id: 'pr_wq3', date: '2025-04-15', time: '09:30', inspector: '王强', result: '正常', issues: [], panoramaSrc: 'https://vsleem.com/scene/realsee/share?projectId=2183&patrolId=eff873ee90a9c39da9731b17789f9291&pointId=4d55d097-2e0d-4db5-b88a-a313b002cf2b&rotate=1.8900753669526844,-0.09621686902020032&authCode=70c29c3c9b5a40c8acd5567358e1c78b' },
+                { id: 'pr_wq4', date: '2025-05-10', time: '08:45', inspector: '王强', result: '正常', issues: [], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' }
               ]
             }
           ]
@@ -455,7 +547,7 @@
   }
 
   /* ── 加载或初始化 ── */
-  var CURRENT_VERSION = 15;
+  var CURRENT_VERSION = 21;
   var stored = localStorage.getItem(STORAGE_KEY);
   if (stored) {
     var parsed = JSON.parse(stored);
@@ -673,7 +765,7 @@
       { id: 'YZY-022', type: '围挡尺寸不合规', fenceId: 'WD-2026-0002', fenceAddr: '福田区福华三路西侧', details: '围挡实测高度2.0m，低于规范要求的2.5m标准高度，需立即调整', status: '待整改', source: '项目巡检', reportTime: '2026-05-10 10:00:00', engineerName: '沟槽开挖工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png'], location: { lat: 22.547, lng: 114.060, addr: '福田区福华三路西侧' } },
       { id: 'YZY-023', type: '围挡基础松动', fenceId: 'WD-2026-0002', fenceAddr: '福田区福华三路西侧', details: '围挡面板之间连接螺栓松动3处，连接件存在脱落风险，需紧固或更换', status: '整改完成', source: '项目巡检', reportTime: '2026-05-17 16:00:00', engineerName: '沟槽开挖工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png','../围挡破损.png'], location: { lat: 22.548, lng: 114.062, addr: '福田区福华三路西侧' } },
       { id: 'YZY-024', type: '围挡材质不符合规范', fenceId: 'WD-2026-0003', fenceAddr: '福田区福华三路东侧', details: '现场围挡使用PVC材质，不符合装配式钢结构喷绘围挡的设计要求，需更换为规范材质', status: '待整改', source: '项目巡检', reportTime: '2026-05-08 11:00:00', engineerName: '道路恢复工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png'], location: { lat: 22.547, lng: 114.063, addr: '福田区福华三路东侧' } },
-      { id: 'YZY-025', type: '围挡超期未拆除', fenceId: 'WD-2026-0003', fenceAddr: '福田区福华三路东侧', details: '该围挡已于2025-06-01到期，至今未拆除，属于超期围挡，需立即拆除或办理延期手续', status: '整改逾期', source: '项目巡检', reportTime: '2026-05-08 11:00:00', engineerName: '道路恢复工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png'], location: { lat: 22.546, lng: 114.062, addr: '福田区福华三路东侧' } },
+      { id: 'YZY-025', type: '围挡已到期除', fenceId: 'WD-2026-0003', fenceAddr: '福田区福华三路东侧', details: '该围挡已于2025-06-01到期，至今未拆除，属于超期围挡，需立即拆除或办理延期手续', status: '整改逾期', source: '项目巡检', reportTime: '2026-05-08 11:00:00', engineerName: '道路恢复工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png'], location: { lat: 22.546, lng: 114.062, addr: '福田区福华三路东侧' } },
       // ── 新增巡检问题（关联最新巡检记录）──
       { id: 'YZY-026', type: '围挡面板变形', fenceId: 'WD-2026-0001', fenceAddr: '福田区福华三路', details: '巡检发现围挡面板因大风天气导致局部变形约0.8㎡，面板连接处出现松动，需更换面板并加固连接件', status: '待整改', source: '项目巡检', reportTime: '2026-06-14 09:30:00', engineerName: '管道铺设工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png'], location: { lat: 22.550, lng: 114.062, addr: '福田区福华三路与金田路交汇处' } },
       { id: 'YZY-027', type: '围挡公益广告脱落', fenceId: 'WD-2026-0002', fenceAddr: '福田区福华三路西侧', details: '围挡外侧公益广告喷绘布因连日降雨导致大面积脱胶起泡约3㎡，公益广告内容已无法看清，影响市容市貌，需重新制作更换喷绘布面', status: '待整改', source: '项目巡检', reportTime: '2026-06-13 10:00:00', engineerName: '沟槽开挖工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png','../围挡破损.png'], location: { lat: 22.547, lng: 114.061, addr: '福田区福华三路西侧' } },

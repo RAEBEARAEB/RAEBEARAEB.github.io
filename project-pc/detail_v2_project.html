@@ -626,8 +626,8 @@ span.flatpickr-weekday{color:var(--text-secondary)}
           <div class="card-header"><div class="card-title"><span class="card-title-dot"></span>围挡占道信息</div></div>
           <div class="card-body">
             <div class="form-grid">
-              <div class="form-item full"><label class="form-label">占道范围</label><input type="text" class="form-input" placeholder="请描述占道范围，如：人行道占用宽度2m" value="人行道占用宽度2m"></div>
-              <div class="form-item"><label class="form-label"><span class="required">*</span>占道面积</label><div class="form-input-group"><input type="number" class="form-input" placeholder="请输入占道面积" value="156.8"><span class="form-input-suffix">㎡</span></div></div>
+              <div class="form-item"><label class="form-label"><span class="required">*</span>占道面积</label><div class="form-input-group"><input type="number" class="form-input" id="roadArea" placeholder="请输入占道面积" value="0" onchange="onRoadAreaChange()"><span class="form-input-suffix">㎡</span></div></div>
+              <div class="form-item full"><label class="form-label" id="roadRangeLabel">占道范围</label><input type="text" class="form-input" id="roadRange" placeholder="请描述占道范围，如：人行道占用宽度2m" value="人行道占用宽度2m"></div>
               <div class="form-item full"><label class="form-label">交通组织方案</label><div class="file-upload"><input type="file" id="trafficFile"><button type="button" class="file-upload-btn" onclick="document.getElementById('trafficFile').click()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>选择文件</button><span class="file-upload-name" id="trafficFileName">交通组织方案_v2.pdf</span></div><div class="form-hint">支持 .pdf、.doc、.docx 格式，文件大小不超过 20MB</div></div>
             </div>
           </div>
@@ -2072,6 +2072,18 @@ function saveCurrentFence(){
   // 同步写入 MOCK_DATA
   syncShapesToMockData(pn,en);
 }
+function onRoadAreaChange(){
+  var area=parseFloat(document.getElementById('roadArea')?.value)||0;
+  var label=document.getElementById('roadRangeLabel');
+  var range=document.getElementById('roadRange');
+  if(area!==0){
+    if(label)label.innerHTML='<span class="required">*</span>占道范围';
+    if(range)range.placeholder='请输入占道范围（必填）';
+  }else{
+    if(label)label.innerHTML='占道范围';
+    if(range)range.placeholder='请描述占道范围，如：人行道占用宽度2m';
+  }
+}
 function handleSave(){
   var inp=document.getElementById('pairProjectInput');
   var pn=inp?inp.value||'':'';
@@ -2241,7 +2253,7 @@ function toggleEngInfo(){
   setTimeout(function(){initFenceMap();renderEngInfoCard();},200);
   // Also render the card when project is already pre-populated
   if(document.getElementById('pairProjectInput')&&document.getElementById('pairProjectInput').value) renderEngInfoCard();
-  // ═══ 沿用围挡信息：检查已到期记录 ═══
+  // ═══ 沿用围挡信息：检查超期未拆记录 ═══
   setTimeout(function(){checkExpiredFenceForReuse()},400);
 })();
 
@@ -2256,7 +2268,7 @@ function seedDemoExpiredRecords(){
   try{localStorage.removeItem('fenceReused_v1')}catch(e){}
   try{localStorage.removeItem(EXP_KEY)}catch(e){}
   var defaults={};
-  // 罗湖区湖贝旧村改造项目 / 桩基工程 (对应列表页 FB-005, fenceStatus:已到期)
+  // 罗湖区湖贝旧村改造项目 / 桩基工程 (对应列表页 FB-005, fenceStatus:超期未拆)
   defaults['罗湖区湖贝旧村改造项目|||桩基工程']={
     project:'罗湖区湖贝旧村改造项目',engineering:'桩基工程',unit:'深圳市罗湖桩基施工有限公司',
     custodyStart:'2024-03-01',custodyEnd:'2026-05-10',
@@ -2379,7 +2391,7 @@ function handleMaterialOtherInput(){
 <div class="reuse-overlay" id="reuseOverlay">
   <div class="reuse-dialog">
     <div class="reuse-dialog-header"><span class="reuse-dialog-title">提示</span></div>
-    <div class="reuse-dialog-body">该项目下检测到<strong>已到期</strong>的围挡记录「<strong id="reuseEngName"></strong>」。<br>是否需要沿用该记录的围挡信息？<br><span style="font-size:12px;color:#9CA3B0">沿用后，除工程名称、责任单位、管护期限、围挡责任人及电话外，其余字段将自动带入。</span></div>
+    <div class="reuse-dialog-body">该项目下检测到<strong>超期未拆</strong>的围挡记录「<strong id="reuseEngName"></strong>」。<br>是否需要沿用该记录的围挡信息？<br><span style="font-size:12px;color:#9CA3B0">沿用后，除工程名称、责任单位、管护期限、围挡责任人及电话外，其余字段将自动带入。</span></div>
     <div class="reuse-dialog-footer">
       <button class="reuse-btn reuse-btn-no" onclick="handleReuseNo()">否，重新填写</button>
       <button class="reuse-btn reuse-btn-yes" onclick="handleReuseYes()">是，沿用信息</button>

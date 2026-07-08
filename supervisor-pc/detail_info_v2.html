@@ -64,6 +64,9 @@ a:hover{color:var(--text-link-hover)}
 .header-action-btn:hover{background:var(--color-gray-50);color:var(--text-primary)}
 .header-action-btn svg{width:18px;height:18px}
 .header-badge{position:absolute;top:4px;right:4px;min-width:16px;height:16px;background:var(--color-danger);color:var(--text-inverse);font-size:10px;font-weight:var(--font-weight-bold);border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 4px;line-height:1;border:2px solid var(--bg-header)}
+.header-dashboard-btn{display:inline-flex;align-items:center;gap:6px;padding:0 16px;height:36px;font-size:var(--font-size-sm);font-weight:var(--font-weight-medium);color:#fff;background:linear-gradient(135deg,#1D4ED8,#2563EB,#3B82F6);border-radius:var(--border-radius-md);cursor:pointer;transition:all var(--transition-fast);white-space:nowrap;text-decoration:none;border:1px solid rgba(37,99,235,0.4);box-shadow:0 2px 10px rgba(29,78,216,0.25),inset 0 1px 0 rgba(255,255,255,0.15);font-family:var(--font-family)}
+.header-dashboard-btn:hover{background:linear-gradient(135deg,#1E40AF,#1D4ED8,#2563EB);box-shadow:0 4px 16px rgba(29,78,216,0.4),inset 0 1px 0 rgba(255,255,255,0.2);transform:translateY(-1px)}
+.header-dashboard-btn svg{width:16px;height:16px;flex-shrink:0}
 .header-user{display:flex;align-items:center;gap:var(--space-2);padding:0 var(--space-2);cursor:pointer;height:36px;border-radius:var(--border-radius-md);transition:background var(--transition-fast)}
 .header-user:hover{background:var(--color-gray-50)}
 .header-avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--color-primary-100),var(--color-primary-200));display:flex;align-items:center;justify-content:center;font-size:var(--font-size-xs);color:var(--color-primary-700);font-weight:var(--font-weight-medium)}
@@ -362,6 +365,7 @@ textarea.form-input{height:80px;padding:var(--space-2) var(--space-3);resize:ver
       <span class="header-logo-text">深圳市建设施工围挡数字化管理系统</span>
     </div>
     <div class="header-right">
+      <a href="dashboard_map.html" class="header-dashboard-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="1" y="1" width="22" height="22" rx="2.5"/><line x1="1" y1="8" x2="23" y2="8"/><line x1="1" y1="16" x2="23" y2="16"/><line x1="8" y1="8" x2="8" y2="23"/><line x1="16" y1="8" x2="16" y2="23"/><circle cx="4" cy="4" r="1.2" fill="currentColor" stroke="none"/><circle cx="20" cy="12" r="2.5"/></svg>围挡一张图</a>
       <div class="header-action-group">
         <button class="header-action-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg><span class="header-badge">3</span></button>
         <button class="header-action-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></button>
@@ -383,6 +387,8 @@ textarea.form-input{height:80px;padding:var(--space-2) var(--space-3);resize:ver
         <li class="nav-item"><a href="index_v2.html" class="active"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>围挡档案管理</a></li>
         <li class="nav-item"><a href="panorama_patrol.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>全景巡查</a></li>
         <li class="nav-item"><a href="supervisor-issue-list.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>问题闭环处置</a></li>
+        <li class="nav-group-label">统计报表</li>
+        <li class="nav-item"><a href="score-management.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>围挡评分管理</a></li>
       </ul>
       <div class="sidebar-bottom"><div class="sidebar-version">v2.0.0 · 2026.04</div></div>
     </aside>
@@ -509,8 +515,8 @@ textarea.form-input{height:80px;padding:var(--space-2) var(--space-3);resize:ver
             <div class="card-header"><div class="card-title"><span class="card-title-dot"></span>围挡占道信息</div></div>
             <div class="card-body">
               <div class="detail-grid">
-                <div class="detail-item"><span class="detail-label">占道范围</span><span class="detail-value">人行道占用宽度2m</span></div>
                 <div class="detail-item"><span class="detail-label">占道面积</span><span class="detail-value">156.8 ㎡</span></div>
+                <div class="detail-item"><span class="detail-label">占道范围</span><span class="detail-value">人行道占用宽度2m</span></div>
                 <div class="detail-item full"><span class="detail-label">交通组织方案</span><span class="detail-value"><span class="detail-file"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>交通组织方案_v2.pdf</span></span></div>
               </div>
             </div>
@@ -862,7 +868,7 @@ var projectData=SD.toProjectDataSimple();
 initMap();
 (function(){
   var h=_defaultHoard;if(!h)return;
-  var fsTag={'设置中':'<span class="tag tag-setting">设置中</span>','即将到期':'<span class="tag tag-soon">即将到期</span>','已到期':'<span class="tag tag-expired">已到期</span>'};
+  var fsTag={'已安装':'<span class="tag tag-setting">已安装</span>','超期未拆':'<span class="tag tag-soon">超期未拆</span>','超期未拆':'<span class="tag tag-expired">超期未拆</span>'};
   document.getElementById('detailFenceStatusTag').innerHTML=fsTag[h.fenceStatus]||h.fenceStatus||'—';
   var isTag={'正常':'<span class="tag tag-ok">正常</span>','待整改':'<span class="tag tag-warn">待整改</span>','整改逾期':'<span class="tag tag-error">整改逾期</span>'};
   document.getElementById('detailIssueStatusTag').innerHTML=isTag[h.issueStatus]||h.issueStatus||'—';

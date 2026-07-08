@@ -370,10 +370,10 @@ function openTransferModal(issueId){
   var h = '';
   if(!all.length) h = '<div style="text-align:center;padding:20px;color:var(--text-tertiary)">同项目下暂无其他围挡</div>';
   else all.forEach(function(f){
-    var st=f.fenceStatus||'设置中', stTagCls='tag-default';
-    if(st==='设置中'||st==='在建')stTagCls='tag-setting';
-    else if(st==='即将到期')stTagCls='tag-warning';
-    else if(st==='已到期')stTagCls='tag-danger';
+    var st=f.fenceStatus||'已安装', stTagCls='tag-default';
+    if(st==='已安装'||st==='在建')stTagCls='tag-setting';
+    else if(st==='超期未拆')stTagCls='tag-warning';
+    else if(st==='超期未拆')stTagCls='tag-danger';
     h += '<label class="transfer-item"><input type="radio" name="transferFence" value="'+f.id+'" onchange="_transferFenceId=\''+f.id+'\'"><div class="transfer-body"><div class="transfer-title">'+esc(f.engineerName||'')+' <span class="tag '+stTagCls+'" style="font-size:10px">'+esc(st)+'</span></div><div class="transfer-meta">'+esc(f.constructUnit||'')+'</div></div></label>';
   });
   document.getElementById('transferList').innerHTML = h;
