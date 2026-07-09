@@ -621,8 +621,8 @@ input,textarea,select{font-family:var(--font-family);outline:none}
    ═══════════════════════════════════════════ */
 
 if(typeof MOCK_DATA==='undefined'){document.body.innerHTML='<div style=padding:20px;color:red>数据加载失败，请清除浏览器缓存后重试</div>';throw new Error('MOCK_DATA not loaded');}
-var STATUS_KEY={ '设置中':'setting','即将到期':'removing','已到期':'removed' };
-var STATUS_LABEL={ setting:'设置中',removing:'即将到期',removed:'已到期' };
+var STATUS_KEY={ '已安装':'setting','超期未拆':'removing','超期未拆':'removed' };
+var STATUS_LABEL={ setting:'已安装',removing:'超期未拆',removed:'超期未拆' };
 var ISSUE_KEY={ '正常':'normal','待整改':'pending','整改逾期':'overdue','待审核':'pending','审核通过':'passed','退回整改':'pending' };
 
 // Build fenceData from MOCK_DATA.getHoardings() — the authoritative data source
@@ -635,7 +635,7 @@ const fenceData=(function(){
       id:h.id,
       project:h.projectName, eng:h.engineerName,
       address:h.address||h.projectAddress,
-      status:h.fenceStatus||'设置中', statusKey:stKey,
+      status:h.fenceStatus||'已安装', statusKey:stKey,
       issue:issLabel, issueKey:issKey,
       length:h.length||0, height:h.height||2.5,
       material:h.material||'装配式钢结构喷绘围挡',
@@ -664,7 +664,7 @@ const fenceData=(function(){
   });
 })();
 
-// Build projectFenceData — aggregate by project, status priority: 即将到期 > 设置中 > 已到期
+// Build projectFenceData — aggregate by project, status priority: 超期未拆 > 已安装 > 超期未拆
 var projectFenceData=(function(){
   var map={};
   fenceData.forEach(function(f){
@@ -685,7 +685,7 @@ var projectFenceData=(function(){
     }
   });
   var statusPriority=['removing','setting','removed'];
-  var statusLabel={'removing':'即将到期','setting':'设置中','removed':'已到期'};
+  var statusLabel={'removing':'超期未拆','setting':'已安装','removed':'超期未拆'};
   var result=[];
   Object.keys(map).forEach(function(k){
     var entry=map[k];
@@ -694,7 +694,7 @@ var projectFenceData=(function(){
       if(entry.statusSet[statusPriority[i]]){aggStatus=statusPriority[i];break;}
     }
     entry.aggStatusKey=aggStatus;
-    entry.aggStatusLabel=statusLabel[aggStatus]||'设置中';
+    entry.aggStatusLabel=statusLabel[aggStatus]||'已安装';
     entry.hoardingCount=entry.hoardings.length;
     entry.removeDate=entry.earliestRemoveDate||'—';
     result.push(entry);
@@ -847,17 +847,17 @@ function renderWorkbench(){
       '<div class="grid-icon-circle verify"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div>'+
       '<div class="grid-icon-label">校核</div>'+
     '</div>'+
-    // 问题
+    // 问题清单
     '<div class="grid-icon-item" onclick="window.location.href=\'issue_list.html\'">'+
       '<div class="grid-icon-circle issue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>'+
-      '<div class="grid-icon-label">问题</div>'+
+      '<div class="grid-icon-label">问题清单</div>'+
     '</div>'+
   '</div></div>';
   // Fence List (project-level) — filter by fence status
   var sc=projectFenceData.filter(function(p){return p.aggStatusKey==='setting'}).length;
   var rc=projectFenceData.filter(function(p){return p.aggStatusKey==='removing'}).length;
   var dc=projectFenceData.filter(function(p){return p.aggStatusKey==='removed'}).length;
-  html+='<div class="section" style="padding-bottom:8px"><div class="section-head"><span class="section-title">围挡列表</span><button class="toggle-btn" onclick="showScreen(\'screenMapOverview\')">地图总览</button></div><div class="search-bar"><div class="search-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input class="search-input" type="text" placeholder="搜索项目名称、区域" oninput="handleInlineSearch(this.value)"></div></div><div class="chips"><span class="chip'+(currentFilter==='all'?' active':'')+'" data-filter="all" onclick="setFilter(this)">全部 <small>'+projectFenceData.length+'</small></span><span class="chip'+(currentFilter==='setting'?' active':'')+'" data-filter="setting" onclick="setFilter(this)">设置中 <small>'+sc+'</small></span><span class="chip'+(currentFilter==='removing'?' active':'')+'" data-filter="removing" onclick="setFilter(this)">即将到期 <small>'+rc+'</small></span><span class="chip'+(currentFilter==='removed'?' active':'')+'" data-filter="removed" onclick="setFilter(this)">已到期 <small>'+dc+'</small></span></div><div class="fence-list" id="fenceList"></div></div>';
+  html+='<div class="section" style="padding-bottom:8px"><div class="section-head"><span class="section-title">围挡列表</span><button class="toggle-btn" onclick="showScreen(\'screenMapOverview\')">地图总览</button></div><div class="search-bar"><div class="search-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input class="search-input" type="text" placeholder="搜索项目名称、区域" oninput="handleInlineSearch(this.value)"></div></div><div class="chips"><span class="chip'+(currentFilter==='all'?' active':'')+'" data-filter="all" onclick="setFilter(this)">全部 <small>'+projectFenceData.length+'</small></span><span class="chip'+(currentFilter==='setting'?' active':'')+'" data-filter="setting" onclick="setFilter(this)">已安装 <small>'+sc+'</small></span><span class="chip'+(currentFilter==='removing'?' active':'')+'" data-filter="removing" onclick="setFilter(this)">超期未拆 <small>'+rc+'</small></span><span class="chip'+(currentFilter==='removed'?' active':'')+'" data-filter="removed" onclick="setFilter(this)">超期未拆 <small>'+dc+'</small></span></div><div class="fence-list" id="fenceList"></div></div>';
   document.getElementById('workbenchBody').innerHTML=html;
   renderFenceList();
 }
@@ -868,7 +868,7 @@ function handleInlineSearch(v){inlineSearchKeyword=v.trim();renderFenceList()}
 
 // ═══ Project-level fence cards ═══
 var statusTag={removing:'tag-removing',setting:'tag-setting',removed:'tag-removed'};
-var statusLabel={removing:'即将到期',setting:'设置中',removed:'已到期'};
+var statusLabel={removing:'超期未拆',setting:'已安装',removed:'超期未拆'};
 
 function renderFenceList(){
   var list=document.getElementById('fenceList');if(!list)return;
@@ -891,6 +891,14 @@ function renderFenceList(){
 // ═══ Project Hoardings Screen ═══
 var currentProject=null;
 var projectMap=null;
+
+function _updateEntranceVisibility(mapRef, markers){
+  var zoom=mapRef.getZoom(), show=zoom>=15;
+  markers.forEach(function(mk){
+    if(show){mk.setRadius(5);mk.setStyle({opacity:1,fillOpacity:1});}
+    else{mk.setRadius(0);mk.setStyle({opacity:0,fillOpacity:0});}
+  });
+}
 
 function openProjectHoards(idx){
   currentProject=projectFenceData[idx];if(!currentProject)return;
@@ -917,11 +925,15 @@ function renderProjectHoards(){
   }).join('');
 }
 
+var _projectEntranceMarkers=[];
+
 function initProjectMap(projEntry){
   var el=document.getElementById('projectMapContainer');if(!el)return;
   if(projectMap){projectMap.remove();projectMap=null;}
+  _projectEntranceMarkers=[];
   projectMap=L.map(el,{zoomControl:false,attributionControl:false});
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:18}).addTo(projectMap);
+  projectMap.on('zoomend',function(){_updateEntranceVisibility(projectMap,_projectEntranceMarkers);});
 
   var projects=MOCK_DATA.getProjects();
   var proj=null;
@@ -943,13 +955,14 @@ function initProjectMap(projEntry){
     var hoard=MOCK_DATA.findHoard(f.id);
     if(!hoard||!hoard.gpsShape||!hoard.gpsShape.length)return;
     var fs=hoard.gpsShape.map(function(p){return[p[0],p[1]];});
-    var fl=L.polygon(fs,{color:'#2F55EB',weight:2,dashArray:'6 4',fillColor:'rgba(47,85,235,0.10)',fillOpacity:1}).addTo(projectMap);
+    var fl=L.polygon(fs,{color:'#2F55EB',weight:2,fillColor:'rgba(47,85,235,0.10)',fillOpacity:1}).addTo(projectMap);
     allLayers.push(fl);
     if(hoard.entrances){
       hoard.entrances.forEach(function(e){
         var color=entColor[e.type]||'#1890FF';
-        L.circleMarker([e.lat,e.lng],{radius:5,color:color,fillColor:color,fillOpacity:1,weight:2}).addTo(projectMap)
+        var mk=L.circleMarker([e.lat,e.lng],{radius:5,color:color,fillColor:color,fillOpacity:1,weight:2}).addTo(projectMap)
           .bindTooltip(entType[e.type],{direction:'right'});
+        _projectEntranceMarkers.push(mk);
       });
     }
   });
@@ -962,6 +975,7 @@ function initProjectMap(projEntry){
   }else{
     projectMap.setView([22.548,114.061],15);
   }
+  _updateEntranceVisibility(projectMap,_projectEntranceMarkers);
 }
 
 function openDetailFromProject(idx){
@@ -1009,7 +1023,7 @@ function initDetailMap(f){
   // ── Fence range (gpsShape) ──
   if(hoard&&hoard.gpsShape&&hoard.gpsShape.length>0){
     var fs=hoard.gpsShape.map(function(p){return[p[0],p[1]];});
-    var fenceLayer=L.polygon(fs,{color:'#2F55EB',weight:2,dashArray:'6 4',fillColor:'rgba(47,85,235,0.10)',fillOpacity:1}).addTo(detailMap);
+    var fenceLayer=L.polygon(fs,{color:'#2F55EB',weight:2,fillColor:'rgba(47,85,235,0.10)',fillOpacity:1}).addTo(detailMap);
     allLayers.push(fenceLayer);
   }
 
@@ -1084,7 +1098,7 @@ function renderDetailTab(tab){
     '</div></div>';
     // ── 4. 围挡占道信息 ──
     html+='<div class="detail-sub-title">围挡占道信息</div><div class="detail-section"><div class="detail-fields">'+
-      df('占道范围',f.roadOccupation)+df('占道面积',f.roadOccupationArea)+
+      df('占道面积',f.roadOccupationArea)+df('占道范围',f.roadOccupation)+
     '</div></div>';
     // ── 5. 关联项目工程 ──
     html+='<div class="detail-sub-title">关联项目工程</div><div class="detail-section"><div class="detail-fields">'+
@@ -1247,7 +1261,7 @@ function renderDetailTab(tab){
           }
           // Fence GPS shape
           if (hoard.gpsShape && hoard.gpsShape.length >= 2) {
-            L.polygon(hoard.gpsShape, {color:'#2F55EB',weight:2,fillOpacity:0.1,fillColor:'#2F55EB',dashArray:'8 4'}).addTo(m);
+            L.polygon(hoard.gpsShape, {color:'#2F55EB',weight:2,fillOpacity:0.1,fillColor:'#2F55EB'}).addTo(m);
           }
           // Entrances
           if (hoard.entrances) {
@@ -1302,13 +1316,13 @@ function buildTimeline(records){
 /* ═══════════════════════════════════════════
    Map Overview
    ═══════════════════════════════════════════ */
-var _overviewMap=null, _overviewFenceLayers={}, _overviewSelected=null, _tempFenceIds={};
+var _overviewMap=null, _overviewFenceLayers={}, _overviewSelected=null, _tempFenceIds={}, _overviewEntranceMarkers=[];
 function renderMapOverview(){
-  _overviewMap=null;_overviewFenceLayers={};_overviewSelected=null;_tempFenceIds={};
+  _overviewMap=null;_overviewFenceLayers={};_overviewSelected=null;_tempFenceIds={};_overviewEntranceMarkers=[];
   var html='';
   html+='<div style="position:absolute;inset:0;z-index:1" id="mapOverviewMap"></div>'+
     // Legend: 项目红线 / 围挡范围 / 出入口
-    '<div class="map-overview-legend"><div class="map-legend-item"><span class="map-legend-line" style="background:#F93920"></span>项目红线</div><div class="map-legend-item"><span class="map-legend-dash"></span>围挡范围</div><div class="map-legend-item"><span class="map-legend-dot" style="background:var(--blue)"></span>出入口</div></div>'+
+    '<div class="map-overview-legend"><div class="map-legend-item"><span class="map-legend-line" style="background:#F93920"></span>项目红线</div><div class="map-legend-item"><span class="map-legend-line" style="background:var(--blue)"></span>围挡范围</div><div class="map-legend-item"><span class="map-legend-dot" style="background:var(--blue)"></span>出入口</div></div>'+
     // Entrance type legend (top-left floating)
     '<div style="position:absolute;top:12px;left:12px;z-index:999;display:flex;gap:8px;padding:4px 10px;font-size:11px;background:rgba(255,255,255,0.92);border-radius:var(--radius-sm);box-shadow:var(--shadow-sm)">'+
       '<div style="display:flex;align-items:center;gap:3px"><div style="width:7px;height:7px;border-radius:50%;background:#1890FF"></div><span style="color:var(--text-sub)">车辆</span></div>'+
@@ -1328,21 +1342,22 @@ function renderMapOverview(){
     var el=document.getElementById('mapOverviewMap');if(!el)return;
     _overviewMap=L.map(el,{zoomControl:false,attributionControl:false});
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:18}).addTo(_overviewMap);
+    _overviewMap.on('zoomend',function(){_updateEntranceVisibility(_overviewMap,_overviewEntranceMarkers);});
     var allLayers=[], fenceIdx=0;
     var projects=MOCK_DATA.getProjects();
     projects.forEach(function(proj){
       // Project redline — always show
       if(proj.redlineGeo&&proj.redlineGeo.length>=3){
         var rl=proj.redlineGeo.map(function(p){return[p[0],p[1]];});
-        L.polygon(rl,{color:'#F93920',weight:2.5,fill:false,dashArray:'6 3'}).addTo(_overviewMap);
+        L.polygon(rl,{color:'#F93920',weight:2.5,fill:false}).addTo(_overviewMap);
       }
       // Fence shapes — only setting + removing
       (proj.hoardings||[]).forEach(function(h){
-        var fk=(h.fenceStatus||'设置中');
-        if(fk==='已到期')return;
+        var fk=(h.fenceStatus||'已安装');
+        if(fk==='超期未拆')return;
         if(!h.gpsShape||h.gpsShape.length<2)return;
         var fs=h.gpsShape.map(function(p){return[p[0],p[1]];});
-        var poly=L.polygon(fs,{color:'#2F55EB',weight:1.8,dashArray:'5 3',fillColor:'rgba(47,85,235,0.06)',fillOpacity:1}).addTo(_overviewMap);
+        var poly=L.polygon(fs,{color:'#2F55EB',weight:1.8,fillColor:'rgba(47,85,235,0.06)',fillOpacity:1}).addTo(_overviewMap);
         allLayers.push(poly);
         // Store layer + fence data for click interaction
         var fid=h.id;
@@ -1358,6 +1373,7 @@ function renderMapOverview(){
             var c=entColor[ent.type]||'#1890FF';
             var mk=L.circleMarker([ent.lat,ent.lng],{radius:4,color:c,fillColor:c,fillOpacity:0.8,weight:2}).addTo(_overviewMap);
             mk.bindTooltip(ent.name||'出入口',{direction:'top'});
+            _overviewEntranceMarkers.push(mk);
           });
         }
       });
@@ -1381,7 +1397,7 @@ function handleMapSearch(kw){
   var projects=MOCK_DATA.getProjects();
   projects.forEach(function(proj){
     (proj.hoardings||[]).forEach(function(h){
-      var fk=h.fenceStatus||'设置中';
+      var fk=h.fenceStatus||'已安装';
       var pn=(proj.name||'').toLowerCase(), en=(h.engineerName||'').toLowerCase();
       if(pn.indexOf(q)>=0||en.indexOf(q)>=0){
         results.push({hoard:h, project:proj});
@@ -1392,8 +1408,8 @@ function handleMapSearch(kw){
   var html='<div style="font-size:var(--font-xs);color:var(--text-sub);margin-bottom:6px">找到 <strong>'+results.length+'</strong> 条记录</div>';
   results.slice(0,15).forEach(function(r){
     var h=r.hoard, p=r.project;
-    var st=h.fenceStatus||'设置中';
-    var stCls=st==='设置中'?'tag-setting':st==='即将到期'?'tag-removing':'tag-overdue';
+    var st=h.fenceStatus||'已安装';
+    var stCls=st==='已安装'?'tag-setting':st==='超期未拆'?'tag-removing':'tag-overdue';
     html+='<div class="map-overview-item" onclick="locateFenceOnMap(\''+h.id+'\')" style="padding:8px 0">'+
       '<div class="map-overview-info"><div class="map-overview-name" style="font-size:var(--font-sm)">'+p.name+'</div>'+
       '<div class="map-overview-sub">'+h.engineerName+'</div>'+
@@ -1405,7 +1421,7 @@ function handleMapSearch(kw){
 
 /* ── Click to select fence ── */
 var _selectedStyle={color:'#2F55EB',weight:3.5,dashArray:null,fillColor:'rgba(47,85,235,0.15)',fillOpacity:1};
-var _defaultStyle={color:'#2F55EB',weight:1.8,dashArray:'5 3',fillColor:'rgba(47,85,235,0.06)',fillOpacity:1};
+var _defaultStyle={color:'#2F55EB',weight:1.8,fillColor:'rgba(47,85,235,0.06)',fillOpacity:1};
 
 function selectFenceOnMap(fid){
   // Deselect previous
@@ -1425,7 +1441,7 @@ function selectFenceOnMap(fid){
 function deselectFenceOnMap(){
   if(_overviewSelected&&_overviewFenceLayers[_overviewSelected]){
     _overviewFenceLayers[_overviewSelected].layer.setStyle(_defaultStyle);
-    // Remove temp layer if this was a temporarily-added 已到期 fence
+    // Remove temp layer if this was a temporarily-added 超期未拆 fence
     if(_tempFenceIds[_overviewSelected]){
       var entry=_overviewFenceLayers[_overviewSelected];
       if(entry._extras){entry._extras.forEach(function(mk){if(mk._map)_overviewMap.removeLayer(mk);});}
@@ -1453,7 +1469,7 @@ function cleanupTempFences(){
 
 function locateFenceOnMap(fid){
   var entry=_overviewFenceLayers[fid];
-  // If fence not on map yet (已到期), temporarily add it
+  // If fence not on map yet (超期未拆), temporarily add it
   if(!entry){
     var hoard=null, proj=null;
     var projects=MOCK_DATA.getProjects();
@@ -1464,7 +1480,7 @@ function locateFenceOnMap(fid){
     }
     if(!hoard||!hoard.gpsShape||hoard.gpsShape.length<2)return;
     var fs=hoard.gpsShape.map(function(p){return[p[0],p[1]];});
-    var poly=L.polygon(fs,{color:'#2F55EB',weight:1.8,dashArray:'5 3',fillColor:'rgba(47,85,235,0.06)',fillOpacity:1}).addTo(_overviewMap);
+    var poly=L.polygon(fs,{color:'#2F55EB',weight:1.8,fillColor:'rgba(47,85,235,0.06)',fillOpacity:1}).addTo(_overviewMap);
     entry={layer:poly, hoard:hoard, project:proj};
     _overviewFenceLayers[fid]=entry;
     _tempFenceIds[fid]=true;
@@ -1488,8 +1504,8 @@ function locateFenceOnMap(fid){
 
 /* ── Fence info card ── */
 function showFenceInfoCard(h, proj){
-  var st=h.fenceStatus||'设置中';
-  var stTag={'设置中':'tag-setting','即将到期':'tag-removing','已到期':'tag-overdue'};
+  var st=h.fenceStatus||'已安装';
+  var stTag={'已安装':'tag-setting','超期未拆':'tag-removing','超期未拆':'tag-overdue'};
   var iss=h.issueStatus||'正常';
   var issTag={'正常':'tag-issue tag-issue--normal','待整改':'tag-issue tag-issue--pending','整改逾期':'tag-issue tag-issue--overdue'};
   // Find the fenceData index for this fence
@@ -1866,7 +1882,7 @@ function renderPatrolIssueDetail(){
       proj.redlineGeo.forEach(function(p){bounds.extend(p);});
     }
     if(h.gpsShape&&h.gpsShape.length>=2){
-      L.polygon(h.gpsShape,{color:'#2F55EB',weight:2,fillOpacity:0.1,fillColor:'#2F55EB',dashArray:'6 4'}).addTo(m);
+      L.polygon(h.gpsShape,{color:'#2F55EB',weight:2,fillOpacity:0.1,fillColor:'#2F55EB'}).addTo(m);
       h.gpsShape.forEach(function(p){bounds.extend(p);});
     }
     if(h.entrances){h.entrances.forEach(function(e){

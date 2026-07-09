@@ -194,17 +194,26 @@ function renderContent() {
     var m=L.map(el,{zoomControl:false,attributionControl:false});
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:18}).addTo(m);
     var bounds=L.latLngBounds([]);
+    var entMarks=[];
+    m.on('zoomend',function(){
+      var z=m.getZoom(), show=z>=15;
+      entMarks.forEach(function(mk){
+        if(show){mk.setRadius(4);mk.setStyle({opacity:1,fillOpacity:0.7});}
+        else{mk.setRadius(0);mk.setStyle({opacity:0,fillOpacity:0});}
+      });
+    });
     if(_proj&&_proj.redlineGeo&&_proj.redlineGeo.length>=3){
       L.polygon(_proj.redlineGeo,{color:'#D13B2F',weight:2,fillOpacity:0.08,fillColor:'#D13B2F'}).addTo(m);
       _proj.redlineGeo.forEach(function(p){bounds.extend(p);});
     }
     if(_hoard&&_hoard.gpsShape&&_hoard.gpsShape.length>=2){
-      L.polygon(_hoard.gpsShape,{color:'#2F55EB',weight:2,fillOpacity:0.1,fillColor:'#2F55EB',dashArray:'6 4'}).addTo(m);
+      L.polygon(_hoard.gpsShape,{color:'#2F55EB',weight:2,fillOpacity:0.1,fillColor:'#2F55EB'}).addTo(m);
       _hoard.gpsShape.forEach(function(p){bounds.extend(p);});
     }
     if(_hoard&&_hoard.entrances){_hoard.entrances.forEach(function(e){
       var c=e.type==='vehicle'?'#2F55EB':e.type==='pedestrian'?'#3BB346':'#2F55EB';
-      L.circleMarker([e.lat,e.lng],{radius:4,color:c,fillColor:c,fillOpacity:0.7,weight:2}).addTo(m).bindTooltip(e.name||'出入口',{direction:'top'});
+      var mk=L.circleMarker([e.lat,e.lng],{radius:4,color:c,fillColor:c,fillOpacity:0.7,weight:2}).addTo(m).bindTooltip(e.name||'出入口',{direction:'top'});
+      entMarks.push(mk);
     });}
     if(_issue.location&&_issue.location.lat){
       L.circleMarker([_issue.location.lat,_issue.location.lng],{radius:7,color:'#F93920',fillColor:'#F93920',fillOpacity:0.9,weight:3}).addTo(m).bindPopup('<b>问题位置</b><br>'+_issue.location.addr||'');
@@ -213,6 +222,10 @@ function renderContent() {
     if(bounds.isValid())m.fitBounds(bounds.pad(0.2));
     else if(_proj)m.setView([_proj.lat,_proj.lng],15);
     else m.setView([22.548,114.061],15);
+    var z=m.getZoom(), show=z>=15;
+    entMarks.forEach(function(mk){
+      if(!show){mk.setRadius(0);mk.setStyle({opacity:0,fillOpacity:0});}
+    });
     setTimeout(function(){m.invalidateSize();},200);
   },400);
 }

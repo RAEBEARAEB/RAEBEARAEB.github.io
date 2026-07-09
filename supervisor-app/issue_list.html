@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
-<title>围挡问题处置情况 - 监管端APP</title>
+<title>围挡问题清单 - 监管端APP</title>
 <style>
 :root{
   --blue-50:#E9EBFD;--blue-100:#C8CDFA;--blue-200:#A2ADF6;
@@ -98,7 +98,7 @@ input,select{font-family:var(--font-family);outline:none}
     <div class="nav-bar">
       <div class="nav-bar-inner">
         <a class="nav-bar-back" href="app_prototype.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></a>
-        <span class="nav-bar-title">围挡问题处置情况</span>
+        <span class="nav-bar-title">围挡问题清单</span>
         <span style="width:32px;flex-shrink:0"></span>
       </div>
     </div>
@@ -124,9 +124,9 @@ input,select{font-family:var(--font-family);outline:none}
     </div>
     <div class="chip-row" id="chipfence">
       <span class="chip-c active" data-v="all" onclick="chipPick(this,'fence')">全部</span>
-      <span class="chip-c" data-v="setting" onclick="chipPick(this,'fence')">设置中</span>
-      <span class="chip-c" data-v="removing" onclick="chipPick(this,'fence')">即将到期</span>
-      <span class="chip-c" data-v="removed" onclick="chipPick(this,'fence')">已到期</span>
+      <span class="chip-c" data-v="setting" onclick="chipPick(this,'fence')">已安装</span>
+      <span class="chip-c" data-v="removing" onclick="chipPick(this,'fence')">超期未拆</span>
+      <span class="chip-c" data-v="removed" onclick="chipPick(this,'fence')">超期未拆</span>
     </div>
     <div class="chip-row" id="chipproj">
       <span class="chip-c active" data-v="all" onclick="chipPick(this,'proj')">全部</span>
@@ -166,7 +166,7 @@ function _aggFenceStatus(proj) {
   if (!proj||!proj.hoardings||!proj.hoardings.length) return '—';
   var fs={};
   (proj.hoardings||[]).forEach(function(h){fs[h.fenceStatus]=true;});
-  return fs['即将到期']?'即将到期':fs['设置中']?'设置中':'已到期';
+  return fs['超期未拆']?'超期未拆':fs['已安装']?'已安装':'超期未拆';
 }
 
 function _aggProjStatus(proj) {
@@ -196,7 +196,7 @@ function init() {
       overdue: items.filter(function(i){return i.status==='整改逾期'}).length,
       done: items.filter(function(i){return i.status==='整改完成'||i.status==='已通过'}).length,
       fenceStatus: fs,
-      fenceStatusKey: proj?(fs==='即将到期'?'removing':fs==='设置中'?'setting':'removed'):'',
+      fenceStatusKey: proj?(fs==='超期未拆'?'removing':fs==='已安装'?'setting':'removed'):'',
       projStatus: ps,
       items: items
     };

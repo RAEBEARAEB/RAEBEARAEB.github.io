@@ -220,18 +220,18 @@ function loadFromMock(){
   var projects=MOCK_DATA.getProjects();
   projects.forEach(function(p){
     (p.hoardings||[]).forEach(function(h){
-      _fences.push({id:h.id,engName:h.engineerName,projName:p.name,fenceStatus:h.fenceStatus||'设置中',issueStatus:h.issueStatus||'正常',patrolRecords:(h.patrolRecords||[]).slice()});
+      _fences.push({id:h.id,engName:h.engineerName,projName:p.name,fenceStatus:h.fenceStatus||'已安装',issueStatus:h.issueStatus||'正常',patrolRecords:(h.patrolRecords||[]).slice()});
     });
   });
 }
 
 function loadFallback(){
   _fences=[
-    {id:'WD-2026-0001',engName:'管道铺设工程',projName:'福田中心区市政管网改造工程',fenceStatus:'设置中',issueStatus:'待整改',patrolRecords:[{date:'2026-06-22',time:'09:15',inspector:'陈刚',result:'正常',issues:[],panoramaSrc:'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492'},{date:'2026-06-20',time:'14:30',inspector:'刘伟',result:'异常',issues:[{type:'围挡面板变形',detail:'围挡面板因大风导致局部变形约0.8㎡'}],panoramaSrc:'https://www.720yun.com/vr/1c1jt7mOey1'}]},
-    {id:'WD-2026-0002',engName:'沟槽开挖工程',projName:'福田中心区市政管网改造工程',fenceStatus:'即将到期',issueStatus:'整改逾期',patrolRecords:[{date:'2026-06-22',time:'10:00',inspector:'陈刚',result:'异常',issues:[{type:'围挡尺寸不合规',detail:'围挡实测高度2.0m，低于规范要求的2.5m标准高度'}],panoramaSrc:'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492'}]},
-    {id:'WD-2026-0003',engName:'道路恢复工程',projName:'福田中心区市政管网改造工程',fenceStatus:'已到期',issueStatus:'正常',patrolRecords:[{date:'2026-06-15',time:'11:00',inspector:'刘伟',result:'异常',issues:[{type:'围挡材质不符合规范',detail:'现场围挡使用PVC材质，不符合设计要求'}],panoramaSrc:'https://www.720yun.com/vr/1c1jt7mOey1'}]},
-    {id:'WD-2026-0004',engName:'基坑围护工程',projName:'南山区科技园综合体项目',fenceStatus:'设置中',issueStatus:'待整改',patrolRecords:[{date:'2026-06-22',time:'11:20',inspector:'王强',result:'异常',issues:[{type:'围挡基础沉降',detail:'基坑围护工程围挡东南角基础出现不均匀沉降约5cm'}],panoramaSrc:'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492'}]},
-    {id:'WD-2026-0005',engName:'主体结构工程',projName:'南山区科技园综合体项目',fenceStatus:'设置中',issueStatus:'正常',patrolRecords:[{date:'2026-06-17',time:'14:00',inspector:'王工',result:'异常',issues:[{type:'围挡占道超限',detail:'围挡外堆放钢筋成品超出占道许可范围约4m'}],panoramaSrc:'https://www.720yun.com/vr/1c1jt7mOey1'}]}
+    {id:'WD-2026-0001',engName:'管道铺设工程',projName:'福田中心区市政管网改造工程',fenceStatus:'已安装',issueStatus:'待整改',patrolRecords:[{date:'2026-06-22',time:'09:15',inspector:'陈刚',result:'正常',issues:[],panoramaSrc:'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492'},{date:'2026-06-20',time:'14:30',inspector:'刘伟',result:'异常',issues:[{type:'围挡面板变形',detail:'围挡面板因大风导致局部变形约0.8㎡'}],panoramaSrc:'https://www.720yun.com/vr/1c1jt7mOey1'}]},
+    {id:'WD-2026-0002',engName:'沟槽开挖工程',projName:'福田中心区市政管网改造工程',fenceStatus:'超期未拆',issueStatus:'整改逾期',patrolRecords:[{date:'2026-06-22',time:'10:00',inspector:'陈刚',result:'异常',issues:[{type:'围挡尺寸不合规',detail:'围挡实测高度2.0m，低于规范要求的2.5m标准高度'}],panoramaSrc:'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492'}]},
+    {id:'WD-2026-0003',engName:'道路恢复工程',projName:'福田中心区市政管网改造工程',fenceStatus:'超期未拆',issueStatus:'正常',patrolRecords:[{date:'2026-06-15',time:'11:00',inspector:'刘伟',result:'异常',issues:[{type:'围挡材质不符合规范',detail:'现场围挡使用PVC材质，不符合设计要求'}],panoramaSrc:'https://www.720yun.com/vr/1c1jt7mOey1'}]},
+    {id:'WD-2026-0004',engName:'基坑围护工程',projName:'南山区科技园综合体项目',fenceStatus:'已安装',issueStatus:'待整改',patrolRecords:[{date:'2026-06-22',time:'11:20',inspector:'王强',result:'异常',issues:[{type:'围挡基础沉降',detail:'基坑围护工程围挡东南角基础出现不均匀沉降约5cm'}],panoramaSrc:'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492'}]},
+    {id:'WD-2026-0005',engName:'主体结构工程',projName:'南山区科技园综合体项目',fenceStatus:'已安装',issueStatus:'正常',patrolRecords:[{date:'2026-06-17',time:'14:00',inspector:'王工',result:'异常',issues:[{type:'围挡占道超限',detail:'围挡外堆放钢筋成品超出占道许可范围约4m'}],panoramaSrc:'https://www.720yun.com/vr/1c1jt7mOey1'}]}
   ];
 }
 

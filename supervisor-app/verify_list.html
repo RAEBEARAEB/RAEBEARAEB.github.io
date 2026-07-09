@@ -111,9 +111,9 @@ input,select{font-family:var(--font-family);outline:none}
     <!-- Filter Chips -->
     <div class="chips">
       <button class="chip active" data-filter="all" onclick="setFilter(this,'all')">全部<small id="chipAll">(0)</small></button>
-      <button class="chip" data-filter="setting" onclick="setFilter(this,'setting')">设置中<small id="chipSetting">(0)</small></button>
-      <button class="chip" data-filter="soon" onclick="setFilter(this,'soon')">即将到期<small id="chipSoon">(0)</small></button>
-      <button class="chip" data-filter="expired" onclick="setFilter(this,'expired')">已到期<small id="chipExpired">(0)</small></button>
+      <button class="chip" data-filter="setting" onclick="setFilter(this,'setting')">已安装<small id="chipSetting">(0)</small></button>
+      <button class="chip" data-filter="soon" onclick="setFilter(this,'soon')">超期未拆<small id="chipSoon">(0)</small></button>
+      <button class="chip" data-filter="expired" onclick="setFilter(this,'expired')">超期未拆<small id="chipExpired">(0)</small></button>
     </div>
 
     <!-- Fence List -->
@@ -138,9 +138,9 @@ function init() {
   // Chip counts
   var counts = {all: _verifyFences.length, setting:0, soon:0, expired:0};
   _verifyFences.forEach(function(f) {
-    if (f.fenceStatus === '设置中') counts.setting++;
-    else if (f.fenceStatus === '即将到期') counts.soon++;
-    else if (f.fenceStatus === '已到期') counts.expired++;
+    if (f.fenceStatus === '已安装') counts.setting++;
+    else if (f.fenceStatus === '超期未拆') counts.soon++;
+    else if (f.fenceStatus === '超期未拆') counts.expired++;
   });
   document.getElementById('chipAll').textContent = '('+counts.all+')';
   document.getElementById('chipSetting').textContent = '('+counts.setting+')';
@@ -162,9 +162,9 @@ function renderList() {
   var list = _verifyFences.slice();
 
   // Filter by status
-  if (_currentFilter === 'setting') list = list.filter(function(f){return f.fenceStatus === '设置中'});
-  else if (_currentFilter === 'soon') list = list.filter(function(f){return f.fenceStatus === '即将到期'});
-  else if (_currentFilter === 'expired') list = list.filter(function(f){return f.fenceStatus === '已到期'});
+  if (_currentFilter === 'setting') list = list.filter(function(f){return f.fenceStatus === '已安装'});
+  else if (_currentFilter === 'soon') list = list.filter(function(f){return f.fenceStatus === '超期未拆'});
+  else if (_currentFilter === 'expired') list = list.filter(function(f){return f.fenceStatus === '超期未拆'});
 
   // Search
   if (kw) {
@@ -176,8 +176,8 @@ function renderList() {
     });
   }
 
-  // Sort: 设置中 first, then 即将到期, then 已到期
-  var order = {'设置中':1, '即将到期':2, '已到期':3};
+  // Sort: 已安装 first, then 超期未拆, then 超期未拆
+  var order = {'已安装':1, '超期未拆':2, '超期未拆':3};
   list.sort(function(a,b){var oa=order[a.fenceStatus]||9;var ob=order[b.fenceStatus]||9;return oa-ob;});
 
   var container = document.getElementById('fenceList');
@@ -187,7 +187,7 @@ function renderList() {
   }
 
   var html = '';
-  var statusTag = {'设置中':'tag-setting','即将到期':'tag-removing','已到期':'tag-overdue'};
+  var statusTag = {'已安装':'tag-setting','超期未拆':'tag-removing','超期未拆':'tag-overdue'};
 
   list.forEach(function(f) {
     var tagCls = statusTag[f.fenceStatus] || 'tag-setting';

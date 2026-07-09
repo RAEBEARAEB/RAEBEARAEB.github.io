@@ -204,7 +204,7 @@ function renderContent() {
   if (!f) return;
   var body = document.getElementById('screenBody');
   var html = ''// ── Summary + Banner ──
-  var sm={'设置中':'tag-setting','即将到期':'tag-removing','已到期':'tag-overdue'};
+  var sm={'已安装':'tag-setting','超期未拆':'tag-removing','超期未拆':'tag-overdue'};
   var im={'正常':'tag-issue tag-issue--normal','待整改':'tag-issue tag-issue--pending','整改逾期':'tag-issue tag-issue--overdue'};
   var fsTag=sm[f.fenceStatus]||'tag-setting';
   var isTag=im[f.issueStatus]||'tag-issue tag-issue--normal';
@@ -279,7 +279,14 @@ function initVerifyMap() {
   _verifyMap = L.map(el, {zoomControl: false, attributionControl: false});
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {maxZoom: 19}).addTo(_verifyMap);
 
-  var allBounds = [];
+  var allBounds = [], _entMarks = [];
+  _verifyMap.on('zoomend', function(){
+    var z = _verifyMap.getZoom(), show = z >= 15;
+    _entMarks.forEach(function(mk){
+      if (show) { mk.setRadius(5); mk.setStyle({opacity:1, fillOpacity:1}); }
+      else { mk.setRadius(0); mk.setStyle({opacity:0, fillOpacity:0}); }
+    });
+  });
 
   // Project redline
   var projs = MOCK_DATA.getProjects();
@@ -292,7 +299,7 @@ function initVerifyMap() {
 
   // Fence GPS shape
   if (_fence.gpsShape && _fence.gpsShape.length >= 3) {
-    var shape = L.polygon(_fence.gpsShape, {color: '#2F55EB', weight: 2.5, dashArray: '8 4', fillColor: 'rgba(47,85,235,0.08)', fillOpacity: 0.5, interactive: true}).addTo(_verifyMap);
+    var shape = L.polygon(_fence.gpsShape, {color: '#2F55EB', weight: 2.5, fillColor: 'rgba(47,85,235,0.08)', fillOpacity: 0.5, interactive: true}).addTo(_verifyMap);
     allBounds.push(shape.getBounds());
   }
 
@@ -301,10 +308,14 @@ function initVerifyMap() {
     var entType = {vehicle:'车辆出入口', pedestrian:'行人出入口', temporary:'临时出入口', other:'其他'};
     _fence.entrances.forEach(function(en){
       var color = {vehicle:'#1890FF', pedestrian:'#52C41A', temporary:'#FAAD14', other:'#FF4D4F'}[en.type] || '#1890FF';
-      L.circleMarker([en.lat, en.lng], {radius:5, color:color, fillColor:color, fillOpacity:1, weight:2}).addTo(_verifyMap)
+      var mk = L.circleMarker([en.lat, en.lng], {radius:5, color:color, fillColor:color, fillOpacity:1, weight:2}).addTo(_verifyMap)
         .bindTooltip(entType[en.type], {direction:'right'});
+      _entMarks.push(mk);
     });
   }
+
+  var z0 = _verifyMap.getZoom();
+  if (z0 < 15) { _entMarks.forEach(function(mk){ mk.setRadius(0); mk.setStyle({opacity:0, fillOpacity:0}); }); }
 
   if (allBounds.length) {
     var combined = allBounds[0];
