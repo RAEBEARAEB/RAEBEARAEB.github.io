@@ -92,6 +92,7 @@ html,body{font-family:var(--font-family);font-size:var(--font-md);color:var(--te
 /* Report issue card */
 .rpt-issue-item{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px;margin-bottom:10px;position:relative;box-shadow:var(--shadow-sm,0 4px 10px rgba(0,0,0,.05))}
 .rpt-issue-label{font-size:var(--font-xs);color:var(--text-sub);margin-bottom:4px;font-weight:var(--fw-medium)}
+.rpt-issue-label .required{color:var(--red);margin-right:2px}
 .rpt-issue-item select,.rpt-issue-item textarea{width:100%;border:1px solid var(--gray-200);border-radius:var(--radius-md);font-size:var(--font-sm);font-family:var(--font-family);padding:7px 8px;background:var(--panel);color:var(--text);outline:none}
 .rpt-issue-item select:focus,.rpt-issue-item textarea:focus{border-color:var(--blue);box-shadow:0 0 0 2px var(--blue-50)}
 .rpt-issue-item select{margin-bottom:8px;height:34px}
@@ -102,6 +103,11 @@ html,body{font-family:var(--font-family);font-size:var(--font-md);color:var(--te
 .rpt-issue-del:active{background:var(--red-light);color:var(--red)}
 .rpt-add-btn{display:flex;align-items:center;justify-content:center;gap:4px;width:100%;padding:10px;border:1px dashed var(--blue-300);border-radius:var(--radius-md);background:var(--blue-50);color:var(--blue);font-size:var(--font-sm);font-weight:var(--fw-medium);cursor:pointer;font-family:var(--font-family);transition:all var(--fast, .15s ease)}
 .rpt-add-btn:active{background:var(--blue-100);border-color:var(--blue)}
+/* ── Photo upload ── */
+.rpt-photo-preview{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
+.rpt-photo-thumb{width:56px;height:56px;border-radius:var(--radius-md);object-fit:cover;border:1px solid var(--border);position:relative}
+.rpt-photo-add{width:56px;height:56px;border-radius:var(--radius-md);border:1px dashed var(--gray-300);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-sub);font-size:22px;transition:all var(--fast)}
+.rpt-photo-add:active{background:var(--gray-50);border-color:var(--blue)}
 
 /* Drawer */
 .btm-drawer{position:absolute;bottom:0;left:0;right:0;height:50%;background:var(--panel);border-radius:12px 12px 0 0;z-index:60;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column}
@@ -173,9 +179,28 @@ html,body{font-family:var(--font-family);font-size:var(--font-md);color:var(--te
 
 .toast{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#222;color:#fff;padding:10px 18px;border-radius:8px;font-size:var(--font-lg);z-index:999;opacity:0;transition:all .3s ease;pointer-events:none;white-space:nowrap}
 .toast.show{opacity:1}
+
+/* ── Location picker ── */
+.loc-picker-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:9px 12px;border:1px solid var(--gray-200);border-radius:var(--radius-md);background:var(--panel);color:var(--blue);font-size:var(--font-sm);font-weight:var(--fw-medium);cursor:pointer;font-family:var(--font-family);transition:all var(--fast)}
+.loc-picker-btn:active{background:var(--blue-50);border-color:var(--blue)}
+.loc-picker-btn.picked{border-color:var(--blue);color:var(--text);justify-content:flex-start;gap:4px}
+.loc-picker-btn svg{flex-shrink:0;width:14px;height:14px}
+.loc-map-modal{position:absolute;inset:0;z-index:2000;background:rgba(0,0,0,0.5);display:none;flex-direction:column}
+.loc-map-modal.show{display:flex}
+.loc-map-head{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--panel);border-bottom:1px solid var(--border)}
+.loc-map-title{font-size:var(--font-md);font-weight:var(--fw-heavy);color:var(--text)}
+.loc-map-close{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--text-sub);background:var(--gray-50)}
+.loc-map-container{flex:1;position:relative}
+.loc-map-container>div{position:absolute;inset:0}
+.loc-map-foot{display:flex;gap:10px;padding:12px 16px;background:var(--panel);border-top:1px solid var(--border)}
+.loc-map-foot .btn-primary{flex:1;height:40px;border-radius:var(--radius-md);background:var(--blue);color:#fff;font-size:var(--font-md);font-weight:var(--fw-medium);border:none;cursor:pointer}
+.loc-map-foot .btn-cancel{flex:1;height:40px;border-radius:var(--radius-md);background:var(--gray-100);color:var(--text-sub);font-size:var(--font-md);font-weight:var(--fw-medium);border:none;cursor:pointer}
+.loc-pin-hint{position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:999;background:rgba(0,0,0,0.7);color:#fff;font-size:11px;padding:4px 12px;border-radius:10px;pointer-events:none;opacity:0;transition:opacity 0.3s}
+.loc-pin-hint.show{opacity:1}
 </style>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="../mock-data.js"></script>
-</head>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <body>
 <div class="phone-frame">
   <div class="phone-notch"></div>
@@ -227,6 +252,18 @@ html,body{font-family:var(--font-family);font-size:var(--font-md);color:var(--te
       <div class="report-panel-foot"><button class="btn-cancel" onclick="closeQuickReport()">取消</button><button class="btn-primary" onclick="saveQuickReport()">保存</button></div>
     </div>
     <div class="toast" id="toast"></div>
+    <!-- Location picker modal -->
+    <div class="loc-map-modal" id="locMapModal">
+      <div class="loc-map-head">
+        <span class="loc-map-title">选择问题位置</span>
+        <button class="loc-map-close" onclick="closeLocMap()">&times;</button>
+      </div>
+      <div class="loc-map-container"><div id="locMapContainer"><div class="loc-pin-hint" id="locPinHint">轻点地图放置位置标记</div></div></div>
+      <div class="loc-map-foot">
+        <button class="btn-cancel" onclick="closeLocMap()">取消</button>
+        <button class="btn-primary" onclick="confirmLocPick()">确认位置</button>
+      </div>
+    </div>
   </div>
 </div>
 <script>
@@ -395,14 +432,26 @@ var ISSUE_TYPES_RPT=(typeof MOCK_DATA!=='undefined'&&MOCK_DATA.getStreetIssueTyp
 
 function openQuickReport(){
   var cur=findFence();var defaultUnit=cur?cur.constructUnit||'':'';
-  _rptIssues=[{type:'',unit:defaultUnit,detail:''}];
+  _rptIssues=[{type:'',unit:defaultUnit,detail:'',photos:[],location:cur?cur.address||'':''}];
   renderQuickReport();
   document.getElementById('reportPanel').classList.add('show');
 }
 function closeQuickReport(){document.getElementById('reportPanel').classList.remove('show');}
-function rptAddIssue(){_rptIssues.push({type:_rptIssues.length?_rptIssues[0].unit:'',unit:_rptIssues.length?_rptIssues[0].unit:'',detail:''});renderQuickReport();}
+function rptAddIssue(){_rptIssues.push({type:_rptIssues.length?_rptIssues[0].unit:'',unit:_rptIssues.length?_rptIssues[0].unit:'',detail:'',photos:[],location:''});renderQuickReport();}
 function rptDelIssue(idx){_rptIssues.splice(idx,1);renderQuickReport();}
 function rptFieldChange(idx,field,val){_rptIssues[idx][field]=val;}
+function rptAddPhoto(idx){
+  var input=document.createElement('input');input.type='file';input.accept='image/*';input.multiple=true;
+  input.onchange=function(){
+    var files=input.files;if(!files||!files.length)return;
+    for(var i=0;i<files.length&&_rptIssues[idx].photos.length<6;i++){
+      _rptIssues[idx].photos.push(URL.createObjectURL(files[i]));
+    }
+    renderQuickReport();
+  };
+  input.click();
+}
+function rptDelPhoto(idx,photoIdx){_rptIssues[idx].photos.splice(photoIdx,1);renderQuickReport();}
 function renderQuickReport(){
   var b=document.getElementById('reportPanelBody'),html='';
   var cur=findFence();
@@ -419,24 +468,98 @@ function renderQuickReport(){
       '<div class="rpt-issue-head"><span>问题项 '+(i+1)+'</span>'+
       (_rptIssues.length>1?'<button class="rpt-issue-del" onclick="rptDelIssue('+i+')">&times;</button>':'')+
       '</div>'+
-      '<div class="rpt-issue-label">问题类型</div>'+
+      '<div class="rpt-issue-label"><span class="required">*</span>问题类型</div>'+
       '<select onchange="rptFieldChange('+i+',&quot;type&quot;,this.value)"><option value="">请选择问题类型</option>'+typeOpts+'</select>'+
-      '<div class="rpt-issue-label">责任单位</div>'+
+      '<div class="rpt-issue-label"><span class="required">*</span>责任单位</div>'+
       '<select onchange="rptFieldChange('+i+',&quot;unit&quot;,this.value)"><option value="">请选择责任单位</option>'+unitOpts+'</select>'+
-      '<div class="rpt-issue-label">问题详情</div>'+
+      '<div class="rpt-issue-label"><span class="required">*</span>问题详情</div>'+
       '<textarea placeholder="请描述问题的具体情况、位置和严重程度" onchange="rptFieldChange('+i+',&quot;detail&quot;,this.value)">'+esp(iss.detail)+'</textarea>'+
+      '<div class="rpt-issue-label" style="margin-top:8px"><span class="required">*</span>现场照片</div>'+
+      '<div class="rpt-photo-preview">'+
+        (iss.photos||[]).map(function(p,pi){return'<img class="rpt-photo-thumb" src="'+p+'" onclick="rptDelPhoto('+i+','+pi+')" title="点击删除">';}).join('')+
+        ((iss.photos||[]).length<6?'<div class="rpt-photo-add" onclick="rptAddPhoto('+i+')">+</div>':'')+
+      '</div>'+
+      '<div class="rpt-issue-label"><span class="required">*</span>位置</div>'+
+      '<button class="loc-picker-btn'+(iss.location?' picked':'')+'" id="rptLocBtn'+i+'" onclick="openLocMap('+i+')">'+
+        (iss.location?
+          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>'+
+          '<span style="font-size:11px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esp(iss.location||'')+'</span>':
+          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>点击地图选择位置')+
+      '</button>'+
     '</div>';
   });
   html+='<button class="rpt-add-btn" onclick="rptAddIssue()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>添加问题项</button>';
   b.innerHTML=html;
 }
+/* ── Location map picker ── */
+var _locMap=null, _locMarker=null, _locIssueIdx=-1, _locPicked={lat:null,lng:null,addr:''};
+function openLocMap(idx){
+  _locIssueIdx=idx; _locPicked={lat:null,lng:null,addr:''};
+  var iss=_rptIssues[idx];
+  document.getElementById('locMapModal').classList.add('show');
+  setTimeout(function(){
+    var el=document.getElementById('locMapContainer'); if(!el)return;
+    if(_locMap){_locMap.remove();_locMap=null;}
+    _locMap=L.map(el,{zoomControl:true,attributionControl:false});
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}).addTo(_locMap);
+    var cur=findFence(), center=[22.548,114.061], zoom=13;
+    if(cur&&cur.gpsShape&&cur.gpsShape.length>=2){
+      var fs=cur.gpsShape.map(function(p){return[p[0],p[1]];});
+      L.polygon(fs,{color:'#2F55EB',weight:2,fillColor:'rgba(47,85,235,0.2)',fillOpacity:1}).addTo(_locMap);
+      var cx=0,cy=0;for(var i=0;i<fs.length;i++){cx+=fs[i][0];cy+=fs[i][1];}
+      center=[cx/fs.length,cy/fs.length]; zoom=16;
+    }
+    _locMap.setView(center,zoom);
+      // Project redline
+      if(cur&&cur.projectName){
+        var projs=MOCK_DATA.getProjects();
+        for(var pi=0;pi<projs.length;pi++){
+          if(projs[pi].name===cur.projectName&&projs[pi].redlineGeo&&projs[pi].redlineGeo.length>=3){
+            L.polygon(projs[pi].redlineGeo,{color:'#F93920',weight:2,fill:false}).addTo(_locMap);
+            break;
+          }
+        }
+      }
+    if(iss&&iss.location&&iss._locLat){
+      _locPicked={lat:iss._locLat,lng:iss._locLng,addr:iss.location};
+      _locMarker=L.marker([iss._locLat,iss._locLng],{draggable:true}).addTo(_locMap);
+      _locMarker.on('dragend',function(){var ll=_locMarker.getLatLng();_locPicked.lat=ll.lat;_locPicked.lng=ll.lng;});
+      _locMap.setView([iss._locLat,iss._locLng],17);
+    }
+    _locMap.on('click',function(e){
+      if(_locMarker){_locMap.removeLayer(_locMarker);}
+      _locPicked={lat:e.latlng.lat,lng:e.latlng.lng,addr:e.latlng.lat.toFixed(6)+', '+e.latlng.lng.toFixed(6)};
+      _locMarker=L.marker([e.latlng.lat,e.latlng.lng],{draggable:true}).addTo(_locMap);
+      _locMarker.on('dragend',function(){var ll=_locMarker.getLatLng();_locPicked.lat=ll.lat;_locPicked.lng=ll.lng;});
+      document.getElementById('locPinHint').classList.remove('show');
+    });
+    setTimeout(function(){_locMap.invalidateSize();},100);
+    setTimeout(function(){document.getElementById('locPinHint').classList.add('show');},300);
+  },200);
+}
+function closeLocMap(){
+  document.getElementById('locMapModal').classList.remove('show');
+  if(_locMap){_locMap.remove();_locMap=null;}
+}
+function confirmLocPick(){
+  if(!_locPicked.lat){showToast('请在地图上点击选择问题位置',true);return;}
+  _rptIssues[_locIssueIdx].location=_locPicked.addr;
+  _rptIssues[_locIssueIdx]._locLat=_locPicked.lat;
+  _rptIssues[_locIssueIdx]._locLng=_locPicked.lng;
+  closeLocMap();
+  renderQuickReport();
+}
+
+
 function saveQuickReport(){
   if(!_curFid){showToast('未选择围挡',true);return;}
   for(var i=0;i<_rptIssues.length;i++){
-    var iss=_rptIssues[i];
-    if(!iss.type){showToast('请选择问题项'+(i+1)+'的问题类型',true);return;}
-    if(!iss.unit){showToast('请选择问题项'+(i+1)+'的责任单位',true);return;}
-    if(!iss.detail.trim()){showToast('请填写问题项'+(i+1)+'的问题详情',true);return;}
+    var iss=_rptIssues[i], idx=i+1;
+    if(!iss.type){showToast('请选择问题项'+idx+'的问题类型',true);return;}
+    if(!iss.unit){showToast('请选择问题项'+idx+'的责任单位',true);return;}
+    if(!iss.detail.trim()){showToast('请填写问题项'+idx+'的问题详情',true);return;}
+    if(!(iss.photos||[]).length){showToast('请为问题项'+idx+'上传至少一张现场照片',true);return;}
+    if(!iss._locLat){showToast('请在地图上选择问题项'+idx+'的位置',true);return;}
   }
   var cur=findFence();if(!cur){showToast('未找到围挡数据',true);return;}
   var now=new Date();var dt=now.toISOString().slice(0,19).replace('T',' ');
@@ -450,7 +573,7 @@ function saveQuickReport(){
       status:'待整改',source:'监管巡查',
       reportTime:dt,
       engineerName:cur.engineerName||'',responsibleUnit:iss.unit,
-      photos:[]
+      photos:iss.photos||[],location:iss.location?{lat:iss._locLat||0,lng:iss._locLng||0,addr:iss.location}:null
     });
   });
   localStorage.setItem('YZY_STREET_ISSUES',JSON.stringify(existingIssues));
