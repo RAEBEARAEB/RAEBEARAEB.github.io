@@ -198,6 +198,7 @@ a{color:var(--text-link);text-decoration:none}::-webkit-scrollbar{width:6px}::-w
           <th style="width:140px">责任单位</th>
           <th style="width:120px;text-align:center">评分周期</th>
           <th style="width:56px;text-align:center">得分</th>
+          <th style="width:64px;text-align:center">平均得分</th>
           <th style="width:60px;text-align:center">等级</th>
         </tr></thead>
         <tbody></tbody>
@@ -308,8 +309,20 @@ function renderTable(){
 
   var fTag={'已安装':'tag-setting','超期未拆':'tag-soon','超期未拆':'tag-expired'};
 
+  // Pre-compute average scores per fence (aggregate by fence ID prefix before '_')
+  var fenceAvg={}, fenceCnt={};
+  _allScoreData.forEach(function(r){
+    var fid=r.id.split('_').slice(0,-1).join('_'); // base fence ID without period suffix
+    if(!fenceAvg[fid]){fenceAvg[fid]=0;fenceCnt[fid]=0;}
+    fenceAvg[fid]+=r.score; fenceCnt[fid]++;
+  });
+  Object.keys(fenceAvg).forEach(function(k){ fenceAvg[k]=Math.round(fenceAvg[k]/fenceCnt[k]); });
+
   var tbody='';
   pageItems.forEach(function(r,i){
+    var fid=r.id.split('_').slice(0,-1).join('_');
+    var avg=fenceAvg[fid]||r.score;
+    var avgCls=avg<55?' score-low':'';
     tbody+='<tr>'+
       '<td class="check-col"><input type="checkbox" class="row-check" data-id="'+r.id+'"></td>'+
       '<td class="col-c" style="color:var(--text-tertiary);font-size:12px">'+(start+i+1)+'</td>'+
@@ -322,10 +335,11 @@ function renderTable(){
       '<td style="font-size:12px">'+esc(r.constructUnit)+'</td>'+
       '<td class="col-c" style="font-size:11px;color:var(--text-secondary)">'+esc(r.period)+'</td>'+
       '<td class="col-c"><span class="score-num'+(r.score<55?' score-low':'')+'">'+r.score+'</span></td>'+
+      '<td class="col-c"><span class="score-num'+avgCls+'">'+avg+'</span></td>'+
       '<td class="col-c"><span class="tag '+r.gradeCls+'">'+r.grade+'</span></td>'+
     '</tr>';
   });
-  document.querySelector('#scoreTable tbody').innerHTML=tbody||'<tr><td colspan="12" style="text-align:center;padding:40px;color:var(--text-tertiary)">暂无数据</td></tr>';
+  document.querySelector('#scoreTable tbody').innerHTML=tbody||'<tr><td colspan="13" style="text-align:center;padding:40px;color:var(--text-tertiary)">暂无数据</td></tr>';
   document.getElementById('pageInfo').textContent='第 '+(filtered.length?_currentPage:0)+'/'+totalPages+' 页 · 共 '+filtered.length+' 条';
   document.getElementById('selectAll').checked=false;
   document.getElementById('selectAllH').checked=false;
@@ -349,9 +363,14 @@ function batchExport(){
 
 function _doExport(data){
   if(!data.length)return alert('无数据可导出');
-  var rows=[['序号','关联工程','关联项目','所属区域','所属街道','围挡状态','工程状态','责任单位','评分周期','得分','等级']];
+  // Pre-compute averages
+  var fAvg={}, fCnt={};
+  _allScoreData.forEach(function(r){var fid=r.id.split('_').slice(0,-1).join('_');if(!fAvg[fid]){fAvg[fid]=0;fCnt[fid]=0;}fAvg[fid]+=r.score;fCnt[fid]++;});
+  Object.keys(fAvg).forEach(function(k){fAvg[k]=Math.round(fAvg[k]/fCnt[k]);});
+  var rows=[['序号','关联工程','关联项目','所属区域','所属街道','围挡状态','工程状态','责任单位','评分周期','得分','平均得分','等级']];
   data.forEach(function(r,i){
-    rows.push([String(i+1),r.engineerName,r.projectName,r.district,r.street||'',r.fenceStatus,r.projectStatus,r.constructUnit,r.period,String(r.score),r.grade]);
+    var fid=r.id.split('_').slice(0,-1).join('_');
+    rows.push([String(i+1),r.engineerName,r.projectName,r.district,r.street||'',r.fenceStatus,r.projectStatus,r.constructUnit,r.period,String(r.score),String(fAvg[fid]||r.score),r.grade]);
   });
   var csv=rows.map(function(r){return r.map(function(c){return'"'+(c||'').replace(/"/g,'""')+'"'}).join(',');}).join('\n');
   var BOM='﻿';var blob=new Blob([BOM+csv],{type:'text/csv;charset=utf-8'});

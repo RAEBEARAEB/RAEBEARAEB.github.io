@@ -158,11 +158,11 @@ a:hover{color:var(--text-link-hover)}
 .tab-count{font-size:var(--font-size-xs);color:var(--text-tertiary);margin-left:2px}
 
 /* ═══ 提醒事项 · 圆点 ═══ */
-.dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:var(--space-1);vertical-align:middle;flex-shrink:0}
-.dot-red{background:var(--color-danger)}
-.dot-orange{background:var(--color-warning)}
-.days-danger{color:var(--color-danger);font-weight:var(--font-weight-medium);font-size:var(--font-size-sm)}
-.days-warning{color:var(--color-warning-dark);font-weight:var(--font-weight-medium);font-size:var(--font-size-sm)}
+.dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:6px;vertical-align:middle;flex-shrink:0}
+.dot-red{background:#ff4d4f}
+.dot-orange{background:#fa8c16}
+.days-danger{color:#ff4d4f;font-weight:500;font-size:13px}
+.days-warning{color:#fa8c16;font-weight:500;font-size:13px}
 
 /* ═══ 图表区两栏 ═══ */
 .chart-row{display:flex;gap:var(--space-4);align-items:stretch}
@@ -170,12 +170,38 @@ a:hover{color:var(--text-link-hover)}
 
 .two-col-cards{display:flex;gap:var(--space-4);align-items:stretch;margin-bottom:var(--space-4)}
 .two-col-cards>.card{margin-bottom:0;flex:1;min-width:0}
-.two-col-cards .table{table-layout:fixed}
-.two-col-cards .table th{padding:var(--space-2) var(--space-3)}
-.two-col-cards .table td{padding:var(--space-2) var(--space-3)}
-.two-col-cards .table td:nth-child(3) .info-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.two-col-cards .table{width:100%;table-layout:fixed;border-collapse:collapse;font-size:13px;line-height:20px}
+.two-col-cards .table thead th{font-size:12px;font-weight:400;color:#8c8c8c;padding:12px 8px;background:#fff;text-align:left;border-bottom:1px solid #f0f0f0;white-space:nowrap}
+.two-col-cards .table tbody td{padding:12px 8px;border-bottom:1px solid #f0f0f0;vertical-align:middle;color:#333;font-size:13px;white-space:nowrap;background:#fff}
+/* 提醒事项 — 额外左间距 + 居中对齐 */
+#remindTable thead th:first-child{padding-left:20px}
+#remindTable tbody td:first-child{padding-left:20px}
+#remindTable thead th{text-align:center}
+#remindTable tbody td{text-align:center}
+.two-col-cards .table tbody tr:hover td{background:#fafafa}
+.two-col-cards .info-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block}
+/* 待办标签 */
+.todo-tag{display:inline-block;padding:0 8px;height:24px;line-height:24px;font-size:12px;color:#d46b08;background:#fff7e6;border-radius:4px;border:1px solid #ffd591;white-space:nowrap}
+/* Tab切换 */
+.two-col-cards .tab-bar{padding:8px 0 12px;border-bottom:none;display:flex;gap:0;margin:0}
+.two-col-cards .tab-btn{padding:4px 12px;font-size:13px;color:#595959;border:none;background:none;border-bottom:2px solid transparent;cursor:pointer;font-family:var(--font-family)}
+.two-col-cards .tab-btn:hover{color:#1677ff}
+.two-col-cards .tab-btn.active{color:#1677ff;border-bottom-color:#1677ff}
+.two-col-cards .tab-count{font-size:12px;color:#595959;margin-left:2px}
+.two-col-cards .table-action-link{color:#1677ff;font-size:13px;cursor:pointer;text-decoration:none;white-space:nowrap}
+.two-col-cards .table-action-link:hover{color:#1677ff;text-decoration:underline}
+.two-col-cards .col-num{color:#8c8c8c;font-size:12px}
 .info-name{line-height:var(--line-height-tight)}
 .fence-code{font-size:var(--font-size-xs);color:var(--text-tertiary);margin-top:1px;line-height:1;font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace}
+
+/* TOP10 card — same compact spec */
+#supTop10Card .table{width:100%;table-layout:fixed;border-collapse:collapse;font-size:13px;line-height:20px}
+#supTop10Card .table thead th{font-size:12px;font-weight:400;color:#8c8c8c;padding:12px 8px;background:#fff;border-bottom:1px solid #f0f0f0;white-space:nowrap;position:sticky;top:0;z-index:2}
+#supTop10Card .table tbody td{padding:12px 8px;border-bottom:1px solid #f0f0f0;vertical-align:middle;color:#333;font-size:13px;white-space:nowrap;background:#fff}
+#supTop10Card .table tbody tr:hover td{background:#fafafa}
+#supTop10Card .col-num{color:#8c8c8c;font-size:12px}
+#supTop10Card .table-action-link{color:#1677ff;font-size:13px;cursor:pointer;text-decoration:none}
+#supTop10Card .table-action-link:hover{color:#1677ff;text-decoration:underline}
 
 /* ═══ 工具类 ═══ */
 .text-link{color:var(--text-link);font-size:var(--font-size-xs);display:inline-flex;align-items:center;gap:2px;cursor:pointer}
@@ -286,9 +312,9 @@ a:hover{color:var(--text-link-hover)}
           <div class="card-header"><div class="card-title">围挡评分分布</div><div style="display:flex;align-items:center;gap:12px"><select id="streetDistrictFilter" style="display:none;height:28px;padding:0 20px 0 8px;font-size:var(--font-size-xs);color:var(--text-primary);border:1px solid var(--border-color-light);border-radius:var(--border-radius-md);outline:none;font-family:var(--font-family);appearance:none;-webkit-appearance:none;background:#fff url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%239CA3B0' stroke-width='1.5'/%3E%3C/svg%3E\") no-repeat right 6px center;cursor:pointer" onchange="filterStreetByDistrict()"><option value="all">全部街道（所有区）</option></select><div class="chart-tabs"><button class="chart-tab active" onclick="switchScoreDim('station')">按站点</button><button class="chart-tab" onclick="switchScoreDim('district')">按辖区</button><button class="chart-tab" onclick="switchScoreDim('street')">按街道</button></div></div></div>
           <div class="card-body" style="padding:var(--space-3)"><div id="supScoreDistChart" class="sup-dist-chart"></div></div>
         </div>
-        <div class="card">
-          <div class="card-header" style="flex-wrap:wrap;gap:8px"><div class="card-title">本周低评分围挡 TOP10 <span style="font-size:12px;color:var(--text-tertiary);font-weight:400;margin-left:4px" id="top10DateRange"></span></div><a href="score-management.html" class="btn btn-ghost" style="height:28px;padding:0 12px;font-size:12px">查看全部</a></div>
-          <div class="card-body" style="padding:0"><div class="table-wrapper" style="max-height:360px;overflow-y:auto"><table class="table" id="supTop10Table"><thead><tr><th style="width:32px;text-align:center;position:sticky;top:0;z-index:2">序号</th><th style="width:110px">关联工程</th><th style="width:80px">所属区域</th><th style="width:80px;text-align:center">围挡状态</th><th style="width:48px;text-align:center">得分</th><th style="width:60px;text-align:center">等级</th></tr></thead><tbody></tbody></table></div></div>
+        <div class="card" id="supTop10Card">
+          <div class="card-header"><div class="card-title">本周低评分围挡 TOP10 <span style="font-size:12px;color:var(--text-tertiary);font-weight:400;margin-left:4px" id="top10DateRange"></span></div><a href="score-management.html" class="chart-tab" style="text-decoration:none">查看全部</a></div>
+          <div class="card-body" style="padding:0"><div class="table-wrapper" style="max-height:360px;overflow-y:auto"><table class="table" id="supTop10Table"><thead><tr><th style="width:32px;text-align:center;position:sticky;top:0;z-index:2">序号</th><th style="width:110px">关联工程</th><th style="width:80px">所属区域</th><th style="width:72px;text-align:center">围挡状态</th><th style="width:48px;text-align:center">得分</th><th style="width:56px;text-align:center">平均得分</th><th style="width:60px;text-align:center">等级</th></tr></thead><tbody></tbody></table></div></div>
         </div>
       </div>
       <!-- ═══ 待办 + 提醒（双卡片并排）═══ -->
@@ -296,23 +322,22 @@ a:hover{color:var(--text-link-hover)}
       <!-- 待办事项 -->
       <div class="card">
         <div class="card-header">
-          <div class="card-title">待办事项 <span class="count-badge">6</span></div>
+          <div class="card-title">待办事项 <span class="count-badge" id="supTodoBadge">6</span></div>
         </div>
         <div class="card-body">
           <table class="table" id="todoTable">
-            <thead><tr><th style="width:28px;text-align:center">序号</th><th style="width:64px;text-align:center">类型</th><th style="width:100px">关联工程</th><th style="width:80px;text-align:center">提醒时间</th><th style="width:50px;text-align:center">操作</th></tr></thead>
+            <thead><tr><th style="width:36px;text-align:center">序号</th><th style="width:64px">类型</th><th style="width:70px">关联工程</th><th style="width:112px">上报时间</th><th style="width:56px">操作</th></tr></thead>
             <tbody>
-              <tr data-type="verify"><td class="col-num">1</td><td class="col-center"><span class="tag tag-info">待校核</span></td><td>管道铺设工程</td><td class="col-center">05-08 09:00</td><td class="col-center"><button class="table-action-link">去校核</button></td></tr>
-              <tr data-type="verify"><td class="col-num">2</td><td class="col-center"><span class="tag tag-info">待校核</span></td><td>沟槽开挖工程</td><td class="col-center">05-08 08:30</td><td class="col-center"><button class="table-action-link">去校核</button></td></tr>
-              <tr data-type="verify"><td class="col-num">3</td><td class="col-center"><span class="tag tag-info">待校核</span></td><td>主体结构工程</td><td class="col-center">05-09 10:00</td><td class="col-center"><button class="table-action-link">去校核</button></td></tr>
-              <tr data-type="verify"><td class="col-num">4</td><td class="col-center"><span class="tag tag-info">待校核</span></td><td>道路恢复工程</td><td class="col-center">05-10 14:00</td><td class="col-center"><button class="table-action-link">去校核</button></td></tr>
-              <tr data-type="verify"><td class="col-num">5</td><td class="col-center"><span class="tag tag-info">待校核</span></td><td>基坑围护工程</td><td class="col-center">05-10 09:30</td><td class="col-center"><button class="table-action-link">去校核</button></td></tr>
-              <tr data-type="verify"><td class="col-num">6</td><td class="col-center"><span class="tag tag-info">待校核</span></td><td>路面修复工程</td><td class="col-center">05-11 14:00</td><td class="col-center"><button class="table-action-link">去校核</button></td></tr>
+              <tr data-type="verify"><td class="col-num">1</td><td><span class="todo-tag">待校核</span></td><td>管道铺设工程</td><td>2026-05-08 09:00</td><td><button class="table-action-link">去校核</button></td></tr>
+              <tr data-type="verify"><td class="col-num">2</td><td><span class="todo-tag">待校核</span></td><td>沟槽开挖工程</td><td>2026-05-08 08:30</td><td><button class="table-action-link">去校核</button></td></tr>
+              <tr data-type="verify"><td class="col-num">3</td><td><span class="todo-tag">待校核</span></td><td>主体结构工程</td><td>2026-05-09 10:00</td><td><button class="table-action-link">去校核</button></td></tr>
+              <tr data-type="verify"><td class="col-num">4</td><td><span class="todo-tag">待校核</span></td><td>道路恢复工程</td><td>2026-05-10 14:00</td><td><button class="table-action-link">去校核</button></td></tr>
+              <tr data-type="verify"><td class="col-num">5</td><td><span class="todo-tag">待校核</span></td><td>基坑围护工程</td><td>2026-05-10 09:30</td><td><button class="table-action-link">去校核</button></td></tr>
+              <tr data-type="verify"><td class="col-num">6</td><td><span class="todo-tag">待校核</span></td><td>路面修复工程</td><td>2026-05-11 14:00</td><td><button class="table-action-link">去校核</button></td></tr>
             </tbody>
           </table>
         </div>
       </div>
-
       <!-- 提醒事项 -->
       <div class="card">
         <div class="card-header">
@@ -325,13 +350,13 @@ a:hover{color:var(--text-link-hover)}
         </div>
         <div class="card-body">
           <table class="table" id="remindTable">
-            <thead><tr><th style="width:72px">预警类型</th><th style="width:100px">关联工程</th><th style="width:100px">预警详情</th><th style="width:44px;text-align:center">操作</th></tr></thead>
+            <thead><tr><th style="width:44px">预警类型</th><th style="width:60px">关联工程</th><th style="width:68px">预警详情</th><th style="width:44px">操作</th></tr></thead>
             <tbody>
-              <tr data-type="overdue"><td><span class="dot dot-red"></span>超期提醒</td><td>管道铺设工程</td><td><span class="days-danger">超期未拆14天</span></td><td class="col-center"><a href="detail_info_v2.html" class="table-action-link">查看</a></td></tr>
-              <tr data-type="overdue"><td><span class="dot dot-red"></span>超期提醒</td><td>沟槽开挖工程</td><td><span class="days-danger">超期未拆23天</span></td><td class="col-center"><a href="detail_info_v2.html" class="table-action-link">查看</a></td></tr>
-              <tr data-type="expiring"><td><span class="dot dot-orange"></span>临期预警</td><td>主体结构工程</td><td><span class="days-warning">距拆除还剩7天</span></td><td class="col-center"><a href="detail_info_v2.html" class="table-action-link">查看</a></td></tr>
-              <tr data-type="expiring"><td><span class="dot dot-orange"></span>临期预警</td><td>道路恢复工程</td><td><span class="days-warning">距拆除还剩15天</span></td><td class="col-center"><a href="detail_info_v2.html" class="table-action-link">查看</a></td></tr>
-              <tr data-type="expiring"><td><span class="dot dot-orange"></span>临期预警</td><td>基坑围护工程</td><td><span class="days-warning">距拆除还剩30天</span></td><td class="col-center"><a href="detail_info_v2.html" class="table-action-link">查看</a></td></tr>
+              <tr data-type="overdue"><td><span class="dot dot-red"></span>超期提醒</td><td>管道铺设工程</td><td><span class="days-danger">已到期14天</span></td><td><a href="detail_info_v2.html" class="table-action-link">查看</a></td></tr>
+              <tr data-type="overdue"><td><span class="dot dot-red"></span>超期提醒</td><td>沟槽开挖工程</td><td><span class="days-danger">已到期23天</span></td><td><a href="detail_info_v2.html" class="table-action-link">查看</a></td></tr>
+              <tr data-type="expiring"><td><span class="dot dot-orange"></span>临期预警</td><td>主体结构工程</td><td><span class="days-warning">距拆除还剩7天</span></td><td><a href="detail_info_v2.html" class="table-action-link">查看</a></td></tr>
+              <tr data-type="expiring"><td><span class="dot dot-orange"></span>临期预警</td><td>道路恢复工程</td><td><span class="days-warning">距拆除还剩15天</span></td><td><a href="detail_info_v2.html" class="table-action-link">查看</a></td></tr>
+              <tr data-type="expiring"><td><span class="dot dot-orange"></span>临期预警</td><td>基坑围护工程</td><td><span class="days-warning">距拆除还剩30天</span></td><td><a href="detail_info_v2.html" class="table-action-link">查看</a></td></tr>
             </tbody>
           </table>
         </div>
@@ -469,20 +494,27 @@ distChart.setOption({
 
   var scores=MOCK_DATA.getProjectScores();
   if(!scores||!scores.length)return;
+  // Compute average across past 3 months
+  var now2=new Date(); var avgScores={};
+  for(var m=0;m<3;m++){ var yy=now2.getFullYear(),mm=now2.getMonth()+1-m; if(mm<1){mm+=12;yy--;}
+    var ms=MOCK_DATA.getProjectScores(yy,mm);
+    ms.forEach(function(s){ if(!avgScores[s.projectId])avgScores[s.projectId]={sum:0,cnt:0}; avgScores[s.projectId].sum+=s.total; avgScores[s.projectId].cnt++; });
+  }
   var hoardings=MOCK_DATA.getHoardings();
-  var fTag={'已安装':'tag-setting','超期未拆':'tag-soon','超期未拆':'tag-expired'};
+  var fTag={'已安装':'tag-setting','已到期':'tag-expired'};
   var scoredHoards=hoardings.map(function(h){
-    if(h.fenceStatus==='超期未拆')return null;
+    if(h.fenceStatus==='已到期')return null;
     var ps=null;
     scores.forEach(function(s){if(s.projectId===h.projectId)ps=s;});
-    return ps?{engineerName:h.engineerName,fenceStatus:h.fenceStatus,street:h.projectStreet||h.street,district:h.projectDistrict,total:ps.total,grade:ps.grade,gradeCls:ps.gradeCls,projectName:h.projectName,projectStatus:h.projectStatus,constructUnit:h.constructUnit,period:rangeStr}:null;
+    var avg=avgScores[h.projectId]?Math.round(avgScores[h.projectId].sum/avgScores[h.projectId].cnt):(ps?ps.total:0);
+    return ps?{engineerName:h.engineerName,fenceStatus:h.fenceStatus,street:h.projectStreet||h.street,district:h.projectDistrict,total:ps.total,avg:avg,grade:ps.grade,gradeCls:ps.gradeCls,projectName:h.projectName,projectStatus:h.projectStatus,constructUnit:h.constructUnit,period:rangeStr}:null;
   }).filter(Boolean);
   scoredHoards.sort(function(a,b){return a.total-b.total;});
   var top10=scoredHoards.slice(0,10);
   var tbody='';
   top10.forEach(function(h,i){
-    var scCls=h.total<55?' low':'';
-    tbody+='<tr><td class="col-num">'+(i+1)+'</td><td><div class="info-name">'+h.engineerName+'</div></td><td>'+h.district+'</td><td class="col-center"><span class="tag '+((fTag[h.fenceStatus])||'tag-default')+'">'+h.fenceStatus+'</span></td><td class="col-center"><span class="sup-table-score'+scCls+'">'+h.total+'</span></td><td class="col-center"><span class="sup-table-grade '+h.gradeCls+'">'+h.grade+'</span></td></tr>';
+    var scCls=h.total<55?' low':'',avgCls=h.avg<55?' low':'';
+    tbody+='<tr><td class="col-num">'+(i+1)+'</td><td><div class="info-name">'+h.engineerName+'</div></td><td>'+h.district+'</td><td class="col-center"><span class="tag '+((fTag[h.fenceStatus])||'tag-default')+'">'+h.fenceStatus+'</span></td><td class="col-center"><span class="sup-table-score'+scCls+'">'+h.total+'</span></td><td class="col-center"><span class="sup-table-score'+avgCls+'">'+h.avg+'</span></td><td class="col-center"><span class="sup-table-grade '+h.gradeCls+'">'+h.grade+'</span></td></tr>';
   });
   document.querySelector('#supTop10Table tbody').innerHTML=tbody;
 
@@ -515,9 +547,9 @@ function switchSupTodoTab(tab){
 function exportTop10(){
   var data=window._top10Data||[];
   if(!data.length)return alert('暂无数据可导出');
-  var rows=[['序号','关联工程','关联项目','所属区域','所属街道','围挡状态','工程状态','责任单位','评分周期','得分','等级']];
+  var rows=[['序号','关联工程','关联项目','所属区域','所属街道','围挡状态','工程状态','责任单位','评分周期','得分','平均得分','等级']];
   data.forEach(function(h,i){
-    rows.push([String(i+1),h.engineerName,h.projectName,h.district,h.street||'',h.fenceStatus,h.projectStatus,h.constructUnit,window._top10Range||'',String(h.total),h.grade]);
+    rows.push([String(i+1),h.engineerName,h.projectName,h.district,h.street||'',h.fenceStatus,h.projectStatus,h.constructUnit,window._top10Range||'',String(h.total),String(h.avg),h.grade]);
   });
   var csv=rows.map(function(r){return r.map(function(c){return'"'+(c||'').replace(/"/g,'""')+'"'}).join(',');}).join('\n');
   var BOM='﻿';var blob=new Blob([BOM+csv],{type:'text/csv;charset=utf-8'});
