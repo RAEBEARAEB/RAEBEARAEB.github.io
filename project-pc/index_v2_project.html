@@ -396,7 +396,8 @@ a:hover{color:var(--text-link-hover)}
         <li class="nav-group-label">围挡管理</li>
 
         <li class="nav-item"><a href="redline.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="13" x2="12" y2="3"/></svg>项目红线管理</a></li>
-        <li class="nav-item"><a href="index_v2_project.html" class="active"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>围挡档案管理</a></li>
+        <li class="nav-item"><a href="index_v4_project.html" class="active"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>围挡档案管理</a></li>
+        <li class="nav-item"><a href="patrol_records.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>围挡巡查</a></li>
         <li class="nav-item"><a href="fence-issue-list.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>问题闭环处置</a></li>
       </ul>
       <div class="sidebar-bottom"><div class="sidebar-version">v2.0.0 · 2026.04</div></div>
@@ -434,7 +435,7 @@ a:hover{color:var(--text-link-hover)}
             <button class="status-tab active" data-status="全部" onclick="filterByTab(this)">全部 <span class="status-tab-num" id="tabNumAll">0</span></button>
             <button class="status-tab" data-status="已安装" onclick="filterByTab(this)">已安装 <span class="status-tab-num" id="tabNumSetting">0</span></button>
             <button class="status-tab" data-status="即将到期" onclick="filterByTab(this)">即将到期 <span class="status-tab-num" id="tabNumSoon">0</span></button>
-            <button class="status-tab" data-status="已到期" onclick="filterByTab(this)">已到期 <span class="status-tab-num" id="tabNumExpired">0</span></button>
+            <button class="status-tab" data-status="超期未拆" onclick="filterByTab(this)">超期未拆 <span class="status-tab-num" id="tabNumExpired">0</span></button>
           </div>
           <div class="card-toolbar-right">
             <button class="btn btn-ghost btn-sm" onclick="showQrCodeModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>下载二维码</button>
@@ -699,7 +700,7 @@ function renderTableFromSD(){
   if(_currentTab!=='全部'){
     blocks=blocks.filter(function(b){return b.fenceStatus===_currentTab;});
   }
-  var sortOrder={'即将到期':1,'已安装':2,'已到期':3};
+  var sortOrder={'即将到期':1,'已安装':2,'超期未拆':3};
   blocks.sort(function(a,b){var sa=sortOrder[a.fenceStatus];var sb=sortOrder[b.fenceStatus];if(sa===undefined)sa=99;if(sb===undefined)sb=99;return sa-sb;});
   var html='';
   blocks.forEach(function(b,idx){
@@ -728,10 +729,10 @@ function renderTableFromSD(){
 }
 
 function getStatusCls(s){
-  return({'已安装':'status-setting','即将到期':'status-soon','已到期':'status-demolished'})[s]||'status-setting';
+  return({'已安装':'status-setting','即将到期':'status-soon','超期未拆':'status-demolished'})[s]||'status-setting';
 }
 function getFenceTagCls(s){
-  return({'已安装':'tag-setting','即将到期':'tag-soon','已到期':'tag-expired'})[s]||'tag-setting';
+  return({'已安装':'tag-setting','即将到期':'tag-soon','超期未拆':'tag-expired'})[s]||'tag-setting';
 }
 function getIssueTagCls(s){
   return({'正常':'tag-ok','待整改':'tag-warn','整改逾期':'tag-error'})[s]||'tag-ok';
@@ -743,7 +744,7 @@ function getEngDot(s){
   return'<span class="eng-dot '+cls+'"></span>'+s;
 }
 function getStatusColor(s){
-  return({'已安装':'#1862D4','即将到期':'#C47D00','已到期':'#9CA3B0'})[s]||'#1F2937';
+  return({'已安装':'#1862D4','即将到期':'#C47D00','超期未拆':'#9CA3B0'})[s]||'#1F2937';
 }
 function getIssueCls(s){
   return({'正常':'status-success','待整改':'status-wait','整改逾期':'status-alert'})[s]||'status-success';
@@ -770,9 +771,9 @@ function filterByTab(tab){
 
 function updateStatusCounts(){
   var blocks=MOCK_FENCE_BLOCKS;
-  var counts={'全部':blocks.length,'已安装':0,'即将到期':0,'已到期':0};
+  var counts={'全部':blocks.length,'已安装':0,'即将到期':0,'超期未拆':0};
   blocks.forEach(function(b){if(counts.hasOwnProperty(b.fenceStatus))counts[b.fenceStatus]++;});
-  var map={'全部':'tabNumAll','已安装':'tabNumSetting','即将到期':'tabNumSoon','已到期':'tabNumExpired'};
+  var map={'全部':'tabNumAll','已安装':'tabNumSetting','即将到期':'tabNumSoon','超期未拆':'tabNumExpired'};
   for(var k in map){var el=document.getElementById(map[k]);if(el)el.textContent=counts[k];}
 }
 
@@ -1175,10 +1176,10 @@ function renderMapView(){
   /* 项目红线 */
   _mapRedlineLayer=L.polygon(MAP_REDLINE_GPS,{color:'#D13B2F',weight:2,fillColor:'rgba(209,59,47,0.15)',fillOpacity:0.5,dashArray:null,interactive:false}).addTo(_fenceMapView);
   allBounds.push(_mapRedlineLayer.getBounds());
-  /* 围挡图斑（排除已到期） */
+  /* 围挡图斑（排除超期未拆） */
   var seq=0;
   MOCK_FENCE_BLOCKS.forEach(function(b){
-    if(b.fenceStatus==='已到期')return;
+    if(b.fenceStatus==='超期未拆')return;
     seq++;
     if(!b.gpsShape||b.gpsShape.length<3)return;
     var fg=L.featureGroup().addTo(_fenceMapView);
@@ -1216,12 +1217,12 @@ function renderMapView(){
 function renderMapCards(){
   var list=document.getElementById('mapCardList');
   var countEl=document.getElementById('mapCardCount');
-  var statusTagMap={'已安装':'tag-setting','即将到期':'tag-soon','已到期':'tag-expired'};
+  var statusTagMap={'已安装':'tag-setting','即将到期':'tag-soon','超期未拆':'tag-expired'};
   var engDotMap={'工程监督':'eng-dot-gray','停工':'eng-dot-orange','竣工验收':'eng-dot-green'};
   var html='';
   var count=0;
   MOCK_FENCE_BLOCKS.forEach(function(b){
-    if(b.fenceStatus==='已到期')return;
+    if(b.fenceStatus==='超期未拆')return;
     count++;
     var cls=statusTagMap[b.fenceStatus]||'tag-setting';
     var dotCls=engDotMap[b.engStatus]||'eng-dot-gray';

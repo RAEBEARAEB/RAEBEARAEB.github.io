@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>围挡记录详情 - 深圳市建设施工围挡数字化管理系统</title>
+<title>围挡记录详情(v3) - 深圳市建设施工围挡数字化管理系统</title>
 <style>
 /* ═══ Design Token ═══ */
 :root{
@@ -95,7 +95,7 @@ a:hover{color:var(--text-link-hover)}
 .page-title{font-size:var(--font-size-2xl);font-weight:var(--font-weight-bold);color:var(--text-title);line-height:var(--line-height-tight)}
 .page-title-accent{display:inline-block;width:3px;height:20px;background:var(--color-primary-500);border-radius:2px;margin-right:var(--space-2);vertical-align:middle;position:relative;top:-1px}
 .main-body{display:flex;flex:1;min-height:0}
-.section-nav{width:180px;flex-shrink:0;background:var(--bg-card);border-right:1px solid var(--border-color-light);padding:var(--space-5) 0;overflow-y:auto}
+.section-nav{width:180px;flex-shrink:0;background:var(--bg-card);border-right:1px solid var(--border-color-light);padding:var(--space-5) 0;position:sticky;top:0;align-self:flex-start;max-height:100vh;overflow-y:auto}
 .section-nav-title{display:none}
 .section-nav-item{display:flex;align-items:center;gap:var(--space-2);padding:var(--space-3) var(--space-4);font-size:var(--font-size-sm);color:var(--text-secondary);border-left:3px solid transparent;transition:all var(--transition-fast);text-decoration:none;margin-bottom:1px;line-height:1.5;cursor:pointer}
 .section-nav-item:hover{background:var(--color-gray-50);color:var(--color-primary-500)}
@@ -275,8 +275,8 @@ a:hover{color:var(--text-link-hover)}
 .btn-ghost:hover{background:var(--color-gray-50);color:var(--text-primary);border-color:var(--color-gray-300)}
 .text-center{text-align:center}.text-right{text-align:right}
 
-.map-legend{position:absolute;bottom:38px;right:8px;z-index:1000;background:rgba(255,255,255,0.94);border-radius:var(--border-radius-md);padding:6px 10px;font-size:11px;line-height:1.7;box-shadow:0 1px 4px rgba(0,0,0,0.12);pointer-events:none}
-.map-legend-item{display:flex;align-items:center;gap:6px;color:var(--text-secondary)}
+.map-legend{position:absolute;top:8px;right:10px;z-index:900;background:rgba(255,255,255,0.94);border-radius:6px;padding:3px 8px;font-size:10px;line-height:1.5;box-shadow:0 1px 4px rgba(0,0,0,0.1);pointer-events:none;white-space:nowrap}
+.map-legend-item{display:flex;align-items:center;gap:6px;color:var(--text-secondary);line-height:1.5}
 .map-legend-line{width:22px;height:0;border-top:2.5px solid;flex-shrink:0;border-radius:1px}
 .map-legend-line.dashed{border-top-style:dashed}
 /* ═══ 巡检记录 ═══ */
@@ -349,6 +349,32 @@ textarea.form-input{height:80px;padding:var(--space-2) var(--space-3);resize:ver
 .detail-status-item{display:inline-flex;align-items:center;line-height:1}
 .detail-status-item .tag{padding-top:2px;padding-bottom:2px;line-height:1.5}
 .detail-verify-text{font-size:var(--font-size-sm);color:#C47D00;font-weight:var(--font-weight-bold);white-space:nowrap;vertical-align:middle}
+/* V3 */
+.layout-body-row{display:flex;flex:1;min-height:0}
+.detail-left{flex:1 1 55%;min-width:0;display:flex;flex-direction:column;overflow:hidden;border-right:1px solid var(--border-color-light)}
+.detail-left .main-body{flex:1;min-height:0}
+.map-right{width:35%;flex-shrink:0;display:flex;flex-direction:column;padding:0 var(--space-4) var(--space-4) 0}
+.map-right .card.map-card{border:1px solid var(--border-color-light);border-radius:var(--border-radius-lg);box-shadow:var(--shadow-card);margin:0;display:flex;flex-direction:column;height:100%;overflow:hidden}
+.map-right .card-body{flex:1;padding:0;overflow:hidden;display:flex;flex-direction:column}
+.map-right .map-view-container{flex:1;display:flex;flex-direction:column;position:relative}
+.map-right #fenceMap{flex:1!important;height:auto!important;min-height:300px}
+.fence-tabs{display:flex;gap:8px;padding:8px 0 8px var(--space-6);border-bottom:1px solid var(--border-color-light);overflow-x:auto;flex-shrink:0;background:var(--bg-page)}
+.fence-tab{display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:var(--border-radius-lg);cursor:pointer;transition:all var(--transition-fast);border:2px solid var(--color-gray-200);background:#fff;white-space:nowrap;flex-shrink:0;font-size:var(--font-size-sm)}
+.fence-tab:hover{border-color:var(--color-primary-300)}
+.fence-tab.active{background:var(--color-primary-50);border-color:var(--color-primary-500);box-shadow:0 0 0 3px rgba(24,98,212,0.08)}
+.fence-tab .tab-num{font-weight:var(--font-weight-bold);color:var(--text-title)}
+.fence-tab .tab-eng{color:var(--text-secondary);font-size:var(--font-size-xs)}
+.fence-tab .tab-tag{display:inline-flex;align-items:center;padding:1px 8px;border-radius:var(--border-radius-tag);font-size:10px;font-weight:var(--font-weight-medium);flex-shrink:0}
+.tab-tag.installed{background:var(--color-info-light);color:var(--color-info);border:1px solid var(--color-primary-200)}
+.tab-tag.claiming{background:#FEF3CD;color:#B45309;border:1px solid #FCD34D}
+.tab-tag.overdue{background:var(--color-danger-light);color:var(--color-danger);border:1px solid #F0B0B0}
+.tab-tag.removed{background:var(--color-gray-100);color:var(--text-tertiary);border:1px solid var(--color-gray-200)}
+.fence-tag2{display:inline-flex;align-items:center;padding:2px 10px;border-radius:2px;font-size:11px;font-weight:500;white-space:nowrap}
+.fence-tag2.installed{background:var(--color-info-light);color:var(--color-info);border:1px solid var(--color-primary-200)}
+.fence-tag2.claiming{background:#FEF3CD;color:#B45309;border:1px solid #FCD34D}
+.fence-tag2.overdue{background:var(--color-danger-light);color:var(--color-danger);border:1px solid #F0B0B0}
+.fence-tag2.removed{background:var(--color-gray-100);color:var(--text-tertiary);border:1px solid var(--color-gray-200)}
+
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -403,12 +429,16 @@ textarea.form-input{height:80px;padding:var(--space-2) var(--space-3);resize:ver
         <span class="breadcrumb-item">围挡记录详情</span>
       </div>
       <div class="page-header page-header-fixed">
-        <h1 class="page-title"><span class="page-title-accent"></span>围挡记录详情<span class="detail-status-tags" id="detailStatusTags"><span class="detail-status-item" id="detailFenceStatusTag">—</span><span class="detail-status-item" id="detailIssueStatusTag">—</span><span class="detail-status-item" id="detailNeedVerifyTag">—</span></span></h1>
-        <div class="page-header-actions">
+        <h1 class="page-title"><span class="page-title-accent"></span><span id="projTitle">围挡记录详情</span><span class="detail-status-tags" id="detailStatusTags"><span class="detail-status-item" id="detailFenceStatusTag">—</span><span class="detail-status-item" id="detailIssueStatusTag">—</span><span class="detail-status-item" id="detailNeedVerifyTag">—</span></span></h1>
+        <div class="page-header-actions" id="pageHeaderActions">
           <button type="button" class="btn btn-ghost" onclick="window.open('index_v3_project.html','_self')">返回列表</button>
+          <button type="button" class="btn btn-sm" style="background:var(--color-success);color:#fff;border-color:var(--color-success);display:none" id="btnVerifyPass" onclick="submitVerify(true)">校核通过</button>
+          <button type="button" class="btn btn-sm" style="background:var(--color-danger);color:#fff;border-color:var(--color-danger);display:none" id="btnVerifyReject" onclick="submitVerify(false)">校核不通过</button>
         </div>
       </div>
-      <div class="main-body">
+      <div class="fence-tabs" id="fenceTabs"></div>
+      <div class="layout-body-row">
+        <div class="detail-left"><div class="main-body">
         <nav class="section-nav" id="sectionNav">
           <a href="#sec-project" class="section-nav-item active" data-sec="sec-project"><span class="section-nav-num">1</span>关联项目工程</a>
           <a href="#sec-plan" class="section-nav-item" data-sec="sec-plan"><span class="section-nav-num">2</span>项目围挡计划信息</a>
@@ -425,10 +455,7 @@ textarea.form-input{height:80px;padding:var(--space-2) var(--space-3);resize:ver
             <div class="card-header"><div class="card-title"><span class="card-title-dot"></span>关联项目工程</div></div>
             <div class="card-body">
               <div class="form-grid">
-                <div class="form-item">
-                  <label class="form-label">项目名称</label>
-                  <div class="detail-form-value" id="detailProjectName">南山区科技园综合体项目</div>
-                </div>
+                
                 <div class="form-item">
                   <label class="form-label">工程名称</label>
                   <div class="detail-form-value" id="detailEngName">基坑围护工程</div>
@@ -489,15 +516,6 @@ textarea.form-input{height:80px;padding:var(--space-2) var(--space-3);resize:ver
             <div class="card-header"><div class="card-title"><span class="card-title-dot"></span>围挡本体信息</div></div>
             <div class="card-body">
               <div class="detail-grid" style="margin-bottom:var(--space-5)">
-                <div class="detail-item full"><span class="detail-label">围挡范围</span><span class="detail-value">
-                  <div class="map-view-container">
-                    <div class="map-legend"><div class="map-legend-item"><span class="map-legend-line dashed" style="border-color:#1862D4"></span>围挡范围</div><div class="map-legend-item"><span class="map-legend-line" style="border-color:#1862D4"></span>围挡线段</div><div class="map-legend-item"><span class="map-legend-line" style="border-color:#D13B2F"></span>项目红线</div><div class="map-legend-item"><span class="map-legend-line dashed" style="border-color:#9CA3B0"></span>同项目其他围挡</div></div>
-                    <div id="fenceMap"></div>
-                    <div class="map-address-overlay"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg><span>深圳市南山区粤海街道科技南路18号附近</span></div>
-                    <div class="map-view-info">已绘制 <strong>5</strong> 个点位</div>
-                  </div>
-                  <div class="entrance-readonly-list" id="entranceReadonlyList" style="display:none"></div>
-                </span></div>
                 <div class="detail-item"><span class="detail-label">所属街道</span><span class="detail-value">粤海街道</span></div>
                 <div class="detail-item"><span class="detail-label">围挡材质</span><span class="detail-value">装配式钢结构喷绘围挡</span></div>
                 <div class="detail-item"><span class="detail-label">围挡长度</span><span class="detail-value">320 m</span></div>
@@ -682,7 +700,50 @@ textarea.form-input{height:80px;padding:var(--space-2) var(--space-3);resize:ver
           </div>
           <div class="toast" id="patrolToast"></div>
         </div>
-        </main>
+            </div></div>
+        <div class="map-right">
+          <div class="card map-card">
+            <div class="card-body">
+              <div class="map-view-container" style="position:relative">
+                <div class="map-legend" style="position:absolute;top:8px;right:10px;z-index:900">
+                  <div class="map-legend-item"><span class="map-legend-line dashed" style="border-color:#1862D4"></span>当前选中围挡</div>
+                  <div class="map-legend-item"><span class="map-legend-line" style="border-color:#D13B2F"></span>项目红线</div>
+                  <div class="map-legend-item"><span class="map-legend-line dashed" style="border-color:#9CA3B0"></span>其他围挡</div>
+                </div>
+                <div id="fenceMap"></div>
+                <div class="map-address-overlay"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg><span id="mapAddressText">-</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================ -->
+      <div class="modal-mask" id="verifyConfirmModal">
+        <div class="modal" style="width:480px">
+          <div class="modal-head"><span class="modal-title" id="verifyModalTitle">校核确认</span><button class="modal-close" onclick="document.getElementById('verifyConfirmModal').classList.remove('show')">&times;</button></div>
+          <div class="modal-body">
+            <div id="verifyAlertBar" class="alert-bar" style="display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:6px;font-size:13px;margin-bottom:12px"></div>
+            <div style="background:var(--color-gray-50);border:1px solid var(--color-gray-100);border-radius:6px;padding:14px">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+                <span id="verifyFenceTag"></span>
+                <span style="font-weight:700;color:var(--color-gray-900);font-size:14px" id="verifyFenceNum"></span>
+                <span style="font-size:12px;color:var(--color-gray-500)" id="verifyFenceEng"></span>
+                <span style="font-size:10px;color:#E65100;font-weight:600;background:#FFF3E0;padding:1px 6px;border-radius:2px">待校核</span>
+              </div>
+              <div class="form-group" style="margin-bottom:0">
+                <label class="form-label" id="verifyOpinionLabel"><span style="display:none;color:var(--color-danger);margin-right:2px" id="verifyRequired">*</span>审核意见</label>
+                <textarea class="form-textarea" id="verifyOpinion" placeholder="请输入审核意见…" rows="2" style="width:100%;border:1px solid var(--border-color-default);border-radius:var(--border-radius-md);padding:8px 10px;font-size:var(--font-size-sm);font-family:var(--font-family);color:var(--text-primary);outline:none;resize:vertical;min-height:56px"></textarea>
+              </div>
+            </div>
+          </div>
+          <div class="modal-foot">
+            <button class="btn btn-ghost" onclick="document.getElementById('verifyConfirmModal').classList.remove('show')">取消</button>
+            <button class="btn btn-primary" id="verifyConfirmBtn" onclick="confirmVerify()">确认</button>
+          </div>
+        </div>
+      </div>
+    </main>
   </div>
 </div>
 
@@ -701,40 +762,43 @@ function createEntranceIcon(type){var color=ENTRANCE_COLORS[type]||ENTRANCE_COLO
 var _gpsToSvg=function(lat,lng,clat,clng){return[Math.round((lng-clng)*100000+400),Math.round(300-(lat-clat)*75000)]};
 
 /* ═══ 从 URL 参数获取当前围挡，回退到默认演示 ═══ */
-var _defaultHoard=(function(){
+var _projectHoardings=[],_currentIndex=0;
+(function(){
   var m=window.location.search.match(/project=([^&]+)/);
   var pn=m?decodeURIComponent(m[1]):'';
-  var en='';
-  try{var m2=window.location.search.match(/engineering=([^&]+)/);if(m2)en=decodeURIComponent(m2[1])}catch(e){}
-  if(pn&&en){var h=MOCK_DATA.findByProjectAndEngineer(pn,en);if(h)return h}
-  return MOCK_DATA.getDefaultDemo();
+  var all=MOCK_DATA.getHoardings();
+  if(pn){_projectHoardings=all.filter(function(h){return h.projectName===pn;});}
+  if(!_projectHoardings.length)_projectHoardings=[MOCK_DATA.getDefaultDemo()];
+  var en='';try{var m2=window.location.search.match(/engineering=([^&]+)/);if(m2)en=decodeURIComponent(m[1]);}catch(e){}
+  if(en){for(var i=0;i<_projectHoardings.length;i++){if(_projectHoardings[i].engineerName===en){_currentIndex=i;break;}}}
 })();
+function getCurrentHoard(){return _projectHoardings[_currentIndex]||_projectHoardings[0];}
 
 /* ═══ 同项目其他围挡参照数据（从 MOCK_DATA 读取） ═══ */
-var OTHER_FENCE_BLOCKS=(function(){
-  if(!_defaultHoard)return[];
-  return MOCK_DATA.getOtherHoardings(_defaultHoard.id).map(function(h,i){
-    return{id:'围挡'+(i+2),engName:h.engineerName,status:h.fenceStatus,
+var ALL_FENCE_BLOCKS=(function(){
+  return _projectHoardings.map(function(h,i){
+    return{id:'围挡'+(i+1),engName:h.engineerName,status:h.fenceStatus,
       gpsShape:h.gpsShape||[],
       entrances:(h.entrances||[]).map(function(e){return{lat:e.lat,lng:e.lng,name:e.name}})};
   });
 })();
 
-function renderOtherFences(mapInstance,tooltipEnabled){
+function renderAllFences(mapInstance){
   if(!mapInstance||typeof L==='undefined')return;
-  OTHER_FENCE_BLOCKS.forEach(function(b){
+  ALL_FENCE_BLOCKS.forEach(function(b,fi){
     if(!b.gpsShape||b.gpsShape.length<2)return;
-    var opts={color:'#9CA3B0',weight:2,dashArray:'6 4',fillColor:'rgba(156,163,176,0.08)',fillOpacity:0.5,interactive:tooltipEnabled};
+    var isActive=fi===_currentIndex;var opts=isActive?{color:'#1862D4',weight:3,dashArray:'8 4',fillColor:'rgba(24,98,212,0.15)',fillOpacity:0.6,interactive:true}:{color:'#9CA3B0',weight:2,dashArray:'6 4',fillColor:'rgba(156,163,176,0.08)',fillOpacity:0.5,interactive:true};
     var layer;
     if(b.gpsShape.length===2){layer=L.polyline(b.gpsShape,opts).addTo(mapInstance)}
     else{layer=L.polygon(b.gpsShape,opts).addTo(mapInstance)}
-    if(tooltipEnabled&&layer){
+    if(layer){
       layer.bindTooltip(b.id+' '+b.engName+' '+b.status,{sticky:true,direction:'right',className:'other-fence-tooltip',offset:[8,0]});
+      layer.on('click',function(){if(fi!==_currentIndex)switchFence(fi);});
     }
     /* 出入口（灰色空心圆） */
     if(b.entrances){
       b.entrances.forEach(function(en){
-        var enIcon=L.divIcon({className:'',html:'<div style="display:flex;flex-direction:column;align-items:center"><div style="width:10px;height:10px;border-radius:50%;border:2px solid #9CA3B0;background:#fff;box-shadow:0 0 0 1px rgba(0,0,0,0.1)"></div><span style="margin-top:2px;font-size:9px;white-space:nowrap;color:#9CA3B0;font-family:var(--font-family)">'+en.name+'</span></div>',iconSize:[20,34],iconAnchor:[10,34]});
+        var enCol=isActive?(ENTRANCE_COLORS[en.type]||'#1890FF'):'#9CA3B0';var enIcon=L.divIcon({className:'',html:'<div style="display:flex;flex-direction:column;align-items:center"><div style="width:10px;height:10px;border-radius:50%;border:2px solid '+enCol+';background:#fff;box-shadow:0 0 0 1px rgba(0,0,0,0.1)"></div><span style="margin-top:2px;font-size:9px;white-space:nowrap;color:'+enCol+';font-family:var(--font-family)">'+en.name+'</span></div>',iconSize:[20,34],iconAnchor:[10,34]});
         L.marker([en.lat,en.lng],{icon:enIcon,interactive:false}).addTo(mapInstance);
       });
     }
@@ -803,7 +867,7 @@ function initMap(){
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'Esri',maxZoom:19}).addTo(map);
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}).addTo(map);
     /* 同项目其他围挡参照 */
-    renderOtherFences(map,true);
+    renderAllFences(map);
     var allBounds=[];
     if(savedShapes&&savedShapes.length>0){
       var group=L.featureGroup();
@@ -867,7 +931,7 @@ var projectData=SD.toProjectDataSimple();
 
 initMap();
 (function(){
-  var h=_defaultHoard;if(!h)return;
+  var h=getCurrentHoard();if(!h)return;
   var fsTag={'已安装':'<span class="tag tag-setting">已安装</span>','超期未拆':'<span class="tag tag-soon">超期未拆</span>','超期未拆':'<span class="tag tag-expired">超期未拆</span>'};
   document.getElementById('detailFenceStatusTag').innerHTML=fsTag[h.fenceStatus]||h.fenceStatus||'—';
   var isTag={'正常':'<span class="tag tag-ok">正常</span>','待整改':'<span class="tag tag-warn">待整改</span>','整改逾期':'<span class="tag tag-error">整改逾期</span>'};
@@ -1447,7 +1511,7 @@ function buildIssuePageUrl(r,mode){
   url+='&source='+encodeURIComponent('监管巡查');
   if(params.get('project')) url+='&project='+encodeURIComponent(params.get('project'));
   if(params.get('engineering')) url+='&engineering='+encodeURIComponent(params.get('engineering'));
-  if(_defaultHoard&&_defaultHoard.id) url+='&fenceId='+encodeURIComponent(_defaultHoard.id);
+  if(getCurrentHoard()&&getCurrentHoard().id) url+='&fenceId='+encodeURIComponent(getCurrentHoard().id);
   return url;
 }
 
@@ -1495,6 +1559,15 @@ loadRecords().then(function(data){
   setTimeout(renderEngInfoCard,300);
 });
 })();
+function switchFence(index){_currentIndex=index;updateDetailForIndex(index);if(typeof map!=='undefined'&&map){renderAllFences(map);var h=_projectHoardings[index];if(h){var el=document.getElementById('mapAddressText');if(el)el.textContent=h.address||h.projectAddress||'-';}}document.querySelectorAll('.fence-tab').forEach(function(t,i){t.classList.toggle('active',i===index);});}
+function updateDetailForIndex(index){var h=_projectHoardings[index];if(!h)return;document.getElementById('projTitle').textContent=h.projectName||'项目详情';updateStatusTags(h);updateDetailFields(h);renderEngInfoCard();renderFenceTabs();var vp=document.getElementById('btnVerifyPass'),vr=document.getElementById('btnVerifyReject');if(vp&&vr){var show=h.needVerify==='是';vp.style.display=show?'':'none';vr.style.display=show?'':'none';}}
+function submitVerify(pass){var h=getCurrentHoard();if(!h)return;var num=_currentIndex+1;var statCls={'已安装':'installed','待认领':'claiming','超期未拆':'overdue','已拆除':'removed'}[h.fenceStatus]||'installed';document.getElementById('verifyModalTitle').textContent='校核确认';var bar=document.getElementById('verifyAlertBar');if(pass){bar.style.background='#E6F4EA';bar.style.color='#136B31';bar.style.border='1px solid #B7DFC5';bar.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg><span>是否确认<b>围挡'+num+'# '+h.engineerName+'</b>校核<b>通过</b>？</span>';}else{bar.style.background='#FDECEA';bar.style.color='#9E2C22';bar.style.border='1px solid #F0B0B0';bar.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg><span>是否确认<b>围挡'+num+'# '+h.engineerName+'</b>校核<b>不通过</b>？</span>';}document.getElementById('verifyFenceTag').innerHTML='<span class="tab-tag '+statCls+'">'+h.fenceStatus+'</span>';document.getElementById('verifyFenceNum').textContent='围挡'+num+'#';document.getElementById('verifyFenceEng').textContent='· '+h.engineerName+'（'+(h.engStatus||'在建')+'）';document.getElementById('verifyRequired').style.display=pass?'none':'';var lbl=document.getElementById('verifyOpinionLabel');lbl.innerHTML=pass?'审核意见（选填）':'<span style="color:var(--color-danger);margin-right:2px">*</span> 审核意见';document.getElementById('verifyOpinion').value='';var btn=document.getElementById('verifyConfirmBtn');btn.textContent=pass?'确认通过':'确认不通过';btn.style.background=pass?'var(--color-success)':'var(--color-danger)';btn.style.borderColor=pass?'var(--color-success)':'var(--color-danger)';btn.setAttribute('data-pass',pass?'1':'0');document.getElementById('verifyConfirmModal').classList.add('show');}function updateDetailFields(h){setVal('valEngName',h.engineerName);setVal('valUnit',h.constructUnit);setVal('valPeriod',(h.custodyStart||'')+' ~ '+(h.custodyEnd||''));setVal('valPerson',h.fenceResponsible||'-');setVal('valPhone',h.fenceResponsiblePhone||'-');setVal('valPlanSetup',h.setupDate);setVal('valPlanRemove',h.planRemoveDate);setVal('valFenceStreet',h.projectStreet||'');setVal('valFenceMaterial',h.material);setVal('valFenceLength',h.length+'m');setVal('valFenceHeight',h.height+'m');setVal('valFenceStyle',h.fenceStyle);setVal('valFencePublicity',h.publicityContent);setVal('valRoadArea',(h.roadOccupationArea||'-')+'m2');setVal('valRoadRange',h.roadOccupation||'-');}
+function setVal(id,val){var el=document.getElementById(id);if(el)el.textContent=val||'-';}
+function renderFenceTabs(){var ct=document.getElementById('fenceTabs');if(!ct)return;var clsMap={'已安装':'installed','待认领':'claiming','超期未拆':'overdue','已拆除':'removed'};ct.innerHTML=_projectHoardings.map(function(h,i){return '<div class="fence-tab'+(i===_currentIndex?' active':'')+'" onclick="switchFence('+i+')"><span class="tab-tag '+(clsMap[h.fenceStatus]||'installed')+'">'+h.fenceStatus+'</span><span class="tab-num">围挡'+(i+1)+'#</span><span class="tab-eng">'+h.engineerName+'</span>'+(h.needVerify==='是'?'<span style="font-size:10px;color:#E65100;font-weight:600;margin-left:6px">待校核</span>':'')+'</div>';}).join('');}
+function renderEngInfoCard(){var h=getCurrentHoard();if(!h||!h.projectName)return;var projs=MOCK_DATA.getProjects(),found=null;for(var i=0;i<projs.length;i++){if(projs[i].name===h.projectName){found=projs[i];break;}}if(!found)return;var fields=[{label:'监管单位',value:found.regulatorUnit||''},{label:'建设单位',value:found.buildUnit||''},{label:'施工单位',value:h.constructUnit||found.constructUnit||''},{label:'监理单位',value:found.supervisorUnit||''},{label:'设计单位',value:found.designUnit||''},{label:'工程计划工期',value:(h.custodyStart||'')+' 至 '+(h.custodyEnd||'')},{label:'所属区域',value:found.district+' '+found.street},{label:'地址',value:h.address||found.address||''},{label:'建设单位联系人',value:found.buildContact||''},{label:'施工单位联系人',value:found.constructContact||''}];var html='';fields.forEach(function(f){var d=document.createElement('span');d.textContent=f.value||'-';html+='<div class="eng-info-field"><div class="eng-info-field-label">'+f.label+'</div><div class="eng-info-field-value" title="'+d.innerHTML+'">'+d.innerHTML+'</div></div>';});var grid=document.getElementById('engInfoGrid');if(grid)grid.innerHTML=html;}
+(function(){var h=getCurrentHoard();if(h){document.getElementById('projTitle').textContent=h.projectName||'项目详情';updateDetailForIndex(_currentIndex);}})();
+
+function confirmVerify(){var pass=document.getElementById('verifyConfirmBtn').getAttribute('data-pass')==='1';var h=getCurrentHoard();if(!h)return;var opinion=document.getElementById('verifyOpinion').value.trim();if(!pass&&!opinion){alert('校核不通过时请填写审核意见');return;}document.getElementById('verifyConfirmModal').classList.remove('show');var num=_currentIndex+1;alert('原型演示：围挡'+num+'# '+h.engineerName+' 已校核'+(pass?'通过':'不通过')+(opinion?'\n审核意见：'+opinion:''));h.needVerify='否';updateDetailForIndex(_currentIndex);}
 </script>
 <script>
 (function(){
@@ -1557,6 +1630,16 @@ loadRecords().then(function(data){
     }
   }catch(e){console.error(e)}
 })();
+function switchFence(index){_currentIndex=index;updateDetailForIndex(index);if(typeof map!=='undefined'&&map){renderAllFences(map);var h=_projectHoardings[index];if(h){var el=document.getElementById('mapAddressText');if(el)el.textContent=h.address||h.projectAddress||'-';}}document.querySelectorAll('.fence-tab').forEach(function(t,i){t.classList.toggle('active',i===index);});}
+function updateDetailForIndex(index){var h=_projectHoardings[index];if(!h)return;document.getElementById('projTitle').textContent=h.projectName||'项目详情';updateStatusTags(h);updateDetailFields(h);renderEngInfoCard();renderFenceTabs();var vp=document.getElementById('btnVerifyPass'),vr=document.getElementById('btnVerifyReject');if(vp&&vr){var show=h.needVerify==='是';vp.style.display=show?'':'none';vr.style.display=show?'':'none';}}
+function submitVerify(pass){var h=getCurrentHoard();if(!h)return;alert('原型演示：已'+(pass?'通过':'不通过')+' 围挡 '+h.engineerName+' 的校核');}
+function updateStatusTags(h){var fs=h.fenceStatus,is=h.issueStatus,nv=h.needVerify;var fc={'已安装':'installed','待认领':'claiming','超期未拆':'overdue','已拆除':'removed'}[fs]||'installed';var ic={'正常':'tag-ok','待整改':'tag-warn','整改逾期':'tag-error'}[is]||'tag-ok';var el=document.getElementById('detailFenceStatusTag');if(el)el.innerHTML='<span class="fence-tag2 '+fc+'">'+fs+'</span>';el=document.getElementById('detailIssueStatusTag');if(el)el.innerHTML='<span class="tag '+ic+'">'+is+'</span>';el=document.getElementById('detailNeedVerifyTag');if(el)el.innerHTML=nv==='是'?'<span class="detail-verify-text">待校核</span>':'';}
+function updateDetailFields(h){setVal('valEngName',h.engineerName);setVal('valUnit',h.constructUnit);setVal('valPeriod',(h.custodyStart||'')+' ~ '+(h.custodyEnd||''));setVal('valPerson',h.fenceResponsible||'-');setVal('valPhone',h.fenceResponsiblePhone||'-');setVal('valPlanSetup',h.setupDate);setVal('valPlanRemove',h.planRemoveDate);setVal('valFenceStreet',h.projectStreet||'');setVal('valFenceMaterial',h.material);setVal('valFenceLength',h.length+'m');setVal('valFenceHeight',h.height+'m');setVal('valFenceStyle',h.fenceStyle);setVal('valFencePublicity',h.publicityContent);setVal('valRoadArea',(h.roadOccupationArea||'-')+'m2');setVal('valRoadRange',h.roadOccupation||'-');}
+function setVal(id,val){var el=document.getElementById(id);if(el)el.textContent=val||'-';}
+function renderFenceTabs(){var ct=document.getElementById('fenceTabs');if(!ct)return;var clsMap={'已安装':'installed','待认领':'claiming','超期未拆':'overdue','已拆除':'removed'};ct.innerHTML=_projectHoardings.map(function(h,i){return '<div class="fence-tab'+(i===_currentIndex?' active':'')+'" onclick="switchFence('+i+')"><span class="tab-tag '+(clsMap[h.fenceStatus]||'installed')+'">'+h.fenceStatus+'</span><span class="tab-num">围挡'+(i+1)+'#</span><span class="tab-eng">'+h.engineerName+'</span>'+(h.needVerify==='是'?'<span style="font-size:10px;color:#E65100;font-weight:600;margin-left:6px">待校核</span>':'')+'</div>';}).join('');}
+function renderEngInfoCard(){var h=getCurrentHoard();if(!h||!h.projectName)return;var projs=MOCK_DATA.getProjects(),found=null;for(var i=0;i<projs.length;i++){if(projs[i].name===h.projectName){found=projs[i];break;}}if(!found)return;var fields=[{label:'监管单位',value:found.regulatorUnit||''},{label:'建设单位',value:found.buildUnit||''},{label:'施工单位',value:h.constructUnit||found.constructUnit||''},{label:'监理单位',value:found.supervisorUnit||''},{label:'设计单位',value:found.designUnit||''},{label:'工程计划工期',value:(h.custodyStart||'')+' 至 '+(h.custodyEnd||'')},{label:'所属区域',value:found.district+' '+found.street},{label:'地址',value:h.address||found.address||''},{label:'建设单位联系人',value:found.buildContact||''},{label:'施工单位联系人',value:found.constructContact||''}];var html='';fields.forEach(function(f){var d=document.createElement('span');d.textContent=f.value||'-';html+='<div class="eng-info-field"><div class="eng-info-field-label">'+f.label+'</div><div class="eng-info-field-value" title="'+d.innerHTML+'">'+d.innerHTML+'</div></div>';});var grid=document.getElementById('engInfoGrid');if(grid)grid.innerHTML=html;}
+(function(){var h=getCurrentHoard();if(h){document.getElementById('projTitle').textContent=h.projectName||'项目详情';updateDetailForIndex(_currentIndex);}})();
+
 </script>
 <!-- 开发调试：重置演示数据 -->
 <div style="position:fixed;bottom:8px;right:12px;z-index:9999;opacity:0.3;transition:opacity .2s" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.3'">

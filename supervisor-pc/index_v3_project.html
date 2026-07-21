@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>围挡档案管理(v2) - 深圳市建设施工围挡数字化管理系统</title>
+<title>围挡档案管理(v3) - 深圳市建设施工围挡数字化管理系统</title>
 <style>
 /* ═══ Design Token ═══ */
 :root {
@@ -80,7 +80,7 @@ a:hover{color:var(--text-link-hover)}
 .nav-item a.active .nav-icon{opacity:1}
 .sidebar-bottom{padding:var(--space-3) var(--space-5);border-top:1px solid rgba(255,255,255,0.06)}
 .sidebar-version{font-size:11px;color:rgba(255,255,255,0.2)}
-.layout-main{flex:1;overflow-y:auto;padding:var(--space-6) var(--space-8);background:#F5F6F8}
+.layout-main{flex:1;overflow-y:auto;padding:var(--space-4) var(--space-5);background:#F5F6F8}
 
 .breadcrumb{display:flex;align-items:center;gap:var(--space-1);font-size:var(--font-size-sm);margin-bottom:var(--space-4)}
 .breadcrumb-item{color:var(--text-tertiary)}
@@ -93,11 +93,11 @@ a:hover{color:var(--text-link-hover)}
 .page-title-accent{display:inline-block;width:3px;height:20px;background:var(--color-primary-500);border-radius:2px;margin-right:var(--space-2);vertical-align:middle;position:relative;top:-1px}
 
 /* 筛选区 */
-.search-bar{display:flex;gap:var(--space-2);flex-wrap:nowrap;align-items:flex-end;padding:var(--space-2) var(--space-4);background:var(--bg-card);border:1px solid var(--border-color-light);border-radius:var(--border-radius-lg);margin-bottom:var(--space-3);box-shadow:var(--shadow-card);position:relative;overflow-x:auto}
+.search-bar{display:flex;gap:4px;flex-wrap:wrap;align-items:flex-end;padding:6px 10px;background:var(--bg-card);border:1px solid var(--border-color-light);border-radius:var(--border-radius-lg);margin-bottom:var(--space-2);box-shadow:var(--shadow-card);position:relative}
 .search-bar::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--color-primary-500);border-radius:var(--border-radius-lg) 0 0 var(--border-radius-lg)}
-.search-item{display:flex;flex-direction:column;gap:var(--space-1);flex-shrink:0}
-.search-label{font-size:var(--font-size-xs);color:var(--text-secondary);font-weight:var(--font-weight-medium);letter-spacing:0.02em;white-space:nowrap}
-.search-input,.search-select{height:var(--height-md);padding:0 var(--space-2);font-size:var(--font-size-sm);color:var(--text-primary);background:var(--bg-card);border:1px solid var(--border-color-default);border-radius:var(--border-radius-md);outline:none;width:130px;font-family:var(--font-family);transition:all var(--transition-fast)}
+.search-item{display:flex;flex-direction:column;gap:2px;flex-shrink:0}
+.search-label{font-size:10px;color:var(--text-secondary);font-weight:var(--font-weight-medium);white-space:nowrap}
+.search-input,.search-select{height:28px;padding:0 6px;font-size:12px;color:var(--text-primary);background:var(--bg-card);border:1px solid var(--border-color-default);border-radius:var(--border-radius-md);outline:none;width:100px;font-family:var(--font-family);transition:all var(--transition-fast)}
 .search-select{cursor:pointer}
 .search-input::placeholder{color:var(--text-tertiary)}
 .search-input:hover,.search-select:hover{border-color:var(--color-primary-300)}
@@ -106,7 +106,7 @@ a:hover{color:var(--text-link-hover)}
 
 /* 卡片 */
 .card{background:#FFF;border:1px solid #E3E6ED;border-radius:8px;box-shadow:0 1px 6px rgba(0,0,0,0.06);overflow:hidden}
-.card-toolbar{display:flex;align-items:center;justify-content:space-between;padding:var(--space-3) var(--space-6);border-bottom:1px solid var(--border-color-light);background:var(--color-gray-50)}
+.card-toolbar{display:flex;align-items:center;justify-content:space-between;padding:var(--space-2) var(--space-4);border-bottom:1px solid var(--border-color-light);background:var(--color-gray-50)}
 .card-toolbar-right{display:flex;align-items:center;gap:var(--space-2)}
 
 .status-tabs{display:flex;align-items:center;gap:var(--space-2)}
@@ -133,11 +133,11 @@ a:hover{color:var(--text-link-hover)}
 /* 外层容器 */
 .table-outer{background:#FFF;border:1px solid #E3E6ED;border-radius:8px;box-shadow:0 1px 6px rgba(0,0,0,0.06);overflow:hidden}
 .table-wrapper{width:100%;overflow-x:auto}
-.table{width:100%;min-width:1260px;border-collapse:collapse;font-size:13px;table-layout:fixed;color:#374151}
+.table{width:100%;min-width:680px;table-layout:fixed;border-collapse:collapse;font-size:12px;color:#374151}
 /* 全局表头（唯一，不重复） */
-.table thead th{background:#F0F2F5;color:#6B7280;font-weight:600;font-size:11px;letter-spacing:0.05em;text-align:left;padding:10px 16px;border-bottom:2px solid #D6D9E0;white-space:nowrap}
+.table thead th{background:#F0F2F5;color:#6B7280;font-weight:600;font-size:11px;letter-spacing:0.03em;text-align:left;padding:8px 6px;border-bottom:2px solid #D6D9E0;white-space:nowrap}
 /* 数据行 */
-.table tbody td{padding:0 16px;height:48px;border-bottom:1px solid #F3F4F6;color:#374151;vertical-align:middle;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.table tbody td{padding:0 6px;height:42px;border-bottom:1px solid #F3F4F6;color:#374151;vertical-align:middle;overflow:hidden;text-overflow:ellipsis}
 /* 数据行 hover */
 .table tbody tr.data-row:hover td{background:#F0F5FF}
 /* 项目分组行 */
@@ -158,7 +158,7 @@ tr.empty-row:hover td{background:transparent!important}
 /* 数字右对齐 */
 .num-cell{text-align:right}
 /* 操作列 */
-.actions-cell{white-space:nowrap}
+.actions-cell{white-space:nowrap;text-align:center}
 /* 工程状态小圆点 */
 .eng-status-dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:5px;vertical-align:middle;flex-shrink:0}
 .eng-dot-gray{background:#9CA3B0}
@@ -167,10 +167,10 @@ tr.empty-row:hover td{background:transparent!important}
 /* 标签基础 */
 .tag{display:inline-flex;align-items:center;justify-content:center;height:22px;padding:0 8px;border-radius:4px;font-size:12px;font-weight:500;line-height:1;white-space:nowrap}
 /* 围挡状态 — 线框标签 */
-.tag-setting{color:#1862D4;background:#EBF2FF;border:1px solid #1862D4}
-.tag-soon{color:#C47D00;background:#FEF6E6;border:1px solid #C47D00}
-.tag-overdue{color:#D13B2F;background:#FFF0EF;border:1px solid #D13B2F}
-.tag-expired{color:#9CA3B0;background:#F7F8FA;border:1px solid #9CA3B0}
+.tag-setting{color:#1862D4;background:#EBF2FF;border:1px solid #9DBEFF}
+.tag-claiming{color:#B45309;background:#FEF3CD;border:1px solid #FCD34D}
+.tag-overdue{color:#D13B2F;background:#FDECEA;border:1px solid #F0B0B0}
+.tag-expired{color:#9CA3B0;background:#F0F1F5;border:1px solid #E3E6ED}
 /* 问题状态 — 实心标签 */
 .tag-ok{background:#1A9042;color:#FFF;border:none}
 .tag-warn{background:#D48A00;color:#FFF;border:none}
@@ -186,16 +186,16 @@ tr.empty-row:hover td{background:transparent!important}
 .text-empty{color:#C0C4CC}
 .text-center{text-align:center}
 .text-right{text-align:right}
-/* 项目状态 */
-.proj-status-tag{display:inline-flex;align-items:center;justify-content:center;height:22px;padding:0 8px;border-radius:4px;font-size:12px;font-weight:500;line-height:1;white-space:nowrap}
-.proj-status-bj{background:#EBF2FF;color:#1862D4;border:1px solid #1862D4}
-.proj-status-zj{background:#EBF2FF;color:#1862D4;border:1px solid #1862D4}
-.proj-status-ba{background:#E8F5E9;color:#1A9042;border:1px solid #1A9042}
-.proj-status-zz{background:#F0F1F5;color:#6B7280;border:1px solid #D1D5DB}
-.proj-status-wg{background:#FEF6E6;color:#C47D00;border:1px solid #C47D00}
-.proj-status-tg{background:#FEF6E6;color:#C47D00;border:1px solid #C47D00}
-.proj-status-jg{background:#E8F5E9;color:#1A9042;border:1px solid #1A9042}
-.proj-status-qt{background:#F7F8FA;color:#9CA3B0;border:1px solid #D1D5DB}
+/* 项目状态 - 圆角胶囊标签，与围挡状态标签区分 */
+.proj-status-tag{display:inline-flex;align-items:center;justify-content:center;height:22px;padding:0 10px;border-radius:12px;font-size:12px;font-weight:500;line-height:1;white-space:nowrap;letter-spacing:0.01em}
+.proj-status-bj{background:#EBF2FF;color:#1862D4}
+.proj-status-zj{background:#E8F5FF;color:#0A6ED1}
+.proj-status-ba{background:#E6F4EA;color:#136B31}
+.proj-status-zz{background:#F5F5F5;color:#6B7280}
+.proj-status-wg{background:#FFF8E6;color:#B87A00}
+.proj-status-tg{background:#FFF0F0;color:#C23B2E}
+.proj-status-jg{background:#E6F4EA;color:#136B31}
+.proj-status-qt{background:#F7F8FA;color:#9CA3B0}
 
 /* ═══ 翻页器 ═══ */
 .pagination{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;font-size:var(--font-size-xs);color:var(--text-secondary);border-top:1px solid var(--border-color-light);background:var(--color-gray-0)}
@@ -315,7 +315,7 @@ tr.empty-row:hover td{background:transparent!important}
         <li class="nav-item"><a href="index.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>监管总览</a></li>
         <li class="nav-group-label">围挡管理</li>
         <li class="nav-item"><a href="redline.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8l-5 5-5-5"/><line x1="12" y1="13" x2="12" y2="3"/></svg>项目红线管理</a></li>
-        <li class="nav-item"><a href="index_v2.html" class="active"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>围挡档案管理</a></li>
+        <li class="nav-item"><a href="index_v3_project.html" class="active"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>围挡档案管理</a></li>
         <li class="nav-item"><a href="panorama_patrol.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>全景巡查</a></li>
         <li class="nav-item"><a href="supervisor-issue-list.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>问题闭环处置</a></li>
         <li class="nav-group-label">统计报表</li>
@@ -324,18 +324,15 @@ tr.empty-row:hover td{background:transparent!important}
       <div class="sidebar-bottom"><div class="sidebar-version">v2.0.0 · 2026.04</div></div>
     </aside>
     <main class="layout-main">
-      <div class="breadcrumb"><a href="index_v2.html" class="breadcrumb-item">首页</a><span class="breadcrumb-sep">/</span><span class="breadcrumb-item">围挡管理</span><span class="breadcrumb-sep">/</span><span class="breadcrumb-item">围挡档案管理</span></div>
+      <div class="breadcrumb"><a href="index_v3_project.html" class="breadcrumb-item">首页</a><span class="breadcrumb-sep">/</span><span class="breadcrumb-item">围挡管理</span><span class="breadcrumb-sep">/</span><span class="breadcrumb-item">围挡档案管理</span></div>
       <div class="page-header"><h1 class="page-title"><span class="page-title-accent"></span>围挡档案管理</h1></div>
 
       <div class="search-bar">
         <div class="search-item"><label class="search-label">项目名称</label><input type="text" class="search-input" id="filterProjName" placeholder="请输入项目名称"></div>
-        <div class="search-item"><label class="search-label">项目状态</label><select class="search-select" id="filterProjStatus"><option value="">全部</option><option>报建</option><option>在建</option><option>备案</option><option>终止监督</option><option>完工未验收</option><option>停工</option><option>竣工</option><option>其他</option></select></div>
-        <div class="search-item"><label class="search-label">关联工程</label><input type="text" class="search-input" id="filterEngName" placeholder="请输入工程名称"></div>
-        <div class="search-item"><label class="search-label">工程状态</label><select class="search-select" id="filterEngStatus"><option value="">全部</option><option>在建</option><option>停工</option><option>竣工验收</option></select></div>
-        <div class="search-item"><label class="search-label">围挡状态</label><select class="search-select" id="filterFenceStatus"><option value="">全部</option><option>已安装</option><option>即将到期</option><option>超期未拆</option></select></div>
-        <div class="search-item"><label class="search-label">问题状态</label><select class="search-select" id="filterIssueStatus"><option value="">全部</option><option>正常</option><option>待整改</option><option>整改逾期</option></select></div>
+        <div class="search-item"><label class="search-label">项目状态</label><select class="search-select" id="filterProjStatus"><option value="">全部</option><option>报建</option><option>在建</option><option>备案</option><option>中止监督</option><option>完工未验收</option><option>停工</option><option>竣工</option><option>其它</option></select></div>
+        <div class="search-item"><label class="search-label">围挡状态</label><select class="search-select" id="filterFenceStatus"><option value="">全部</option><option>超期未拆</option><option>待认领</option><option>已安装</option><option>已拆除</option></select></div>
         <div class="search-item"><label class="search-label">是否待校核</label><select class="search-select" id="filterNeedVerify"><option value="">全部</option><option value="是">是</option><option value="否">否</option></select></div>
-        <div class="search-item"><label class="search-label">计划拆除时间</label><div style="display:flex;gap:4px;align-items:center"><input type="date" class="search-input" id="filterPlanStart" style="width:110px"><span style="color:#9CA3B0;font-size:12px;flex-shrink:0">至</span><input type="date" class="search-input" id="filterPlanEnd" style="width:110px"></div></div>
+        <div class="search-item"><label class="search-label">计划拆除时间</label><div style="display:flex;gap:4px;align-items:center"><input type="date" class="search-input" id="filterPlanStart" style="width:90px"><span style="color:#9CA3B0;font-size:12px;flex-shrink:0">至</span><input type="date" class="search-input" id="filterPlanEnd" style="width:90px"></div></div>
         <div class="search-actions">
           <button class="btn btn-primary btn-sm" onclick="applyFilters()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>查询</button>
           <button class="btn btn-ghost btn-sm" onclick="resetFilters()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>重置</button>
@@ -346,9 +343,10 @@ tr.empty-row:hover td{background:transparent!important}
         <div class="card-toolbar">
           <div class="status-tabs">
             <button class="status-tab active" data-status="全部" onclick="filterByTab(this)">全部 <span class="status-tab-num" id="tabNumAll">0</span></button>
-            <button class="status-tab" data-status="已安装" onclick="filterByTab(this)">已安装 <span class="status-tab-num" id="tabNumSetting">0</span></button>
-            <button class="status-tab" data-status="即将到期" onclick="filterByTab(this)">即将到期 <span class="status-tab-num" id="tabNumSoon">0</span></button>
-            <button class="status-tab" data-status="超期未拆" onclick="filterByTab(this)">超期未拆 <span class="status-tab-num" id="tabNumExpired">0</span></button>
+            <button class="status-tab" data-status="超期未拆" onclick="filterByTab(this)">超期未拆 <span class="status-tab-num" id="tabNumOverdue">0</span></button>
+            <button class="status-tab" data-status="待认领" onclick="filterByTab(this)">待认领 <span class="status-tab-num" id="tabNumClaiming">0</span></button>
+            <button class="status-tab" data-status="已安装" onclick="filterByTab(this)">已安装 <span class="status-tab-num" id="tabNumInstalled">0</span></button>
+            <button class="status-tab" data-status="已拆除" onclick="filterByTab(this)">已拆除 <span class="status-tab-num" id="tabNumRemoved">0</span></button>
           </div>
           <div class="card-toolbar-right">
             <button class="btn btn-ghost btn-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>导出</button>
@@ -359,18 +357,14 @@ tr.empty-row:hover td{background:transparent!important}
           <table class="table">
             <thead>
               <tr>
-                <th style="width:48px;text-align:center">序号</th>
-                <th style="width:140px">关联工程</th>
-                <th style="width:88px;text-align:center">工程状态</th>
-                <th style="width:100px;text-align:center">计划拆除时间</th>
-                <th style="width:160px;text-align:center">围挡管护期限</th>
-                <th style="width:88px;text-align:center">围挡状态</th>
-                <th style="width:80px;text-align:center">是否待校核</th>
-                <th style="width:160px">责任单位</th>
-                <th style="width:72px;text-align:center">长度(m)</th>
-                <th style="width:80px;text-align:center">面积(m²)</th>
-                <th style="width:88px;text-align:center">问题状态</th>
-                <th style="width:150px;text-align:center">操作</th>
+                <th style="width:5%;text-align:center">序号</th>
+                <th style="width:19%">项目名称</th>
+                <th style="width:10%;text-align:center">项目状态</th>
+                <th style="width:19%">当前关联工程</th>
+                <th style="width:10%;text-align:center">围挡状态</th>
+                <th style="width:18%">当前责任单位</th>
+                <th style="width:10%;text-align:center">是否待校核</th>
+                <th style="width:9%;text-align:center">操作</th>
               </tr>
             </thead>
             <tbody id="fenceTableBody"></tbody>
@@ -507,9 +501,6 @@ tr.empty-row:hover td{background:transparent!important}
 <script>
 /* ═══ 标签/工具函数 ═══ */
 
-function getFenceTagCls(s){
-  return({'已安装':'tag-setting','即将到期':'tag-soon','超期未拆':'tag-expired'})[s]||'tag-setting';
-}
 function getIssueTagCls(s){
   return({'正常':'tag-ok','待整改':'tag-warn','整改逾期':'tag-error'})[s]||'tag-ok';
 }
@@ -526,116 +517,166 @@ function getProjStatusTag(s){
 }
 function escH(s){return s?s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'):'';}
 
-/* ═══ 渲染表格（单表头 + 分组标题行） ═══ */
+/* ═══ 渲染表格（单表头 + 分组标题行） ═══ *//* ═══ 围挡状态标签类 ═══ */
+function getFenceTagCls(s){
+  return({'已安装':'tag-setting','待认领':'tag-claiming','超期未拆':'tag-overdue','已拆除':'tag-expired'})[s]||'tag-setting';
+}
+function getProjStatusTag(s){
+  var map={'报建':'proj-status-bj','在建':'proj-status-zj','备案':'proj-status-ba','中止监督':'proj-status-zz','完工未验收':'proj-status-wg','停工':'proj-status-tg','竣工':'proj-status-jg','其它':'proj-status-qt'};
+  var cls=map[s]||'proj-status-qt';
+  return '<span class="proj-status-tag '+cls+'">'+escH(s)+'</span>';
+}
+function getEngDot(s){
+  var dot='eng-dot-gray', label=s||'在建';
+  if(s==='停工')dot='eng-dot-orange';
+  else if(s==='竣工验收'||s==='完工备案'||s==='已竣工')dot='eng-dot-green';
+  return '<span class="eng-dot '+dot+'"></span>'+label;
+}
+function escH(s){return s?s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'):'';}
+
+/* ═══ 今日日期 ═══ */
+function todayStr(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+
+/* ═══ 项目围挡状态判定 ═══ */
+function getProjectFenceStatus(hoardings, projStatus){
+  if(projStatus==='竣工'||projStatus==='备案')return '已拆除';
+  var active=[];
+  hoardings.forEach(function(h){if(h.fenceStatus!=='已拆除')active.push(h);});
+  if(active.length===0)return '已拆除';
+  for(var i=0;i<active.length;i++){if(active[i].fenceStatus==='超期未拆')return '超期未拆';}
+  for(var i=0;i<active.length;i++){if(active[i].fenceStatus==='待认领')return '待认领';}
+  for(var i=0;i<active.length;i++){if(active[i].fenceStatus==='已安装')return '已安装';}
+  return '已安装';
+}
+
+/* ═══ 项目维度聚合 ═══ */
+function buildProjectRows(projects){
+  var rows=[];
+  var today=todayStr();
+  projects.forEach(function(proj){
+    var hoardings=proj.hoardings||[];
+    var pStatus=proj.status||'在建';
+    var isFinished=pStatus==='竣工'||pStatus==='备案';
+
+    // Filter active (non-removed) hoardings
+    var active=[];
+    hoardings.forEach(function(h){
+      if(!isFinished && h.fenceStatus!=='已拆除')active.push(h);
+    });
+    if(isFinished)active=[]; // force all removed when project finished
+
+    // Current associated engineering list
+    var engMap={};
+    active.forEach(function(h){
+      var key=h.engineerName;
+      if(!engMap[key])engMap[key]=h.engStatus||'在建';
+    });
+    var engList=Object.keys(engMap).map(function(n){return n+'（'+engMap[n]+'）';}).join('、')||'—';
+
+    // Plan remove date — latest among all (not just active)
+    var planDates=[];
+    hoardings.forEach(function(h){if(h.planRemoveDate)planDates.push(h.planRemoveDate);});
+    var planRemove=planDates.length>0?planDates.sort().reverse()[0]:'—';
+
+    // Project fence status
+    var fenceStatus=getProjectFenceStatus(hoardings, pStatus);
+
+    // Need verify
+    var needVerify='否';
+    hoardings.forEach(function(h){if(h.needVerify==='是')needVerify='是';});
+
+    // Responsible units — unique, from active only
+    var unitMap={};
+    active.forEach(function(h){
+      var u=h.constructUnit||proj.constructUnit||'—';
+      if(u!=='—')unitMap[u]=1;
+    });
+    if(Object.keys(unitMap).length===0){
+      hoardings.forEach(function(h){
+        var u=h.constructUnit||proj.constructUnit||'—';
+        if(u!=='—')unitMap[u]=1;
+      });
+    }
+    var units=Object.keys(unitMap).join('、')||'—';
+
+
+    rows.push({
+      projectName:proj.name,
+      projStatus:pStatus,
+      engList:engList,
+      planRemove:planRemove,
+      fenceStatus:fenceStatus,
+      needVerify:needVerify,
+      units:units
+    });
+  });
+  return rows;
+}
+
+/* ═══ 筛选状态 ═══ */
 var _currentTab='全部';
+
+function updateStatusCounts(rows){
+  var counts={'全部':rows.length,'超期未拆':0,'待认领':0,'已安装':0,'已拆除':0};
+  rows.forEach(function(r){counts[r.fenceStatus]=(counts[r.fenceStatus]||0)+1;});
+  var map={'全部':'tabNumAll','超期未拆':'tabNumOverdue','待认领':'tabNumClaiming','已安装':'tabNumInstalled','已拆除':'tabNumRemoved'};
+  for(var k in map){var el=document.getElementById(map[k]);if(el)el.textContent=counts[k]||0;}
+}
+
 function renderTableFromSD(){
   var tbody=document.getElementById('fenceTableBody');
   if(!tbody)return;
-  var html='';
-  var totalSeq=0;
   var projects=MOCK_DATA.getProjects();
-  var isFiltered=_currentTab!=='全部';
-  /* 围挡状态计数 */
-  var counts={'全部':0,'已安装':0,'即将到期':0,'超期未拆':0};
-  projects.forEach(function(proj){
-    var hoardings=proj.hoardings||[];
-    hoardings.forEach(function(h){
-      var fs=h.fenceStatus||'已安装';
-      if(counts.hasOwnProperty(fs))counts[fs]++;
-      counts['全部']++;
-    });
+  var rows=buildProjectRows(projects);
+  updateStatusCounts(rows);
+
+  // Apply filters
+  var tabFilter=_currentTab;
+  var projNameFilter=(document.getElementById('filterProjName').value||'').trim();
+  var projStatusFilter=document.getElementById('filterProjStatus').value;
+  var fenceStatusFilter=document.getElementById('filterFenceStatus').value;
+  var needVerifyFilter=document.getElementById('filterNeedVerify').value;
+  var planStart=document.getElementById('filterPlanStart').value;
+  var planEnd=document.getElementById('filterPlanEnd').value;
+
+  var filtered=rows.filter(function(r){
+    if(tabFilter!=='全部'&&r.fenceStatus!==tabFilter)return false;
+    if(projNameFilter&&r.projectName.indexOf(projNameFilter)===-1)return false;
+    if(projStatusFilter&&r.projStatus!==projStatusFilter)return false;
+    if(fenceStatusFilter&&r.fenceStatus!==fenceStatusFilter)return false;
+    if(needVerifyFilter&&r.needVerify!==needVerifyFilter)return false;
+    if(planStart&&r.planRemove<planStart)return false;
+    if(planEnd&&r.planRemove>planEnd)return false;
+    return true;
   });
-  updateStatusCounts(counts);
-  /* 渲染 — 分组标题行 + 数据行 */
-  projects.forEach(function(proj){
-    var allHoardings=proj.hoardings||[];
-    /* 筛选模式下只取匹配的围挡 */
-    var visible=allHoardings;
-    if(isFiltered){
-      visible=allHoardings.filter(function(h){return(h.fenceStatus||'已安装')===_currentTab;});
-    }
-    /* 项目无围挡记录：显示分组行 + 空状态 */
-    if(!allHoardings.length){
-      var pStatus0=proj.status||'在建';
-      html+='<tr class="group-row"><td colspan="12" style="border-left:3px solid #1862D4">';
-      html+='<div class="group-row-content">';
-      html+='<div class="group-row-left"><span class="group-row-name">'+escH(proj.name)+'</span>'+getProjStatusTag(pStatus0)+'</div>';
-      html+='<div class="group-row-right">计划拆除 -</div>';
-      html+='</div></td></tr>';
-      html+='<tr class="empty-row"><td colspan="12">暂无围挡记录</td></tr>';
-      return;
-    }
-    /* 计划拆除时间范围筛选 */
-    var planStart=document.getElementById('filterPlanStart').value;
-    var planEnd=document.getElementById('filterPlanEnd').value;
-    if(planStart||planEnd){
-      visible=visible.filter(function(h){
-        var d=h.planRemoveDate||'';
-        if(!d)return false;
-        if(planStart&&d<planStart)return false;
-        if(planEnd&&d>planEnd)return false;
-        return true;
-      });
-    }
-    /* 是否待校核筛选 */
-    var filterVerify=document.getElementById('filterNeedVerify').value;
-    if(filterVerify){
-      visible=visible.filter(function(h){return(h.needVerify||'否')===filterVerify;});
-    }
-    if(!visible.length)return;
-    var pStatus=proj.status||'在建';
-    var pdDate=visible[0].planRemoveDate||'';
-    /* 分组标题行 */
-    html+='<tr class="group-row"><td colspan="12" style="border-left:3px solid #1862D4">';
-    html+='<div class="group-row-content">';
-    html+='<div class="group-row-left"><span class="group-row-name">'+escH(proj.name)+'</span>'+getProjStatusTag(pStatus)+'</div>';
-    html+='<div class="group-row-right">计划拆除 '+(pdDate||'-')+'</div>';
-    html+='</div></td></tr>';
-    /* 数据行 */
-    visible.forEach(function(h,idx){
-      totalSeq++;
-      var seqInGroup=idx+1;
-      var isLast=idx===visible.length-1;
-      var fStatus=h.fenceStatus||'已安装';
-      var iStatus=h.issueStatus||'正常';
-      var cStart=h.custodyStart||'';
-      var cEnd=h.custodyEnd||'';
-      var len=h.length||0;
-      var area=h.area||0;
-      var engStatus=h.engStatus||'在建';
-      var nv=h.needVerify||'否';
-      var periodHtml=cStart&&cEnd?(cStart+' ~ '+cEnd):'<span class="text-empty">-</span>';
-      var rowCls='data-row';
-      if(isLast)rowCls+=' group-last';
-      html+='<tr class="'+rowCls+'">';
-      html+='<td class="seq-cell">'+seqInGroup+'</td>';
-      html+='<td style="font-weight:500">'+escH(h.engineerName)+'</td>';
-      html+='<td class="text-center">'+getEngDot(engStatus)+'</td>';
-      html+='<td class="text-center" style="font-size:12px">'+(h.planRemoveDate||'-')+'</td>';
-      html+='<td class="text-center" style="font-size:12px">'+periodHtml+'</td>';
-      html+='<td class="text-center"><span class="tag '+getFenceTagCls(fStatus)+'">'+fStatus+'</span></td>';
-      html+='<td class="text-center">'+(nv==='是'?'<span class="verify-yes">是</span>':'<span class="verify-no">否</span>')+'</td>';
-      html+='<td style="font-size:12px;color:#6B7280;overflow:hidden;text-overflow:ellipsis">'+escH(proj.constructUnit||'-')+'</td>';
-      html+='<td class="text-center">'+len+'</td>';
-      html+='<td class="text-center">'+area+'</td>';
-      html+='<td class="text-center"><span class="tag '+getIssueTagCls(iStatus)+'">'+iStatus+'</span></td>';
-      html+='<td class="actions-cell">';
-      html+='<a href="javascript:void(0)" class="table-action-link" style="margin:0 8px" onclick="handleViewDetail(this)" data-project="'+escH(proj.name)+'" data-engineering="'+escH(h.engineerName)+'">详情</a>';
-      html+='<a href="javascript:void(0)" class="table-action-link" style="margin:0 8px" onclick="handleViewPatrol(this)" data-project="'+escH(proj.name)+'" data-engineering="'+escH(h.engineerName)+'">巡检记录</a>';
-      if(nv==='是')html+='<a href="javascript:void(0)" class="table-action-link" style="margin:0 8px" onclick="handleVerify(this)" data-project="'+escH(proj.name)+'" data-engineering="'+escH(h.engineerName)+'">校核</a>';
-      html+='</td></tr>';
-    });
+
+  var html='';
+  filtered.forEach(function(r,idx){
+    html+='<tr>';
+    html+='<td class="text-center">'+(idx+1)+'</td>';
+    html+='<td style="font-weight:500">'+escH(r.projectName)+'</td>';
+    html+='<td class="text-center">'+getProjStatusTag(r.projStatus)+'</td>';
+    html+='<td style="font-size:12px;color:#6B7280;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:0" title="'+escH(r.engList.replace(/"/g,'&quot;'))+'">'+escH(r.engList)+'</td>';
+    html+='<td class="text-center"><span class="tag '+getFenceTagCls(r.fenceStatus)+'">'+r.fenceStatus+'</span></td>';
+    html+='<td style="font-size:12px;color:#6B7280;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:0" title="'+escH(r.units.replace(/"/g,'&quot;'))+'">'+escH(r.units)+'</td>';
+    html+='<td class="text-center">'+(r.needVerify==='是'?'<span class="verify-yes">是</span>':'<span class="verify-no">否</span>')+'</td>';
+    html+='<td class="actions-cell">';
+    html+='<a href="javascript:void(0)" class="table-action-link" onclick="handleViewProject(this)" data-project="'+escH(r.projectName)+'">详情</a>';
+    html+='</td></tr>';
   });
+
+  if(!filtered.length){
+    html='<tr><td colspan="8" class="text-center" style="padding:40px;color:var(--text-tertiary)">暂无数据</td></tr>';
+  }
   tbody.innerHTML=html;
+
+  // Update pagination
   var pi=document.querySelector('.pagination-info strong');
-  if(pi)pi.textContent=totalSeq;
+  if(pi)pi.textContent=filtered.length;
 }
-function updateStatusCounts(counts){
-  var map={'全部':'tabNumAll','已安装':'tabNumSetting','即将到期':'tabNumSoon','超期未拆':'tabNumExpired'};
-  for(var k in map){var el=document.getElementById(map[k]);if(el)el.textContent=counts[k]||0}
-}
+
 function filterByTab(tab){
-  document.querySelectorAll('.status-tab').forEach(function(t){t.classList.remove('active')});
+  document.querySelectorAll('.status-tab').forEach(function(t){t.classList.remove('active');});
   tab.classList.add('active');
   _currentTab=tab.getAttribute('data-status');
   renderTableFromSD();
@@ -644,16 +685,19 @@ function applyFilters(){renderTableFromSD();}
 function resetFilters(){
   document.getElementById('filterProjName').value='';
   document.getElementById('filterProjStatus').value='';
-  document.getElementById('filterEngName').value='';
-  document.getElementById('filterEngStatus').value='';
   document.getElementById('filterFenceStatus').value='';
-  document.getElementById('filterIssueStatus').value='';
+  document.getElementById('filterNeedVerify').value='';
   document.getElementById('filterPlanStart').value='';
   document.getElementById('filterPlanEnd').value='';
-  document.getElementById('filterNeedVerify').value='';
   renderTableFromSD();
 }
 renderTableFromSD();
+
+/* ═══ 详情页跳转 ═══ */
+function handleViewProject(el){
+  var project=el.getAttribute('data-project');
+  if(project)window.open('detail_info_v3.html?project='+encodeURIComponent(project),'_self');
+}
 
 function showModal(id){document.getElementById(id).classList.add('visible')}
 function hideModal(id){document.getElementById(id).classList.remove('visible')}

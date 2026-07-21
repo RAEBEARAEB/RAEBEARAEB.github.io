@@ -54,12 +54,12 @@ body{font-family:var(--font);background:#eef4fb;display:flex;justify-content:cen
 .scan-btn i{font-size:15px}
 
 /* ═══════════ Search ═══════════ */
-.search-bar{display:flex;gap:8px;padding:10px 16px}
-.search-wrap{flex:1;position:relative}
+.search-bar{display:flex;gap:6px;padding:10px 16px}
+.search-wrap{flex:1;position:relative;min-width:0}
 .search-wrap i{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text-tertiary);font-size:16px}
 .search-inp{width:100%;height:36px;border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:0 12px 0 32px;font-size:var(--font-sm);color:var(--text);background:var(--panel);outline:none}
 .search-inp:focus{border-color:var(--blue)}
-.search-sel{height:36px;border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:0 8px;font-size:var(--font-sm);color:var(--text);background:var(--panel);outline:none;min-width:80px}
+.search-sel{height:36px;border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:0 4px;font-size:var(--font-sm);color:var(--text);background:var(--panel);outline:none;width:68px;flex-shrink:0}
 
 /* ═══════════ Issue Card ═══════════ */
 .issue-card{background:var(--panel);border-radius:var(--radius-lg);margin:0 16px 12px;overflow:hidden;box-shadow:var(--shadow-sm);display:flex;cursor:pointer;transition:box-shadow 0.15s}
@@ -194,6 +194,8 @@ body{font-family:var(--font);background:#eef4fb;display:flex;justify-content:cen
 .yzzy-tabs{display:flex;gap:0;padding:0 6px;margin:8px 10px 0;background:var(--gray-50);border-radius:var(--radius-lg)}
 .yzzy-tab{flex:1;text-align:center;padding:8px 0;font-size:12px;font-weight:500;color:var(--text-secondary);border:none;background:transparent;cursor:pointer;border-radius:var(--radius-lg);transition:all .15s;font-family:var(--font-family)}
 .yzzy-tab.active{background:var(--blue);color:#fff;font-weight:600;box-shadow:0 1px 3px rgba(24,98,212,.3)}
+.yzzy-tab .tab-count{margin-left:4px;font-size:10px;font-weight:500;opacity:0.75}
+.yzzy-tab.active .tab-count{opacity:0.9}
 </style>
 </head>
 <body>
@@ -210,15 +212,14 @@ body{font-family:var(--font);background:#eef4fb;display:flex;justify-content:cen
     </div></div>
     <div class="scan-btn" id="scanBtn" onclick="openScan()"><i class="ti ti-scan"></i>扫码</div>
     <div class="search-bar">
-      <div class="search-wrap"><i class="ti ti-search"></i><input class="search-inp" id="kw" placeholder="搜索项目/工程/问题详情" oninput="renderList()"></div>
+      <div class="search-wrap"><i class="ti ti-search"></i><input class="search-inp" id="kw" placeholder="搜索问题详情/项目/工程/责任单位" oninput="renderList()"></div>
       <select class="search-sel" id="tpFilter" onchange="renderList()">
         <option value="all">全部类型</option>
       </select>
     </div>
     <div class="yzzy-tabs" id="yzzyTabs">
-      <button class="yzzy-tab active" data-tab="all" onclick="switchYZYTab('all')">全部</button>
-      <button class="yzzy-tab" data-tab="street" onclick="switchYZYTab('street')">街道上报</button>
-      <button class="yzzy-tab" data-tab="supervise" onclick="switchYZYTab('supervise')">街道督办</button>
+      <button class="yzzy-tab active" data-tab="supervise" onclick="switchYZYTab('supervise')">街道督办<span class="tab-count" id="cntSupervise"></span></button>
+      <button class="yzzy-tab" data-tab="street" onclick="switchYZYTab('street')">街道上报<span class="tab-count" id="cntStreet"></span></button>
     </div>
     <div id="issueList"></div>
     <div class="empty" id="empty" style="display:none">
@@ -306,6 +307,24 @@ body{font-family:var(--font);background:#eef4fb;display:flex;justify-content:cen
     </div>
   </div>
 
+  <!-- ═══════════ Detail Screen (街道督办) ═══════════ -->
+  <div class="screen with-bar" id="scDetail">
+    <div class="nav-bar"><div class="nav-inner">
+      <div class="nav-back" style="color:var(--blue);cursor:pointer;pointer-events:auto" onclick="goBack()"></div>
+      <div class="nav-title">问题详情</div>
+    </div></div>
+    <div class="form-sect" style="padding-top:12px;padding-bottom:80px" id="detailContent"></div>
+  </div>
+
+  <!-- ═══════════ Report Detail Screen (街道上报-普通) ═══════════ -->
+  <div class="screen" id="scReportDetail">
+    <div class="nav-bar"><div class="nav-inner">
+      <div class="nav-back" style="color:var(--blue);cursor:pointer;pointer-events:auto" onclick="goBack()"></div>
+      <div class="nav-title">问题详情</div>
+    </div></div>
+    <div class="form-sect" style="padding-top:12px;padding-bottom:20px" id="reportDetailContent"></div>
+  </div>
+
   <div class="fix-bar"><button class="fix-btn" id="globalFixBtn"><i class="ti ti-alert-circle"></i>上报问题</button></div>
 
   </div>
@@ -334,8 +353,12 @@ function navTo(id) {
   document.getElementById(id).classList.add('active');
   S.stack.push(id);
   document.getElementById('scanBtn').style.display = (id === 'scList') ? '' : 'none';
+  if (id === 'scDetail') _detailPhotos = [];
+  if (id === 'scReportDetail') _reportDetailIssue = _reportDetailIssue;
   updateFixBtn(id);
   if (id === 'scReport') initReport();
+  if (id === 'scDetail') renderDetail();
+  if (id === 'scReportDetail') renderReportDetail();
 }
 function goBack() {
   if (S.stack.length <= 1) return;
@@ -345,7 +368,7 @@ function goBack() {
   document.getElementById(prev).classList.add('active');
   document.getElementById('scanBtn').style.display = (prev === 'scList') ? '' : 'none';
   updateFixBtn(prev);
-  if (prev === 'scList') renderList();
+  if (prev === 'scList') { _detailPhotos=[];_detailIssue=null;renderList(); }
 }
 function updateFixBtn(screenId) {
   var btn = document.getElementById('globalFixBtn');
@@ -357,24 +380,37 @@ function updateFixBtn(screenId) {
     btn.className = 'fix-btn show';
     btn.innerHTML = '<i class="ti ti-send"></i>提交上报';
     btn.onclick = function(){ submitReport(); };
+  } else if (screenId === 'scDetail') {
+    btn.className = 'fix-btn show';
+    btn.innerHTML = '<i class="ti ti-send"></i>提交整改';
+    btn.onclick = function(){ submitDetailRectify(); };
   } else {
     btn.className = 'fix-btn';
   }
 }
 
 /* ═══════════ Issue List ═══════════ */
-function renderList() {
-  var _yzzyTab="all";var YZYZ_STREET="粤海街道";var issues = MOCK_DATA.getStreetIssues();
-  var kw = (document.getElementById('kw').value||'').trim().toLowerCase();
-  var tp = document.getElementById('tpFilter').value;
-  function switchYZYTab(tab){
+var _yzzyTab="supervise";var YZYZ_STREET="粤海街道";
+function switchYZYTab(tab){
   _yzzyTab=tab;
   document.querySelectorAll('.yzzy-tab').forEach(function(b){b.classList.toggle('active',b.dataset.tab===tab)});
   renderList();
 }
-if(_yzzyTab==='street') issues=issues.filter(function(i){return(i.source||'')==='街道上报'&&i.type!=='应建未建围挡';});
-if(_yzzyTab==='supervise') issues=issues.filter(function(i){return i.type==='应建未建围挡'&&(i.street||'')===YZYZ_STREET;});
-if (kw) issues = issues.filter(function(i){ return (i.type||'').toLowerCase().indexOf(kw)>-1 || (i.details||'').toLowerCase().indexOf(kw)>-1 || (i.engineerName||'').toLowerCase().indexOf(kw)>-1 || (i.responsibleUnit||'').toLowerCase().indexOf(kw)>-1; });
+function renderList() {
+  var allIssues = MOCK_DATA.getStreetIssues();
+  var kw = (document.getElementById('kw').value||'').trim().toLowerCase();
+  var tp = document.getElementById('tpFilter').value;
+
+  // Update tab counts
+  var totalSupervise = allIssues.filter(function(i){return i.type==='应建未建围挡';}).length;
+  var totalStreet = allIssues.filter(function(i){return(i.source||'')==='街道上报';}).length;
+  document.getElementById('cntSupervise').textContent = totalSupervise;
+  document.getElementById('cntStreet').textContent = totalStreet;
+
+  var issues = allIssues;
+if(_yzzyTab==='street') issues=issues.filter(function(i){return(i.source||'')==='街道上报';});
+if(_yzzyTab==='supervise') issues=issues.filter(function(i){return i.type==='应建未建围挡';});
+if (kw) issues = issues.filter(function(i){ return (i.type||'').toLowerCase().indexOf(kw)>-1 || (i.details||'').toLowerCase().indexOf(kw)>-1 || (i.engineerName||'').toLowerCase().indexOf(kw)>-1 || (i.responsibleUnit||'').toLowerCase().indexOf(kw)>-1 || (i.projectName||'').toLowerCase().indexOf(kw)>-1; });
   if (tp !== 'all') issues = issues.filter(function(i){ return i.type === tp; });
 
   var el = document.getElementById('issueList'), emp = document.getElementById('empty');
@@ -385,10 +421,13 @@ if (kw) issues = issues.filter(function(i){ return (i.type||'').toLowerCase().in
   issues.forEach(function(i){
     var stCls = i.status === '待整改' || i.status === '退回整改' || i.status === '待接收' ? 'warn' : i.status === '待审核' ? 'info' : i.status === '整改逾期' ? 'danger' : 'done';
     var cardCls = i.status === '待整改' || i.status === '退回整改' ? ' pending' : i.status === '整改逾期' ? ' danger' : '';
+    var isSupervise = i.type==='应建未建围挡';
+    var row2 = isSupervise ? esc(i.street||YZYZ_STREET)+' · '+esc(i.source||'街道督办') : esc(i.engineerName||'--');
+    var row3_left = isSupervise ? '' : esc(i.responsibleUnit||'--');
     h += '<div class="issue-card'+cardCls+'" onclick="onYZYIssueClick(\x27'+i.id+'\x27)"><div class="issue-card-body">'+
       '<div class="issue-row1"><div class="type">'+esc(i.type)+'</div><div class="tag '+stCls+'">'+i.status+'</div></div>'+
-      '<div class="issue-row2"><span class="eng">'+esc(i.engineerName||'--')+'</span></div>'+
-      '<div class="issue-row3"><span class="unit">'+esc(i.responsibleUnit||'--')+'</span><span class="time">'+i.reportTime+'</span></div>'+
+      '<div class="issue-row2"><span class="eng">'+row2+'</span></div>'+
+      '<div class="issue-row3"><span class="unit">'+row3_left+'</span><span class="time">'+i.reportTime+'</span></div>'+
     '</div></div>';
   });
   el.innerHTML = h;
@@ -749,7 +788,7 @@ function submitReport(){
       if(S.photos.length===0){toast('请至少上传一张照片');return;}
       if(!S.loc.picked){toast('请选择问题位置');return;}
       MOCK_DATA.addStreetIssue({type:S.issueType,fenceId:'',fenceAddr:dist+strt,details:detail,photos:S.photos.slice(),location:{lat:S.loc.lat,lng:S.loc.lng,addr:S.loc.addr},projectName:'',engineerName:'',responsibleUnit:'',street:strt,source:'街道上报'});
-      toast('问题已上报成功');setTimeout(function(){navTo('scMain')},1200);return;
+      toast('问题已上报成功');setTimeout(function(){goBack()},1200);return;
     }
   }
   var pn = document.getElementById('rptProject').value;
@@ -788,14 +827,14 @@ function startReport(){S.qrFenceId=null;S.qrProject=null;S.qrEngineer=null;S.iss
 
 /* ═══════════ Init ═══════════ */
 
-var _yzyIssueModal=null;
+var _yzyIssueModal=null; var _detailIssue=null; var _reportDetailIssue=null;
 function onYZYIssueClick(id){
   var all=MOCK_DATA.getStreetIssues();var issue=null;
   all.forEach(function(i){if(i.id===id)issue=i;});
   if(!issue)return;
   var isNotBuilt=issue.type==='应建未建围挡';
-  var canRectify=isNotBuilt&&(issue.status==='待整改'||issue.status==='待审核'||issue.status==='整改逾期');
-  if(canRectify) openRectifySheet(issue); else openIssueDetail(issue);
+  if(isNotBuilt){ _detailIssue=issue; navTo('scDetail'); }
+  else{ _reportDetailIssue=issue; navTo('scReportDetail'); }
 }
 function openRectifySheet(issue){
   if(_yzyIssueModal){_yzyIssueModal.remove();}
@@ -818,6 +857,186 @@ function saveYZYRectification(id){
   toast('整改已提交');if(_yzyIssueModal)_yzyIssueModal.remove();
   setTimeout(function(){renderList();},500);
 }
+/* ═══════════ Detail Screen (街道督办) ═══════════ */
+var _detailPhotos=[];
+function renderDetail(){
+  if(!_detailIssue)return;
+  var iss=_detailIssue;
+  var el=document.getElementById('detailContent');
+  var sc=iss.status==='待整改'?'待整改':iss.status==='整改逾期'?'整改逾期':iss.status==='已整改'?'已整改':'待整改';
+  var stCls={'待整改':'tag-warning','整改逾期':'tag-danger'}[sc]||'tag-success';
+  var h='';
+  // ── Problem Info ──
+  h+='<div class="form-section"><div class="form-section-title">问题信息</div><div class="form-card">';
+  h+='<div class="form-grp"><div class="form-lbl">问题类型</div><div style="font-size:var(--font-md);color:var(--text);font-weight:var(--fw-b)">'+esc(iss.type||'应建未建围挡')+'</div></div>';
+  h+='<div class="form-grp"><div class="form-lbl">问题状态</div><span class="tag" style="display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:var(--fw-b);background:'+(sc==='待整改'?'var(--yellow-light)':sc==='整改逾期'?'var(--red-light)':'var(--green-light)')+';color:'+(sc==='待整改'?'var(--yellow)':sc==='整改逾期'?'var(--red)':'var(--green)')+'">'+sc+'</span></div>';
+  h+='<div class="form-grp"><div class="form-lbl">所属街道</div><div style="font-size:var(--font-md);color:var(--text)">'+esc(iss.street||'--')+'</div></div>';
+  h+='<div class="form-grp"><div class="form-lbl">上报时间</div><div style="font-size:var(--font-md);color:var(--text)">'+esc(iss.reportTime||'--')+'</div></div>';
+  h+='<div class="form-grp"><div class="form-lbl">问题详情</div><div style="font-size:var(--font-md);color:var(--text);line-height:1.6;white-space:pre-wrap">'+esc(iss.details||'')+'</div></div>';
+  if(iss.photos&&iss.photos.length){
+    h+='<div class="form-grp"><div class="form-lbl">现场照片</div><div class="photo-row">'+iss.photos.map(function(p){return'<div class="photo-thumb"><img src="'+p+'"></div>'}).join('')+'</div></div>';
+  }
+  if(iss.location&&iss.location.lat){
+    h+='<div class="form-grp"><div class="form-lbl">问题位置</div><div class="loc-row"><i class="ti ti-map-pin"></i><span style="font-size:var(--font-sm);color:var(--text-sub)">'+esc(iss.location.addr||'')+'</span></div><div class="loc-map" id="detailMap" style="width:100%;height:150px;border-radius:var(--radius-md);overflow:hidden;margin-top:8px"></div></div>';
+  }
+  h+='</div></div>';
+
+  // ── Rectification Form ──
+  h+='<div class="form-section"><div class="form-section-title">整改信息</div><div class="form-card">';
+  h+='<div class="form-grp"><div class="form-lbl"><span class="req">*</span> 整改说明</div><textarea class="form-area" id="detailRectDesc" placeholder="请详细描述整改措施和完成情况"></textarea></div>';
+  h+='<div class="form-grp"><div class="form-lbl"><span class="req">*</span> 整改照片 <span style="font-weight:var(--fw-r);color:var(--text-tertiary)">（至少上传一张）</span></div>';
+  h+='<div class="photo-row" id="detailPhotoRow">';
+  h+='<div class="photo-add" onclick="document.getElementById(\'detailCamInput\').click()"><i class="ti ti-camera" style="font-size:22px"></i>拍照</div>';
+  h+='<div class="photo-add" onclick="document.getElementById(\'detailFileInput\').click()"><i class="ti ti-photo" style="font-size:22px"></i>相册</div>';
+  h+='<input type="file" id="detailCamInput" accept="image/*" capture="environment" multiple style="display:none" onchange="handleDetailPhotos(event)">';
+  h+='<input type="file" id="detailFileInput" accept="image/*" multiple style="display:none" onchange="handleDetailPhotos(event)">';
+  h+='</div><div class="form-hint" style="margin-top:6px">支持 JPG、PNG 格式，单张不超过 5MB</div></div>';
+  h+='</div></div>';
+
+  // ── Flow Log ──
+  h+='<div class="form-section"><div class="form-section-title">流转日志</div><div class="form-card">';
+  var items=[];
+  items.push({type:'report',title:'问题上报',time:iss.reportTime||'',desc:iss.details,source:iss.source||'街道上报'});
+  if(iss._rectification){var r=iss._rectification;items.push({type:'rectify',title:'整改处置',time:r.rectTime,desc:r.desc,photos:r.photos,person:r.rectifier,unit:r.rectifierUnit});}
+  items.sort(function(a,b){return(b.time||'').localeCompare(a.time||'')});
+  if(items.length){
+    h+='<div style="position:relative;padding-left:28px">';
+    h+='<div style="position:absolute;left:10px;top:8px;bottom:8px;width:2px;background:var(--gray-200)"></div>';
+    items.forEach(function(t){
+      var dotCls=t.type==='rectify'?'rectify':'report';
+      var iconSvg=t.type==='rectify'?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>';
+      h+='<div style="position:relative;margin-bottom:12px">';
+      h+='<div style="position:absolute;left:-28px;top:4px;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:'+(dotCls==='rectify'?'var(--blue-50)':'var(--yellow-light)')+';color:'+(dotCls==='rectify'?'var(--blue)':'var(--yellow)')+'">'+iconSvg+'</div>';
+      h+='<div style="background:var(--panel);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden">';
+      h+='<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 12px;background:var(--panel2);border-bottom:1px solid var(--border);font-size:var(--font-xs)"><span style="font-weight:var(--fw-b)">'+t.title+'</span><span style="color:var(--text-tertiary)">'+esc(t.time||'')+'</span></div>';
+      h+='<div style="padding:8px 12px;font-size:var(--font-xs)">';
+      if(t.type==='report'){h+='<div style="padding:3px 0"><span style="color:var(--text-sub)">来源：</span>'+esc(t.source)+'</div>';}
+      if(t.type==='rectify'){if(t.person)h+='<div style="padding:3px 0"><span style="color:var(--text-sub)">处置人：</span>'+esc(t.person)+(t.unit?'（'+esc(t.unit)+'）':'')+'</div>';}
+      if(t.desc)h+='<div style="padding:3px 0"><span style="color:var(--text-sub)">说明：</span>'+esc(t.desc)+'</div>';
+      if(t.photos&&t.photos.length)h+='<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:4px">'+t.photos.map(function(p){return'<img src="'+p+'" style="width:60px;height:60px;object-fit:cover;border-radius:var(--radius-sm);border:1px solid var(--border)">'}).join('')+'</div>';
+      h+='</div></div></div>';
+    });
+    h+='</div>';
+  }else{h+='<div style="text-align:center;color:var(--text-tertiary);font-size:var(--font-xs);padding:16px">暂无流转记录</div>';}
+  h+='</div></div>';
+
+  el.innerHTML=h;
+  _detailPhotos=[];
+  renderDetailPhotos();
+
+  // Init map
+  if(iss.location&&iss.location.lat) setTimeout(function(){
+    var me=document.getElementById('detailMap');if(!me)return;
+    var m=L.map(me,{zoomControl:false,attributionControl:false});
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}).addTo(m);
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,opacity:0.4}).addTo(m);
+    L.circleMarker([iss.location.lat,iss.location.lng],{radius:7,color:'#D13B2F',fillColor:'#D13B2F',fillOpacity:0.9,weight:3}).addTo(m).bindPopup('<b>问题位置</b><br>'+esc(iss.location.addr||''));
+    m.setView([iss.location.lat,iss.location.lng],16);
+    setTimeout(function(){m.invalidateSize();},200);
+  },300);
+}
+
+function handleDetailPhotos(e){
+  var files=e.target.files;if(!files)return;
+  for(var i=0;i<files.length;i++){
+    if(_detailPhotos.length>=9){toast('最多9张');break}
+    (function(f){var r=new FileReader();r.onload=function(ev){_detailPhotos.push(ev.target.result);renderDetailPhotos()};r.readAsDataURL(f)})(files[i]);
+  }
+  e.target.value='';
+}
+function removeDetailPhoto(i){_detailPhotos.splice(i,1);renderDetailPhotos()}
+function renderDetailPhotos(){
+  var row=document.getElementById('detailPhotoRow');if(!row)return;
+  var h=_detailPhotos.map(function(p,i){return'<div class="photo-thumb"><img src="'+p+'"><div class="del" onclick="event.stopPropagation();removeDetailPhoto('+i+')">&times;</div></div>'}).join('');
+  if(_detailPhotos.length<9){
+    h+='<div class="photo-add" onclick="document.getElementById(\'detailCamInput\').click()"><i class="ti ti-camera" style="font-size:22px"></i>拍照</div>';
+    h+='<div class="photo-add" onclick="document.getElementById(\'detailFileInput\').click()"><i class="ti ti-photo" style="font-size:22px"></i>相册</div>';
+  }
+  h+='<input type="file" id="detailCamInput" accept="image/*" capture="environment" multiple style="display:none" onchange="handleDetailPhotos(event)"><input type="file" id="detailFileInput" accept="image/*" multiple style="display:none" onchange="handleDetailPhotos(event)">';
+  row.innerHTML=h;
+}
+
+function submitDetailRectify(){
+  if(!_detailIssue){toast('问题不存在');return;}
+  var desc=document.getElementById('detailRectDesc');if(!desc){toast('请填写整改说明');return;}
+  var descVal=desc.value.trim();if(!descVal){toast('请填写整改说明');return;}
+  if(_detailPhotos.length===0){toast('请至少上传一张整改照片');return;}
+  MOCK_DATA.submitRectification(_detailIssue.id,{rectifier:'李伟',rectifierUnit:'粤海街道',desc:descVal,photos:_detailPhotos.slice()});
+  toast('整改已提交');
+  setTimeout(function(){_detailPhotos=[];_detailIssue=null;goBack();},1200);
+}
+
+/* ═══════════ Report Detail Screen (街道上报-普通) ═══════════ */
+function renderReportDetail(){
+  if(!_reportDetailIssue)return;
+  var iss=_reportDetailIssue;
+  var el=document.getElementById('reportDetailContent');
+  var sc=iss.status||'待整改';
+  var stCls={'待整改':'tag-warning','整改逾期':'tag-danger'}[sc]||'tag-success';
+  var tagBg={'待整改':'var(--yellow-light)','整改逾期':'var(--red-light)'}[sc]||'var(--green-light)';
+  var tagFg={'待整改':'var(--yellow)','整改逾期':'var(--red)'}[sc]||'var(--green)';
+
+  var h='';
+  // ── Section 1: 问题信息 ──
+  h+='<div class="form-section"><div class="form-section-title">问题信息</div><div class="form-card">';
+  h+='<div style="padding:6px 0;display:flex;justify-content:space-between;font-size:var(--font-md)"><span style="color:var(--text-sub)">问题类型</span><span style="color:var(--blue);font-weight:var(--fw-b)">'+esc(iss.type||'--')+'</span></div>';
+  h+='<div style="padding:6px 0;display:flex;justify-content:space-between;font-size:var(--font-md)"><span style="color:var(--text-sub)">问题状态</span><span class="tag" style="display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:var(--fw-b);background:'+tagBg+';color:'+tagFg+'">'+sc+'</span></div>';
+  h+='<div style="padding:6px 0;display:flex;justify-content:space-between;font-size:var(--font-md)"><span style="color:var(--text-sub)">问题来源</span><span style="color:var(--text)">'+esc(iss.source||'--')+'</span></div>';
+  h+='<div style="padding:6px 0;display:flex;justify-content:space-between;font-size:var(--font-md)"><span style="color:var(--text-sub)">关联项目</span><span style="color:var(--text)">'+esc(iss.projectName||'--')+'</span></div>';
+  h+='<div style="padding:6px 0;display:flex;justify-content:space-between;font-size:var(--font-md)"><span style="color:var(--text-sub)">关联工程</span><span style="color:var(--text)">'+esc(iss.engineerName||'--')+'</span></div>';
+  h+='<div style="padding:6px 0;display:flex;justify-content:space-between;font-size:var(--font-md)"><span style="color:var(--text-sub)">责任单位</span><span style="color:var(--text)">'+esc(iss.responsibleUnit||'--')+'</span></div>';
+  h+='<div style="padding:6px 0;display:flex;justify-content:space-between;font-size:var(--font-md)"><span style="color:var(--text-sub)">所属街道</span><span style="color:var(--text)">'+esc(iss.street||'--')+'</span></div>';
+  h+='<div style="padding:6px 0;display:flex;justify-content:space-between;font-size:var(--font-md)"><span style="color:var(--text-sub)">上报时间</span><span style="color:var(--text)">'+esc(iss.reportTime||'--')+'</span></div>';
+  h+='<div style="padding:6px 0;font-size:var(--font-md)"><div style="color:var(--text-sub);margin-bottom:4px">问题详情</div><div style="color:var(--text);line-height:1.6;white-space:pre-wrap">'+esc(iss.details||'')+'</div></div>';
+  if(iss.photos&&iss.photos.length){
+    h+='<div style="padding:6px 0;font-size:var(--font-md)"><div style="color:var(--text-sub);margin-bottom:4px">现场照片</div><div class="photo-row">'+iss.photos.map(function(p){return'<div class="photo-thumb"><img src="'+p+'"></div>'}).join('')+'</div></div>';
+  }
+  if(iss.location&&iss.location.lat){
+    h+='<div style="padding:6px 0;font-size:var(--font-md)"><div style="color:var(--text-sub);margin-bottom:4px">问题位置</div><div style="color:var(--text-sub);font-size:var(--font-sm)">'+esc(iss.location.addr||'')+'</div><div class="loc-map" id="reportDetailMap" style="width:100%;height:150px;border-radius:var(--radius-md);overflow:hidden;margin-top:4px"></div></div>';
+  }
+  h+='</div></div>';
+
+  // ── Section 2: 流转日志 ──
+  h+='<div class="form-section"><div class="form-section-title">流转日志</div><div class="form-card">';
+  var items=[];
+  items.push({type:'report',title:'问题上报',time:iss.reportTime||'',desc:iss.details,source:iss.source||'街道上报'});
+  if(iss._rectification){var r=iss._rectification;items.push({type:'rectify',title:'整改处置',time:r.rectTime,desc:r.desc,photos:r.photos,person:r.rectifier,unit:r.rectifierUnit});}
+  items.sort(function(a,b){return(b.time||'').localeCompare(a.time||'')});
+  if(items.length){
+    h+='<div style="position:relative;padding-left:28px">';
+    h+='<div style="position:absolute;left:10px;top:8px;bottom:8px;width:2px;background:var(--gray-200)"></div>';
+    items.forEach(function(t){
+      var dotCls=t.type==='rectify'?'rectify':'report';
+      var iconSvg=t.type==='rectify'?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>';
+      h+='<div style="position:relative;margin-bottom:12px">';
+      h+='<div style="position:absolute;left:-28px;top:4px;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:'+(dotCls==='rectify'?'var(--blue-50)':'var(--yellow-light)')+';color:'+(dotCls==='rectify'?'var(--blue)':'var(--yellow)')+'">'+iconSvg+'</div>';
+      h+='<div style="background:var(--panel);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden">';
+      h+='<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 12px;background:var(--panel2);border-bottom:1px solid var(--border);font-size:var(--font-xs)"><span style="font-weight:var(--fw-b)">'+t.title+'</span><span style="color:var(--text-tertiary)">'+esc(t.time||'')+'</span></div>';
+      h+='<div style="padding:8px 12px;font-size:var(--font-xs)">';
+      if(t.type==='report'){h+='<div style="padding:3px 0"><span style="color:var(--text-sub)">来源：</span>'+esc(t.source)+'</div>';}
+      if(t.type==='rectify'){if(t.person)h+='<div style="padding:3px 0"><span style="color:var(--text-sub)">处置人：</span>'+esc(t.person)+(t.unit?'（'+esc(t.unit)+'）':'')+'</div>';}
+      if(t.desc)h+='<div style="padding:3px 0"><span style="color:var(--text-sub)">说明：</span>'+esc(t.desc)+'</div>';
+      if(t.photos&&t.photos.length)h+='<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:4px">'+t.photos.map(function(p){return'<img src="'+p+'" style="width:60px;height:60px;object-fit:cover;border-radius:var(--radius-sm);border:1px solid var(--border)">'}).join('')+'</div>';
+      h+='</div></div></div>';
+    });
+    h+='</div>';
+  }else{h+='<div style="text-align:center;color:var(--text-tertiary);font-size:var(--font-xs);padding:16px">暂无流转记录</div>';}
+  h+='</div></div>';
+
+  el.innerHTML=h;
+
+  // Init map
+  if(iss.location&&iss.location.lat) setTimeout(function(){
+    var me=document.getElementById('reportDetailMap');if(!me)return;
+    var m=L.map(me,{zoomControl:false,attributionControl:false});
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}).addTo(m);
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,opacity:0.4}).addTo(m);
+    L.circleMarker([iss.location.lat,iss.location.lng],{radius:7,color:'#D13B2F',fillColor:'#D13B2F',fillOpacity:0.9,weight:3}).addTo(m).bindPopup('<b>问题位置</b><br>'+esc(iss.location.addr||''));
+    m.setView([iss.location.lat,iss.location.lng],16);
+    setTimeout(function(){m.invalidateSize();},200);
+  },300);
+}
+
 function openIssueDetail(issue){
   if(_yzyIssueModal){_yzyIssueModal.remove();}
   var ov=document.createElement('div');

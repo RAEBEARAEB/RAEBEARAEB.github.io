@@ -375,7 +375,8 @@ span.flatpickr-weekday{color:var(--text-secondary)}
         <li class="nav-item"><a href="#"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>围挡巡查管理</a></li>
         <li class="nav-item"><a href="#"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>整改督办</a></li>
         <li class="nav-item"><a href="redline.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8l-5 5-5-5"/><line x1="12" y1="13" x2="12" y2="3"/></svg>项目红线管理</a></li>
-        <li class="nav-item"><a href="index_v2_project.html" class="active"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>围挡档案管理</a></li>
+        <li class="nav-item"><a href="index_v4_project.html" class="active"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>围挡档案管理</a></li>
+        <li class="nav-item"><a href="patrol_records.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>围挡巡查</a></li>
         <li class="nav-item"><a href="fence-issue-list.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>围挡问题闭环处置</a></li>
         <li class="nav-group-label">数据分析</li>
         <li class="nav-item"><a href="#"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>统计分析</a></li>
@@ -387,16 +388,16 @@ span.flatpickr-weekday{color:var(--text-secondary)}
 
     <main class="layout-main">
       <div class="breadcrumb">
-        <a href="index_v2_project.html" class="breadcrumb-item">首页</a>
+        <a href="index_v4_project.html" class="breadcrumb-item">首页</a>
         <span class="breadcrumb-sep">/</span>
-        <a href="index_v2_project.html" class="breadcrumb-item">围挡档案管理</a>
+        <a href="index_v4_project.html" class="breadcrumb-item">围挡档案管理</a>
         <span class="breadcrumb-sep">/</span>
         <span class="breadcrumb-item">变更围挡记录</span>
       </div>
       <div class="page-header page-header-fixed">
         <h1 class="page-title"><span class="page-title-accent"></span>变更围挡记录</h1>
         <div class="page-header-actions">
-          <button type="button" class="btn btn-ghost" onclick="window.open('index_v2_project.html','_self')">取消</button>
+          <button type="button" class="btn btn-ghost" onclick="window.open('index_v4_project.html','_self')">取消</button>
           <button type="button" class="btn btn-primary" onclick="handleSubmit()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>提交变更</button>
         </div>
       </div>
@@ -650,9 +651,10 @@ var projectData=(function(){
   return pd;
 })();
 
-/* ═══ URL参数 → 尽早填充项目名称并自动选择工程 ═══ */
+/* ═══ URL参数 → DOM加载完成后初始化 ═══ */
 var _urlProjectName='';
-(function(){
+document.addEventListener('DOMContentLoaded', function(){
+  var pid=null;
   try{
     var m=window.location.search.match(/project=([^&]+)/);
     if(m){
@@ -660,16 +662,13 @@ var _urlProjectName='';
       var inp=document.getElementById('pairProjectInput');
       if(inp){
         inp.value=_urlProjectName;
-        var pid=null;
         Object.keys(projectData).forEach(function(k){if(projectData[k].name===_urlProjectName)pid=k});
         if(pid) inp.dataset.pid=pid;
       }
     }
-    // Dynamically populate engineer select from project data
     if(pid){
       populateEngineerSelect(pid);
       var engSel=document.getElementById('engineerSelect');
-      // Pre-select from URL engineering param, or first engineer
       var urlEng=null;
       try{var m2=window.location.search.match(/engineering=([^&]+)/);if(m2)urlEng=decodeURIComponent(m2[1])}catch(e){}
       if(urlEng){
@@ -684,15 +683,12 @@ var _urlProjectName='';
       }
       if(engSel.value)onEngineerChange();
     }
-    // 变更页：工程名称和责任单位置灰不可修改
-    setTimeout(function(){
-      var es=document.getElementById('engineerSelect');
-      var us=document.getElementById('unitSelect');
-      if(es)es.disabled=true;
-      if(us)us.disabled=true;
-    },50);
+    var es=document.getElementById('engineerSelect');
+    var us=document.getElementById('unitSelect');
+    if(es)es.disabled=true;
+    if(us)us.disabled=true;
   }catch(e){}
-})();
+});
 
 /* ═══ 多选逻辑 ═══ */
 var selectedPairs=[{pid:'1',eid:'0'},{pid:'1',eid:'1'}];
@@ -2103,17 +2099,26 @@ function handleSubmit(){
   overlay.querySelector('#cfmCancel2').onclick=close;
   overlay.addEventListener('click',function(e){if(e.target===overlay)close()});
   overlay.querySelector('#cfmContinueBtn').onclick=function(){
-    close();handleSave();showToast('围挡变更提交成功！',function(){window.open('index_v2_project.html','_self')});
+    close();handleSave();showToast('围挡变更提交成功！',function(){window.open('index_v4_project.html','_self')});
   };
 }
 function showToast(msg,cb){var t=document.createElement('div');t.style.cssText='position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.85);background:rgba(0,0,0,0.75);color:#fff;padding:14px 24px;border-radius:6px;font-size:14px;z-index:9999;opacity:0;transition:all 0.2s ease;pointer-events:none;white-space:nowrap';t.textContent=msg;document.body.appendChild(t);requestAnimationFrame(function(){t.style.opacity='1';t.style.transform='translate(-50%,-50%) scale(1)'});setTimeout(function(){t.style.opacity='0';t.style.transform='translate(-50%,-50%) scale(0.85)';setTimeout(function(){t.remove();if(cb)cb()},200)},600)}
 
 /* ═══ 页面初始化 ═══ */
-var UNIT_MAP={
-  '基坑围护工程':['深圳市深建基坑工程有限公司','深圳市中建基坑工程有限公司'],
-  '主体结构工程':['深圳市龙华建筑集团总公司'],
-  '土方开挖工程':['深圳市宝安基础工程有限公司','深圳市基础建设有限公司'],
-};
+var UNIT_MAP=(function(){
+  var map={};
+  MOCK_DATA.getProjects().forEach(function(p){
+    (p.hoardings||[]).forEach(function(h){
+      var units=[];
+      // Hoarding-specific constructUnit first
+      if(h.constructUnit && h.constructUnit!=='—') units.push(h.constructUnit);
+      // Project-level constructUnit as fallback (avoid duplicate)
+      if(p.constructUnit && units.indexOf(p.constructUnit)<0) units.push(p.constructUnit);
+      if(units.length) map[h.engineerName]=units;
+    });
+  });
+  return map;
+})();
 function onEngineerChange(){
   var sel=document.getElementById('engineerSelect');
   var unitSel=document.getElementById('unitSelect');
@@ -2131,47 +2136,29 @@ function getSelectedEngData(){
   if(!engSel||!engSel.value)return null;
   var engs=projectData[pid].engineers||[];
   for(var i=0;i<engs.length;i++){if(engs[i].name===engSel.value)return engs[i]}
-  // Also check SD directly for the engineer (may not be in projectData)
+  // fallback: find engineer in MOCK_DATA directly
   var projName=projectData[pid].name;
-  var projs=SD.getProjects();
+  var projs=MOCK_DATA.getProjects();
   for(var j=0;j<projs.length;j++){
     if(projs[j].name===projName){
-      var eArr=projs[j].engineers||[];
-      for(var k=0;k<eArr.length;k++){
-        if(eArr[k].name===engSel.value){
+      var hos=projs[j].hoardings||[];
+      for(var k=0;k<hos.length;k++){
+        if(hos[k].engineerName===engSel.value){
+          var h=hos[k];
           return {
-            name:engSel.value,
-            planPeriod:eArr[k].planPeriod||'',
+            name:h.engineerName,
+            planPeriod:(h.custodyStart||'')+' 至 '+(h.custodyEnd||''),
             region:projs[j].district||'', street:projs[j].street||'',
-            address:eArr[k].address||projs[j].address||'',
+            address:h.address||projs[j].address||'',
             buildUnit:projs[j].buildUnit||'', buildContact:projs[j].buildContact||'',
-            constructUnit:projs[j].constructUnit||'', constructContact:projs[j].constructContact||'',
+            constructUnit:h.constructUnit||projs[j].constructUnit||'', constructContact:projs[j].constructContact||'',
             supervisorUnit:projs[j].supervisorUnit||'',
             regulateUnit:projs[j].regulatorUnit||'',
             designUnit:projs[j].designUnit||''
           };
         }
       }
-    }
-  }
-  // fallback: use first engineer from projectData for project-level fields
-  if(engs.length>0)return engs[0];
-  // last fallback: find the project in SD and craft a minimal record
-  var projName2=projectData[pid].name;
-  var projs2=SD.getProjects();
-  for(var m=0;m<projs2.length;m++){
-    if(projs2[m].name===projName2){
-      var p=projs2[m];
-      return {
-        name:engSel.value, planPeriod:'',
-        region:p.district||'', street:p.street||'',
-        address:p.address||'',
-        buildUnit:p.buildUnit||'', buildContact:p.buildContact||'',
-        constructUnit:p.constructUnit||'', constructContact:p.constructContact||'',
-        supervisorUnit:p.supervisorUnit||'',
-        regulateUnit:p.regulatorUnit||'',
-        designUnit:p.designUnit||''
-      };
+      break;
     }
   }
   return null;

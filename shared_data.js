@@ -75,8 +75,8 @@ var SD=(function(){
         {
           id:'p3',name:'福田中心区市政管网改造工程',district:'福田区',street:'福田街道',
           address:'福田区福华三路与金田路交汇处',lat:22.548,lng:114.0615,
-          redlineStatus:'已绘制',
-          redlineGeo:[[[22.550,114.059],[22.550,114.064],[22.546,114.064],[22.546,114.059]]],
+          redlineStatus:'未绘制',
+          redlineGeo:null,
           regulatorUnit:'深圳市福田区住房和建设局',
           buildUnit:'深圳市福田区建筑工务署',buildContact:'陈华 13700137001',
           constructUnit:'深圳市市政工程总公司',constructContact:'刘伟 13600136001',
@@ -109,7 +109,7 @@ var SD=(function(){
           designUnit:'深圳市华森建筑设计有限公司',
           engineers:[
             {id:'e8',name:'主体结构工程',engStatus:'停工',planPeriod:'2024-08-01 至 2026-06-30',fenceId:'WD-2026-0003',
-             fenceStatus:'已到期',issueStatus:'有问题',length:560,height:2.5,area:280.0,material:'彩钢板',
+             fenceStatus:'超期未拆',issueStatus:'有问题',length:560,height:2.5,area:280.0,material:'彩钢板',
              setupDate:'2024-08-01',planRemoveDate:'2025-08-01',
              address:'龙华区民治街道民康路与民塘路交汇处',
              shapes:[{type:'polygon',points:[[190,110],[340,80],[370,210],[270,240],[150,190]],label:'围挡范围',source:'manual'}],
@@ -170,7 +170,7 @@ var SD=(function(){
           {id:'vr6',verifier:'刘明',unit:'深圳市福田区住房和建设局',role:'监管人员',date:'2026-05-12 09:30',type:'校核修正',content:'围挡长度校核，由400m修正为450m',field:'围挡长度',before:'400m',after:'450m',linkedChangeId:'cr5'}
         ],
         'WD-2026-0003':[
-          {id:'vr7',verifier:'王涛',unit:'深圳市龙华区住房和建设局',role:'监管人员',date:'2026-04-15 14:00',type:'校核修正',content:'围挡状态校核，标记为已到期除',field:'围挡状态',before:'已安装',after:'已到期除',linkedChangeId:'cr6'}
+          {id:'vr7',verifier:'王涛',unit:'深圳市龙华区住房和建设局',role:'监管人员',date:'2026-04-15 14:00',type:'校核修正',content:'围挡状态校核，标记为超期未拆除',field:'围挡状态',before:'已安装',after:'超期未拆除',linkedChangeId:'cr6'}
         ],
         'WD-2026-0005':[
           {id:'vr8',verifier:'赵磊',unit:'深圳市罗湖区住房和建设局',role:'监管人员',date:'2026-04-28 10:00',type:'校核通过',content:'围挡信息核实无误',field:'',before:'',after:'',linkedChangeId:'cr7'}
@@ -355,7 +355,7 @@ var SD=(function(){
 
   /* 辅助：获取围挡状态样式类 */
   function getStatusClass(status){
-    var map={'已安装':'status-setting','已设置':'status-set','即将拆除':'status-removing','已到期':'status-overdue','已拆除':'status-removed'};
+    var map={'已安装':'status-setting','已设置':'status-set','即将拆除':'status-removing','超期未拆':'status-overdue','已拆除':'status-removed'};
     return map[status]||'status-setting';
   }
   function getStatusLabel(status){

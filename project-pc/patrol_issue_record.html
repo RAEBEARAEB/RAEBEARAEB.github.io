@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>巡检问题记录</title>
+    <title>巡查记录</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
@@ -125,7 +125,7 @@
     <div class="header">
         <div class="header-title">
             <i class="fas fa-chevron-left" style="cursor: pointer;" onclick="goBack()"></i>
-            <span id="header-title-text">巡检问题记录</span>
+            <span id="header-title-text">巡查记录</span>
         </div>
         <div class="header-actions" id="header-actions">
             <button class="primary" id="btn-save-all" onclick="saveAllIssues()"><i class="fas fa-save"></i> 保存全部问题</button>
@@ -630,7 +630,7 @@
                 document.getElementById('patrol-detail-remark').textContent = remark || '—';
             }
         } else {
-            document.getElementById('header-title-text').textContent = '巡检问题记录 - ' + (patrolRecord.date || '');
+            document.getElementById('header-title-text').textContent = '巡查记录 - ' + (patrolRecord.date || '');
             document.getElementById('btn-save-all').style.display = '';
             document.getElementById('btn-close').style.display = 'none';
             document.getElementById('addIssue-section').style.display = '';
