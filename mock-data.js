@@ -30,7 +30,7 @@
 
 
     return {
-      version: 44,
+      version: 49,
       updatedAt: new Date().toISOString(),
       projects: [
         /* ── 项目 1：福田 ── */
@@ -81,8 +81,8 @@
             },
             {
               id: 'WD-2026-0002', engineerName: '沟槽开挖工程', engStatus: '在建',
-              constructUnit: '深圳市深建基坑工程有限公司', fenceStatus: '超期未拆',
-              issueStatus: '整改逾期', needVerify: '是',
+              constructUnit: '深圳市市政工程总公司', fenceStatus: '超期未拆',
+              issueStatus: '正常', needVerify: '否',
               custodyStart: '2025-03-01', custodyEnd: '2026-05-31',
               planRemoveDate: '2026-05-31', setupDate: '2025-03-01',
               length: 260, height: 2.5, area: 130.0,
@@ -92,7 +92,7 @@
               address: '福田区福华三路与金田路交汇处西侧',
               gpsShape: [[22.546,114.059],[22.548,114.059],[22.548,114.061],[22.546,114.061]],
               entrances: [{lat:22.547,lng:114.059,name:'沟槽入口',type:'vehicle'},{lat:22.547,lng:114.061,name:'人行通道',type:'pedestrian'}],
-              defaultDemo: false,
+              defaultDemo: true,
               verifyRecords: [{ id: 'vr_g1', verifier: '张建国', unit: '深圳市福田区住房和建设局', role: '监管人员', date: '2026-04-22 10:15', type: '校核通过', content: '围挡材料变更核实无误，符合规范要求', changeId:'cr_g1', field: '围挡材质', before: '彩钢板', after: '装配式钢结构喷绘围挡' }],
               changeRecords: [
                 { id: 'cr_g1', changer: '刘伟', unit: '深圳市市政工程总公司', role: '施工人员', date: '2026-04-20 14:30', type: '变更操作', content: '围挡材质变更，由彩钢板调整为装配式钢结构喷绘围挡', field: '围挡材质', before: '彩钢板', after: '装配式钢结构喷绘围挡' }
@@ -120,20 +120,21 @@
           hoardings: [
             {
               id: 'WD-2026-0001', engineerName: '绿化迁移工程', engStatus: '在建',
-              constructUnit: '深圳市绿篱建设工程有限公司', fenceStatus: '超期未拆', issueStatus: '正常', needVerify: '否',
+              constructUnit: '深圳市绿篱建设工程有限公司', fenceStatus: '待认领', issueStatus: '正常', needVerify: '否',
               custodyStart: '2025-09-01', custodyEnd: '2026-04-30',
               planRemoveDate: '2026-04-30', setupDate: '2025-09-01',
               length: 150, height: 2.0, area: 75.0,
               material: '仿真绿篱围挡', fenceStyle: '仿真绿篱',
               publicityContent: '绿美深圳 共建家园', roadOccupation: '人行道', roadOccupationArea: 30,
-              fenceResponsible: '李明', fenceResponsiblePhone: '13800138001',
+              fenceResponsible: '', fenceResponsiblePhone: '',
               address: '南山区科技南路18号东北角',
               gpsShape: [[22.536,113.959],[22.538,113.959],[22.538,113.961],[22.536,113.961]],
               entrances: [{lat:22.537,lng:113.959,name:'绿篱入口',type:'pedestrian'},{lat:22.537,lng:113.961,name:'材料通道',type:'temporary'}],
-              defaultDemo: false,
+              defaultDemo: true,
               changeRecords: [
                 { id: 'cr_ns1', changer: '王强', unit: '中建三局集团有限公司', role: '施工人员', date: '2025-09-01 08:00', type: '新增围挡', content: '绿化迁移工程开工，新建仿真绿篱围挡', field: '', before: '', after: '' },
-                { id: 'cr_ns2', changer: '王强', unit: '中建三局集团有限公司', role: '施工人员', date: '2025-10-15 10:00', type: '移交操作', content: '土方回填工程施工完毕，围挡移交给绿化迁移工程沿用', field: '工程移交', before: '土方回填工程', after: '绿化迁移工程' }
+                { id: 'cr_ns2', changer: '王强', unit: '中建三局集团有限公司', role: '施工人员', date: '2025-10-15 10:00', type: '移交操作', content: '土方回填工程施工完毕，围挡移交给绿化迁移工程沿用', field: '工程移交', before: '土方回填工程', after: '绿化迁移工程' },
+                { id: 'cr_ns3', changer: '张项目', unit: '深圳市绿篱建设工程有限公司', role: '项目负责人', date: '2026-07-15 10:00', type: '移交操作', content: '绿化迁移工程已完工，围挡转为待认领状态，等待后续工程接收认领', field: '工程移交', before: '绿化迁移工程', after: '待认领' }
               ],
               patrolRecords: [
                 { id: 'pr_lh1', date: '2026-05-28', time: '09:00', inspector: '李明', result: '正常', issues: [], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' },
@@ -203,19 +204,20 @@
           hoardings: [
             {
               id: 'WD-2026-0004', engineerName: '教学楼主体工程', engStatus: '在建',
-              fenceStatus: '已安装', issueStatus: '正常', needVerify: '否',
+              fenceStatus: '待认领', issueStatus: '正常', needVerify: '否',
               custodyStart: '2026-02-01', custodyEnd: '2027-08-31',
               planRemoveDate: '2027-08-31', setupDate: '2026-02-01',
               length: 180, height: 2.5, area: 90.0,
               material: '装配式钢结构喷绘围挡', fenceStyle: '标准化围挡',
               publicityContent: '教育为本 安全为先', roadOccupation: '人行道', roadOccupationArea: 25,
-              fenceResponsible: '周文', fenceResponsiblePhone: '13900139003',
+              fenceResponsible: '', fenceResponsiblePhone: '',
               address: '龙华区民治街道民丰路88号',
               gpsShape: [[22.627,114.041],[22.630,114.041],[22.630,114.044],[22.627,114.044]],
               entrances: [{lat:22.628,lng:114.041,name:'主入口',type:'vehicle'},{lat:22.628,lng:114.044,name:'人行通道',type:'pedestrian'}],
-              defaultDemo: false,
+              defaultDemo: true,
               changeRecords: [
-                { id: 'cr_lh1', changer: '周文', unit: '深圳市建工集团股份有限公司', role: '施工人员', date: '2026-02-01 09:00', type: '新增围挡', content: '教学楼主体工程开工，新建施工围挡', field: '', before: '', after: '' }
+                { id: 'cr_lh1', changer: '周文', unit: '深圳市建工集团股份有限公司', role: '施工人员', date: '2026-02-01 09:00', type: '新增围挡', content: '教学楼主体工程开工，新建施工围挡', field: '', before: '', after: '' },
+                { id: 'cr_lh2', changer: '张项目', unit: '深圳市建工集团股份有限公司', role: '项目负责人', date: '2026-07-18 15:30', type: '移交操作', content: '教学楼主体工程已完工，围挡移交至待认领状态', field: '工程移交', before: '教学楼主体工程', after: '待认领' }
               ],
               patrolRecords: [
                 { id: 'pr_lh1', date: '2026-07-15', time: '09:00', inspector: '周文', result: '正常', issues: [], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' },
@@ -229,7 +231,7 @@
   }
 
   /* ── 加载或初始化 ── */
-  var CURRENT_VERSION = 43;
+  var CURRENT_VERSION = 49;
   var stored = localStorage.getItem(STORAGE_KEY);
   if (stored) {
     var parsed = JSON.parse(stored);
