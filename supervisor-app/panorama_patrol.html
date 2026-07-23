@@ -143,7 +143,7 @@ var _allFences=[];
     projects.forEach(function(p){
       (p.hoardings||[]).forEach(function(h){
         _allFences.push({
-          id:h.id,engName:h.engineerName,projName:p.name,projStreet:p.street,
+          id:h.id,projectId:p.id,engName:h.engineerName,projName:p.name,projStreet:p.street,
           fenceStatus:h.fenceStatus,issueStatus:h.issueStatus,
           patrolRecords:(h.patrolRecords||[]).slice()
         });
@@ -215,7 +215,7 @@ function renderList(){
       var issueCnt=0;if(hasRecord){f.patrolRecords.forEach(function(r){if(r.date===_currentDate&&r.issues&&r.issues.length)issueCnt+=r.issues.length;});}
       var tag=hasRecord?'<span class="tag tag-green">已巡检</span>':'<span class="tag tag-grey">未巡检</span>';
       var issueHint=(hasRecord&&issueCnt>0)?'<span style="font-size:10px;color:var(--red);font-weight:var(--fw-medium);margin-left:4px">'+issueCnt+'个问题</span>':'';
-      var onclick='onclick="openViewer(\''+f.id+'\')"';
+      var onclick='onclick="openViewer(\''+f.projectId+'\', \''+f.id+'\')"';
       html+='<div class="fence-card" '+onclick+'><div class="fence-info"><div class="fence-eng">'+esp(f.engName)+issueHint+'</div></div><div class="fence-status">'+tag+'</div><svg class="fence-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div>';
     });
   });
@@ -228,8 +228,8 @@ function setFilter(tab){_filterTab=tab;render();}
 function onSearch(v){_searchKw=v;render();}
 
 /* ── Viewer ── */
-function openViewer(fid){
-  var fence=null; for(var i=0;i<_allFences.length;i++){if(_allFences[i].id===fid){fence=_allFences[i];break;}}
+function openViewer(projectId, fid){
+  var fence=null; for(var i=0;i<_allFences.length;i++){if(_allFences[i].projectId===projectId&&_allFences[i].id===fid){fence=_allFences[i];break;}}
   if(!fence)return;
   var records=fence.patrolRecords.filter(function(r){return r.date===_currentDate;}).sort(function(a,b){return(b.time||'').localeCompare(a.time||'');});
   if(!records.length||!_currentDate){
@@ -237,7 +237,7 @@ function openViewer(fid){
     records=fence.patrolRecords.slice().sort(function(a,b){return(b.date+' '+b.time).localeCompare(a.date+' '+a.time);});
     if(!records.length){showToast('该围挡暂无巡检记录');return;}
   }
-  var data=JSON.stringify({fid:fid, date:records[0].date, panoSrc:records[0].panoramaSrc||''});
+  var data=JSON.stringify({projectId:projectId,fid:fid, date:records[0].date, panoSrc:records[0].panoramaSrc||''});
   window.location.href='panorama_viewer_v2.html?data='+encodeURIComponent(data);
 }
 

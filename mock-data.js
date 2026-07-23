@@ -16,6 +16,7 @@
       { id: 'YZY-012', type: '围挡脏污', fenceId: 'WD-2026-0002', fenceAddr: '福田区福华三路西侧', details: '巡检中发现围挡表面有泥浆泼溅痕迹约2㎡，已清洗完毕', status: '整改完成', source: '项目巡检', reportTime: _d(9)+' 14:50:00', engineerName: '沟槽开挖工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png'], location: { lat: 22.547, lng: 114.060, addr: '福田区福华三路西侧' } },
       { id: 'YZY-009', type: '应建未建围挡', fenceId: '', fenceAddr: '', details: '粤海街道科技南路与滨海大道交汇处，根据规划要求此处应设置围挡但至今未建', status: '待整改', source: '街道上报', reportTime: _d(4)+' 09:30:00', engineerName: '', responsibleUnit: '', street: '粤海街道', projectName: '', photos: ['../围挡破损.png'], location: { lat: 22.538, lng: 113.955, addr: '南山区粤海街道科技南路与滨海大道交汇处' } },
       { id: 'YZY-010', type: '应建未建围挡', fenceId: '', fenceAddr: '', details: '黄贝街道深南东路北侧工地出入口处未按规定设置围挡，存在安全隐患', status: '待整改', source: '街道上报', reportTime: _d(6)+' 14:00:00', engineerName: '', responsibleUnit: '', street: '黄贝街道', projectName: '', photos: ['../围挡破损.png'], location: { lat: 22.550, lng: 114.140, addr: '罗湖区黄贝街道深南东路北侧' } },
+      { id: 'YZY-018', type: '围挡破损', fenceId: 'WD-2026-0001', fenceAddr: '南山区科技南路18号东北角', details: '围挡破损人可通行', status: '待整改', source: '监管巡查', reportTime: '2026-07-22 10:30:00', engineerName: '绿化迁移工程', projectName: '南山区科技园综合体项目', responsibleUnit: '深圳市绿篱建设工程有限公司', supervisor: '张建国', photos: ['../围挡破损.png'], location: { lat: 22.5372, lng: 113.9598, addr: '南山区科技南路18号东北角围挡范围处' } },
       { id: 'YZY-013', type: '围挡脏污', fenceId: 'WD-2026-0001', fenceAddr: '福田区福华三路', details: '围挡表面有大量泥浆泼溅，影响城市市容，请尽快清洗处理', status: '待整改', source: '街道上报', reportTime: _d(2)+' 15:20:00', engineerName: '管道铺设工程', responsibleUnit: '深圳市市政工程总公司', street: '福田街道', photos: ['../围挡破损.png'], location: { lat: 22.548, lng: 114.062, addr: '福田区福华三路金田路口东侧' } },
       { id: 'YZY-014', type: '围挡缺失', fenceId: 'WD-2026-0002', fenceAddr: '福田区福华三路西侧', details: '围挡西段缺失约8米，缺口处行人可随意进出施工区域，存在严重安全隐患', status: '待整改', source: '街道上报', reportTime: _d(3)+' 10:45:00', engineerName: '沟槽开挖工程', responsibleUnit: '深圳市市政工程总公司', street: '福田街道', photos: ['../围挡破损.png'], location: { lat: 22.546, lng: 114.058, addr: '福田区福华三路西侧围挡缺口处' } },
       { id: 'YZY-015', type: '张贴小广告', fenceId: 'WD-2026-0001', fenceAddr: '福田区福华三路', details: '围挡立面被张贴大量小广告，面积约3㎡，影响市容整洁度', status: '整改逾期', source: '街道上报', reportTime: _d(9)+' 11:10:00', engineerName: '管道铺设工程', responsibleUnit: '深圳市市政工程总公司', street: '福田街道', photos: ['../围挡破损.png'], location: { lat: 22.549, lng: 114.063, addr: '福田区福华三路中段' } },
@@ -30,7 +31,7 @@
 
 
     return {
-      version: 49,
+      version: 52,
       updatedAt: new Date().toISOString(),
       projects: [
         /* ── 项目 1：福田 ── */
@@ -74,7 +75,7 @@
                 { id: 'pr1', date: '2026-05-14', time: '14:30', inspector: '刘伟', result: '正常', issues: [], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' },
                 { id: 'pr8', date: '2026-05-02', time: '08:30', inspector: '刘伟', result: '正常', issues: [], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' },
                 { id: 'pr9', date: '2026-05-05', time: '10:00', inspector: '陈刚', result: '正常', issues: [], panoramaSrc: 'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492' },
-                { id: 'pr10', date: '2026-05-09', time: '15:20', inspector: '刘伟', result: '异常', issues: [{type:'围挡脏污', unit:'深圳市市政工程总公司', detail:'围挡面板表面有轻微泥浆污渍，面积约0.2㎡，不影响结构安全但需清洁'}], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' },
+                { id: 'pr10', date: '2026-05-09', time: '15:20', inspector: '刘伟', result: '异常', issues: [{type:'围挡脏污', unit:'深圳市市政工程总公司', detail:'围挡面板表面有轻微泥浆污渍，面积约0.2㎡，不影响结构安全但需清洁', status:'待整改', source:'项目巡检'}], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' },
                 { id: 'pr11', date: '2026-05-12', time: '09:00', inspector: '陈刚', result: '正常', issues: [], panoramaSrc: 'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492' },
                 { id: 'pr12', date: '2026-05-16', time: '11:30', inspector: '刘伟', result: '正常', issues: [], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' }
               ]
@@ -98,7 +99,7 @@
                 { id: 'cr_g1', changer: '刘伟', unit: '深圳市市政工程总公司', role: '施工人员', date: '2026-04-20 14:30', type: '变更操作', content: '围挡材质变更，由彩钢板调整为装配式钢结构喷绘围挡', field: '围挡材质', before: '彩钢板', after: '装配式钢结构喷绘围挡' }
               ],
               patrolRecords: [
-                { id: 'pr3', date: '2026-05-10', time: '10:00', inspector: '刘伟', result: '异常', issues: [{type:'围挡尺寸不合规', unit:'深圳市市政工程总公司', detail:'围挡实测高度2.0m，低于规范要求的2.5m标准高度，需立即调整'}], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' },
+                { id: 'pr3', date: '2026-05-10', time: '10:00', inspector: '刘伟', result: '异常', issues: [{type:'围挡尺寸不合规', unit:'深圳市市政工程总公司', detail:'围挡实测高度2.0m，低于规范要求的2.5m标准高度，需立即调整', status:'待整改', source:'项目巡检'}], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' },
                 { id: 'pr16', date: '2026-05-03', time: '08:50', inspector: '陈刚', result: '正常', issues: [], panoramaSrc: 'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492' }
               ]
             }
@@ -138,7 +139,8 @@
               ],
               patrolRecords: [
                 { id: 'pr_lh1', date: '2026-05-28', time: '09:00', inspector: '李明', result: '正常', issues: [], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' },
-                { id: 'pr_lh2', date: '2026-06-10', time: '14:30', inspector: '李巡检', result: '正常', issues: [], panoramaSrc: 'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492' }
+                { id: 'pr_lh2', date: '2026-06-10', time: '14:30', inspector: '李巡检', result: '正常', issues: [], panoramaSrc: 'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492' },
+                { id: 'pr_lh3', date: '2026-07-22', time: '10:30', inspector: '张建国', result: '异常', issues: [{type:'围挡破损', unit:'深圳市绿篱建设工程有限公司', detail:'围挡破损人可通行', status:'待整改', source:'监管巡查', supervisor:'张建国', location:{lat:22.5372,lng:113.9598,addr:'南山区科技南路18号东北角围挡范围处'}}], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' }
               ]
             },
             {
@@ -231,7 +233,7 @@
   }
 
   /* ── 加载或初始化 ── */
-  var CURRENT_VERSION = 49;
+  var CURRENT_VERSION = 52;
   var stored = localStorage.getItem(STORAGE_KEY);
   if (stored) {
     var parsed = JSON.parse(stored);

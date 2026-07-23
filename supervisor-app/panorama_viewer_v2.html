@@ -127,9 +127,11 @@ html,body{font-family:var(--font-family);font-size:var(--font-md);color:var(--te
 .dr-label{color:var(--text-sub);min-width:80px;flex-shrink:0}
 .dr-value{color:var(--text);flex:1;word-break:break-all}
 .dr-btn{display:block;width:100%;height:36px;margin-top:12px;background:var(--blue);color:#fff;border:none;border-radius:var(--radius-md);font-size:var(--font-md);font-weight:var(--fw-medium);cursor:pointer}
-.issue-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius-md);padding:10px;margin-bottom:8px}
+.issue-card{position:relative;background:var(--panel);border:1px solid var(--border);border-radius:var(--radius-md);padding:10px 78px 10px 10px;margin-bottom:8px}
 .issue-type{font-size:var(--font-sm);font-weight:var(--fw-bold);color:var(--text);margin-bottom:3px}
 .issue-desc{font-size:var(--font-xs);color:var(--text-sub);margin-bottom:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.issue-source{display:inline-block;font-size:10px;color:var(--blue);margin-top:2px}
+.issue-status{position:absolute;top:10px;right:10px}
 .tag{display:inline-block;font-size:var(--font-xs);font-weight:var(--fw-medium);padding:3px 8px;border-radius:999px}
 .tag-green{background:var(--green-light);color:var(--green)}
 .tag-orange{background:var(--orange-light);color:var(--orange)}
@@ -268,18 +270,17 @@ html,body{font-family:var(--font-family);font-size:var(--font-md);color:var(--te
 </div>
 <script>
 function goBack(){window.location.href='panorama_patrol.html';}
-var _fences=[],_curFid='',_curDate='',_curRecIdx=0,_curRecords=[],_drawerTab='info';
+var _fences=[],_curProjectId='',_curFid='',_curDate='',_curRecIdx=0,_curRecords=[],_drawerTab='info';
 var _calYear,_calMonth,_calSelDate,_toastTimer;
-var _todayStr='',_todayFenceIds=[];
+var _todayStr='',_todayFenceKeys=[];
 
 (function init(){
   var m=location.search.match(/data=([^&]+)/);if(!m){showError('参数错误');return;}
-  var d=JSON.parse(decodeURIComponent(m[1]));_curFid=d.fid;_curDate=d.date;
+  var d=JSON.parse(decodeURIComponent(m[1]));_curProjectId=d.projectId||'';_curFid=d.fid;_curDate=d.date;
   try{loadFromMock();}catch(e){}
   if(!_fences.length){loadFallback();}
-  var cur=null;for(var i=0;i<_fences.length;i++){if(_fences[i].id===_curFid){cur=_fences[i];break;}}
-  if(!cur){for(var i=0;i<_fences.length;i++){if(_fences[i].id===_curFid){cur=_fences[i];break;}}}
-  if(!cur&&_fences.length>0){cur=_fences[0];_curFid=cur.id;}
+  var cur=findFenceByInput(_curProjectId,_curFid);
+  if(!cur&&_fences.length>0){cur=_fences[0];_curFid=cur.id;_curProjectId=cur.projectId||'';}
   if(!cur){showError('未找到围挡数据');return;}
   _curRecords=cur.patrolRecords.filter(function(r){return r.date===_curDate;}).sort(function(a,b){return(b.time||'').localeCompare(a.time||'');});
   if(!_curRecords.length){_curRecords=[{date:_curDate,time:'--',inspector:'--',result:'正常',panoramaSrc:'',issues:[]}];}
@@ -287,7 +288,7 @@ var _todayStr='',_todayFenceIds=[];
   var cd=new Date(_curDate+'T00:00:00');_calYear=cd.getFullYear();_calMonth=cd.getMonth()+1;_calSelDate=_curDate;
   // Compute today's patrolled fence IDs
   var td=new Date();_todayStr=td.getFullYear()+'-'+pad(td.getMonth()+1)+'-'+pad(td.getDate());
-  _fences.forEach(function(f){f.patrolRecords.forEach(function(r){if(r.date===_todayStr&&_todayFenceIds.indexOf(f.id)<0)_todayFenceIds.push(f.id);});});
+  _fences.forEach(function(f){f.patrolRecords.forEach(function(r){if(r.date===_todayStr){var k=fenceKey(f.projectId||'',f.id);if(_todayFenceKeys.indexOf(k)<0)_todayFenceKeys.push(k);}});});
   updateTop();updateBottom();
 })();
 
@@ -297,18 +298,37 @@ function loadFromMock(){
   var projects=MOCK_DATA.getProjects();
   projects.forEach(function(p){
     (p.hoardings||[]).forEach(function(h){
-      _fences.push({id:h.id,engName:h.engineerName,projName:p.name,projectName:p.name,constructUnit:h.constructUnit||'',address:h.address||p.address||'',fenceStatus:h.fenceStatus||'已安装',issueStatus:h.issueStatus||'正常',patrolRecords:(h.patrolRecords||[]).slice()});
+      _fences.push({id:h.id,projectId:p.id,engName:h.engineerName,projName:p.name,projectName:p.name,constructUnit:h.constructUnit||'',address:h.address||p.address||'',fenceStatus:h.fenceStatus||'已安装',issueStatus:h.issueStatus||'正常',gpsShape:h.gpsShape,entrances:h.entrances,patrolRecords:(h.patrolRecords||[]).slice()});
     });
   });
 }
 
 function loadFallback(){
   _fences=[
-    {id:'WD-2026-0001',engName:'管道铺设工程',projName:'福田中心区市政管网改造工程',fenceStatus:'已安装',issueStatus:'待整改',patrolRecords:[{date:'2026-06-22',time:'09:15',inspector:'陈刚',result:'正常',issues:[],panoramaSrc:'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492'},{date:'2026-06-20',time:'14:30',inspector:'刘伟',result:'异常',issues:[{type:'围挡面板变形',detail:'围挡面板因大风导致局部变形约0.8㎡'}],panoramaSrc:'https://www.720yun.com/vr/1c1jt7mOey1'}]},
-    {id:'WD-2026-0002',engName:'沟槽开挖工程',projName:'福田中心区市政管网改造工程',fenceStatus:'超期未拆',issueStatus:'整改逾期',patrolRecords:[{date:'2026-06-22',time:'10:00',inspector:'陈刚',result:'异常',issues:[{type:'围挡尺寸不合规',detail:'围挡实测高度2.0m，低于规范要求的2.5m标准高度'}],panoramaSrc:'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492'}]},
-    {id:'WD-2026-0003',engName:'道路恢复工程',projName:'福田中心区市政管网改造工程',fenceStatus:'超期未拆',issueStatus:'正常',patrolRecords:[{date:'2026-06-15',time:'11:00',inspector:'刘伟',result:'异常',issues:[{type:'围挡材质不符合规范',detail:'现场围挡使用PVC材质，不符合设计要求'}],panoramaSrc:'https://www.720yun.com/vr/1c1jt7mOey1'}]},
-    {id:'WD-2026-0004',engName:'基坑围护工程',projName:'南山区科技园综合体项目',fenceStatus:'已安装',issueStatus:'待整改',patrolRecords:[{date:'2026-06-22',time:'11:20',inspector:'王强',result:'异常',issues:[{type:'围挡基础沉降',detail:'基坑围护工程围挡东南角基础出现不均匀沉降约5cm'}],panoramaSrc:'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492'}]},
-    {id:'WD-2026-0005',engName:'主体结构工程',projName:'南山区科技园综合体项目',fenceStatus:'已安装',issueStatus:'正常',patrolRecords:[{date:'2026-06-17',time:'14:00',inspector:'王工',result:'异常',issues:[{type:'围挡占道超限',detail:'围挡外堆放钢筋成品超出占道许可范围约4m'}],panoramaSrc:'https://www.720yun.com/vr/1c1jt7mOey1'}]}
+    {id:'WD-2026-0001',engName:'管道铺设工程',projName:'福田中心区景观工程提升项目',fenceStatus:'已安装',issueStatus:'待整改',patrolRecords:[
+      {id:'pr1',date:'2026-05-08',time:'14:45',inspector:'张巡检',result:'正常',issues:[],panoramaSrc:'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492'},
+      {id:'pr2',date:'2026-05-10',time:'10:12',inspector:'张巡检',result:'正常',issues:[],panoramaSrc:'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492'},
+      {id:'pr3',date:'2026-05-12',time:'16:20',inspector:'张巡检',result:'正常',issues:[],panoramaSrc:'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492'},
+      {id:'pr4',date:'2026-05-14',time:'09:30',inspector:'张巡检',result:'正常',issues:[],panoramaSrc:'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492'},
+      {id:'pr5',date:'2026-05-16',time:'15:00',inspector:'张巡检',result:'正常',issues:[],panoramaSrc:'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492'},
+      {id:'pr6',date:'2026-05-18',time:'11:15',inspector:'张巡检',result:'正常',issues:[],panoramaSrc:'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492'},
+      {id:'pr7',date:'2026-05-20',time:'14:00',inspector:'张巡检',result:'正常',issues:[],panoramaSrc:'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492'},
+      {id:'pr8',date:'2026-05-22',time:'10:30',inspector:'张巡检',result:'正常',issues:[],panoramaSrc:'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492'},
+      {id:'pr9',date:'2026-05-24',time:'16:45',inspector:'张巡检',result:'正常',issues:[],panoramaSrc:'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492'},
+      {id:'pr10',date:'2026-05-09',time:'15:20',inspector:'刘伟',result:'异常',issues:[
+        {type:'围挡脏污',unit:'深圳市市政工程总公司',detail:'围挡面板表面有轻微泥浆污渍，面积约0.2㎡，不影响结构安全但需清洁',source:'项目巡检'},
+        {type:'公益广告污损',unit:'深圳市市政工程总公司',detail:'公益广告有污损，画面不清晰，需及时更换',source:'监管巡查',supervisor:'张建国'}
+      ],panoramaSrc:'https://www.720yun.com/vr/1c1jt7mOey1'}
+    ]},
+    {id:'WD-2026-0002',engName:'沟槽开挖工程',projName:'福田中心区景观工程提升项目',fenceStatus:'超期未拆',issueStatus:'整改逾期',patrolRecords:[{id:'pr1',date:'2026-05-10',time:'10:00',inspector:'陈刚',result:'异常',issues:[{type:'围挡尺寸不合规',detail:'围挡实测高度2.0m，低于规范要求的2.5m标准高度'}],panoramaSrc:'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492'}]},
+    {id:'WD-2026-0003',engName:'道路恢复工程',projName:'福田中心区景观工程提升项目',fenceStatus:'超期未拆',issueStatus:'正常',patrolRecords:[{id:'pr1',date:'2026-05-11',time:'11:00',inspector:'刘伟',result:'异常',issues:[{type:'围挡材质不符合规范',detail:'现场围挡使用PVC材质，不符合设计要求'}],panoramaSrc:'https://www.720yun.com/vr/1c1jt7mOey1'}]},
+    {id:'WD-2026-0004',engName:'基坑围护工程',projName:'南山区科技园综合体项目',fenceStatus:'已安装',issueStatus:'待整改',patrolRecords:[{id:'pr1',date:'2026-05-09',time:'11:20',inspector:'王强',result:'异常',issues:[{type:'围挡基础沉降',detail:'基坑围护工程围挡东南角基础出现不均匀沉降约5cm'}],panoramaSrc:'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492'}]},
+    {id:'WD-2026-0005',engName:'主体结构工程',projName:'南山区科技园综合体项目',fenceStatus:'已安装',issueStatus:'正常',patrolRecords:[{id:'pr1',date:'2026-05-08',time:'14:00',inspector:'王工',result:'异常',issues:[{type:'围挡占道超限',detail:'围挡外堆放钢筋成品超出占道许可范围约4m'}],panoramaSrc:'https://www.720yun.com/vr/1c1jt7mOey1'}]},
+    {id:'WD-2026-0006',engName:'绿化迁移工程',projName:'福田中心区城市环境品质提升项目',fenceStatus:'待认领',issueStatus:'正常',patrolRecords:[
+      {id:'pr_lh1',date:'2026-05-28',time:'09:15',inspector:'林监理',result:'正常',issues:[],panoramaSrc:'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492'},
+      {id:'pr_lh2',date:'2026-06-10',time:'14:30',inspector:'林监理',result:'正常',issues:[],panoramaSrc:'https://www.720yun.com/vr/1c1jt7mOey1'},
+      {id:'pr_lh3',date:'2026-07-22',time:'18:00',inspector:'张项目',result:'异常',issues:[],panoramaSrc:'https://www.720yun.com/vr/1c1jt7mOey1'}
+    ]}
   ];
 }
 
@@ -325,8 +345,8 @@ function updateBottom(){
   var issueLabel=isAb?ic+'个问题':'正常';
   var issueCls=isAb?'issue':'normal-status';
   var isToday=_curDate===_todayStr;
-  var todayIdx=_todayFenceIds.indexOf(_curFid);
-  var todayCount=_todayFenceIds.length;
+  var todayIdx=_todayFenceKeys.indexOf(curFenceKey());
+  var todayCount=_todayFenceKeys.length;
   var curIsPatrolled=todayIdx>=0;
 
   // Only show prev/next arrows when: (a) viewing today AND (b) current fence was patrolled today
@@ -369,24 +389,24 @@ function openDrawerTab(tab){
 
 /* ── Today fence switching ── */
 function prevFenceToday(){
-  var idx=_todayFenceIds.indexOf(_curFid);if(idx<=0)return;
-  var prevFid=_todayFenceIds[idx-1];
-  var fence=null;for(var i=0;i<_fences.length;i++){if(_fences[i].id===prevFid){fence=_fences[i];break;}}
+  var idx=_todayFenceKeys.indexOf(curFenceKey());if(idx<=0)return;
+  var prev=parseFenceKey(_todayFenceKeys[idx-1]);
+  var fence=findFenceByInput(prev.projectId,prev.fid);
   if(!fence)return;
   var recs=fence.patrolRecords.filter(function(r){return r.date===_todayStr;}).sort(function(a,b){return(b.time||'').localeCompare(a.time||'');});
   if(!recs.length)return;
-  _curFid=prevFid;_curRecords=recs;_curRecIdx=0;
+  _curProjectId=prev.projectId;_curFid=prev.fid;_curRecords=recs;_curRecIdx=0;
   updateTop();updateBottom();renderDrawer();
 }
 
 function nextFenceToday(){
-  var idx=_todayFenceIds.indexOf(_curFid);if(idx<0||idx>=_todayFenceIds.length-1)return;
-  var nextFid=_todayFenceIds[idx+1];
-  var fence=null;for(var i=0;i<_fences.length;i++){if(_fences[i].id===nextFid){fence=_fences[i];break;}}
+  var idx=_todayFenceKeys.indexOf(curFenceKey());if(idx<0||idx>=_todayFenceKeys.length-1)return;
+  var next=parseFenceKey(_todayFenceKeys[idx+1]);
+  var fence=findFenceByInput(next.projectId,next.fid);
   if(!fence)return;
   var recs=fence.patrolRecords.filter(function(r){return r.date===_todayStr;}).sort(function(a,b){return(b.time||'').localeCompare(a.time||'');});
   if(!recs.length)return;
-  _curFid=nextFid;_curRecords=recs;_curRecIdx=0;
+  _curProjectId=next.projectId;_curFid=next.fid;_curRecords=recs;_curRecIdx=0;
   updateTop();updateBottom();renderDrawer();
 }
 
@@ -411,11 +431,35 @@ function renderDrawer(){
     html+='<button class="dr-btn" onclick="goIssueDetail()">查看详情</button>';
   }else{
     if(r.issues&&r.issues.length){r.issues.forEach(function(iss, idx){
-      var st='tag-orange',stLabel='待整改';if(cur&&cur.issueStatus==='整改逾期'){st='tag-red';stLabel='整改逾期';}else if(cur&&cur.issueStatus==='正常'){st='tag-green';stLabel='正常';}
-      html+='<div class="issue-card" onclick="goPatrolIssue('+idx+')" style="cursor:pointer"><div class="issue-type">'+esp(iss.type)+'</div><div class="issue-desc">'+esp(iss.detail)+'</div><span class="tag '+st+'">'+stLabel+'</span></div>';
+      var issueStatus=getIssueStatusMeta(iss,cur);
+      html+='<div class="issue-card" onclick="goPatrolIssue('+idx+')" style="cursor:pointer"><div class="issue-type">'+esp(iss.type)+'</div><div class="issue-desc">'+esp(iss.detail)+'</div><span class="issue-source">来源：'+esp(iss.source||'项目巡检')+(iss.source==='监管巡查'&&iss.supervisor?'（'+esp(iss.supervisor)+'）':'')+'</span><span class="tag '+issueStatus.cls+' issue-status">'+issueStatus.label+'</span></div>';
     });}else{html='<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg><span>暂无关联问题</span></div>';}
   }
   document.getElementById('drawerBody').innerHTML=html;
+}
+function getIssueStatusMeta(issue,fence){
+  var status=(issue&&issue.status)||findLinkedIssueStatus(issue,fence)||'待整改';
+  if(status==='整改逾期')return{cls:'tag-red',label:'整改逾期'};
+  if(status==='整改完成')return{cls:'tag-green',label:'整改完成'};
+  return{cls:'tag-orange',label:'待整改'};
+}
+function findLinkedIssueStatus(issue,fence){
+  if(!issue||!fence)return'';
+  try{
+    var raw=localStorage.getItem('YZY_STREET_ISSUES');
+    if(!raw)return'';
+    var list=JSON.parse(raw);
+    if(!Array.isArray(list))return'';
+    for(var i=0;i<list.length;i++){
+      var item=list[i];
+      if(item.fenceId===_curFid&&item.engineerName===fence.engName&&item.type===issue.type&&item.details===issue.detail&&item.status&&item.status!=='正常')return item.status;
+    }
+    for(var j=0;j<list.length;j++){
+      var item2=list[j];
+      if(item2.fenceId===_curFid&&item2.engineerName===fence.engName&&item2.type===issue.type&&item2.status&&item2.status!=='正常')return item2.status;
+    }
+  }catch(e){}
+  return'';
 }
 function goIssueDetail(){
   var r=_curRecords[_curRecIdx];if(!r)return;
@@ -636,7 +680,17 @@ function calPick(ds,hasRecord){
   renderCalendar();
 }
 
-function findFence(){for(var i=0;i<_fences.length;i++){if(_fences[i].id===_curFid)return _fences[i];}return null;}
+function findFence(){return findFenceByInput(_curProjectId,_curFid);}
+function curFenceKey(){return fenceKey(_curProjectId,_curFid);}
+function fenceKey(projectId,fid){return projectId?projectId+'|'+fid:fid;}
+function parseFenceKey(k){var i=k.indexOf('|');if(i<0)return{projectId:'',fid:k};return{projectId:k.slice(0,i),fid:k.slice(i+1)};}
+function findFenceByInput(projectId,fid){
+  if(projectId){
+    for(var i=0;i<_fences.length;i++){if(_fences[i].projectId===projectId&&_fences[i].id===fid)return _fences[i];}
+  }
+  for(var i=0;i<_fences.length;i++){if(_fences[i].id===fid)return _fences[i];}
+  return null;
+}
 function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(_toastTimer);_toastTimer=setTimeout(function(){t.classList.remove('show')},2000);}
 function esp(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function pad(n){return n<10?'0'+n:''+n;}

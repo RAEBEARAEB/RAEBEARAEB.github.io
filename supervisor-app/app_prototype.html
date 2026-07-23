@@ -1741,6 +1741,7 @@ function renderPatrolDetail(){
       html+='<div class="pd-issue-card" onclick="openPatrolIssueDetail(\''+cp.fenceId+'\',\''+r.id+'\','+idx+')">';
       html+='<div class="pd-issue-type">'+iss.type+'</div>';
       html+='<div class="pd-issue-desc">'+iss.detail+'</div>';
+      html+='<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:4px"><span style="font-size:10px;padding:1px 6px;border-radius:3px;background:rgba(47,84,235,0.08);color:#2F54EB">来源：'+(iss.source||'项目巡检')+'</span>'+(iss.source==='监管巡查'&&iss.supervisor?'<span style="font-size:10px;padding:1px 6px;border-radius:3px;background:rgba(59,179,70,0.08);color:#3BB346">监督员：'+iss.supervisor+'</span>':'')+'</div>';
       html+='</div>';
     });
     html+='</div>';
