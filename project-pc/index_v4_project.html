@@ -732,6 +732,28 @@ a:hover{color:var(--text-link-hover)}
     <div class="modal-footer"><button class="btn btn-ghost btn-sm" onclick="document.getElementById('historyModal').classList.remove('visible')">关闭</button></div>
   </div>
 </div>
+<!-- 取消移交确认弹窗 -->
+<div class="modal-overlay" id="cancelTransferModal">
+  <div class="modal" style="width:440px">
+    <div class="modal-header"><span class="modal-title">取消移交</span><button class="modal-close" onclick="document.getElementById('cancelTransferModal').classList.remove('visible')">&times;</button></div>
+    <div class="modal-body">
+      <div style="font-size:var(--font-size-md);color:var(--text-title);font-weight:var(--font-weight-medium);margin-bottom:var(--space-5)">是否取消移交？</div>
+      <div class="form-group">
+        <label class="form-label">目标工程</label>
+        <input type="text" id="cancelTfEng" class="form-input" readonly style="width:100%;background:var(--color-gray-50);color:var(--color-gray-400)">
+      </div>
+      <div class="form-group">
+        <label class="form-label">责任单位</label>
+        <input type="text" id="cancelTfUnit" class="form-input" readonly style="width:100%;background:var(--color-gray-50);color:var(--color-gray-400)">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('cancelTransferModal').classList.remove('visible')">取消</button>
+      <button class="btn btn-primary btn-sm" onclick="confirmCancelTransfer()">确认取消移交</button>
+    </div>
+  </div>
+</div>
+
 <!-- 围挡移交弹窗 -->
 <div class="modal-overlay" id="transferModal">
   <div class="modal">
@@ -860,6 +882,7 @@ function buildFenceBlocks(){
     return{
       blockId:h.id,
       displayIndex:idx+1,
+      fenceName:h.fenceName||'',
       projectName:h.projectName,
       engineerName:h.engineerName,
       unitName:h.constructUnit,
@@ -1512,7 +1535,7 @@ function renderFenceCards(){
       '<div class="fcard-top">'+
         '<div class="fcard-left">'+
           '<span class="fcard-tag '+sc+'">'+b.fenceStatus+'</span>'+
-          '<span class="fcard-num">围挡'+b.displayIndex+'#</span>'+
+          '<span class="fcard-num">'+b.displayIndex+'#&nbsp;&nbsp;'+b.fenceName+'</span>'+
         '</div>'+
         (b.needVerify==='是'?'<span class="fcard-verify">待校核</span>':'')+
       '</div>'+
@@ -1695,7 +1718,7 @@ function openHistory(blockId){
   var fence=h.find(function(x){return x.id===blockId && x.projectName===b.projectName;});
   if(!fence||!fence.changeRecords||!fence.changeRecords.length){return;}
   var num=b.displayIndex;
-  var html='<div class="tl-header">围挡'+num+'# · '+b.engineerName+'</div>';
+  var html='<div class="tl-header">'+num+'#&nbsp;&nbsp;'+(b.fenceName||'')+'</div>';
   html+='<div class="tl-timeline">';
   var sorted=fence.changeRecords.slice().sort(function(a,b){return a.date<b.date?1:(a.date>b.date?-1:0);});
   sorted.forEach(function(cr, idx){
@@ -1768,18 +1791,32 @@ function previewDemolishFiles(){
   document.getElementById('demolishFilePreview').innerHTML=html;
 }
 var _claimBlockId=null;
+var _cancelTransferId=null;
 function cancelTransfer(blockId){
-  if(!confirm('确认取消移交？\n取消后该围挡状态将恢复为「已安装」。'))return;
   var b=MOCK_FENCE_BLOCKS.find(function(d){return d.blockId===blockId;});
   if(!b)return;
-  // Update fence status back to 已安装
+  var all=MOCK_DATA.getHoardings();
+  var h=all.find(function(x){return x.id===blockId;});
+  // 取最近一条「移交操作」记录的目标工程与责任单位
+  var recs=(h&&h.changeRecords)||[];
+  var newest=null;
+  recs.forEach(function(r){ if(r.type==='移交操作' && (!newest||r.date>newest.date)) newest=r; });
+  document.getElementById('cancelTfEng').value=newest?(newest.after||'—'):'—';
+  document.getElementById('cancelTfUnit').value=newest?(newest.unit||'—'):'—';
+  _cancelTransferId=blockId;
+  document.getElementById('cancelTransferModal').classList.add('visible');
+}
+function confirmCancelTransfer(){
+  var blockId=_cancelTransferId;
+  var b=MOCK_FENCE_BLOCKS.find(function(d){return d.blockId===blockId;});
   var all=MOCK_DATA.getHoardings();
   var h=all.find(function(x){return x.id===blockId;});
   if(h){
     h.fenceStatus='已安装';
-    h.fenceResponsible=b.contact!=='—'?b.contact:'';
+    h.fenceResponsible=(b&&b.contact!=='—')?b.contact:'';
     try{localStorage.setItem('HOARDING_MOCK_DATA_V2',JSON.stringify(MOCK_DATA));}catch(e){}
   }
+  document.getElementById('cancelTransferModal').classList.remove('visible');
   alert('已取消移交，围挡恢复为「已安装」状态。');
   location.reload();
 }

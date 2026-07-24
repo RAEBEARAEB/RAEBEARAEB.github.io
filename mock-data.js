@@ -49,7 +49,7 @@
           redlineGeo: [[22.545,114.057],[22.552,114.057],[22.552,114.065],[22.545,114.065]],
           hoardings: [
             {
-              id: 'WD-2026-0001', engineerName: '管道铺设工程', engStatus: '已竣工',
+              id: 'WD-2026-0001', fenceName: '福华三路管道段围挡', engineerName: '管道铺设工程', engStatus: '已竣工',
               constructUnit: '深圳市市政工程总公司', fenceStatus: '已拆除', issueStatus: '正常', needVerify: '否',
               custodyStart: '2025-06-01', custodyEnd: '2026-04-30',
               planRemoveDate: '2026-04-30', setupDate: '2025-06-01',
@@ -81,7 +81,7 @@
               ]
             },
             {
-              id: 'WD-2026-0002', engineerName: '沟槽开挖工程', engStatus: '在建',
+              id: 'WD-2026-0002', fenceName: '福华三路沟槽段围挡', engineerName: '沟槽开挖工程', engStatus: '在建',
               constructUnit: '深圳市市政工程总公司', fenceStatus: '超期未拆',
               issueStatus: '正常', needVerify: '否',
               custodyStart: '2025-03-01', custodyEnd: '2026-05-31',
@@ -120,8 +120,8 @@
           redlineGeo: [[22.532,113.954],[22.541,113.954],[22.541,113.962],[22.532,113.962]],
           hoardings: [
             {
-              id: 'WD-2026-0001', engineerName: '绿化迁移工程', engStatus: '在建',
-              constructUnit: '深圳市绿篱建设工程有限公司', fenceStatus: '待认领', issueStatus: '正常', needVerify: '否',
+              id: 'WD-2026-0001', fenceName: '科技南路绿化迁移围挡', engineerName: '绿化迁移工程', engStatus: '在建',
+              constructUnit: '深圳市绿篱建设工程有限公司', fenceStatus: '待认领', issueStatus: '正常', needVerify: '是',
               custodyStart: '2025-09-01', custodyEnd: '2026-04-30',
               planRemoveDate: '2026-04-30', setupDate: '2025-09-01',
               length: 150, height: 2.0, area: 75.0,
@@ -144,7 +144,7 @@
               ]
             },
             {
-              id: 'WD-2026-0002', engineerName: '基坑支护工程', engStatus: '在建',
+              id: 'WD-2026-0002', fenceName: '科技南路基坑支护围挡', engineerName: '基坑支护工程', engStatus: '在建',
               constructUnit: '深圳市岩土工程有限公司', fenceStatus: '已安装', issueStatus: '正常', needVerify: '否',
               custodyStart: '2026-06-01', custodyEnd: '2026-12-31',
               planRemoveDate: '2026-12-31', setupDate: '2026-06-01',
@@ -165,7 +165,7 @@
               ]
             },
             {
-              id: 'WD-2026-0003', engineerName: '土方回填工程', engStatus: '已竣工',
+              id: 'WD-2026-0003', fenceName: '科技南路土方回填围挡', engineerName: '土方回填工程', engStatus: '已竣工',
               constructUnit: '中建三局集团有限公司', fenceStatus: '已拆除',
               issueStatus: '正常', needVerify: '否',
               custodyStart: '2024-03-01', custodyEnd: '2025-06-30',
@@ -205,7 +205,7 @@
           redlineGeo: [[22.625,114.038],[22.632,114.038],[22.632,114.046],[22.625,114.046]],
           hoardings: [
             {
-              id: 'WD-2026-0004', engineerName: '教学楼主体工程', engStatus: '在建',
+              id: 'WD-2026-0004', fenceName: '教学楼主体围挡', engineerName: '教学楼主体工程', engStatus: '在建',
               fenceStatus: '待认领', issueStatus: '正常', needVerify: '否',
               custodyStart: '2026-02-01', custodyEnd: '2027-08-31',
               planRemoveDate: '2027-08-31', setupDate: '2026-02-01',
@@ -233,7 +233,7 @@
   }
 
   /* ── 加载或初始化 ── */
-  var CURRENT_VERSION = 52;
+  var CURRENT_VERSION = 54;
   var stored = localStorage.getItem(STORAGE_KEY);
   if (stored) {
     var parsed = JSON.parse(stored);

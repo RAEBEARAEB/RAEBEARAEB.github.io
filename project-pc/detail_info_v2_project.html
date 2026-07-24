@@ -127,6 +127,13 @@ a:hover{color:var(--text-link-hover)}
 .tag-error{background:var(--color-danger);color:#FFF}
 .tag-need-verify{color:#C47D00;background:#FEF6E6;border:1px solid #C47D00}
 .tag-no-verify{color:#9CA3B0;background:#F7F8FA;border:1px solid #9CA3B0}
+/* 围挡状态标签（与列表卡片样式一致） */
+.fcard-tag{display:inline-flex;align-items:center;padding:1px 10px;border-radius:var(--border-radius-tag);font-size:var(--font-size-xs);font-weight:var(--font-weight-medium);white-space:nowrap;flex-shrink:0}
+.fcard-tag.verify{background:transparent;color:var(--color-warning-dark);border:none;font-weight:var(--font-weight-medium)}
+.fcard-tag.installed{background:var(--color-info-light);color:var(--color-info);border:1px solid var(--color-primary-200)}
+.fcard-tag.claiming{background:#FEF3CD;color:#B45309;border:1px solid #FCD34D}
+.fcard-tag.overdue{background:var(--color-danger-light);color:var(--color-danger);border:1px solid #F0B0B0}
+.fcard-tag.removed{background:var(--color-gray-100);color:var(--text-tertiary);border:1px solid var(--color-gray-200)}
 
 /* ═══ 只读表单值 ═══ */
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 var(--space-8);max-width:860px;margin:0 auto}
@@ -442,7 +449,7 @@ textarea.form-input{height:80px;padding:var(--space-2) var(--space-3);resize:ver
         <span class="breadcrumb-item">围挡记录详情</span>
       </div>
       <div class="page-header page-header-fixed">
-        <h1 class="page-title"><span class="page-title-accent"></span>围挡记录详情<span class="detail-status-tags" id="detailStatusTags"><span class="detail-status-item" id="detailFenceStatusTag">—</span><span class="detail-status-item" id="detailIssueStatusTag">—</span><span class="detail-status-item" id="detailNeedVerifyTag">—</span></span></h1>
+        <h1 class="page-title"><span class="page-title-accent"></span>围挡记录详情<span class="detail-status-tags" id="detailStatusTags"><span class="detail-status-item" id="detailFenceStatusTag">—</span><span class="detail-status-item" id="detailNeedVerifyTag">—</span></span></h1>
         <div class="page-header-actions">
           <button type="button" class="btn btn-ghost" style="color:var(--color-danger);border-color:var(--color-danger)" onclick="showDeleteConfirm()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
@@ -937,12 +944,10 @@ var projectData=SD.toProjectDataSimple();
 initMap();
 (function(){
   var h=_defaultHoard;if(!h)return;
-  var fsTag={'已安装':'<span class="tag tag-setting">已安装</span>','超期未拆':'<span class="tag tag-overdue">超期未拆</span>','已拆除':'<span class="tag tag-expired">已拆除</span>'};
-  document.getElementById('detailFenceStatusTag').innerHTML=fsTag[h.fenceStatus]||h.fenceStatus||'—';
-  var isTag={'正常':'<span class="tag tag-ok">正常</span>','待整改':'<span class="tag tag-warn">待整改</span>','整改逾期':'<span class="tag tag-error">整改逾期</span>'};
-  document.getElementById('detailIssueStatusTag').innerHTML=isTag[h.issueStatus]||h.issueStatus||'—';
+  var fsTag={'已安装':'<span class="fcard-tag installed">已安装</span>','待认领':'<span class="fcard-tag claiming">待认领</span>','超期未拆':'<span class="fcard-tag overdue">超期未拆</span>','已拆除':'<span class="fcard-tag removed">已拆除</span>'};
+  document.getElementById('detailFenceStatusTag').innerHTML=fsTag[h.fenceStatus]||'';
   var nv=h.needVerify||'';
-  document.getElementById('detailNeedVerifyTag').innerHTML=nv==='是'?'<span class="detail-verify-text">● 待校核</span>':'';
+  document.getElementById('detailNeedVerifyTag').innerHTML=nv==='是'?'<span class="fcard-tag verify">待校核</span>':'';
 })();
 
 /* ═══ 工程信息卡片 ═══ */
