@@ -403,7 +403,7 @@ textarea.form-input{height:80px;padding:var(--space-2) var(--space-3);resize:ver
         <span class="breadcrumb-item">围挡记录详情</span>
       </div>
       <div class="page-header page-header-fixed">
-        <h1 class="page-title"><span class="page-title-accent"></span>围挡记录详情<span class="detail-status-tags" id="detailStatusTags"><span class="detail-status-item" id="detailFenceStatusTag">—</span><span class="detail-status-item" id="detailIssueStatusTag">—</span><span class="detail-status-item" id="detailNeedVerifyTag">—</span></span></h1>
+        <h1 class="page-title"><span class="page-title-accent"></span>围挡记录详情<span class="detail-status-tags" id="detailStatusTags"><span class="detail-status-item" id="detailFenceStatusTag">—</span><span class="detail-status-item" id="detailNeedVerifyTag">—</span></span></h1>
         <div class="page-header-actions">
           <button type="button" class="btn btn-ghost" onclick="window.open('index_v3_project.html','_self')">返回列表</button>
         </div>
@@ -498,7 +498,7 @@ textarea.form-input{height:80px;padding:var(--space-2) var(--space-3);resize:ver
                   </div>
                   <div class="entrance-readonly-list" id="entranceReadonlyList" style="display:none"></div>
                 </span></div>
-                <div class="detail-item"><span class="detail-label">所属街道</span><span class="detail-value">粤海街道</span></div>
+                <div class="detail-item"><span class="detail-label">围挡名称</span><span class="detail-value">科技南路管网改造围挡</span></div><div class="detail-item"><span class="detail-label">所属街道</span><span class="detail-value">粤海街道</span></div>
                 <div class="detail-item"><span class="detail-label">围挡材质</span><span class="detail-value">装配式钢结构喷绘围挡</span></div>
                 <div class="detail-item"><span class="detail-label">围挡长度</span><span class="detail-value">320 m</span></div>
                 <div class="detail-item"><span class="detail-label">围挡高度</span><span class="detail-value">2.5 m</span></div>
@@ -870,8 +870,6 @@ initMap();
   var h=_defaultHoard;if(!h)return;
   var fsTag={'已安装':'<span class="tag tag-setting">已安装</span>','超期未拆':'<span class="tag tag-soon">超期未拆</span>','超期未拆':'<span class="tag tag-expired">超期未拆</span>'};
   document.getElementById('detailFenceStatusTag').innerHTML=fsTag[h.fenceStatus]||h.fenceStatus||'—';
-  var isTag={'正常':'<span class="tag tag-ok">正常</span>','待整改':'<span class="tag tag-warn">待整改</span>','整改逾期':'<span class="tag tag-error">整改逾期</span>'};
-  document.getElementById('detailIssueStatusTag').innerHTML=isTag[h.issueStatus]||h.issueStatus||'—';
   var nv=h.needVerify||'';
   document.getElementById('detailNeedVerifyTag').innerHTML=nv==='是'?'<span class="detail-verify-text">● 待校核</span>':'';
 })();
