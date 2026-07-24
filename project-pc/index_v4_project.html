@@ -727,7 +727,7 @@ a:hover{color:var(--text-link-hover)}
 <!-- 管护历史弹窗 -->
 <div class="modal-overlay" id="historyModal">
   <div class="modal" style="width:560px">
-    <div class="modal-header"><span class="modal-title">管护记录</span><button class="modal-close" onclick="document.getElementById('historyModal').classList.remove('visible')">&times;</button></div>
+    <div class="modal-header"><span class="modal-title">管理记录</span><button class="modal-close" onclick="document.getElementById('historyModal').classList.remove('visible')">&times;</button></div>
     <div class="modal-body" id="historyModalBody" style="padding:var(--space-5) var(--space-6)"></div>
     <div class="modal-footer"><button class="btn btn-ghost btn-sm" onclick="document.getElementById('historyModal').classList.remove('visible')">关闭</button></div>
   </div>
@@ -1526,7 +1526,7 @@ function renderFenceCards(){
         )+
       '</div>'+
       '<div class="fcard-actions">'+
-        (b._recCount?'<button class="fcard-act neutral" onclick="event.stopPropagation();openHistory(\x27'+b.blockId+'\x27)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg>'+b._recCount+'条管护记录</button>':'')+
+        (b._recCount?'<button class="fcard-act neutral" onclick="event.stopPropagation();openHistory(\x27'+b.blockId+'\x27)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg>'+b._recCount+'条管理记录</button>':'')+
         (b.fenceStatus==='待认领'?'<button class="fcard-act warning" onclick="event.stopPropagation();cancelTransfer(\x27'+b.blockId+'\x27)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>取消移交</button><button class="fcard-act primary" onclick="event.stopPropagation();claimFence(\x27'+b.blockId+'\x27)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>认领</button>':'')+
         (showBtns?'<button class="fcard-act danger" onclick="event.stopPropagation();openDemolishModal(\x27'+b.blockId+'\x27)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>拆除</button>':'')+
         (showBtns?'<button class="fcard-act warning" onclick="event.stopPropagation();openTransferModal(\x27'+b.blockId+'\x27)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>移交</button>':'')+
@@ -1619,7 +1619,7 @@ function buildHistoryCard(cr, b, fence, idx, totalRecords){
     isPendingClaim = cr.date===newestDate && fence && (!fence.fenceResponsible || fence.fenceResponsible==='—');
   }
 
-  // Find newest transfer for "已移交" vs "管护中"
+  // Find newest transfer for "已移交" vs "管理中"
   var newestTransferDate='';
   (fence.changeRecords||[]).forEach(function(r,i){
     if(r.type==='移交操作' && r.date > newestTransferDate) newestTransferDate=r.date;
@@ -1627,12 +1627,12 @@ function buildHistoryCard(cr, b, fence, idx, totalRecords){
   var isNewestTransfer=isTransfer && cr.date===newestTransferDate;
 
   // Determine status label
-  var statusLabel='管护中';
+  var statusLabel='管理中';
   var statusCls='tl-status-active';
   if(isRemoved){statusLabel='已拆除';statusCls='tl-status-ended';}
   else if(isTransfer&&isPendingClaim){statusLabel='待认领';statusCls='tl-status-pending';}
   else if(isTransfer&&!isNewestTransfer){statusLabel='已移交';statusCls='tl-status-transfer';}
-  // newest non-pending transfer → 管护中 (claimed = installed = in custody)
+  // newest non-pending transfer → 管理中 (claimed = installed = in custody)
 
   // Determine eng/unit/contact for "关联" line
   var engName=isTransfer?cr.after:b.engineerName;
