@@ -168,10 +168,20 @@ a:hover{color:var(--text-link-hover)}
 .fcard-row .fvl.warning{color:var(--color-warning-dark);font-weight:var(--font-weight-medium)}
 .fcard-row .fvl.danger{color:var(--color-danger);font-weight:var(--font-weight-medium)}
 .fcard-divider{height:1px;background:var(--color-gray-100);margin:0 16px}
-.fcard-actions{display:flex;justify-content:flex-end;align-items:center;gap:2px;padding:7px 16px 10px}
-.fcard-act{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;font-size:var(--font-size-xs);font-family:var(--font-family);border-radius:3px;cursor:pointer;transition:all var(--transition-fast);background:transparent;border:none;color:var(--text-secondary)}
-.fcard-act:hover{background:var(--color-gray-50);color:var(--text-primary)}
-.fcard-act svg{width:11px;height:11px;flex-shrink:0}
+/* 方案B（定稿）：卡片操作栏统一柔色按钮 —— 全部浅底+深字，低饱和、同一形态 */
+.fcard-actions{display:flex;justify-content:flex-end;align-items:center;gap:var(--space-2);padding:10px 16px 12px;border-top:1px solid var(--color-gray-100)}
+.fcard-actions:empty{display:none;border-top:none}
+.fcard-act{display:inline-flex;align-items:center;gap:5px;height:var(--height-sm);padding:0 12px;border-radius:var(--border-radius-md);font-size:var(--font-size-xs);font-weight:var(--font-weight-medium);font-family:var(--font-family);cursor:pointer;transition:filter var(--transition-fast);white-space:nowrap;border:1px solid transparent;background:transparent;color:var(--text-secondary)}
+.fcard-act:hover{filter:brightness(0.93)}
+.fcard-act svg{width:12px;height:12px;flex-shrink:0}
+/* 巡查记录 / 认领：浅蓝（主操作） */
+.fcard-act.primary{background:var(--color-primary-50);color:var(--color-primary-700)}
+/* 拆除：浅红（危险） */
+.fcard-act.danger{background:var(--color-danger-light);color:var(--color-danger-dark)}
+/* 移交 / 取消移交：浅黄（移交类） */
+.fcard-act.warning{background:var(--color-warning-light);color:var(--color-warning-dark)}
+/* 管护记录：浅灰 */
+.fcard-act.neutral{background:var(--color-gray-100);color:var(--color-gray-700);border-color:var(--color-gray-200)}
 /* 管护历史时间轴 */
 .tl-header{font-size:var(--font-size-md);font-weight:var(--font-weight-bold);color:var(--text-title);margin-bottom:var(--space-5);padding-bottom:var(--space-3);border-bottom:1px solid var(--color-gray-100)}
 .tl-timeline{position:relative;padding-left:20px}
@@ -199,13 +209,7 @@ a:hover{color:var(--text-link-hover)}
 .tl-status-transfer{display:inline-flex;align-items:center;padding:1px 8px;border-radius:10px;font-size:11px;background:#FEF3CD;color:#B45309;font-weight:var(--font-weight-medium);flex-shrink:0}
 .tl-status-pending{display:inline-flex;align-items:center;padding:1px 8px;border-radius:10px;font-size:11px;background:#FFF3E0;color:#E65100;font-weight:var(--font-weight-medium);flex-shrink:0}
 
-.fcard-act.danger-text{color:var(--color-danger)}
-.fcard-act.danger-text:hover{background:var(--color-danger-light)}
-.fcard-act.claim-text{color:var(--text-secondary)}
-.fcard-act.claim-text:hover{background:var(--color-gray-50);color:var(--text-primary)}
-.fcard-act.patrol-text{color:var(--text-secondary)}
-.fcard-act.patrol-text:hover{background:var(--color-gray-50);color:var(--text-primary)}
-.fcard-actions .act-sep{color:var(--color-gray-200);font-size:var(--font-size-xs)}
+/* 旧版文字链接式按钮（danger-text/claim-text/patrol-text/undo-text/act-sep）已废弃，统一改用上方 .fcard-act.* 按钮样式 */
 .card-map-row{display:flex;gap:var(--space-4);flex:1;min-height:0}
 .card-list-col{flex:55;min-width:0;display:flex;flex-direction:column;gap:var(--space-3);overflow-y:auto;padding-right:4px}
 .map-panel-col{width:45%;flex-shrink:0;display:flex;flex-direction:column}
@@ -306,13 +310,6 @@ a:hover{color:var(--text-link-hover)}
 .modal-close{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:var(--border-radius-md);cursor:pointer;background:none;border:none;color:var(--text-tertiary);transition:all var(--transition-fast)}
 .modal-close:hover{background:var(--color-gray-100);color:var(--text-primary)}
 .modal-body{padding:var(--space-6);overflow-y:auto;flex:1}
-/* 结束管护 — 分支选择按钮 */
-.end-branch-row{display:flex;gap:var(--space-3);margin-bottom:var(--space-2)}
-.end-branch-btn{display:flex;align-items:center;justify-content:center;gap:var(--space-2);flex:1;padding:14px var(--space-4);font-size:var(--font-size-md);font-family:var(--font-family);font-weight:var(--font-weight-medium);border-radius:var(--border-radius-lg);cursor:pointer;transition:all var(--transition-normal);background:var(--color-gray-50);border:2px solid var(--color-gray-200);color:var(--text-secondary)}
-.end-branch-btn:hover{background:var(--bg-card);border-color:var(--color-primary-300);color:var(--color-primary-500)}
-.end-branch-btn.active{background:var(--color-primary-50);border-color:var(--color-primary-500);color:var(--color-primary-500);box-shadow:0 0 0 3px rgba(24,98,212,0.08)}
-.end-branch-btn.demolish.active{background:var(--color-danger-light);border-color:var(--color-danger);color:var(--color-danger);box-shadow:0 0 0 3px rgba(209,59,47,0.08)}
-.end-branch-btn svg{width:20px;height:20px;flex-shrink:0}
 /* 表单字段标准化 */
 .form-group{margin-bottom:var(--space-4)}
 .form-label{display:block;font-size:var(--font-size-sm);color:var(--text-secondary);font-weight:var(--font-weight-medium);margin-bottom:var(--space-1)}
@@ -556,6 +553,7 @@ a:hover{color:var(--text-link-hover)}
           <div class="selector-info-item" style="margin-left:auto"><span class="selector-info-label">当前围挡</span><span class="selector-info-value" id="activeFenceCount">—</span></div>
         </div>
         <div class="selector-actions" id="selectorActions">
+          <button class="btn btn-ghost btn-sm" onclick="showQrCodeModal()" title="批量下载所选项目下围挡的二维码"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>下载二维码</button>
           <button class="btn btn-primary btn-sm" id="btnAddFenceFromSelector" onclick="addFenceForProject()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>新增围挡记录</button>
         </div>
       </div>
@@ -601,7 +599,7 @@ a:hover{color:var(--text-link-hover)}
     <div class="modal-body">
       <div class="qrcode-container">
         <div class="qrcode-title" id="qrcodeTitle">项目名称-工程名称围挡</div>
-        <a href="../qrcode.html" target="_blank" title="点击模拟扫码查看围挡信息公示页" style="display:block;text-decoration:none">
+        <a href="../public-miniapp/qrcode_2.0.html" target="_blank" title="点击模拟扫码查看围挡信息公示页" style="display:block;text-decoration:none">
         <div class="qrcode-img" style="cursor:pointer;position:relative">
           <svg width="160" height="160" viewBox="0 0 160 160" fill="none">
             <rect x="8" y="8" width="40" height="40" rx="2" stroke="var(--text-title)" stroke-width="5" fill="none"/><rect x="16" y="16" width="24" height="24" rx="1" fill="var(--text-title)"/>
@@ -734,52 +732,51 @@ a:hover{color:var(--text-link-hover)}
     <div class="modal-footer"><button class="btn btn-ghost btn-sm" onclick="document.getElementById('historyModal').classList.remove('visible')">关闭</button></div>
   </div>
 </div>
-<!-- 结束管护弹窗 -->
-<div class="modal-overlay" id="endModal">
+<!-- 围挡移交弹窗 -->
+<div class="modal-overlay" id="transferModal">
   <div class="modal">
-    <div class="modal-header"><span class="modal-title">结束管护</span><button class="modal-close" onclick="document.getElementById('endModal').classList.remove('visible')">&times;</button></div>
-    <div class="modal-body" id="endModalBody">
-      <p style="font-size:var(--font-size-md);color:var(--text-title);font-weight:var(--font-weight-medium);margin-bottom:var(--space-5)">请选择结束管护的操作方式</p>
-      <div class="end-branch-row">
-        <button class="end-branch-btn active" id="endTabTransfer" onclick="showTransferPanel()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-          <span>移交</span>
-        </button>
-        <button class="end-branch-btn" id="endTabDemolish" onclick="showDemolishPanel()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
-          <span>拆除</span>
-        </button>
+    <div class="modal-header"><span class="modal-title">围挡移交</span><button class="modal-close" onclick="document.getElementById('transferModal').classList.remove('visible')">&times;</button></div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label"><span style="color:var(--color-danger)">*</span> 目标工程</label>
+        <select id="transferEngSelect" class="form-select" style="width:100%" onchange="onTransferEngChange()"><option value="">请选择当前项目下的其他工程</option></select>
       </div>
-      <div id="transferPanel" style="display:none">
-        <div class="form-group" style="margin-top:var(--space-5)">
-          <label class="form-label"><span style="color:var(--color-danger)">*</span> 目标工程</label>
-          <select id="transferEngSelect" class="form-select" style="width:100%"><option value="">请选择工程</option></select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">目标工程责任单位</label>
-          <select id="transferUnitSelect" class="form-select" style="width:100%"><option value="">请选择责任单位</option></select>
-        </div>
-      </div>
-      <div id="demolishPanel" style="display:none">
-        <div class="form-group" style="margin-top:var(--space-5)">
-          <label class="form-label"><span style="color:var(--color-danger)">*</span> 佐证材料</label>
-          <div class="upload-zone" onclick="document.getElementById('demolishFileInput').click()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-gray-300)" stroke-width="1.5" style="width:32px;height:32px;margin-bottom:8px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-            <div class="upload-zone-text">点击或拖拽上传佐证材料</div>
-            <div class="upload-zone-hint">支持图片（jpg/png）及文档（pdf/doc），单文件不超过10MB</div>
-          </div>
-          <input type="file" id="demolishFileInput" style="display:none" multiple accept="image/*,.pdf,.doc,.docx" onchange="previewDemolishFiles()">
-          <div id="demolishFilePreview" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:var(--space-3)"></div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">拆除说明</label>
-          <textarea id="demolishNote" class="form-textarea" placeholder="请填写拆除说明（选填）" rows="3" style="width:100%"></textarea>
-        </div>
+      <div class="form-group">
+        <label class="form-label"><span style="color:var(--color-danger)">*</span> 责任单位</label>
+        <input type="text" id="transferUnitInput" class="form-input" style="width:100%" placeholder="请先选择目标工程">
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('endModal').classList.remove('visible')">取消</button>
-      <button class="btn btn-primary btn-sm" id="endConfirmBtn" onclick="confirmEndFence()">确认移交</button>
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('transferModal').classList.remove('visible')">取消</button>
+      <button class="btn btn-primary btn-sm" onclick="confirmTransfer()">确认移交</button>
+    </div>
+  </div>
+</div>
+
+<!-- 围挡拆除弹窗 -->
+<div class="modal-overlay" id="demolishModal">
+  <div class="modal">
+    <div class="modal-header"><span class="modal-title">围挡拆除</span><button class="modal-close" onclick="document.getElementById('demolishModal').classList.remove('visible')">&times;</button></div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label"><span style="color:var(--color-danger)">*</span> 佐证材料</label>
+        <div style="font-size:var(--font-size-xs);color:var(--color-danger-dark);background:var(--color-danger-light);border-radius:var(--border-radius-md);padding:6px 10px;margin-bottom:var(--space-3)">请上传拆除流程相关材料及现场照片</div>
+        <div class="upload-zone" onclick="document.getElementById('demolishFileInput').click()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-gray-300)" stroke-width="1.5" style="width:32px;height:32px;margin-bottom:8px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <div class="upload-zone-text">点击或拖拽上传佐证材料</div>
+          <div class="upload-zone-hint">支持图片（jpg/png）及文档（pdf/doc），单文件不超过10MB</div>
+        </div>
+        <input type="file" id="demolishFileInput" style="display:none" multiple accept="image/*,.pdf,.doc,.docx" onchange="previewDemolishFiles()">
+        <div id="demolishFilePreview" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:var(--space-3)"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">拆除说明</label>
+        <textarea id="demolishNote" class="form-textarea" placeholder="请填写拆除说明（选填）" rows="3" style="width:100%"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('demolishModal').classList.remove('visible')">取消</button>
+      <button class="btn btn-primary btn-sm" onclick="confirmDemolish()">确认拆除</button>
     </div>
   </div>
 </div>
@@ -869,6 +866,7 @@ function buildFenceBlocks(){
       projectConstructUnit:h._projectConstructUnit,
       _recCount:(h.changeRecords||[]).length,
       contact:h.fenceResponsible||'—',
+      contactPhone:h.fenceResponsiblePhone||'',
       address:h.address,
       fenceStatus:h.fenceStatus,
       length:h.length,
@@ -1044,8 +1042,8 @@ function hideModal(id){document.getElementById(id).classList.remove('visible')}
 var _qrCache={};
 function buildQrPageUrl(blockId){
   var block=MOCK_FENCE_BLOCKS.find(function(b){return b.blockId===blockId});
-  if(!block)return window.location.origin+'/public-miniapp/qrcode.html';
-  return window.location.origin+'/public-miniapp/qrcode.html?blockId='+encodeURIComponent(blockId)+'&name='+encodeURIComponent(block.engineerName)+'&project='+encodeURIComponent(block.projectName);
+  if(!block)return window.location.origin+'/public-miniapp/qrcode_2.0.html';
+  return window.location.origin+'/public-miniapp/qrcode_2.0.html?blockId='+encodeURIComponent(blockId)+'&name='+encodeURIComponent(block.engineerName)+'&project='+encodeURIComponent(block.projectName);
 }
 function showQrPreview(blockId){
   var panel=document.getElementById('qrPreviewArea');
@@ -1056,7 +1054,7 @@ function showQrPreview(blockId){
     _qrCache[blockId]='https://api.qrserver.com/v1/create-qr-code/?size=135x135&data='+encodeURIComponent(buildQrPageUrl(blockId));
   }
   panel.innerHTML=
-    '<img class="qrcode-preview-img" src="'+_qrCache[blockId]+'" alt="二维码" onclick="event.stopPropagation();window.open(\'../public-miniapp/qrcode.html?blockId='+encodeURIComponent(blockId)+'&name='+encodeURIComponent(block.engineerName)+'&project='+encodeURIComponent(block.projectName)+'\',\'_blank\')" title="点击跳转小程序示例页面">'+
+    '<img class="qrcode-preview-img" src="'+_qrCache[blockId]+'" alt="二维码" onclick="event.stopPropagation();window.open(\'../public-miniapp/qrcode_2.0.html?blockId='+encodeURIComponent(blockId)+'&name='+encodeURIComponent(block.engineerName)+'&project='+encodeURIComponent(block.projectName)+'\',\'_blank\')" title="点击跳转小程序示例页面">'+
     '<div class="qrcode-preview-label">'+block.projectName+'</div>'+
     '<div class="qrcode-preview-sub">'+block.engineerName+'</div>';
   var items=document.querySelectorAll('#qrCodeCheckList .qrcode-check-item');
@@ -1231,7 +1229,7 @@ function downloadPolishedQr(blockId){
     };
     img.src=URL.createObjectURL(blob);
   }).catch(function(){
-    window.open('../public-miniapp/qrcode.html?blockId='+blockId+'&name='+encodeURIComponent(block.engineerName)+'&project='+encodeURIComponent(block.projectName),'_blank');
+    window.open('../public-miniapp/qrcode_2.0.html?blockId='+blockId+'&name='+encodeURIComponent(block.engineerName)+'&project='+encodeURIComponent(block.projectName),'_blank');
   });
 }
 
@@ -1527,11 +1525,12 @@ function renderFenceCards(){
           '<div class="fcard-row"><span class="flb">距管护到期</span><span class="fvl'+eCls+'">'+eVal+(isR?'':' 天')+'</span></div>'
         )+
       '</div>'+
-      '<div class="fcard-divider"></div>'+
-      '<div class="fcard-actions">'+        (b._recCount?'<span class="act-sep">|</span><button class="fcard-act" onclick="event.stopPropagation();openHistory(\x27'+b.blockId+'\x27)">'+b._recCount+'条管护记录</button>':'')+
-        (b.fenceStatus==='待认领'?'<span class="act-sep">|</span><button class="fcard-act claim-text" onclick="event.stopPropagation();claimFence(\x27'+b.blockId+'\x27)">认领</button>':'')+
-        (showBtns?'<span class="act-sep">|</span><button class="fcard-act patrol-text" onclick="event.stopPropagation();addPatrolRecord(\x27'+b.blockId+'\x27)">+ 巡查记录</button>':'')+
-        (showBtns?'<span class="act-sep">|</span><button class="fcard-act danger-text" onclick="event.stopPropagation();openEndFence(\x27'+b.blockId+'\x27)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>结束管护</button>':'')+
+      '<div class="fcard-actions">'+
+        (b._recCount?'<button class="fcard-act neutral" onclick="event.stopPropagation();openHistory(\x27'+b.blockId+'\x27)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg>'+b._recCount+'条管护记录</button>':'')+
+        (b.fenceStatus==='待认领'?'<button class="fcard-act warning" onclick="event.stopPropagation();cancelTransfer(\x27'+b.blockId+'\x27)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>取消移交</button><button class="fcard-act primary" onclick="event.stopPropagation();claimFence(\x27'+b.blockId+'\x27)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>认领</button>':'')+
+        (showBtns?'<button class="fcard-act danger" onclick="event.stopPropagation();openDemolishModal(\x27'+b.blockId+'\x27)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>拆除</button>':'')+
+        (showBtns?'<button class="fcard-act warning" onclick="event.stopPropagation();openTransferModal(\x27'+b.blockId+'\x27)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>移交</button>':'')+
+        (showBtns?'<button class="fcard-act primary" onclick="event.stopPropagation();addPatrolRecord(\x27'+b.blockId+'\x27)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>巡查记录</button>':'')+
       '</div>'+
     '</div>';
   });
@@ -1708,53 +1707,54 @@ function openHistory(blockId){
 }
 
 var _endFenceId=null;
-function openEndFence(blockId){
+var _transferProject=null;
+function openTransferModal(blockId){
   _endFenceId=blockId;
-  document.getElementById('endModal').classList.add('visible');
-  document.getElementById('transferPanel').style.display='none';
-  document.getElementById('demolishPanel').style.display='none';
-  document.getElementById('endConfirmBtn').textContent='确认移交';
   var b=MOCK_FENCE_BLOCKS.find(function(d){return d.blockId===blockId;});
+  _transferProject=b?b.projectName:null;
   var sel=document.getElementById('transferEngSelect');
-  sel.innerHTML='<option value="">请选择工程</option>';
+  sel.innerHTML='<option value="">请选择当前项目下的其他工程</option>';
   var projects=MOCK_DATA.getProjects();
   projects.forEach(function(p){
-    if(p.name===b.projectName){
+    if(p.name===_transferProject){
       (p.hoardings||[]).forEach(function(h){
         if(h.id!==blockId) sel.innerHTML+='<option value="'+h.engineerName+'">'+h.engineerName+'</option>';
       });
     }
   });
+  sel.style.color='var(--text-tertiary)';
+  document.getElementById('transferUnitInput').value='';
+  document.getElementById('transferModal').classList.add('visible');
 }
-function showTransferPanel(){
-  document.getElementById('transferPanel').style.display='block';
-  document.getElementById('demolishPanel').style.display='none';
-  document.getElementById('endConfirmBtn').textContent='确认移交';
-  document.getElementById('endConfirmBtn').onclick=confirmEndFence;
-  document.getElementById('endTabTransfer').classList.add('active');
-  document.getElementById('endTabDemolish').classList.remove('active');
-  document.getElementById('endTabDemolish').classList.remove('demolish');
+function onTransferEngChange(){
+  var sel=document.getElementById('transferEngSelect');
+  var eng=sel.value;
+  sel.style.color=eng?'var(--text-primary)':'var(--text-tertiary)';
+  var inp=document.getElementById('transferUnitInput');
+  if(!eng||!_transferProject){inp.value='';return;}
+  var h=MOCK_DATA.findByProjectAndEngineer(_transferProject,eng);
+  inp.value=(h&&h.constructUnit)?h.constructUnit:'';
 }
-function showDemolishPanel(){
-  document.getElementById('transferPanel').style.display='none';
-  document.getElementById('demolishPanel').style.display='block';
-  document.getElementById('endConfirmBtn').textContent='确认拆除';
-  document.getElementById('endConfirmBtn').onclick=confirmDemolish;
-  document.getElementById('endTabTransfer').classList.remove('active');
-  document.getElementById('endTabDemolish').classList.add('active');
-  document.getElementById('endTabDemolish').classList.add('demolish');
-}
-function confirmEndFence(){
+function confirmTransfer(){
   var eng=document.getElementById('transferEngSelect').value;
   if(!eng){alert('请选择目标工程');return;}
-  alert('原型演示: 已将围挡移交给 '+eng);
-  document.getElementById('endModal').classList.remove('visible');
+  var unit=document.getElementById('transferUnitInput').value.trim();
+  if(!unit){alert('请填写责任单位');return;}
+  alert('原型演示: 已将围挡移交给 '+eng+'（责任单位：'+unit+'）');
+  document.getElementById('transferModal').classList.remove('visible');
+}
+function openDemolishModal(blockId){
+  _endFenceId=blockId;
+  document.getElementById('demolishNote').value='';
+  document.getElementById('demolishFileInput').value='';
+  document.getElementById('demolishFilePreview').innerHTML='';
+  document.getElementById('demolishModal').classList.add('visible');
 }
 function confirmDemolish(){
   var note=document.getElementById('demolishNote').value.trim();
   if(!note)note='(无说明)';
   alert('原型演示: 拆除记录已提交 - '+note);
-  document.getElementById('endModal').classList.remove('visible');
+  document.getElementById('demolishModal').classList.remove('visible');
 }
 function previewDemolishFiles(){
   var inp=document.getElementById('demolishFileInput');
@@ -1768,6 +1768,21 @@ function previewDemolishFiles(){
   document.getElementById('demolishFilePreview').innerHTML=html;
 }
 var _claimBlockId=null;
+function cancelTransfer(blockId){
+  if(!confirm('确认取消移交？\n取消后该围挡状态将恢复为「已安装」。'))return;
+  var b=MOCK_FENCE_BLOCKS.find(function(d){return d.blockId===blockId;});
+  if(!b)return;
+  // Update fence status back to 已安装
+  var all=MOCK_DATA.getHoardings();
+  var h=all.find(function(x){return x.id===blockId;});
+  if(h){
+    h.fenceStatus='已安装';
+    h.fenceResponsible=b.contact!=='—'?b.contact:'';
+    try{localStorage.setItem('HOARDING_MOCK_DATA_V2',JSON.stringify(MOCK_DATA));}catch(e){}
+  }
+  alert('已取消移交，围挡恢复为「已安装」状态。');
+  location.reload();
+}
 function claimFence(blockId){
   _claimBlockId=blockId;
   var b=MOCK_FENCE_BLOCKS.find(function(d){return d.blockId===blockId;});
@@ -1790,12 +1805,14 @@ function claimFence(blockId){
   unitSel.innerHTML='<option value="">请选择责任单位</option>';
   if(b.unitName&&b.unitName!=='—') unitSel.innerHTML+='<option value="'+b.unitName+'" selected>'+b.unitName+'</option>';
   if(b.projectConstructUnit&&b.projectConstructUnit!==b.unitName) unitSel.innerHTML+='<option value="'+b.projectConstructUnit+'">'+b.projectConstructUnit+'</option>';
-  // Clear inputs
-  document.getElementById('claimPerson').value='';
-  document.getElementById('claimPhone').value='';
-  document.getElementById('claimCustodyStart').value='';
-  document.getElementById('claimCustodyEnd').value='';
+  // Pre-fill from existing data
+  var hasPhone=b.contactPhone&&b.contactPhone!=='';
+  document.getElementById('claimPerson').value=(b.contact&&b.contact!=='—')?b.contact:'';
+  document.getElementById('claimPhone').value=hasPhone?b.contactPhone:'';
+  document.getElementById('claimCustodyStart').value=b.custodyStart||'';
+  document.getElementById('claimCustodyEnd').value=b.custodyEnd||'';
   document.getElementById('claimModal').classList.add('visible');
+  if(!b.custodyStart){setTimeout(function(){document.getElementById('claimCustodyStart').value=new Date().toISOString().slice(0,10);},50);}
 }
 function confirmClaim(){
   if(!_claimBlockId)return;

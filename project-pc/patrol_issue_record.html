@@ -570,9 +570,14 @@
             unit: '深圳市市政工程总公司',
             remark: '',
             hasIssue: true,
-            panoramaSrc: 'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492'
+            panoramaSrc: 'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492',
+            issues: [
+                {type:'围挡脏污', unit:'深圳市市政工程总公司', detail:'围挡面板表面有轻微泥浆污渍，面积约0.2㎡，不影响结构安全但需清洁', source:'项目巡检'},
+                {type:'公益广告污损', unit:'深圳市市政工程总公司', detail:'公益广告有污损，画面不清晰，需及时更换', source:'监管巡查', supervisor:'张建国'}
+            ],
+            issueType: '围挡脏污'
         };
-        issueList = [];
+        issueList = patrolRecord.issues.slice();
         initPatrolPage();
     }
 
@@ -606,17 +611,18 @@
                 if(issues.length){
                     issues.forEach(function(iss,i){
                         itemsHtml+='<div class="issue-card" style="cursor:pointer;margin-bottom:8px" onclick="openIssueFromPatrol('+i+')">'+
-                            '<div class="issue-card-info">'+
+                            '<div class="issue-card-info" style="flex:1;width:100%">'+
                                 '<div class="issue-card-type">'+(iss.type||'—')+'</div>'+
-                                (iss.unit?'<div class="issue-card-detail" style="font-size:11px;color:var(--text-sub)">责任单位：'+(iss.unit||'—')+'</div>':'')+
                                 '<div class="issue-card-detail">'+(iss.detail||'—')+'</div>'+
+                                '<span class="issue-card-source">来源：'+(iss.source||'项目巡检')+
+                                (iss.source==='监管巡查'&&iss.supervisor?'（'+iss.supervisor+'）':'')+'</span>'+
                             '</div>'+
                         '</div>';
                     });
                 }else{
                     // Fallback: single issue from remark
                     itemsHtml='<div class="issue-card" style="cursor:pointer;margin-bottom:8px" onclick="openIssueFromPatrol(-1)">'+
-                        '<div class="issue-card-info">'+
+                        '<div class="issue-card-info" style="flex:1;width:100%">'+
                             '<div class="issue-card-type">'+(patrolRecord.issueType||'—')+'</div>'+
                             '<div class="issue-card-detail">'+(remark||'—')+'</div>'+
                         '</div>'+
@@ -1422,11 +1428,11 @@
                 deleteBtn = '<button class="issue-card-delete" title="删除此问题" onclick="deleteIssue(\'' + issue.id + '\')">&times;</button>';
             }
             li.innerHTML =
-                '<div class="issue-card-img" style="background-image:url(\'' + (issue.thumbnail || issue.screenshot || '') + '\')"></div>' +
-                '<div class="issue-card-info">' +
+                '<div class="issue-card-info" style="flex:1;width:100%">' +
                     '<div class="issue-card-type">' + escHtml(issue.type) + '</div>' +
                     '<div class="issue-card-detail">' + escHtml(issue.detail) + '</div>' +
-                    '<span class="issue-card-source">来源：' + escHtml(issue.source || defaultSource) + '</span>' +
+                    '<span class="issue-card-source">来源：' + escHtml(issue.source || defaultSource) + 
+                    (issue.source==='监管巡查'&&issue.supervisor?'（' + escHtml(issue.supervisor) + '）':'') + '</span>' +
                 '</div>' + deleteBtn;
             listEl.appendChild(li);
         });
