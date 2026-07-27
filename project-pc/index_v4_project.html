@@ -758,15 +758,9 @@ a:hover{color:var(--text-link-hover)}
 <div class="modal-overlay" id="transferModal">
   <div class="modal">
     <div class="modal-header"><span class="modal-title">围挡移交</span><button class="modal-close" onclick="document.getElementById('transferModal').classList.remove('visible')">&times;</button></div>
-    <div class="modal-body">
-      <div class="form-group">
-        <label class="form-label"><span style="color:var(--color-danger)">*</span> 目标工程</label>
-        <select id="transferEngSelect" class="form-select" style="width:100%" onchange="onTransferEngChange()"><option value="">请选择当前项目下的其他工程</option></select>
-      </div>
-      <div class="form-group">
-        <label class="form-label"><span style="color:var(--color-danger)">*</span> 责任单位</label>
-        <input type="text" id="transferUnitInput" class="form-input" style="width:100%" placeholder="请先选择目标工程">
-      </div>
+    <div class="modal-body" style="text-align:center;padding:var(--space-8) var(--space-6)">
+      <div style="font-size:var(--font-size-md);color:var(--text-title);font-weight:var(--font-weight-medium);margin-bottom:var(--space-3)">是否确认移交围挡？</div>
+      <div style="font-size:var(--font-size-sm);color:var(--text-secondary);line-height:1.6">移交后项目下其他工程责任单位可对围挡进行认领。</div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost btn-sm" onclick="document.getElementById('transferModal').classList.remove('visible')">取消</button>
@@ -1535,7 +1529,7 @@ function renderFenceCards(){
       '<div class="fcard-top">'+
         '<div class="fcard-left">'+
           '<span class="fcard-tag '+sc+'">'+b.fenceStatus+'</span>'+
-          '<span class="fcard-num">'+b.displayIndex+'#&nbsp;&nbsp;'+b.fenceName+'</span>'+
+          '<span class="fcard-num">'+b.fenceName+'</span>'+
         '</div>'+
         (b.needVerify==='是'?'<span class="fcard-verify">待校核</span>':'')+
       '</div>'+
@@ -1600,7 +1594,7 @@ function initFenceMap(){
     var color=isR?'#9CA3B0':'#1862D4';
     var poly=L.polygon(b.gpsShape,{color:color,weight:isR?2:3,dashArray:isR?'6 4':null,fillColor:color,fillOpacity:isR?0.03:0.08});
     if(!isR)poly.addTo(_fenceMap);
-    poly.bindTooltip('围挡'+b.displayIndex+'#',{direction:'center',sticky:true});
+    poly.bindTooltip(b.fenceName||'',{direction:'center',sticky:true});
     _fenceLayers[b.blockId]={poly:poly,isRemoved:isR,color:color};
     poly.on('click',function(){selectFenceCard(b.blockId);});
     if(!isR)allBounds.push(poly.getBounds());
@@ -1627,88 +1621,48 @@ function initFenceMap(){
 function mapZoom(dir){if(_fenceMap)dir>0?_fenceMap.zoomIn():_fenceMap.zoomOut();}
 
 /* ═══ Modal functions ═══ */
-function buildHistoryCard(cr, b, fence, idx, totalRecords){
-  var isTransfer=cr.type==='移交操作';
-  var isRemoved=cr.type==='拆除操作';
-
-  // Pending claim: cr has _pending flag OR (newest transfer + fence still unclaimed)
-  var isPendingClaim=!!cr._pending;
-  if(isTransfer && !isPendingClaim){
-    // Check if this is the newest transfer where fence is still unclaimed
-    var newestDate='';
-    (fence.changeRecords||[]).forEach(function(r,i){
-      if(r.type==='移交操作' && r.date > newestDate) newestDate=r.date;
-    });
-    isPendingClaim = cr.date===newestDate && fence && (!fence.fenceResponsible || fence.fenceResponsible==='—');
-  }
-
-  // Find newest transfer for "已移交" vs "管理中"
-  var newestTransferDate='';
-  (fence.changeRecords||[]).forEach(function(r,i){
-    if(r.type==='移交操作' && r.date > newestTransferDate) newestTransferDate=r.date;
-  });
-  var isNewestTransfer=isTransfer && cr.date===newestTransferDate;
-
-  // Determine status label
-  var statusLabel='管理中';
-  var statusCls='tl-status-active';
-  if(isRemoved){statusLabel='已拆除';statusCls='tl-status-ended';}
-  else if(isTransfer&&isPendingClaim){statusLabel='待认领';statusCls='tl-status-pending';}
-  else if(isTransfer&&!isNewestTransfer){statusLabel='已移交';statusCls='tl-status-transfer';}
-  // newest non-pending transfer → 管理中 (claimed = installed = in custody)
-
-  // Determine eng/unit/contact for "关联" line
-  var engName=isTransfer?cr.after:b.engineerName;
-  var engStatus=b.engStatus||'在建';
-  if(isTransfer) engStatus='在建';
-
-  var unit=b.unitName||(fence?fence.constructUnit:'')||'—';
-  if(isTransfer){
-    var projs=MOCK_DATA.getProjects();
-    var found=projs.find(function(p){return p.name===b.projectName;});
-    if(found) unit=found.constructUnit||'—';
-  }
-
+function buildHistoryCard(cr, b, fence, idx){
+  var typeLabel='';
+  var assocHtml='';
+  var date=cr.date||'';
+  var operator=cr.changer||'';
+  var eng=(b.engineerName||'')+'（'+(b.engStatus||'在建')+'）';
+  var unit=cr.unit||b.unitName||(fence?fence.constructUnit:'')||'—';
   var contact=(fence?fence.fenceResponsible:'')||'—';
   var phone=(fence?fence.fenceResponsiblePhone:'')||'';
-  if(phone&&!isPendingClaim) contact+='（'+phone+'）';
-  if(isPendingClaim) contact='—';
+  if(phone) contact+='（'+phone+'）';
 
-  var assocLine=engName+'（'+engStatus+'）<span class="tl-sep">|</span> '+unit+'<span class="tl-sep">|</span> '+contact;
-
-  // Period and corner date
-  var cStart=fence?fence.custodyStart:'';
-  var cEnd=fence?fence.custodyEnd:'';
-  var period=(cStart&&cEnd&&!isPendingClaim)?(cStart+' ~ '+cEnd):'—';
-  var cornerDate='';
-  if(!isRemoved&&!isTransfer){cornerDate=cr.date.substr(0,10);}
-  else if(isPendingClaim){cornerDate=cr.date.substr(0,10);}
-  else if(isRemoved){cornerDate=cr.date.substr(0,10);}
-  else if(isTransfer){cornerDate=cr.date.substr(0,10);}
-
-  // Card HTML
-  var card='<div class="tl-card'+(isTransfer?' tl-transfer':'')+(isRemoved?' tl-removed':'')+(isPendingClaim?' tl-pending':'')+'">';
-
-  // Top row: period (left) | date + status (right)
-  card+='<div class="tl-card-top">';
-  card+='<div class="tl-period">';
-  card+='<span class="tl-period-label">管护期限</span>';
-  card+='<span class="tl-period-val">'+period+'</span>';
-  card+='</div>';
-  card+='<div class="tl-top-right">';
-  if(cornerDate){
-    card+='<span class="tl-corner-date">'+cornerDate+'</span>';
+  switch(cr.type){
+    case '新增围挡':
+      typeLabel='新建围挡';
+      assocHtml='<div class="tl-assoc">'+eng+'<span class="tl-sep">|</span> '+unit+'<span class="tl-sep">|</span> '+contact+'</div>';
+      break;
+    case '移交操作':
+      typeLabel='围挡移交';
+      break;
+    case '取消移交':
+      typeLabel='取消移交';
+      break;
+    case '认领操作':
+      typeLabel='认领';
+      assocHtml='<div class="tl-assoc">'+eng+'<span class="tl-sep">|</span> '+unit+'<span class="tl-sep">|</span> '+contact+'</div>';
+      break;
+    case '拆除操作':
+      typeLabel='围挡拆除';
+      break;
+    default:
+      typeLabel=cr.type||'操作记录';
   }
-  card+='<span class="'+statusCls+'">'+statusLabel+'</span>';
-  card+='</div>';
-  card+='</div>';
 
-  // Body: 关联 info only
+  var card='<div class="tl-card">';
+  card+='<div class="tl-card-top">';
+  card+='<div class="tl-period"><span class="tl-period-val">'+typeLabel+'</span></div>';
+  card+='<span class="tl-corner-date">'+date+'</span>';
+  card+='</div>';
   card+='<div class="tl-card-body">';
-  card+='<div class="tl-assoc">'+assocLine+'</div>';
-  card+='</div>';
-
-  card+='</div>';
+  card+='<div class="tl-corner-date">操作人：'+operator+'</div>';
+  card+=assocHtml;
+  card+='</div></div>';
   return card;
 }
 function openHistory(blockId){
@@ -1718,7 +1672,7 @@ function openHistory(blockId){
   var fence=h.find(function(x){return x.id===blockId && x.projectName===b.projectName;});
   if(!fence||!fence.changeRecords||!fence.changeRecords.length){return;}
   var num=b.displayIndex;
-  var html='<div class="tl-header">'+num+'#&nbsp;&nbsp;'+(b.fenceName||'')+'</div>';
+  var html='<div class="tl-header">'+(b.fenceName||'')+'</div>';
   html+='<div class="tl-timeline">';
   var sorted=fence.changeRecords.slice().sort(function(a,b){return a.date<b.date?1:(a.date>b.date?-1:0);});
   sorted.forEach(function(cr, idx){
@@ -1733,37 +1687,10 @@ var _endFenceId=null;
 var _transferProject=null;
 function openTransferModal(blockId){
   _endFenceId=blockId;
-  var b=MOCK_FENCE_BLOCKS.find(function(d){return d.blockId===blockId;});
-  _transferProject=b?b.projectName:null;
-  var sel=document.getElementById('transferEngSelect');
-  sel.innerHTML='<option value="">请选择当前项目下的其他工程</option>';
-  var projects=MOCK_DATA.getProjects();
-  projects.forEach(function(p){
-    if(p.name===_transferProject){
-      (p.hoardings||[]).forEach(function(h){
-        if(h.id!==blockId) sel.innerHTML+='<option value="'+h.engineerName+'">'+h.engineerName+'</option>';
-      });
-    }
-  });
-  sel.style.color='var(--text-tertiary)';
-  document.getElementById('transferUnitInput').value='';
   document.getElementById('transferModal').classList.add('visible');
 }
-function onTransferEngChange(){
-  var sel=document.getElementById('transferEngSelect');
-  var eng=sel.value;
-  sel.style.color=eng?'var(--text-primary)':'var(--text-tertiary)';
-  var inp=document.getElementById('transferUnitInput');
-  if(!eng||!_transferProject){inp.value='';return;}
-  var h=MOCK_DATA.findByProjectAndEngineer(_transferProject,eng);
-  inp.value=(h&&h.constructUnit)?h.constructUnit:'';
-}
 function confirmTransfer(){
-  var eng=document.getElementById('transferEngSelect').value;
-  if(!eng){alert('请选择目标工程');return;}
-  var unit=document.getElementById('transferUnitInput').value.trim();
-  if(!unit){alert('请填写责任单位');return;}
-  alert('原型演示: 已将围挡移交给 '+eng+'（责任单位：'+unit+'）');
+  alert('原型演示：围挡移交成功');
   document.getElementById('transferModal').classList.remove('visible');
 }
 function openDemolishModal(blockId){
@@ -1824,7 +1751,7 @@ function claimFence(blockId){
   _claimBlockId=blockId;
   var b=MOCK_FENCE_BLOCKS.find(function(d){return d.blockId===blockId;});
   var num=b.displayIndex;
-  document.getElementById('claimModalTitle').innerHTML='是否确认认领 <b style="color:var(--color-primary-500);font-size:110%">围挡'+num+'#</b> ？';
+  document.getElementById('claimModalTitle').innerHTML='是否确认认领 <b style="color:var(--color-primary-500);font-size:110%">'+(b.fenceName||'')+'</b> ？';
   // Populate eng select
   var engSel=document.getElementById('claimEngSelect');
   engSel.innerHTML='<option value="">请选择关联工程</option>';

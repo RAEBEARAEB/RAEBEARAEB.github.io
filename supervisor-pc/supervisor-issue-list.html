@@ -84,13 +84,17 @@ a{color:var(--text-link);text-decoration:none}::-webkit-scrollbar{width:6px}::-w
 .table td{padding:var(--space-3) var(--space-3);border-bottom:1px solid var(--border-color-light);text-align:center}
 .table tbody tr:hover td{background:var(--color-primary-50)}
 .tag{display:inline-flex;align-items:center;padding:0 8px;height:22px;border-radius:4px;font-size:12px;font-weight:500;white-space:nowrap}
-/* 围挡状态标签 */
-.tag-setting{color:#1862D4;background:#EBF2FF;border:1px solid #1862D4}
-.tag-soon{color:#C47D00;background:#FEF6E6;border:1px solid #C47D00}
-.tag-expired{color:#9CA3B0;background:#F7F8FA;border:1px solid #9CA3B0}
-/* 其它状态标签 */
-.tag-warning{background:var(--color-warning-light);color:var(--color-warning)}.tag-danger{background:var(--color-danger-light);color:var(--color-danger)}
-.tag-info{background:var(--color-info-light);color:var(--color-info)}.tag-success{background:var(--color-success-light);color:var(--color-success)}
+/* 围挡状态标签（与档案管理列表一致） */
+.tag-setting{color:#1862D4;background:#EBF2FF;border:1px solid #9DBEFF}
+.tag-claiming{color:#B45309;background:#FEF3CD;border:1px solid #FCD34D}
+.tag-overdue{color:#D13B2F;background:#FDECEA;border:1px solid #F0B0B0}
+.tag-expired{color:#9CA3B0;background:#F0F1F5;border:1px solid #E3E6ED}
+/* 项目状态标签（与档案管理列表一致） */
+.proj-status-tag{display:inline-flex;align-items:center;justify-content:center;height:22px;padding:0 10px;border-radius:12px;font-size:12px;font-weight:500;line-height:1;white-space:nowrap;letter-spacing:0.01em}
+.proj-status-zj{background:#E8F5FF;color:#0A6ED1}.proj-status-tg{background:#FFF0F0;color:#C23B2E}
+.proj-status-jg{background:#E6F4EA;color:#136B31}.proj-status-bj{background:#EBF2FF;color:#1862D4}
+.proj-status-ba{background:#E6F4EA;color:#136B31}.proj-status-zz{background:#F5F5F5;color:#6B7280}
+.proj-status-wg{background:#FFF8E6;color:#B87A00}.proj-status-qt{background:#F7F8FA;color:#9CA3B0}
 .issue-type-text{font-size:var(--font-size-sm);color:var(--color-primary-500);font-weight:var(--font-weight-medium)}
 .table-action-link{color:var(--text-link);font-size:var(--font-size-sm);cursor:pointer;white-space:nowrap;text-decoration:none}.table-action-link:hover{color:var(--color-primary-600);text-decoration:underline}
 .table-action-link.warning{color:var(--color-warning);font-weight:var(--font-weight-medium)}
@@ -227,18 +231,18 @@ function renderTable(){
   // Prepend virtual row regardless of page
   if(virtualItem&&_page===1)pageItems.unshift(virtualItem);
 
-  var fsTag={};fsTag['已安装']='tag-setting';fsTag['超期未拆']='tag-soon';fsTag['超期未拆']='tag-expired';
-  var psTag={};psTag['在建']='tag-success';psTag['停工']='tag-danger';psTag['竣工验收']='tag-info';
+  var fsTag={};fsTag['已安装']='tag-setting';fsTag['待认领']='tag-claiming';fsTag['超期未拆']='tag-overdue';fsTag['已拆除']='tag-expired';
+  var psTag={};psTag['在建']='proj-status-zj';psTag['停工']='proj-status-tg';psTag['竣工']='proj-status-jg';psTag['竣工验收']='proj-status-jg';psTag['报建']='proj-status-bj';psTag['备案']='proj-status-ba';psTag['完工未验收']='proj-status-wg';psTag['终止监督']='proj-status-zz';psTag['中止监督']='proj-status-zz';psTag['其他']='proj-status-qt';psTag['其它']='proj-status-qt';
 
   pageItems.forEach(function(p,idx){
-    var fsCls=fsTag[p.fenceStatus]||'tag-default';
-    var psCls=psTag[p.projStatus]||'tag-default';
+    var fsCls=fsTag[p.fenceStatus]||'tag-setting';
+    var psCls=psTag[p.projStatus]||'proj-status-qt';
     var stickyCls=p.isVirtual?' style="position:sticky;top:0;z-index:5;background:#FFF;box-shadow:0 2px 4px rgba(0,0,0,0.06)"':'';
     h+='<tr'+stickyCls+'><td>'+(start+idx+1)+'</td>'+
       '<td style="text-align:left"><a class="table-action-link" href="supervisor-issue-project.html?project='+(p.isVirtual?'_unregistered':encodeURIComponent(p.project))+'">'+
         (p.isVirtual?'<span style="color:var(--color-warning);font-weight:var(--font-weight-bold)">'+esc(p.project)+'</span>':esc(p.project))+
       '</a></td>'+
-      '<td>'+(p.isVirtual?'—':'<span class="tag '+psCls+'">'+esc(p.projStatus)+'</span>')+'</td>'+
+      '<td>'+(p.isVirtual?'—':'<span class="proj-status-tag '+psCls+'">'+esc(p.projStatus)+'</span>')+'</td>'+
       '<td>'+(p.isVirtual?'—':'<span class="tag '+fsCls+'">'+esc(p.fenceStatus)+'</span>')+'</td>'+
       '<td>'+(p.isVirtual?'—':esc(p.removeDate))+'</td>'+
       '<td><span style="color:var(--color-warning);font-weight:var(--font-weight-bold)">'+p.pending+'</span></td>'+

@@ -330,7 +330,6 @@ tr.empty-row:hover td{background:transparent!important}
       <div class="search-bar">
         <div class="search-item"><label class="search-label">项目名称</label><input type="text" class="search-input" id="filterProjName" placeholder="请输入项目名称"></div>
         <div class="search-item"><label class="search-label">项目状态</label><select class="search-select" id="filterProjStatus"><option value="">全部</option><option>报建</option><option>在建</option><option>备案</option><option>中止监督</option><option>完工未验收</option><option>停工</option><option>竣工</option><option>其它</option></select></div>
-        <div class="search-item"><label class="search-label">围挡状态</label><select class="search-select" id="filterFenceStatus"><option value="">全部</option><option>超期未拆</option><option>待认领</option><option>已安装</option><option>已拆除</option></select></div>
         <div class="search-item"><label class="search-label">是否待校核</label><select class="search-select" id="filterNeedVerify"><option value="">全部</option><option value="是">是</option><option value="否">否</option></select></div>
         <div class="search-item"><label class="search-label">计划拆除时间</label><div style="display:flex;gap:4px;align-items:center"><input type="date" class="search-input" id="filterPlanStart" style="width:90px"><span style="color:#9CA3B0;font-size:12px;flex-shrink:0">至</span><input type="date" class="search-input" id="filterPlanEnd" style="width:90px"></div></div>
         <div class="search-actions">
@@ -634,7 +633,7 @@ function renderTableFromSD(){
   var tabFilter=_currentTab;
   var projNameFilter=(document.getElementById('filterProjName').value||'').trim();
   var projStatusFilter=document.getElementById('filterProjStatus').value;
-  var fenceStatusFilter=document.getElementById('filterFenceStatus').value;
+  var fenceStatusFilter='';
   var needVerifyFilter=document.getElementById('filterNeedVerify').value;
   var planStart=document.getElementById('filterPlanStart').value;
   var planEnd=document.getElementById('filterPlanEnd').value;
@@ -685,7 +684,6 @@ function applyFilters(){renderTableFromSD();}
 function resetFilters(){
   document.getElementById('filterProjName').value='';
   document.getElementById('filterProjStatus').value='';
-  document.getElementById('filterFenceStatus').value='';
   document.getElementById('filterNeedVerify').value='';
   document.getElementById('filterPlanStart').value='';
   document.getElementById('filterPlanEnd').value='';
