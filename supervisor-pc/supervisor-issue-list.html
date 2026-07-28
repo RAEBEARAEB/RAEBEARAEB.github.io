@@ -157,11 +157,20 @@ a{color:var(--text-link);text-decoration:none}::-webkit-scrollbar{width:6px}::-w
 <script src="../shared_data.js"></script>
 <script src="../mock-data.js"></script>
 <script>
+if(!window.MOCK_DATA){document.body.innerHTML='<div style="padding:40px;color:red;font-size:16px">MOCK_DATA 未定义 — mock-data.js 加载失败，请检查控制台</div>';}
+else if(typeof window.MOCK_DATA.getClosureIssues!=='function'){document.body.innerHTML='<div style="padding:40px;color:red;font-size:16px">getClosureIssues 方法不存在 — MOCK_DATA.version='+(window.MOCK_DATA.version||'?')+'</div>';}
+</script>
+<script>
 var _projItems=[],_page=1,_pageSize=10;
 function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
 function buildProjData(){
-  var allIssues=MOCK_DATA.getClosureIssues();
+  var allIssues;
+  try { allIssues = MOCK_DATA.getClosureIssues(); }
+  catch(e) {
+    document.getElementById('tableBody').innerHTML = '<tr><td colspan="9" style="color:red;padding:20px">数据加载失败: '+e.message+'<br>请检查 mock-data.js 是否有语法错误</td></tr>';
+    return [];
+  }
   // ── 虚拟项目：未报建-应建未建围挡 ──
   var unregs=allIssues.filter(function(i){return i._unregistered;});
   var virtualProj={

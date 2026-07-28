@@ -209,10 +209,10 @@ function loadDetail(){
     // ═══ 流转日志 (simplified: 上报 → 转派 → 整改) ═══
   var r=_issue._rectification,tr=_issue._transfers||[],items=[];
   // 1. 问题上报
-  items.push({type:'report',title:'问题上报',time:_issue.reportTime,desc:_issue.details,photos:_issue.photos,person:_issue.source==='项目巡检'?'刘伟':_issue.source==='街道上报'?'李伟':_issue.source==='监管巡查'?'张建国':_issue.source==='群众上报'?'市民':'—'});
+  items.push({type:'report',title:'问题上报',time:_issue.reportTime,desc:_issue.details,photos:_issue.photos,person:_issue.source==='项目巡检'?'刘伟':_issue.source==='街道上报'?'李伟':_issue.source==='监管巡查'?'张建国':_issue.source==='群众上报'?'群众':'—'});
   // 3. 问题转派 (if any)
   tr.forEach(function(t){
-    items.push({type:'transfer',title:'问题转派',time:t.time,person:t.operator,unit:t.unit,desc:t.desc,originalEng:t.originalEng||'—'});
+    items.push({type:'transfer',title:'问题转派',time:t.time,person:t.operator,unit:t.unit,desc:t.desc,originalEng:t.originalEng||'—',transferEng:t.transferEng||'—'});
   });
   // 4. 整改处置
   if(r)items.push({type:'rectify',title:'整改处置',time:r.rectTime,person:r.rectifier,unit:r.rectifierUnit,desc:r.desc,photos:r.photos});
@@ -235,7 +235,8 @@ function loadDetail(){
     }
     if(t.type==='transfer'){
       th+='<div class="log-field"><span class="log-field-lbl">转派人</span><span class="log-field-val">'+esc(t.person||'—')+(t.unit?'（'+esc(t.unit)+'）':'')+'</span></div>';
-      th+='<div class="log-field"><span class="log-field-lbl">原关联工程</span><span class="log-field-val">'+esc(_issue.engineerName||'—')+'</span></div>';
+      th+='<div class="log-field"><span class="log-field-lbl">原关联工程</span><span class="log-field-val">'+esc(t.originalEng||_issue.engineerName||'—')+'</span></div>';
+      th+='<div class="log-field"><span class="log-field-lbl">转派工程</span><span class="log-field-val">'+esc(t.transferEng||'—')+'</span></div>';
       if(t.desc)th+='<div class="log-field"><span class="log-field-lbl">转派说明</span><span class="log-field-val">'+esc(t.desc)+'</span></div>';
     }
     if(t.type==='rectify'){

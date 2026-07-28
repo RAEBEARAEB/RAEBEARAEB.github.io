@@ -218,7 +218,7 @@ a{color:var(--blue-light);text-decoration:none}
         <div class="info-card-body">
           <div class="info-grid">
             <div class="info-item"><span class="info-label">设置时间</span><span class="info-value">2025-11-22</span></div>
-            <div class="info-item"><span class="info-label">围挡管护期限</span><span class="info-value time-range">2025-11-22 ~ 2026-08-30</span></div>
+            <div class="info-item"><span class="info-label">计划拆除时间</span><span class="info-value time-range">2025-06-30</span></div>
           </div>
         </div>
       </div>
@@ -304,6 +304,7 @@ function renderPhotos(){
 }
 
 function openLocPicker(){
+  if(!window.MOCK_DATA){ showToast('<div>数据加载失败，请刷新页面重试</div>'); return; }
   var overlay = document.createElement('div'); overlay.className = 'loc-picker-overlay'; overlay.id = 'locPickerOverlay';
   var hs = MOCK_DATA.getHoardings(); var fence = null, project = null;
   for(var i = 0; i < hs.length; i++){ if(hs[i].id === 'WD-2026-0003'){ fence = hs[i]; break; } }
@@ -360,7 +361,7 @@ function useCurrentLoc(){
   else { showToast('<div>当前设备不支持定位</div>'); }
 }
 
-(function initFenceMap(){
+(function initFenceMap(){ try {
   var demoFence = (function(){ var hs = MOCK_DATA.getHoardings(); for(var i = 0; i < hs.length; i++){ if(hs[i].id === 'WD-2026-0003') return hs[i]; } return hs[0]; })();
   var demoProject = (function(){ var ps = MOCK_DATA.getProjects(); for(var i = 0; i < ps.length; i++){ if(ps[i].name === demoFence.projectName) return ps[i]; } return ps[0]; })();
   var mapEl = document.getElementById('fenceMap'); if(!mapEl) return;
@@ -388,7 +389,7 @@ function useCurrentLoc(){
   if(demoFence && demoFence.gpsShape) demoFence.gpsShape.forEach(function(p){ bounds.extend(p); });
   if(demoProject && demoProject.redlineGeo) demoProject.redlineGeo.forEach(function(p){ bounds.extend(p); });
   if(bounds.isValid()) map.fitBounds(bounds.pad(0.3)); map.setZoom(Math.min(map.getZoom(), 18));
-})();
+} catch(e) { console.error(e); } })();
 
 function scrollToReport(){ var el = document.getElementById('reportSection'), screen = document.getElementById('phoneScreen'), top = el.offsetTop - screen.offsetTop - 8; screen.scrollTo({top:top, behavior:'smooth'}); }
 function submitReport(){
@@ -398,23 +399,37 @@ function submitReport(){
   if(_photos.length === 0){ showToast('<div>请至少上传一张现场照片</div>'); return; }
   if(!_hasPickedLocation || _location.lat == null){ showToast('<div>请选择问题位置</div>'); return; }
   reportCount++; var now = new Date(); var ts = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0')+' '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
-  var fullContent = '【' + _selectedType + '】' + text; addRecord(reportCount, fullContent, ts);
+  var fullContent = '【' + _selectedType + '】' + text; addRecord(reportCount, fullContent, ts, '待整改', 'YZY-NEW-'+reportCount);
   _reports.push({id:reportCount,type:_selectedType,content:text,photos:_photos.slice(),time:ts,location:{lat:_location.lat,lng:_location.lng,addr:_location.addr||''}});
   document.getElementById('reportInput').value = ''; _photos = []; renderPhotos(); _selectedType = null; renderIssueTypes();
   showToast('<div class="toast-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><div>您已成功上报围挡问题，后续可在上报记录中查看问题处理情况</div>');
 }
 function showToast(html){ var t = document.getElementById('toast'); t.innerHTML = html; t.classList.add('show'); setTimeout(function(){t.classList.remove('show')}, 2500); }
-function addRecord(id, content, time){
+function addRecord(id, content, time, status, issueId){
   var e = document.getElementById('recordEmpty'); if(e) e.style.display = 'none';
-  var st = ['pending','processing','done'], sl = ['待处理','处理中','已处理'], si = id <= 1 ? 0 : (id <= 2 ? 1 : 2);
+  var sc = {'待整改':'pending','整改逾期':'processing','整改完成':'done'};
+  var label = status || '待整改';
+  var cls = sc[status] || 'pending';
   var d = document.createElement('div'); d.className = 'record-item';
-  d.innerHTML = '<div class="record-top"><span class="record-id">上报编号：WD' + String(id).padStart(4,'0') + '</span><span class="record-status ' + st[si] + '">' + sl[si] + '</span></div><div class="record-content">' + escapeHtml(content) + '</div><div class="record-time">' + time + '</div>';
+  d.onclick = function(){ if(issueId) location.href = 'issue-detail.html?id=' + issueId; };
+  d.innerHTML = '<div class="record-top"><span class="record-id">上报编号：' + (issueId || 'WD'+String(id).padStart(4,'0')) + '</span><span class="record-status ' + cls + '">' + label + '</span></div><div class="record-content">' + escapeHtml(content) + '</div><div class="record-time">' + time + '</div>';
   document.getElementById('recordList').insertBefore(d, document.getElementById('recordList').children.length > 1 ? document.getElementById('recordList').children[1] : null);
+}
+function loadDemoRecords(){
+  if(!window.MOCK_DATA) return;
+  var issues = MOCK_DATA.getClosureIssues().filter(function(i){ return i.source === '群众上报'; });
+  if(!issues.length){
+    issues = MOCK_DATA.getClosureIssues().filter(function(i){ return i._projectName && i.fenceId; }).slice(0, 3);
+  }
+  issues.forEach(function(i){
+    addRecord(i.id, '【'+i.type+'】'+i.details, i.reportTime, i.status, i.id);
+  });
 }
 function escapeHtml(s){ var d = document.createElement('div'); d.appendChild(document.createTextNode(s)); return d.innerHTML; }
 function openDrawer(){ document.getElementById('drawerOverlay').classList.add('open'); document.getElementById('drawer').classList.add('open'); }
 function closeDrawer(){ document.getElementById('drawerOverlay').classList.remove('open'); document.getElementById('drawer').classList.remove('open'); }
 renderIssueTypes();
+loadDemoRecords();
 (function(){
   var fab = document.getElementById('fabBtn'), screen = document.getElementById('phoneScreen'), report = document.getElementById('reportSection');
   screen.addEventListener('scroll', function(){ var top = screen.scrollTop, rTop = report.offsetTop - screen.offsetTop; fab.style.opacity = top + screen.height * 0.7 > rTop ? '0.35' : '1'; fab.style.transform = top + screen.height * 0.7 > rTop ? 'scale(0.9)' : 'scale(1)'; });
