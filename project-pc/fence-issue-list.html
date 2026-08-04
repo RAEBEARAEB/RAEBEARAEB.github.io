@@ -232,6 +232,7 @@ a:hover{color:var(--color-primary-600)}
           <th style="width:32px">序号</th>
           <th style="width:90px">问题类型</th>
           <th style="width:150px;text-align:left">关联项目</th>
+          <th style="width:130px;text-align:left">围挡名称</th>
           <th style="width:120px;text-align:left">关联工程</th>
           <th style="width:80px">所属街道</th>
           <th style="width:140px">责任单位</th>
@@ -295,9 +296,12 @@ function renderTable(){
   pageItems.forEach(function(i, idx){
     var sc = i.status==='待整改'?'待整改':i.status==='整改逾期'?'整改逾期':'整改完成';
     var sCls = i.status==='待整改'?'tag-warning':i.status==='整改逾期'?'tag-danger':'tag-success';
+    var hoard = i.fenceId ? MOCK_DATA.findFenceById(i.fenceId) : null;
+    var fenceName = hoard ? (hoard.fenceName || hoard.engineerName || '--') : '--';
     h += '<tr><td>'+(start+idx+1)+'</td>'+
       '<td><span class="issue-type-text">'+esc(i.type||'')+'</span></td>'+
       '<td style="text-align:left">'+esc(i._projectName||'--')+'</td>'+
+      '<td style="text-align:left">'+esc(fenceName)+'</td>'+
       '<td style="text-align:left">'+esc(i.engineerName||'--')+'</td>'+
       '<td>'+esc(i.street||'--')+'</td>'+
       '<td>'+esc(i._constructUnit||i.responsibleUnit||'--')+'</td>'+
@@ -309,7 +313,7 @@ function renderTable(){
       (i.status==='待整改'||i.status==='整改逾期'?'<a class="table-action-link" href="javascript:void(0)" onclick="openTransferModal(\''+i.id+'\')">转派</a>':'')+
       '</div></td></tr>';
   });
-  if(!total) h = '<tr><td colspan="10" style="padding:40px;color:var(--text-tertiary)">暂无数据</td></tr>';
+  if(!total) h = '<tr><td colspan="11" style="padding:40px;color:var(--text-tertiary)">暂无数据</td></tr>';
   document.getElementById('tableBody').innerHTML = h;
 
   var totalPages = Math.ceil(total/_pageSize);

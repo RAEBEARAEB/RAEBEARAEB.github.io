@@ -190,11 +190,14 @@ function loadDetail(){
   _issue=MOCK_DATA.getClosureDetail(decodeURIComponent(issueId));if(!_issue)return;
   var sc=_issue.status==='待整改'?'待整改':_issue.status==='整改逾期'?'整改逾期':'整改完成';
   var sCls=_issue.status==='待整改'?'tag-warning':_issue.status==='整改逾期'?'tag-danger':'tag-success';
+  var _hoard = _issue.fenceId ? MOCK_DATA.findFenceById(_issue.fenceId) : null;
+  var _fenceName = _hoard ? (_hoard.fenceName || _hoard.engineerName || '--') : '--';
 
   // ═══ 围挡问题信息 ═══
   var h='<div class="detail-item"><span class="detail-label">问题类型</span><span class="detail-value" style="color:var(--color-primary-500);font-weight:var(--font-weight-medium)">'+esc(_issue.type||'--')+'</span></div>'+
     '<div class="detail-item"><span class="detail-label">问题状态</span><span class="detail-value"><span class="tag '+sCls+'">'+sc+'</span></span></div>'+
     '<div class="detail-item"><span class="detail-label">问题来源</span><span class="detail-value">'+esc(_issue.source||'--')+'</span></div>'+
+    '<div class="detail-item"><span class="detail-label">围挡名称</span><span class="detail-value">'+esc(_fenceName)+'</span></div>'+
     '<div class="detail-item"><span class="detail-label">关联项目</span><span class="detail-value">'+esc(_issue._projectName||'--')+'</span></div>'+
     '<div class="detail-item"><span class="detail-label">关联工程</span><span class="detail-value">'+esc(_issue.engineerName||'--')+'</span></div>'+
     '<div class="detail-item"><span class="detail-label">责任单位</span><span class="detail-value">'+esc(_issue._constructUnit||_issue.responsibleUnit||'--')+'</span></div>'+
