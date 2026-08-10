@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>围挡卡片 Demo E — 正式原型 + 方案D按钮</title>
+<style>
+/* ═══ Design Token (匹配正式原型) ═══ */
+:root {
+  --primary-500:#1862D4;--primary-600:#104FAD;
+  --gray-0:#fff;--gray-50:#F7F8FA;--gray-100:#F0F1F5;--gray-200:#E3E6ED;
+  --gray-400:#9CA3B0;--gray-500:#6B7280;--gray-700:#374151;--gray-900:#111827;
+  --danger:#D13B2F;--danger-light:#FDECEA;
+  --success:#1A9042;
+  --warning-dark:#D48A00;--warning-light:#FEF3CD;
+  --info-light:#E8F3FF;
+  --font:"PingFang SC","Microsoft YaHei","Helvetica Neue",Arial,sans-serif;
+  --radius:6px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);font-size:14px;color:var(--gray-700);background:#EDF0F5;padding:24px}
+h2{font-size:18px;font-weight:600;color:var(--gray-900);margin-bottom:2px}
+h3{font-size:13px;color:var(--gray-500);font-weight:400;margin-bottom:16px}
+.section{margin-bottom:36px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:14px}
+
+/* ═══════════════════════════════════════════
+   卡片容器 — 匹配正式原型 .fcard
+   ═══════════════════════════════════════════ */
+.fcard{background:#fff;border:1px solid var(--gray-200);border-radius:var(--radius);box-shadow:0 1px 4px rgba(0,0,0,0.04);cursor:pointer;transition:all 0.15s;overflow:hidden}
+.fcard:hover{box-shadow:0 2px 8px rgba(0,0,0,0.06);border-color:#A0C4F0}
+.fcard.is-removed{background:var(--gray-50);border-color:var(--gray-200)}
+.fcard.is-removed:hover{border-color:var(--gray-400)}
+
+/* ═══ 顶部：状态标签+编号(左) | 待校核(右) ═══ */
+.fcard-top{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 8px}
+.fcard-left{display:flex;align-items:center;gap:10px;min-width:0}
+.fcard-num{font-size:15px;font-weight:600;color:var(--gray-900);white-space:nowrap}
+.fcard-verify{font-size:11px;color:var(--gray-400);font-weight:500;flex-shrink:0}
+
+/* 状态标签 — 正式原型样式（彩色边框标签），左上角编号之前 */
+.fcard-tag{display:inline-flex;align-items:center;padding:1px 10px;border-radius:2px;font-size:12px;font-weight:500;white-space:nowrap;flex-shrink:0}
+.fcard-tag.installed{background:var(--info-light);color:var(--primary-500);border:1px solid #9DBEFF}
+.fcard-tag.claiming{background:#FEF3CD;color:#B45309;border:1px solid #FCD34D}
+.fcard-tag.overdue{background:var(--danger-light);color:var(--danger);border:1px solid #F0B0B0}
+.fcard-tag.removed{background:var(--gray-100);color:var(--gray-400);border:1px solid var(--gray-200)}
+
+/* ═══ 信息区 — 两行紧凑布局 ═══ */
+.fcard-body{padding:4px 16px 10px}
+.fcard-row{display:flex;align-items:center;font-size:13px;line-height:1.7;white-space:nowrap;overflow:hidden}
+.fcard-row .flb{color:var(--gray-400);font-size:12px;white-space:nowrap;flex-shrink:0;margin-right:8px;min-width:56px}
+.fcard-row .fi-strong{font-weight:500;color:var(--gray-900)}
+.fcard-row .fi-sep{color:var(--gray-200);margin:0 10px;flex-shrink:0}
+.fcard-row span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* 到期天数颜色 */
+.fcard-row .fvl{color:var(--gray-700)}
+.fcard-row .fvl.warning{color:var(--warning-dark);font-weight:500}
+.fcard-row .fvl.danger{color:var(--danger);font-weight:500}
+
+/* ═══ 分割线 + 按钮区 — 方案D风格 ═══ */
+.fcard-divider{height:1px;background:var(--gray-100);margin:0 16px}
+.fcard-actions{display:flex;justify-content:flex-end;align-items:center;gap:2px;padding:7px 16px 10px}
+.fcard-act{display:inline-flex;align-items:center;gap:3px;padding:3px 8px;font-size:11px;font-family:var(--font);border-radius:3px;cursor:pointer;transition:all 0.15s;background:transparent;border:none;color:var(--gray-500)}
+.fcard-act:hover{background:var(--gray-50);color:var(--gray-700)}
+.fcard-act.danger-text{color:var(--danger)}
+.fcard-act.danger-text:hover{background:var(--danger-light)}
+.fcard-act.claim-text{color:var(--primary-500);font-weight:500}
+.fcard-act.claim-text:hover{background:var(--info-light)}
+.fcard-act.patrol-text{color:var(--primary-500)}
+.fcard-act.patrol-text:hover{background:var(--info-light)}
+.fcard-act svg{width:11px;height:11px;flex-shrink:0}
+.fcard-actions .act-sep{color:var(--gray-200);font-size:11px}
+
+/* 已拆除卡片淡化 */
+.fcard.is-removed .fcard-num{color:var(--gray-400)}
+.fcard.is-removed .fcard-row{color:var(--gray-400)}
+.fcard.is-removed .fcard-row .fi-strong{color:var(--gray-500)}
+.fcard.is-removed .fcard-row .flb{color:var(--gray-300)}
+.fcard.is-removed .fcard-verify{color:var(--gray-400)}
+</style>
+</head>
+<body>
+
+<h2>Demo E — 卡片设计方案</h2>
+<h3>正式原型卡片样式 + 方案D按钮（| 分隔文字链接 + 灰色分割线）</h3>
+
+<!-- ═══════════ 福田项目 ═══════════ -->
+<div class="section">
+  <h3 style="font-weight:600;color:var(--primary-500);margin-bottom:10px">福田中心区市政管网改造工程</h3>
+  <div class="grid">
+
+    <!-- 围挡1#：已安装 + 待校核，有权限 -->
+    <div class="fcard">
+      <div class="fcard-top">
+        <div class="fcard-left">
+          <span class="fcard-tag installed">已安装</span>
+          <span class="fcard-num">围挡1#</span>
+        </div>
+        <span class="fcard-verify">待校核</span>
+      </div>
+      <div class="fcard-body">
+        <div class="fcard-row">
+          <span class="flb">当前关联</span>
+          <span class="fi-strong">管道铺设工程（在建）</span>
+          <span class="fi-sep">|</span>
+          <span>深圳市市政工程总公司</span>
+          <span class="fi-sep">|</span>
+          <span>刘伟（13600136001）</span>
+        </div>
+        <div class="fcard-row">
+          <span class="flb">距管护到期</span>
+          <span class="fvl">168 天</span>
+        </div>
+      </div>
+      <div class="fcard-divider"></div>
+      <div class="fcard-actions">
+        <button class="fcard-act">管护历史</button>
+        <span class="act-sep">|</span>
+        <button class="fcard-act patrol-text">+ 巡查记录</button>
+        <span class="act-sep">|</span>
+        <button class="fcard-act danger-text"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>结束管护</button>
+      </div>
+    </div>
+
+    <!-- 围挡2#：超期未拆 + 无权限（constructUnit不匹配），只有管护历史 -->
+    <div class="fcard">
+      <div class="fcard-top">
+        <div class="fcard-left">
+          <span class="fcard-tag overdue">超期未拆</span>
+          <span class="fcard-num">围挡2#</span>
+        </div>
+      </div>
+      <div class="fcard-body">
+        <div class="fcard-row">
+          <span class="flb">当前关联</span>
+          <span class="fi-strong">沟槽开挖工程（在建）</span>
+          <span class="fi-sep">|</span>
+          <span>深圳市深建基坑工程有限公司</span>
+          <span class="fi-sep">|</span>
+          <span>—</span>
+        </div>
+        <div class="fcard-row">
+          <span class="flb">距管护到期</span>
+          <span class="fvl danger">已超 412 天</span>
+        </div>
+      </div>
+      <div class="fcard-divider"></div>
+      <div class="fcard-actions">
+        <button class="fcard-act">管护历史</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════ 南山项目 ═══════════ -->
+<div class="section">
+  <h3 style="font-weight:600;color:var(--primary-500);margin-bottom:10px">南山区科技园综合体项目</h3>
+  <div class="grid">
+
+    <!-- 围挡1#：已安装，有权限 -->
+    <div class="fcard">
+      <div class="fcard-top">
+        <div class="fcard-left">
+          <span class="fcard-tag installed">已安装</span>
+          <span class="fcard-num">围挡1#</span>
+        </div>
+      </div>
+      <div class="fcard-body">
+        <div class="fcard-row">
+          <span class="flb">当前关联</span>
+          <span class="fi-strong">绿化迁移工程（在建）</span>
+          <span class="fi-sep">|</span>
+          <span>中建三局集团有限公司</span>
+          <span class="fi-sep">|</span>
+          <span>李明（13876365434）</span>
+        </div>
+        <div class="fcard-row">
+          <span class="flb">距管护到期</span>
+          <span class="fvl">441 天</span>
+        </div>
+      </div>
+      <div class="fcard-divider"></div>
+      <div class="fcard-actions">
+        <button class="fcard-act">管护历史</button>
+        <span class="act-sep">|</span>
+        <button class="fcard-act patrol-text">+ 巡查记录</button>
+        <span class="act-sep">|</span>
+        <button class="fcard-act danger-text"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>结束管护</button>
+      </div>
+    </div>
+
+    <!-- 围挡2#：待认领 -->
+    <div class="fcard">
+      <div class="fcard-top">
+        <div class="fcard-left">
+          <span class="fcard-tag claiming">待认领</span>
+          <span class="fcard-num">围挡2#</span>
+        </div>
+      </div>
+      <div class="fcard-body">
+        <div class="fcard-row">
+          <span class="flb">当前关联</span>
+          <span class="fi-strong">基坑支护工程（在建）</span>
+          <span class="fi-sep">|</span>
+          <span>—</span>
+          <span class="fi-sep">|</span>
+          <span>—</span>
+        </div>
+        <div class="fcard-row">
+          <span class="flb">距管护到期</span>
+          <span class="fvl">214 天</span>
+        </div>
+      </div>
+      <div class="fcard-divider"></div>
+      <div class="fcard-actions">
+        <button class="fcard-act">管护历史</button>
+        <span class="act-sep">|</span>
+        <button class="fcard-act claim-text">认领</button>
+      </div>
+    </div>
+
+    <!-- 围挡3#：已拆除 -->
+    <div class="fcard is-removed">
+      <div class="fcard-top">
+        <div class="fcard-left">
+          <span class="fcard-tag removed">已拆除</span>
+          <span class="fcard-num">围挡3#</span>
+        </div>
+      </div>
+      <div class="fcard-body">
+        <div class="fcard-row">
+          <span class="flb">当前关联</span>
+          <span class="fi-strong">土方回填工程（已竣工）</span>
+          <span class="fi-sep">|</span>
+          <span>中建三局集团有限公司</span>
+          <span class="fi-sep">|</span>
+          <span>李明（13876365434）</span>
+        </div>
+        <div class="fcard-row">
+          <span class="flb">距管护到期</span>
+          <span class="fvl">—</span>
+        </div>
+      </div>
+      <div class="fcard-divider"></div>
+      <div class="fcard-actions">
+        <button class="fcard-act">管护历史</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

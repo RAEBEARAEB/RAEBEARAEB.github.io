@@ -349,6 +349,13 @@ a:hover{color:var(--text-link-hover)}
 .patrol-issue-photo-row{display:flex;flex-wrap:wrap;gap:4px;align-items:center}
 .patrol-issue-photo-add{width:52px;height:52px;border:1.5px dashed var(--color-gray-300);border-radius:var(--border-radius-md);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;color:var(--text-tertiary);font-size:10px;gap:2px;background:var(--bg-card)}
 .patrol-issue-photo-add:hover{border-color:var(--color-primary-300);color:var(--color-primary-500)}
+/* 巡检人现场自拍上传 */
+.patrol-selfie{width:120px;height:120px;position:relative}
+.patrol-selfie-add{width:120px;height:120px;border:1.5px dashed var(--color-gray-300);border-radius:var(--border-radius-md);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;color:var(--text-tertiary);font-size:var(--font-size-xs);background:var(--bg-card);transition:all .15s}
+.patrol-selfie-add:hover{border-color:var(--color-primary-400);color:var(--color-primary-500)}
+.patrol-selfie-preview{width:120px;height:120px;position:relative}
+.patrol-selfie-preview img{width:100%;height:100%;object-fit:cover;border-radius:var(--border-radius-md);border:1px solid var(--border-color-light)}
+.patrol-selfie-del{position:absolute;top:-8px;right:-8px;width:22px;height:22px;border-radius:50%;background:var(--color-danger);color:#fff;border:2px solid #fff;font-size:14px;display:flex;align-items:center;justify-content:center;cursor:pointer;line-height:1;padding:0}
 .patrol-issue-photo-thumb{width:52px;height:52px;border-radius:var(--border-radius-md);overflow:hidden;position:relative;border:1px solid var(--border-color-light)}
 .patrol-issue-photo-thumb img{width:100%;height:100%;object-fit:cover}
 .patrol-issue-photo-thumb .photo-del{position:absolute;top:1px;right:1px;width:16px;height:16px;border-radius:50%;background:rgba(0,0,0,0.55);color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;cursor:pointer}
@@ -712,6 +719,7 @@ textarea.form-input{height:80px;padding:var(--space-2) var(--space-3);resize:ver
               <div class="modal-body">
                 <div class="form-group"><label class="form-label"><span style="color:var(--color-danger)">*</span> 巡检时间</label><input type="datetime-local" class="form-input" id="patrolFormDatetime"></div>
                 <div class="form-group"><label class="form-label"><span style="color:var(--color-danger)">*</span> 巡检人</label><input type="text" class="form-input" id="patrolFormPerson" value="张项目" disabled style="background:var(--color-gray-100);cursor:not-allowed"></div>
+                <div class="form-group"><label class="form-label"><span style="color:var(--color-danger)">*</span> 巡检人现场自拍</label><div class="patrol-selfie"><input type="file" id="patrolSelfieInput" accept="image/*" style="display:none" onchange="handlePatrolSelfie(event)"><div class="patrol-selfie-add" id="patrolSelfieAdd" onclick="document.getElementById('patrolSelfieInput').click()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg><span>点击上传现场自拍</span></div><div class="patrol-selfie-preview" id="patrolSelfiePreview" style="display:none"><img id="patrolSelfieImg" alt="自拍"><button type="button" class="patrol-selfie-del" onclick="clearPatrolSelfie(event)">&times;</button></div></div><div style="font-size:11px;color:var(--text-tertiary);margin-top:4px;line-height:1.5"><span style="color:var(--color-danger);font-weight:500">需带有时间地点水印</span>，大小不超过5M，支持 JPG/JPEG/PNG/GIF/BMP 格式</div></div>
                 <div class="form-group"><label class="form-label"><span style="color:var(--color-danger)">*</span> 全景照片链接</label><input type="url" class="form-input" id="patrolFormPanoUrl" placeholder="请输入全景照片链接，如 https://ips.cscecsteel.com/kgsy/projectTourist/... 或 https://www.720yun.com/vr/..."></div>
                 <div class="form-group"><label class="form-label"><span style="color:var(--color-danger)">*</span> 是否存在问题项</label>
                   <div style="display:flex;gap:16px;padding-top:4px">
@@ -1516,6 +1524,7 @@ window.openAddModal=function(){
   document.getElementById('patrolFormPerson').value='张项目';
   document.getElementById('patrolFormPanoUrl').value='';
   document.getElementById('patrolFormRemark').value='';
+  clearPatrolSelfie();
   document.querySelector('input[name="patrolHasIssue"][value="no"]').checked=true;
   handleHasIssueChange();
   document.getElementById('patrolModal').classList.add('show');
@@ -1532,6 +1541,9 @@ window.handleHasIssueChange=function(){
 
 // ── Multi-issue management ──
 var _patrolIssues=[];
+var _patrolSelfie=null;
+function handlePatrolSelfie(e){var f=e.target.files&&e.target.files[0];if(!f)return;if(!/^image\//.test(f.type)){showToast('请上传图片文件','error');e.target.value='';return;}if(f.size>5*1024*1024){showToast('图片大小不能超过5M','error');e.target.value='';return;}var r=new FileReader();r.onload=function(ev){_patrolSelfie=ev.target.result;document.getElementById('patrolSelfieImg').src=ev.target.result;document.getElementById('patrolSelfiePreview').style.display='block';document.getElementById('patrolSelfieAdd').style.display='none';};r.readAsDataURL(f);e.target.value='';}
+function clearPatrolSelfie(e){if(e)e.stopPropagation();_patrolSelfie=null;var img=document.getElementById('patrolSelfieImg');if(img)img.src='';var pv=document.getElementById('patrolSelfiePreview');if(pv)pv.style.display='none';var ad=document.getElementById('patrolSelfieAdd');if(ad)ad.style.display='flex';}
 var _patrolLocPickerIssueIdx=-1;
 var ISSUE_TYPES=window.MOCK_DATA.getStreetIssueTypes();
 
@@ -1706,6 +1718,7 @@ window.savePatrolRecord=function(){
   var hasIssue=document.querySelector('input[name="patrolHasIssue"]:checked').value==='yes';
   if(!dt){showToast('请选择巡检时间','error');return}
   if(!person.trim()){showToast('请填写巡检人','error');return}
+  if(!_patrolSelfie){showToast('请上传巡检人现场自拍','error');return}
   if(!panoUrl){showToast('请填写全景照片链接','error');return}
   // Validate issues
   if(hasIssue){

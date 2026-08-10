@@ -452,6 +452,16 @@ a{color:var(--cyan);text-decoration:none}::-webkit-scrollbar{width:5px}::-webkit
   transform:translateY(-1px);
 }
 .map-tool svg{width:16px;height:16px}
+.map-patrol-entry{
+  height:34px;padding:0 13px;display:inline-flex;align-items:center;gap:7px;
+  color:#fff;background:linear-gradient(135deg,#1862D4,#2878E8);
+  border:1px solid rgba(112,178,255,.58);border-radius:2px;
+  font-size:12px;font-weight:600;white-space:nowrap;text-decoration:none;
+  box-shadow:0 3px 14px rgba(24,98,212,.34),inset 0 1px 0 rgba(255,255,255,.12);
+  transition:all var(--transition-smooth);font-family:var(--font-family);
+}
+.map-patrol-entry:hover{color:#fff;background:linear-gradient(135deg,#2372DE,#3888F2);border-color:rgba(140,195,255,.78);box-shadow:0 0 18px rgba(77,168,255,.32);transform:translateY(-1px)}
+.map-patrol-entry svg{width:15px;height:15px;flex-shrink:0}
 
 /* ── Right-side fence list panel ── */
 .fence-list-panel{
@@ -547,13 +557,17 @@ a{color:var(--cyan);text-decoration:none}::-webkit-scrollbar{width:5px}::-webkit
 .fp-footer{
   position:sticky;bottom:0;left:0;right:0;z-index:2;
   background:#0B1528;
-  display:flex;align-items:center;justify-content:flex-end;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
   padding:10px 16px;
   border-top:1px solid rgba(80,150,255,0.15);
 }
+.fp-latest{display:flex;align-items:center;gap:5px;min-width:0;font-size:11px;white-space:nowrap}
+.fp-latest-label{color:rgba(140,165,200,.58)}
+.fp-latest-date{color:var(--cyan);font-family:var(--font-mono);font-weight:600}
+.fp-footer-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
 .fp-btn{
   display:inline-flex;align-items:center;
-  padding:5px 16px;font-size:12px;font-weight:600;
+  gap:5px;padding:5px 12px;font-size:12px;font-weight:600;
   color:#FFF;background:rgba(24,98,212,0.5);
   border:1px solid rgba(80,150,255,0.4);
   border-radius:0;text-decoration:none;
@@ -561,6 +575,12 @@ a{color:var(--cyan);text-decoration:none}::-webkit-scrollbar{width:5px}::-webkit
   font-family:var(--font-family);
 }
 .fp-btn:hover{background:rgba(24,98,212,0.7);border-color:rgba(80,150,255,0.6)}
+.fp-btn svg{width:13px;height:13px;flex-shrink:0}
+.fp-btn.patrol,.fp-btn.patrol:visited{color:#fff!important;background:linear-gradient(180deg,rgba(35,112,220,.78),rgba(15,72,158,.82));border-color:rgba(77,168,255,.68);box-shadow:0 0 10px rgba(77,168,255,.18),inset 0 1px 0 rgba(255,255,255,.14);text-shadow:0 1px 2px rgba(0,18,50,.55)}
+.fp-btn.patrol svg{color:#fff!important;stroke:#fff!important;filter:drop-shadow(0 0 3px rgba(255,255,255,.18))}
+.fp-btn.patrol:hover,.fp-btn.patrol:focus{color:#fff!important;background:linear-gradient(180deg,rgba(48,132,238,.88),rgba(20,88,190,.9));border-color:rgba(115,190,255,.9);box-shadow:0 0 15px rgba(77,168,255,.34),inset 0 1px 0 rgba(255,255,255,.18)}
+.fp-btn.detail{color:rgba(200,218,242,.82);background:rgba(80,150,255,.06);border-color:rgba(80,150,255,.22)}
+.fp-btn.detail:hover{color:#fff;background:rgba(80,150,255,.14);border-color:rgba(80,150,255,.42)}
 
 /* ── Redline popup ── */
 .redline-popup{padding:12px 16px 14px}
@@ -667,6 +687,10 @@ a{color:var(--cyan);text-decoration:none}::-webkit-scrollbar{width:5px}::-webkit
 
   <!-- Tool buttons -->
   <div class="cockpit-panel map-tools">
+    <a class="map-patrol-entry" href="panorama_patrol_v3.html" title="进入全景巡查模块">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12a9 9 0 1018 0 9 9 0 10-18 0z"/><path d="M7 12c2.2-3 7.8-3 10 0-2.2 3-7.8 3-10 0z"/><circle cx="12" cy="12" r="1.7" fill="currentColor" stroke="none"/></svg>
+      全景巡查
+    </a>
     <button class="map-tool" title="放大" onclick="mapZoom(1)">+</button>
     <button class="map-tool" title="缩小" onclick="mapZoom(-1)">−</button>
     <button class="map-tool" title="重置视图" onclick="resetView()">
@@ -837,25 +861,53 @@ function loadFences() {
         '</div></div>';
     }
 
+    /* ── 最新巡检：用于详情卡片统计和全景巡查定位 ── */
+    var patrolList=(f.patrolRecords||[]).filter(function(r){return !!r.date;}).slice().sort(function(a,b){
+      return (b.date||'').localeCompare(a.date||'')||(b.time||'').localeCompare(a.time||'');
+    });
+    var latestPatrol=patrolList.length?patrolList[0]:null;
+    var latestPatrolDate=latestPatrol&&latestPatrol.date?latestPatrol.date:'';
+    var latestPatrolShort=latestPatrolDate&&latestPatrolDate.length>=10?latestPatrolDate.slice(5):'暂无';
+    var patrolUrl='panorama_patrol_v3.html?fenceId='+encodeURIComponent(f.id||'')+
+      '&project='+encodeURIComponent(proj||'')+
+      (latestPatrolDate?'&patrolDate='+encodeURIComponent(latestPatrolDate):'')+
+      (latestPatrol&&latestPatrol.id?'&patrolRecordId='+encodeURIComponent(latestPatrol.id):'');
+
     poly.bindPopup(
       '<div class="fence-popup">'+
         '<div class="fp-title-bar"><span class="fp-title-name">'+(f.engineerName||'—')+'</span><span class="fp-tag '+tk+'">'+f.fenceStatus+'</span></div>'+
         s1+s2+s3+
-        '<div class="fp-footer"><a class="fp-btn" href="detail_info_v3.html?project='+encodeURIComponent(proj)+'&engineering='+encodeURIComponent(f.engineerName||'')+'" target="_blank">查看详情</a></div>'+
+        '<div class="fp-footer">'+
+          '<div class="fp-latest"><span class="fp-latest-label">最近巡检</span><span class="fp-latest-date">'+latestPatrolShort+'</span></div>'+
+          '<div class="fp-footer-actions">'+
+            '<a class="fp-btn patrol" href="'+patrolUrl+'" target="_blank" rel="noopener" title="在新标签页查看该围挡最新全景巡查记录">'+
+              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z"/><circle cx="12" cy="12" r="2.5"/></svg>巡查</a>'+
+            '<a class="fp-btn detail" href="detail_info_v3.html?project='+encodeURIComponent(proj)+'&engineering='+encodeURIComponent(f.engineerName||'')+'" target="_blank" rel="noopener">查看详情</a>'+
+          '</div>'+
+        '</div>'+
       '</div>',
-      { className: 'fence-popup-wrapper', maxWidth: 380 }
+      {
+        className: 'fence-popup-wrapper', maxWidth: 380,
+        autoPan: true, keepInView: true,
+        autoPanPaddingTopLeft: [24, 24],
+        autoPanPaddingBottomRight: [24, 24]
+      }
     );
-	    // Fit bounds: asymmetric right-padding so popup card opens on right side of polygon
+	    // 点击后将围挡范围对称放大至地图中心，再校正弹窗位置
 	    var shp = f.gpsShape;
 	    if(shp && shp.length){
 	      poly.on('click', function(){
 	        var latlngs = [];
 	        for(var i=0;i<shp.length;i++) latlngs.push([shp[i][0], shp[i][1]]);
-	        // large right padding → polygon stays left, card opens on right unobscured
+	        _map.once('moveend',function(){
+	          poly.openPopup();
+	          var activePopup=poly.getPopup();
+	          if(activePopup)activePopup.update();
+	        });
 	        _map.fitBounds(L.latLngBounds(latlngs), {
-	          paddingTopLeft: [40, 60],
-	          paddingBottomRight: [40, 420],
-	          maxZoom: 18, animate: true, duration: 0.4
+	          paddingTopLeft: [96, 96],
+	          paddingBottomRight: [96, 96],
+	          maxZoom: 17, animate: true, duration: 0.45
 	        });
 	      });
 	    }
@@ -977,7 +1029,7 @@ function flyToFence(id) {
   if(shp && shp.length){
     var latlngs = [];
     for(var i=0;i<shp.length;i++) latlngs.push([shp[i][0], shp[i][1]]);
-    _map.fitBounds(L.latLngBounds(latlngs), { paddingTopLeft: [56, 60], paddingBottomRight: [40, 420], maxZoom: 18, animate: true, duration: 0.4 });
+    _map.fitBounds(L.latLngBounds(latlngs), { paddingTopLeft: [96, 96], paddingBottomRight: [96, 96], maxZoom: 17, animate: true, duration: 0.45 });
   }
   applyMapFilter();
   setTimeout(function() { fl.polygon.openPopup(); }, 400);

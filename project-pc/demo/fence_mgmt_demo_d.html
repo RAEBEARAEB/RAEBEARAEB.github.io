@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>方案D · 项目端围挡档案管理 Demo</title>
+<style>
+/* ═══ Design Token（与 index_v2_project.html 完全一致）════ */
+:root {
+  --color-primary-50:#EBF2FF;--color-primary-100:#C6D9FF;--color-primary-200:#9DBEFF;
+  --color-primary-300:#6B9EF5;--color-primary-400:#3D7FED;--color-primary-500:#1862D4;
+  --color-primary-600:#104FAD;--color-primary-700:#0A3C86;--color-primary-800:#062A60;--color-primary-900:#031940;
+  --color-gray-0:#FFFFFF;--color-gray-50:#F7F8FA;--color-gray-100:#F0F1F5;--color-gray-200:#E3E6ED;
+  --color-gray-300:#C6CBD8;--color-gray-400:#9CA3B0;--color-gray-500:#6B7280;--color-gray-600:#4B5563;
+  --color-gray-700:#374151;--color-gray-800:#1F2937;--color-gray-900:#111827;
+  --color-success-light:#E6F4EA;--color-success:#1A9042;--color-success-dark:#136B31;
+  --color-warning-light:#FEF3CD;--color-warning:#D48A00;--color-warning-dark:#9E6600;
+  --color-danger-light:#FDECEA;--color-danger:#D13B2F;--color-danger-dark:#9E2C22;
+  --color-info-light:#E8F3FF;--color-info:#1862D4;--color-info-dark:#104FAD;
+  --text-title:var(--color-gray-900);--text-primary:var(--color-gray-800);--text-secondary:var(--color-gray-600);
+  --text-tertiary:var(--color-gray-400);--text-link:var(--color-primary-500);--text-link-hover:var(--color-primary-600);--text-inverse:#FFFFFF;
+  --border-color-light:var(--color-gray-200);--border-color-default:var(--color-gray-300);--border-color-focus:var(--color-primary-500);
+  --border-radius-sm:2px;--border-radius-md:4px;--border-radius-lg:6px;--border-radius-tag:2px;
+  --bg-page:var(--color-gray-50);--bg-card:var(--color-gray-0);--bg-table-head:var(--color-gray-100);
+  --bg-table-stripe:var(--color-gray-50);--bg-sidebar:#0D2B55;--bg-header:#FFFFFF;--bg-overlay:rgba(0,0,0,0.45);
+  --shadow-sm:0 1px 2px rgba(0,0,0,0.04);--shadow-md:0 2px 8px rgba(0,0,0,0.06);
+  --shadow-lg:0 4px 16px rgba(0,0,0,0.08);--shadow-card:0 1px 4px rgba(0,0,0,0.05);
+  --space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:20px;
+  --space-6:24px;--space-8:32px;--space-10:40px;--space-12:48px;
+  --font-family:"PingFang SC","Microsoft YaHei","Helvetica Neue",Arial,sans-serif;
+  --font-size-xs:12px;--font-size-sm:13px;--font-size-md:14px;--font-size-lg:16px;
+  --font-size-xl:18px;--font-size-2xl:20px;--font-size-3xl:24px;
+  --font-weight-regular:400;--font-weight-medium:500;--font-weight-bold:600;
+  --line-height-tight:1.4;--line-height-normal:1.6;--line-height-loose:1.8;
+  --transition-fast:0.15s ease;--transition-normal:0.2s ease;
+  --height-sm:28px;--height-md:32px;--height-lg:36px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-family);font-size:var(--font-size-md);color:var(--text-primary);background:var(--bg-page);line-height:var(--line-height-normal);-webkit-font-smoothing:antialiased;padding:24px 32px}
+a{color:var(--text-link);text-decoration:none;transition:color var(--transition-fast)}
+a:hover{color:var(--text-link-hover)}
+.container{max-width:1480px;margin:0 auto}
+
+/* ═══ Page Header ═══ */
+.page-header{margin-bottom:var(--space-3);display:flex;align-items:center;gap:var(--space-4)}
+.page-title{font-size:var(--font-size-2xl);font-weight:var(--font-weight-bold);color:var(--text-title);line-height:var(--line-height-tight)}
+.page-title-accent{display:inline-block;width:3px;height:20px;background:var(--color-primary-500);border-radius:2px;margin-right:var(--space-2);vertical-align:middle;position:relative;top:-1px}
+
+/* ═══ 项目选择器（与 index_v2_project.html 一致）═══ */
+.selector-bar{display:flex;gap:var(--space-4);align-items:flex-end;padding:var(--space-3) var(--space-5);background:var(--bg-card);border:1px solid var(--border-color-light);border-radius:var(--border-radius-lg);margin-bottom:var(--space-4);box-shadow:var(--shadow-card);position:relative;flex-shrink:0}
+.selector-bar::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--color-primary-500);border-radius:var(--border-radius-lg) 0 0 var(--border-radius-lg)}
+.selector-item{display:flex;flex-direction:column;gap:var(--space-1)}
+.selector-label{font-size:var(--font-size-xs);color:var(--text-secondary);font-weight:var(--font-weight-medium);letter-spacing:0.02em}
+.selector-select{height:var(--height-md);padding:0 var(--space-3);font-size:var(--font-size-sm);color:var(--text-primary);background:var(--bg-card);border:1px solid var(--border-color-default);border-radius:var(--border-radius-md);outline:none;width:260px;font-family:var(--font-family);transition:all var(--transition-fast);cursor:pointer}
+.selector-select:hover{border-color:var(--color-primary-300)}
+.selector-select:focus{border-color:var(--border-color-focus);box-shadow:0 0 0 2px var(--color-primary-50)}
+.selector-info{display:flex;align-items:center;gap:var(--space-6);margin-left:var(--space-4);padding-left:var(--space-4);border-left:1px solid var(--color-gray-200)}
+.selector-info-item{display:flex;flex-direction:column;gap:2px}
+.selector-info-label{font-size:11px;color:var(--text-tertiary);letter-spacing:0.02em}
+.selector-info-value{font-size:var(--font-size-sm);color:var(--text-primary);font-weight:var(--font-weight-medium)}
+.selector-actions{margin-left:auto;display:flex;gap:var(--space-2);align-items:center}
+
+/* ═══ Buttons（与 index_v2_project.html 一致）═══ */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--space-1);height:var(--height-md);padding:0 var(--space-4);font-size:var(--font-size-md);font-weight:var(--font-weight-medium);border-radius:var(--border-radius-md);border:1px solid transparent;cursor:pointer;transition:all var(--transition-fast);white-space:nowrap;line-height:1;outline:none;font-family:var(--font-family)}
+.btn svg{width:14px;height:14px;flex-shrink:0}
+.btn:active{transform:translateY(1px)}
+.btn-primary{background:var(--color-primary-500);color:var(--text-inverse);border-color:var(--color-primary-500);box-shadow:0 1px 3px rgba(24,98,212,0.2)}
+.btn-primary:hover{background:var(--color-primary-600);border-color:var(--color-primary-600);box-shadow:0 2px 6px rgba(24,98,212,0.3)}
+.btn-ghost{background:transparent;color:var(--text-secondary);border-color:var(--border-color-default)}
+.btn-ghost:hover{background:var(--color-gray-50);color:var(--text-primary);border-color:var(--color-gray-300)}
+.btn-sm{height:var(--height-sm);padding:0 var(--space-3);font-size:var(--font-size-sm)}
+.btn-sm svg{width:12px;height:12px}
+
+/* ═══ Main layout ═══ */
+.main-row{display:flex;gap:var(--space-4);align-items:flex-start}
+.left-col{flex:55;min-width:0;display:flex;flex-direction:column;gap:var(--space-3)}
+.right-col{width:45%;flex-shrink:0;position:sticky;top:16px}
+
+/* ═══ Sub-fence card — new styles ═══ */
+.fcard{background:var(--bg-card);border:1px solid var(--border-color-light);border-radius:var(--border-radius-lg);box-shadow:var(--shadow-card);overflow:hidden;cursor:pointer;transition:all var(--transition-fast);position:relative}
+.fcard:hover{box-shadow:var(--shadow-md);border-color:var(--color-primary-300)}
+.fcard.active{border-color:var(--color-primary-500);box-shadow:0 0 0 3px var(--color-primary-50),var(--shadow-md)}
+/* ── Removed fence card — grey-tone ── */
+.fcard.is-removed{background:var(--color-gray-50);border-color:var(--color-gray-200)}
+.fcard.is-removed:hover{border-color:var(--color-gray-300);box-shadow:var(--shadow-md)}
+.fcard.is-removed.active{border-color:var(--color-gray-400);box-shadow:0 0 0 3px rgba(156,163,176,0.12),var(--shadow-md)}
+.fcard.is-removed .fcard-num{color:var(--color-gray-400)}
+.fcard.is-removed .fcard-inline{color:var(--color-gray-400)}
+.fcard.is-removed .fcard-inline .fi-strong{color:var(--color-gray-500)}
+.fcard.is-removed .fcard-inline .fi-sep{color:var(--color-gray-200)}
+.fcard.is-removed .fcard-expiry .flb{color:var(--color-gray-300)}
+.fcard.is-removed .fcard-expiry .fvl{color:var(--color-gray-400)}
+.fcard.is-removed .fcard-act{color:var(--color-gray-400);border-color:var(--color-gray-200);background:var(--color-gray-50)}
+.fcard.is-removed .fcard-act:hover{background:var(--color-gray-100);color:var(--text-secondary);border-color:var(--color-gray-300)}
+.fcard.is-removed .fcard-act.history-btn{color:var(--text-link);border:none;background:transparent}
+.fcard.is-removed .fcard-act.history-btn:hover{color:var(--text-link-hover);background:transparent;text-decoration:underline}
+
+.fcard-top{display:flex;align-items:center;gap:var(--space-3);padding:var(--space-3) var(--space-4) var(--space-2)}
+.fcard-num{font-size:var(--font-size-lg);font-weight:var(--font-weight-bold);color:var(--color-primary-500);white-space:nowrap;flex-shrink:0}
+.fcard-tags{display:flex;align-items:center;gap:var(--space-2);flex-shrink:0;flex-wrap:wrap;margin-left:auto}
+.fcard-tag{display:inline-flex;align-items:center;padding:1px 10px;border-radius:var(--border-radius-tag);font-size:var(--font-size-xs);font-weight:var(--font-weight-medium);white-space:nowrap}
+.fcard-tag.verify{background:transparent;color:var(--color-warning-dark);border:none;font-weight:var(--font-weight-medium)}
+.fcard-tag.installed{background:var(--color-info-light);color:var(--color-info);border:1px solid var(--color-primary-200)}
+.fcard-tag.claiming{background:var(--color-success-light);color:var(--color-success);border:1px solid #B7D8B7}
+.fcard-tag.overdue{background:var(--color-danger-light);color:var(--color-danger);border:1px solid #F0B0B0}
+.fcard-tag.removed{background:var(--color-gray-100);color:var(--text-tertiary);border:1px solid var(--color-gray-200)}
+/* corner badge — bottom-left triangle */
+
+.fcard-body{padding:var(--space-3) var(--space-4) var(--space-2)}
+/* ── row 1: 3-field inline pipe ── */
+.fcard-inline{display:flex;align-items:center;gap:0;font-size:var(--font-size-sm);color:var(--text-primary);white-space:nowrap;overflow:hidden;margin-bottom:6px}
+.fcard-inline .flb{color:var(--text-tertiary);font-size:var(--font-size-xs);white-space:nowrap;flex-shrink:0;margin-right:var(--space-2);min-width:56px}
+.fcard-inline span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fcard-inline .fi-sep{color:var(--color-gray-300);margin:0 var(--space-3);flex-shrink:0}
+.fcard-inline .fi-strong{font-weight:var(--font-weight-medium);color:var(--text-title)}
+/* ── row 2: 距管护到期 ── */
+.fcard-expiry{display:flex;align-items:baseline;font-size:var(--font-size-sm);gap:var(--space-2)}
+.fcard-expiry .flb{color:var(--text-tertiary);font-size:var(--font-size-xs);white-space:nowrap;flex-shrink:0;min-width:64px}
+.fcard-expiry .fvl{color:var(--text-primary)}
+.fcard-expiry .fvl.warning{color:var(--color-warning-dark);font-weight:var(--font-weight-medium)}
+.fcard-expiry .fvl.danger{color:var(--color-danger);font-weight:var(--font-weight-medium)}
+
+.fcard-actions{display:flex;align-items:center;gap:var(--space-2);padding:var(--space-2) var(--space-4) var(--space-3);flex-wrap:wrap;justify-content:flex-end}
+.fcard-act{display:inline-flex;align-items:center;gap:4px;padding:4px 14px;font-size:var(--font-size-xs);font-weight:var(--font-weight-regular);border-radius:var(--border-radius-md);cursor:pointer;font-family:var(--font-family);text-decoration:none;transition:all var(--transition-fast);border:1px solid var(--border-color-default);color:var(--text-secondary);background:var(--bg-card)}
+.fcard-act:hover{background:var(--color-gray-50);color:var(--text-primary);border-color:var(--color-gray-300)}
+.fcard-act.end-btn{color:var(--color-danger);border-color:var(--color-danger)}
+.fcard-act.end-btn:hover{background:var(--color-danger-light)}
+.fcard-act svg{width:12px;height:12px;flex-shrink:0}
+/* plain text buttons */
+.fcard-act.history-btn{border:none;background:transparent;color:var(--text-link);padding:4px 8px;font-size:var(--font-size-xs)}
+.fcard-act.history-btn:hover{color:var(--text-link-hover);background:transparent;text-decoration:underline}
+.fcard-act.patrol-btn{border:1px solid var(--color-primary-300);background:var(--color-primary-50);color:var(--text-link);padding:4px 12px;font-size:var(--font-size-xs)}
+.fcard-act.patrol-btn:hover{background:var(--color-primary-100);border-color:var(--color-primary-400)}
+
+/* ═══ Right map panel ═══ */
+.right-card{background:var(--bg-card);border:1px solid var(--border-color-light);border-radius:var(--border-radius-lg);box-shadow:var(--shadow-card);overflow:hidden;display:flex;flex-direction:column;height:calc(100vh - 180px);min-height:560px}
+.map-wrap{flex:1;position:relative;min-height:0}
+#demoMapD{width:100%;height:100%}
+.map-legend{position:absolute;bottom:var(--space-4);right:var(--space-4);z-index:999;display:flex;flex-direction:column;gap:5px;padding:var(--space-2) var(--space-3);background:rgba(255,255,255,0.95);border-radius:var(--border-radius-md);font-size:var(--font-size-xs);color:var(--text-secondary);box-shadow:var(--shadow-md);border:1px solid var(--border-color-light);backdrop-filter:blur(8px)}
+.map-leg-item{display:flex;align-items:center;gap:var(--space-2)}
+.map-leg-line{width:20px;height:2.5px;border-radius:1.5px;flex-shrink:0}
+.map-leg-dash{width:20px;height:3px;flex-shrink:0;background:repeating-linear-gradient(90deg,var(--color-gray-400) 0,var(--color-gray-400) 4px,transparent 4px,transparent 7px)}
+.map-leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* ═══ Modal ═══ */
+.modal-overlay{position:fixed;inset:0;background:var(--bg-overlay);z-index:1000;display:none;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal-box{background:var(--bg-card);border-radius:var(--border-radius-lg);box-shadow:var(--shadow-lg);width:480px;max-width:90vw;max-height:80vh;display:flex;flex-direction:column}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:var(--space-4) var(--space-5);border-bottom:1px solid var(--border-color-light);flex-shrink:0}
+.modal-head span{font-size:var(--font-size-lg);font-weight:var(--font-weight-bold);color:var(--text-title)}
+.modal-head button{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:var(--border-radius-md);cursor:pointer;background:none;border:none;color:var(--text-tertiary);transition:all var(--transition-fast)}
+.modal-head button:hover{background:var(--color-gray-100);color:var(--text-primary)}
+.modal-body{padding:var(--space-5);overflow-y:auto;flex:1}
+.modal-foot{display:flex;justify-content:flex-end;gap:var(--space-3);padding:var(--space-3) var(--space-5);border-top:1px solid var(--border-color-light);flex-shrink:0}
+
+/* timeline modal */
+.tl-node{position:relative;padding:var(--space-3) var(--space-3) var(--space-3) 28px;margin-bottom:6px;border-left:2px solid var(--color-gray-200);border-radius:0 var(--border-radius-md) var(--border-radius-md) 0;background:var(--color-gray-50);font-size:var(--font-size-sm)}
+.tl-node:last-child{margin-bottom:0}
+.tl-node.current{border-left-color:var(--color-primary-500);background:var(--color-primary-50)}
+.tl-node::before{content:'';position:absolute;left:-6px;top:14px;width:10px;height:10px;border-radius:50%;background:var(--color-gray-400);border:2px solid var(--color-gray-0)}
+.tl-node.current::before{background:var(--color-primary-500);box-shadow:0 0 0 3px var(--color-primary-100)}
+.tl-node .tl-eng{font-weight:var(--font-weight-medium);color:var(--text-title);margin-bottom:3px}
+.tl-node .tl-meta{font-size:var(--font-size-xs);color:var(--text-tertiary);display:flex;gap:var(--space-4);flex-wrap:wrap}
+
+/* form inside modal */
+.form-label{font-size:var(--font-size-xs);color:var(--text-secondary);margin-bottom:var(--space-1);display:block}
+.form-label .req{color:var(--color-danger)}
+.form-select,.form-input{width:100%;height:var(--height-md);padding:0 var(--space-2);font-size:var(--font-size-sm);border:1px solid var(--border-color-default);border-radius:var(--border-radius-md);outline:none;font-family:var(--font-family);background:var(--bg-card);margin-bottom:var(--space-3)}
+.form-select:focus,.form-input:focus{border-color:var(--border-color-focus);box-shadow:0 0 0 2px var(--color-primary-50)}
+.form-textarea{width:100%;padding:var(--space-2);font-size:var(--font-size-sm);border:1px solid var(--border-color-default);border-radius:var(--border-radius-md);outline:none;font-family:var(--font-family);resize:vertical;margin-bottom:var(--space-3);min-height:70px}
+.photo-preview{display:flex;flex-wrap:wrap;gap:var(--space-2);margin-top:var(--space-2)}
+.photo-thumb{width:80px;height:80px;border-radius:var(--border-radius-md);object-fit:cover;border:1px solid var(--border-color-light)}
+/* high-count tag */
+</style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
+</head>
+<body>
+<div class="container">
+
+<div class="page-header"><h1 class="page-title"><span class="page-title-accent"></span>围挡档案管理</h1></div>
+
+<!-- ═══ 项目选择器 — selector-bar（与 index_v2_project.html 一致）═══ -->
+<div class="selector-bar">
+  <div class="selector-item">
+    <span class="selector-label">项目名称</span>
+    <select class="selector-select" id="projSelect"><option>南山区科技园综合体项目</option></select>
+  </div>
+  <div class="selector-info" id="selectorInfo">
+    <div class="selector-info-item"><span class="selector-info-label">行政区划</span><span class="selector-info-value">南山区</span></div>
+    <div class="selector-info-item"><span class="selector-info-label">项目状态</span><span class="selector-info-value">在建</span></div>
+    <div class="selector-info-item"><span class="selector-info-label">红线状态</span><span class="selector-info-value">已绘制</span></div>
+    <div class="selector-info-item"><span class="selector-info-label">计划拆除时间</span><span class="selector-info-value">2026-07-25</span></div>
+    <div class="selector-info-item"><span class="selector-info-label">当前围挡</span><span class="selector-info-value" id="activeCount">—</span></div>
+  </div>
+  <div class="selector-actions">
+    <button class="btn btn-primary btn-sm" onclick="alert('原型演示：新增围挡')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>新增围挡记录</button>
+  </div>
+</div>
+
+<!-- ═══ Main row ═══ -->
+<div class="main-row">
+  <div class="left-col" id="cardList"></div>
+  <div class="right-col">
+    <div class="right-card">
+      <div class="map-wrap">
+        <div id="demoMapD"></div>
+        <div class="map-legend">
+          <div class="map-leg-item"><span class="map-leg-line" style="background:var(--color-primary-500)"></span>围挡图斑</div>
+          <div class="map-leg-item"><span class="map-leg-dash"></span>已拆除</div>
+          <div class="map-leg-item"><span class="map-leg-line" style="background:var(--color-danger)"></span>项目红线</div>
+          <div class="map-leg-item"><span class="map-leg-dot" style="background:#1890FF"></span>出入口</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══ 管护历史 Modal ═══ -->
+<div class="modal-overlay" id="historyModal">
+  <div class="modal-box">
+    <div class="modal-head"><span>管护历史 — <span id="historyFenceNum">—</span></span><button onclick="closeModal('historyModal')">✕</button></div>
+    <div class="modal-body" id="historyBody"></div>
+    <div class="modal-foot"><button class="btn btn-ghost btn-sm" onclick="closeModal('historyModal')">关闭</button></div>
+  </div>
+</div>
+
+<!-- ═══ 结束管护 Modal ═══ -->
+<div class="modal-overlay" id="endModal">
+  <div class="modal-box">
+    <div class="modal-head"><span>结束管护 — <span id="endFenceNum">—</span></span><button onclick="closeModal('endModal')">✕</button></div>
+    <div class="modal-body" id="endBody1">
+      <p style="margin-bottom:var(--space-4);color:var(--text-secondary);font-size:var(--font-size-sm)">请选择结束管护的操作方式：</p>
+      <div style="display:flex;gap:var(--space-3)">
+        <button class="btn btn-primary" onclick="showEndTransfer()" style="flex:1">移交</button>
+        <button class="btn btn-ghost" onclick="showEndDemolish()" style="flex:1;border-color:var(--color-danger);color:var(--color-danger)">拆除</button>
+      </div>
+    </div>
+    <div class="modal-body" id="endBodyTransfer" style="display:none">
+      <div class="form-label"><span class="req">*</span>目标工程</div>
+      <select class="form-select" id="transferEng"><option value="">请选择工程</option><option>主体结构工程</option><option>绿化迁移工程</option><option>外立面装修工程</option></select>
+      <div class="form-label">目标工程 责任单位（选填）</div>
+      <select class="form-select" id="transferUnit"><option value="">请选择责任单位</option><option>中建三局集团有限公司</option><option>深圳市深建基坑工程有限公司</option></select>
+    </div>
+    <div class="modal-body" id="endBodyDemolish" style="display:none">
+      <div class="form-label"><span class="req">*</span>佐证材料</div>
+      <div style="margin-bottom:var(--space-3)">
+        <input type="file" id="demolishFile" style="display:none" accept="image/*,.pdf,.doc,.docx" multiple onchange="previewDemoFiles()">
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('demolishFile').click()" style="width:100%;justify-content:center;padding:var(--space-3)">📎 选择照片或文件</button>
+        <div class="photo-preview" id="demoPhotoPrev"></div>
+      </div>
+      <div class="form-label">拆除说明（选填）</div>
+      <textarea class="form-textarea" id="demolishNote" placeholder="可选填写拆除原因、现场情况等"></textarea>
+    </div>
+    <div class="modal-foot" id="endFootTransfer" style="display:none">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('endModal')">取消</button>
+      <button class="btn btn-primary btn-sm" onclick="alert('原型演示：移交成功');closeModal('endModal')">确认移交</button>
+    </div>
+    <div class="modal-foot" id="endFootDemolish" style="display:none">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('endModal')">取消</button>
+      <button class="btn btn-primary btn-sm" style="background:var(--color-danger);border-color:var(--color-danger)" onclick="alert('原型演示：拆除记录已提交');closeModal('endModal')">确认拆除</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+/* ═══ Mock Data ═══ */
+var SUB_HOARDS = [
+  {id:'WD-2026-0001',num:'围挡1#',status:'已安装',needVerify:false,
+   engName:'基坑围护工程',engStatus:'在建',unit:'中建三局集团有限公司',contact:'王强',phone:'13900139001',
+   length:320,height:2.5,area:156.8,roadArea:36,road:'人行道',
+   planRemoveDate:'2026-07-25',custodyStart:'2024-08-01',custodyEnd:'2026-07-25',
+   history:[
+     {eng:'基坑围护工程',unit:'中建三局集团有限公司',contact:'王强',phone:'13900139001',period:'2024.08.01 ~ 至今',current:true}
+   ],
+   gpsShape:[[22.536,113.958],[22.539,113.958],[22.539,113.961],[22.536,113.961]],
+   entrances:[{lat:22.5371,lng:113.9592,name:'主入口',type:'vehicle'},{lat:22.5378,lng:113.9603,name:'次入口',type:'pedestrian'}]
+  },
+  {id:'WD-2026-0006',num:'围挡2#',status:'已拆除',needVerify:false,
+   engName:'—',engStatus:'—',unit:'—',contact:'—',phone:'—',
+   length:180,height:2.0,area:90,roadArea:25,road:'人行道',
+   planRemoveDate:'2025-04-30',custodyStart:'2024-11-01',custodyEnd:'2025-04-30',
+   history:[
+     {eng:'土方回填工程',unit:'中建三局集团有限公司',contact:'李明',phone:'13800138001',period:'2024.11.01 ~ 2025.04.30'},
+     {eng:'已拆除',unit:'—',contact:'王强',phone:'13900139001',period:'2025.06.15',current:true,removed:true}
+   ],
+   gpsShape:[[22.533,113.955],[22.534,113.955],[22.534,113.957],[22.533,113.957]],
+   entrances:[]
+  }
+];
+
+var STATUS_CLASS={'已安装':'installed','待认领':'claiming','超期未拆':'overdue','已拆除':'removed'};
+
+function calcDaysToRemove(planDate){
+  if(!planDate)return null;
+  var d=new Date(planDate);if(isNaN(d.getTime()))return null;
+  var now=new Date();now.setHours(0,0,0,0);
+  return Math.ceil((d.getTime()-now.getTime())/(1000*60*60*24));
+}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+function renderCards(){
+  var activeCount=0, html='';
+  SUB_HOARDS.forEach(function(h){
+    if(h.status!=='已拆除')activeCount++;
+    var sc=STATUS_CLASS[h.status];
+    // 距管护到期天数（基于 custodyEnd），已到期按0天展示
+    var daysToExpiry=calcDaysToRemove(h.custodyEnd);
+    var expiryCls='', expiryVal=String(daysToExpiry!==null?Math.max(0,daysToExpiry):'—');
+    if(h.status!=='已拆除'&&daysToExpiry!==null){
+      if(daysToExpiry<=0)expiryCls=' danger';
+      else if(daysToExpiry<=30)expiryCls=' warning';
+    }
+    var isRemoved=h.status==='已拆除';
+    html+='<div class="fcard'+(isRemoved?' is-removed':'')+'" data-id="'+h.id+'" id="card_'+h.id+'">'+
+      '<div class="fcard-top">'+
+        '<span class="fcard-num">'+esc(h.num)+'</span>'+
+        '<div class="fcard-tags">'+
+          (h.needVerify?'<span class="fcard-tag verify">待校核</span>':'')+
+          '<span class="fcard-tag '+sc+'">'+esc(h.status)+'</span>'+
+        '</div>'+
+      '</div>'+
+      '<div class="fcard-body">'+
+        (isRemoved?
+          '<div class="fcard-inline"><span class="flb">当前关联</span><span>—</span><span class="fi-sep">|</span><span>—</span><span class="fi-sep">|</span><span>—</span></div>'+
+          '<div class="fcard-expiry"><span class="flb">距管护到期</span><span class="fvl">—</span></div>'
+        :
+          '<div class="fcard-inline"><span class="flb">当前关联</span><span class="fi-strong">'+esc(h.engName)+'（'+h.engStatus+'）</span><span class="fi-sep">|</span><span>'+esc(h.unit)+'</span><span class="fi-sep">|</span><span>'+(h.contact&&h.phone?h.contact+'（'+h.phone+'）':(h.contact||h.phone||'—'))+'</span></div>'+
+          '<div class="fcard-expiry"><span class="flb">距管护到期</span><span class="fvl'+expiryCls+'">'+expiryVal+' 天</span></div>'
+        )+
+      '</div>'+
+      '<div class="fcard-actions">'+
+        '<a class="fcard-act history-btn" href="#" onclick="event.stopPropagation();openHistory(\''+h.id+'\')">管护历史</a>'+
+        (h.status!=='已拆除'?'<a class="fcard-act end-btn" href="#" onclick="event.stopPropagation();openEnd(\''+h.id+'\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>结束管护</a>':'')+
+        (h.status!=='已拆除'?'<a class="fcard-act patrol-btn" href="#" onclick="event.stopPropagation();alert(\'原型演示：新增巡查记录弹窗\')">+ 巡查记录</a>':'')+
+      '</div>'+
+    '</div>';
+  });
+  document.getElementById('cardList').innerHTML=html||'<div style="text-align:center;padding:48px;color:var(--text-tertiary);background:var(--bg-card);border:1px solid var(--border-color-light);border-radius:var(--border-radius-lg)">暂无子围挡记录</div>';
+  document.getElementById('activeCount').textContent=activeCount+' 个';
+}
+
+/* ═══ Card click → select ═══ */
+document.addEventListener('click',function(e){
+  var card=e.target.closest('.fcard');if(!card)return;
+  if(e.target.closest('.fcard-act'))return;
+  selectCard(card.dataset.id);
+});
+
+/* ═══ Modals ═══ */
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function openHistory(id){
+  var h=SUB_HOARDS.find(function(x){return x.id===id;});if(!h)return;
+  document.getElementById('historyFenceNum').textContent=h.num;
+  var html='';
+  h.history.forEach(function(e){
+    html+='<div class="tl-node'+(e.current?' current':'')+'">'+
+      '<div class="tl-eng">'+esc(e.eng)+'</div>'+
+      '<div class="tl-meta">'+
+        '<span>责任单位：'+(e.unit||'—')+'</span>'+
+        '<span>负责人：'+(e.contact||'—')+'</span>'+
+        '<span>联系电话：'+(e.phone||'—')+'</span>'+
+        '<span>时段：'+esc(e.period)+'</span>'+
+      '</div>'+
+    '</div>';
+  });
+  document.getElementById('historyBody').innerHTML=html;
+  document.getElementById('historyModal').classList.add('open');
+}
+function openEnd(id){
+  var h=SUB_HOARDS.find(function(x){return x.id===id;});if(!h)return;
+  document.getElementById('endFenceNum').textContent=h.num;
+  document.getElementById('endBody1').style.display='block';
+  document.getElementById('endBodyTransfer').style.display='none';
+  document.getElementById('endBodyDemolish').style.display='none';
+  document.getElementById('endFootTransfer').style.display='none';
+  document.getElementById('endFootDemolish').style.display='none';
+  document.getElementById('endModal').classList.add('open');
+}
+function showEndTransfer(){
+  document.getElementById('endBody1').style.display='none';
+  document.getElementById('endBodyTransfer').style.display='block';
+  document.getElementById('endBodyDemolish').style.display='none';
+  document.getElementById('endFootTransfer').style.display='flex';
+  document.getElementById('endFootDemolish').style.display='none';
+}
+function showEndDemolish(){
+  document.getElementById('endBody1').style.display='none';
+  document.getElementById('endBodyTransfer').style.display='none';
+  document.getElementById('endBodyDemolish').style.display='block';
+  document.getElementById('endFootTransfer').style.display='none';
+  document.getElementById('endFootDemolish').style.display='flex';
+}
+function previewDemoFiles(){
+  var inp=document.getElementById('demolishFile');if(!inp||!inp.files||!inp.files.length)return;
+  var html='';
+  Array.from(inp.files).forEach(function(f,i){
+    if(i>=3)return;
+    if(f.type.indexOf('image')===0){html+='<img class="photo-thumb" src="'+URL.createObjectURL(f)+'" alt="'+esc(f.name)+'">';}
+    else{html+='<div class="photo-thumb" style="display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--text-tertiary);text-align:center;padding:4px">'+esc(f.name)+'</div>';}
+  });
+  document.getElementById('demoPhotoPrev').innerHTML=html;
+}
+document.querySelectorAll('.modal-overlay').forEach(function(o){
+  o.addEventListener('click',function(e){if(e.target===o)o.classList.remove('open');});
+});
+
+/* ═══ Map ═══ */
+var _map, _layers={};
+function initMap(){
+  var el=document.getElementById('demoMapD');if(!el)return;
+  _map=L.map(el,{zoomControl:false,attributionControl:false});
+  _map.createPane('entrancePane');_map.getPane('entrancePane').style.zIndex=650;
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}).addTo(_map);
+  var rl=[[22.533,113.955],[22.539,113.955],[22.539,113.961],[22.533,113.961]];
+  L.polygon(rl,{color:'#D13B2F',weight:2.5,fill:false,dashArray:'6 3'}).addTo(_map);
+  SUB_HOARDS.forEach(function(h){
+    if(!h.gpsShape||h.gpsShape.length<2)return;
+    var color='#1862D4',isRemoved=h.status==='已拆除';
+    if(isRemoved)color='#9CA3B0';
+    var poly=L.polygon(h.gpsShape,{color:color,weight:isRemoved?2:3,dashArray:isRemoved?'6 4':null,fillColor:color,fillOpacity:isRemoved?0.03:0.08});
+    if(!isRemoved)poly.addTo(_map);
+    poly.bindTooltip(h.num,{direction:'center',sticky:true});
+    _layers[h.id]={poly:poly,isRemoved:isRemoved};
+    poly.on('click',function(){selectCard(h.id);});
+    (h.entrances||[]).forEach(function(e){
+      var c={vehicle:'#1890FF',pedestrian:'#52C41A',temporary:'#FAAD14',other:'#FF4D4F'}[e.type]||'#1890FF';
+      L.circleMarker([e.lat,e.lng],{radius:5,color:c,fillColor:c,fillOpacity:1,weight:2,pane:'entrancePane'}).addTo(_map).bindTooltip(e.name,{direction:'top'});
+    });
+  });
+  _map.fitBounds(L.latLngBounds(rl.map(function(p){return[p[0],p[1]]})),{padding:[30,30]});
+}
+function selectCard(id){
+  document.querySelectorAll('.fcard').forEach(function(c){c.classList.remove('active');});
+  var card=document.getElementById('card_'+id);if(card){card.classList.add('active');card.scrollIntoView({behavior:'smooth',block:'center'});}
+  Object.keys(_layers).forEach(function(k){
+    var o=_layers[k],p=o.poly;var h2=SUB_HOARDS.find(function(x){return x.id===k;});
+    var color=h2&&h2.status==='已拆除'?'#9CA3B0':'#1862D4';
+    p.setStyle({color:color,weight:o.isRemoved?2:3,fillOpacity:o.isRemoved?0.03:0.08});
+  });
+  var o=_layers[id];if(!o)return;
+  o.poly.setStyle({color:o.isRemoved?'#9CA3B0':'#1862D4',weight:o.isRemoved?4:6,fillOpacity:o.isRemoved?0.12:0.22,dashArray:o.isRemoved?'6 4':null});
+  if(o.isRemoved&&!_map.hasLayer(o.poly))o.poly.addTo(_map);
+  o.poly.bringToFront();
+  var h3=SUB_HOARDS.find(function(x){return x.id===id;});
+  if(h3&&h3.gpsShape){
+    _map.fitBounds(L.latLngBounds(h3.gpsShape.map(function(x){return[x[0],x[1]]})),{padding:[60,60],maxZoom:17,animate:true,duration:0.4});
+  }
+}
+
+renderCards();
+setTimeout(initMap,300);
+</script>
+</body>
+</html>

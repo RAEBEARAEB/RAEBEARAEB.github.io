@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>方案C · 时间线表格 — 围挡档案管理</title>
+<style>
+:root {
+  --blue-500:#1862D4;--blue-600:#104FAD;--blue-50:#EBF2FF;
+  --green-500:#1A9042;--green-50:#E6F4EA;
+  --orange-500:#D48A00;--orange-50:#FEF3CD;
+  --red-500:#D13B2F;--red-50:#FDECEA;
+  --ink-900:#1F2937;--ink-700:#374151;--ink-500:#6B7280;--ink-400:#9CA3B0;--ink-200:#E3E6ED;--ink-100:#F0F1F5;--ink-50:#F7F8FA;
+  --bg:#F5F6F8;--white:#FFF;--shadow:0 1px 4px rgba(0,0,0,0.06);
+  --radius:6px;--font:"PingFang SC","Microsoft YaHei","Helvetica Neue",Arial,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);font-size:14px;color:var(--ink-700);background:var(--bg);-webkit-font-smoothing:antialiased;padding:40px;line-height:1.6}
+.container{max-width:1200px;margin:0 auto}
+h2{font-size:18px;color:var(--ink-900);margin-bottom:20px;display:flex;align-items:center;gap:8px}
+h2::before{content:'';width:4px;height:20px;background:var(--blue-500);border-radius:2px}
+.proj-bar{display:flex;align-items:center;gap:16px;padding:12px 20px;background:var(--white);border:1px solid var(--ink-200);border-radius:6px;margin-bottom:16px;box-shadow:var(--shadow);flex-wrap:wrap}
+.proj-bar select{height:32px;padding:0 28px 0 10px;font-size:13px;border:1px solid var(--ink-200);border-radius:4px;outline:none;font-family:var(--font);appearance:none;-webkit-appearance:none;background:var(--white) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%239CA3B0' stroke-width='1.5'/%3E%3C/svg%3E") no-repeat right 8px center;cursor:pointer}
+.proj-tag{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--ink-500);white-space:nowrap}
+.proj-tag b{color:var(--ink-700)}
+
+.card{background:var(--white);border:1px solid var(--ink-200);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.card-toolbar{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;border-bottom:1px solid var(--ink-100)}
+
+.stab{display:flex;gap:0}
+.stab-btn{padding:8px 16px;text-align:center;font-size:13px;font-weight:500;color:var(--ink-500);background:transparent;border:none;border-bottom:2px solid transparent;cursor:pointer;font-family:var(--font);transition:all 0.15s}
+.stab-btn:hover{color:var(--blue-500)}
+.stab-btn.active{color:var(--blue-500);border-bottom-color:var(--blue-500);font-weight:600}
+.stab-num{font-size:11px;color:var(--ink-400);margin-left:2px}
+
+.btn-ghost{display:inline-flex;align-items:center;gap:4px;padding:5px 14px;font-size:12px;font-weight:500;color:var(--blue-500);background:var(--white);border:1px solid var(--blue-500);border-radius:4px;cursor:pointer;font-family:var(--font)}
+
+.table{width:100%;border-collapse:collapse;font-size:13px}
+.table thead th{font-size:12px;font-weight:400;color:var(--ink-400);padding:10px 12px;background:var(--ink-50);border-bottom:1px solid var(--ink-200);text-align:left;white-space:nowrap}
+.table tbody td{padding:10px 12px;border-bottom:1px solid var(--ink-100);color:var(--ink-700);vertical-align:middle}
+.table tbody tr{cursor:pointer;transition:background 0.1s}
+.table tbody tr:hover{background:var(--blue-50)}
+.table tbody tr.expanded{background:var(--ink-50)}
+.col-c{text-align:center}
+
+/* expand row */
+.expand-row td{padding:0;border-bottom:1px solid var(--ink-100)}
+.expand-row .ex-inner{padding:0 12px 12px 48px}
+.ex-timeline{position:relative;padding-left:20px;margin-top:8px}
+.ex-timeline::before{content:'';position:absolute;left:4px;top:4px;bottom:4px;width:2px;background:var(--ink-200)}
+.ex-node{position:relative;padding:8px 12px;margin-bottom:6px;background:var(--ink-50);border:1px solid var(--ink-200);border-radius:4px;font-size:12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.ex-node:last-child{margin-bottom:0}
+.ex-node::before{content:'';position:absolute;left:-20px;top:12px;width:8px;height:8px;border-radius:50%;background:var(--ink-400);border:2px solid var(--white)}
+.ex-node.current::before{background:var(--blue-500);box-shadow:0 0 0 3px var(--blue-50)}
+.ex-node.removed::before{background:var(--ink-400)}
+.ex-node .ex-eng{font-weight:600;color:var(--ink-900)}
+.ex-node .ex-period{color:var(--ink-400);font-size:11px}
+.ex-node .ex-actions{margin-left:auto;display:flex;gap:4px}
+
+.tag{display:inline-flex;align-items:center;padding:1px 10px;border-radius:999px;font-size:11px;font-weight:600;white-space:nowrap}
+.tag-using{background:var(--blue-50);color:var(--blue-500);border:1px solid var(--blue-500)}
+.tag-transferred{background:var(--green-50);color:var(--green-500);border:1px solid var(--green-500)}
+.tag-removed{background:var(--ink-50);color:var(--ink-400);border:1px solid var(--ink-200)}
+.tag-near{background:var(--orange-50);color:var(--orange-500);border:1px solid var(--orange-500);margin-left:6px}
+
+.act-link{color:var(--blue-500);font-size:12px;cursor:pointer;text-decoration:none;white-space:nowrap;margin:0 4px}
+.act-link:hover{text-decoration:underline}
+.act-link.danger{color:var(--red-500)}
+.act-link.transfer{color:var(--orange-500)}
+
+.expand-icon{display:inline-block;width:18px;height:18px;line-height:18px;text-align:center;font-size:12px;border-radius:3px;background:var(--ink-100);color:var(--ink-500);transition:transform 0.2s;cursor:pointer}
+.expand-icon.open{transform:rotate(90deg)}
+
+/* map toggle */
+.map-toggle-btn{display:inline-flex;align-items:center;gap:4px;padding:5px 12px;font-size:12px;color:var(--ink-500);background:var(--white);border:1px solid var(--ink-200);border-radius:4px;cursor:pointer;font-family:var(--font);margin-left:8px}
+.map-panel{display:none;margin-top:16px;height:360px;background:var(--white);border:1px solid var(--ink-200);border-radius:var(--radius);overflow:hidden;position:relative}
+.map-panel.open{display:block}
+#demoMapC{width:100%;height:100%}
+.map-legend{position:absolute;bottom:12px;left:12px;z-index:999;display:flex;gap:10px;padding:6px 10px;background:rgba(255,255,255,0.95);border-radius:4px;font-size:11px;color:var(--ink-500);box-shadow:0 2px 8px rgba(0,0,0,0.08)}
+.map-leg-item{display:flex;align-items:center;gap:4px}
+.map-leg-line{width:16px;height:2.5px;border-radius:1px;flex-shrink:0}
+.map-leg-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+</style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
+</head>
+<body>
+<div class="container">
+<h2>方案 C · 时间线表格</h2>
+<p style="margin:-12px 0 20px;color:var(--ink-400);font-size:13px">紧凑表格 + 可展开的工程接力时间线 + 可选的地图视图</p>
+
+<div class="proj-bar">
+  <select><option>南山区科技园综合体项目</option></select>
+  <span class="proj-tag"><b>南山区</b> · 在建 · 红线已绘制 · 围挡 4 段</span>
+  <span style="margin-left:auto;display:flex;gap:6px">
+    <button class="map-toggle-btn" onclick="toggleMap()" id="mapToggleBtn">🗺 展开地图</button>
+    <button class="btn-ghost">＋ 新增子围挡</button>
+  </span>
+</div>
+
+<div class="map-panel" id="mapPanel">
+  <div id="demoMapC"></div>
+  <div class="map-legend">
+    <div class="map-leg-item"><span class="map-leg-line" style="background:#D13B2F"></span>项目红线</div>
+    <div class="map-leg-item"><span class="map-leg-line" style="background:#1862D4"></span>使用中</div>
+    <div class="map-leg-item"><span class="map-leg-line" style="background:#999"></span>已拆除</div>
+    <div class="map-leg-item"><span class="map-leg-dot" style="background:#1890FF"></span>出入口</div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-toolbar">
+    <div class="stab">
+      <button class="stab-btn active" data-status="全部" onclick="filterTabC(this)">全部 <span class="stab-num">4</span></button>
+      <button class="stab-btn" data-status="使用中" onclick="filterTabC(this)">使用中 <span class="stab-num">3</span></button>
+      <button class="stab-btn" data-status="已拆除" onclick="filterTabC(this)">已拆除 <span class="stab-num">1</span></button>
+    </div>
+  </div>
+  <table class="table" id="fenceTableC"><thead><tr>
+    <th style="width:32px;text-align:center"></th>
+    <th style="width:36px;text-align:center">#</th>
+    <th style="width:110px">子围挡编号</th>
+    <th style="width:100px">子围挡名称</th>
+    <th style="width:80px;text-align:center">状态</th>
+    <th style="width:130px">当前工程</th>
+    <th style="width:140px">责任单位</th>
+    <th style="width:60px;text-align:center">长度</th>
+    <th style="width:60px;text-align:center">面积</th>
+    <th style="width:170px;text-align:center">操作</th>
+  </tr></thead><tbody></tbody></table>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+var SH3 = [
+  {id:'WD-2026-0001',name:'南侧主围挡',status:'使用中',nearExpiry:false,
+   engName:'基坑围护工程',unit:'中建三局集团有限公司',contact:'王强 13900139001',
+   length:320,area:156.8,
+   history:[{eng:'基坑围护工程',period:'2024.08 ~ 至今',current:true,actions:true}],
+   gpsShape:[[22.536,113.958],[22.539,113.958],[22.539,113.961],[22.536,113.961]],
+   entrances:[{lat:22.537,lng:113.959,name:'主入口',type:'vehicle'},{lat:22.538,lng:113.960,name:'次入口',type:'pedestrian'}]
+  },
+  {id:'WD-2026-0003',name:'北侧围挡',status:'使用中',nearExpiry:true,
+   engName:'主体结构工程',unit:'中建三局集团有限公司',contact:'王强 13900139001',
+   length:450,area:225,
+   history:[
+     {eng:'基坑围护工程',period:'2024.08 ~ 2025.02',actions:false},
+     {eng:'主体结构工程',period:'2025.03 ~ 至今',current:true,actions:true}
+   ],
+   gpsShape:[[22.534,113.955],[22.536,113.955],[22.536,113.958],[22.534,113.958]],
+   entrances:[{lat:22.535,lng:113.956,name:'北入口',type:'vehicle'}]
+  },
+  {id:'WD-2026-0007',name:'东南角围挡',status:'使用中',nearExpiry:false,
+   engName:'绿化迁移工程',unit:'中建三局集团有限公司',contact:'李明 13800138001',
+   length:150,area:75,
+   history:[{eng:'绿化迁移工程',period:'2025.09 ~ 至今',current:true,actions:true}],
+   gpsShape:[[22.536,113.959],[22.538,113.959],[22.538,113.961],[22.536,113.961]],
+   entrances:[{lat:22.537,lng:113.960,name:'绿篱入口',type:'pedestrian'}]
+  },
+  {id:'WD-2026-0006',name:'西侧临时围挡',status:'已拆除',nearExpiry:false,
+   engName:'—',unit:'中建三局集团有限公司',contact:'李明 13800138001',
+   length:180,area:90,
+   history:[
+     {eng:'土方回填工程',period:'2024.11 ~ 2025.04'},
+     {eng:'已拆除',period:'2025.06.15',current:true,removed:true}
+   ],
+   gpsShape:[[22.533,113.955],[22.534,113.955],[22.534,113.957],[22.533,113.957]],
+   entrances:[]
+  }
+];
+
+var _expandedC={}, _filterC='全部', _mapC=null;
+function tagCls(s){return{'使用中':'tag-using','已移交':'tag-transferred','已拆除':'tag-removed'}[s]||'tag-using';}
+function renderTableC(){
+  var items=SH3.filter(function(h){return _filterC==='全部'||h.status===_filterC;});
+  var rows='';
+  items.forEach(function(h,i){
+    var exp=_expandedC[h.id];
+    rows+='<tr '+(exp?'class="expanded"':'')+' onclick="toggleRowC(\''+h.id+'\')">'+
+      '<td class="col-c"><span class="expand-icon'+(exp?' open':'')+'" onclick="event.stopPropagation();toggleRowC(\''+h.id+'\')">▶</span></td>'+
+      '<td class="col-c" style="color:var(--ink-400);font-size:12px">'+(i+1)+'</td>'+
+      '<td style="font-family:monospace;font-size:12px;color:var(--ink-500)">'+h.id+'</td>'+
+      '<td style="font-weight:600">'+h.name+'</td>'+
+      '<td class="col-c"><span class="tag '+tagCls(h.status)+'">'+h.status+'</span>'+(h.nearExpiry?' <span class="tag tag-near">临期</span>':'')+'</td>'+
+      '<td>'+h.engName+'</td>'+
+      '<td style="font-size:12px">'+h.unit+'</td>'+
+      '<td class="col-c">'+h.length+'m</td>'+
+      '<td class="col-c">'+h.area+'㎡</td>'+
+      '<td class="col-c">'+
+        '<a class="act-link" href="#">详情</a><a class="act-link" href="#">巡检</a>'+
+        (h.status==='使用中'?'<a class="act-link transfer" href="#">移交</a><a class="act-link danger" href="#">拆除</a>':'')+
+      '</td></tr>';
+    // Expand row: timeline
+    if(exp){
+      rows+='<tr class="expand-row"><td colspan="10"><div class="ex-inner"><div class="ex-timeline">';
+      h.history.forEach(function(e){
+        var cls=e.removed?' removed':(e.current?' current':'');
+        rows+='<div class="ex-node'+cls+'">'+
+          '<span class="ex-eng">'+e.eng+'</span>'+
+          '<span class="ex-period">'+e.period+'</span>'+
+          (e.actions?'<span class="ex-actions"><a class="act-link" href="#">巡检</a>'+(h.status==='使用中'?'<a class="act-link transfer" href="#">移交</a><a class="act-link danger" href="#">拆除</a>':'')+'</span>':'')+
+        '</div>';
+      });
+      // contact row
+      rows+='<div class="ex-node" style="margin-top:6px"><span style="font-size:11px;color:var(--ink-400)">施工负责人：'+h.contact+' │ 围挡高度：'+h.area+'㎡ │ 占道面积：'+h.area+'㎡</span></div>';
+      rows+='</div></div></td></tr>';
+    }
+  });
+  document.querySelector('#fenceTableC tbody').innerHTML=rows;
+}
+function toggleRowC(id){
+  if(_expandedC[id])delete _expandedC[id];else _expandedC[id]=true;
+  renderTableC();
+}
+function filterTabC(btn){
+  document.querySelectorAll('.stab-btn').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');_filterC=btn.dataset.status;renderTableC();
+}
+function toggleMap(){
+  var p=document.getElementById('mapPanel'),b=document.getElementById('mapToggleBtn');
+  p.classList.toggle('open');b.textContent=p.classList.contains('open')?'🗺 收起地图':'🗺 展开地图';
+  if(p.classList.contains('open')&&!_mapC)initMapC();
+}
+function initMapC(){
+  var el=document.getElementById('demoMapC');if(!el)return;
+  _mapC=L.map(el,{zoomControl:false,attributionControl:false});
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}).addTo(_mapC);
+  var rl=[[22.533,113.955],[22.539,113.955],[22.539,113.961],[22.533,113.961]];
+  L.polygon(rl,{color:'#D13B2F',weight:2.5,fill:false}).addTo(_mapC);
+  _mapC.fitBounds(L.latLngBounds(rl.map(function(p){return[p[0],p[1]]})),{padding:[20,20]});
+  SH3.forEach(function(h){
+    if(!h.gpsShape||h.gpsShape.length<2)return;
+    var color=h.status==='使用中'?'#1862D4':'#999';
+    L.polygon(h.gpsShape,{color:color,weight:2.5,dashArray:h.status==='已拆除'?'6 4':null,fillColor:color,fillOpacity:0.06}).addTo(_mapC);
+    (h.entrances||[]).forEach(function(e){
+      L.circleMarker([e.lat,e.lng],{radius:4,color:'#1890FF',fillColor:'#1890FF',fillOpacity:0.8,weight:2}).addTo(_mapC).bindTooltip(e.name,{direction:'top'});
+    });
+  });
+}
+renderTableC();
+</script>
+</body>
+</html>

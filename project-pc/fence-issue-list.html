@@ -108,6 +108,7 @@ a:hover{color:var(--color-primary-600)}
 .search-bar select,.search-bar input{height:var(--height-md);padding:0 var(--space-3);font-size:var(--font-size-sm);color:var(--text-primary);background:var(--bg-card);border:1px solid var(--border-color-default);border-radius:var(--border-radius-md);outline:none;font-family:var(--font-family);transition:border-color var(--transition-fast),box-shadow var(--transition-fast)}
 .search-bar select:focus,.search-bar input:focus{border-color:var(--border-color-focus);box-shadow:0 0 0 2px var(--color-primary-50)}
 .search-bar input{min-width:240px}
+.search-bar .fence-combo-input{width:190px;min-width:190px}
 /* 转派弹窗 */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:1000;display:none;align-items:center;justify-content:center}
 .modal-overlay.show{display:flex}
@@ -215,12 +216,13 @@ a:hover{color:var(--color-primary-600)}
     <div class="search-bar">
       <select id="filterProject" onchange="renderTable()"><option value="all">全部项目</option></select>
       <select id="filterEngineer" onchange="renderTable()"><option value="all">全部工程</option></select>
+      <input class="fence-combo-input" type="text" id="filterFence" list="filterFenceOptions" placeholder="全部围挡" autocomplete="off" aria-label="围挡名称筛选" oninput="_page=1;renderTable()"><datalist id="filterFenceOptions"></datalist>
       <select id="filterUnit" disabled style="background:var(--color-gray-50);color:var(--text-tertiary);cursor:not-allowed"><option>深圳市市政工程总公司</option></select>
       <input type="text" id="filterKeyword" placeholder="搜索问题描述" oninput="renderTable()">
       <select id="filterSource" onchange="renderTable()"><option value="all">全部来源</option><option value="街道上报">街道上报</option><option value="群众上报">群众上报</option><option value="监管巡查">监管巡查</option><option value="项目巡检">项目巡检</option></select>
       <select id="filterType" onchange="renderTable()"><option value="all">全部类型</option></select>
       <button class="btn btn-primary btn-sm btn-query" onclick="renderTable()"><svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>查询</button>
-      <button class="btn btn-ghost btn-sm btn-query" onclick="document.getElementById('filterKeyword').value='';document.getElementById('filterSource').value='all';document.getElementById('filterProject').value='all';document.getElementById('filterEngineer').value='all';_statusTab='all';renderTable()"><svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>重置</button>
+      <button class="btn btn-ghost btn-sm btn-query" onclick="document.getElementById('filterKeyword').value='';document.getElementById('filterFence').value='';document.getElementById('filterSource').value='all';document.getElementById('filterProject').value='all';document.getElementById('filterEngineer').value='all';_statusTab='all';_page=1;renderTable()"><svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>重置</button>
     </div>
     </div>
 
@@ -230,11 +232,9 @@ a:hover{color:var(--color-primary-600)}
       <table class="table">
         <thead><tr>
           <th style="width:32px">序号</th>
-          <th style="width:90px">问题类型</th>
-          <th style="width:150px;text-align:left">关联项目</th>
           <th style="width:130px;text-align:left">围挡名称</th>
-          <th style="width:120px;text-align:left">关联工程</th>
-          <th style="width:80px">所属街道</th>
+          <th style="width:150px;text-align:left">关联工程</th>
+          <th style="width:90px">问题类型</th>
           <th style="width:140px">责任单位</th>
           <th style="width:75px">问题来源</th>
           <th style="width:75px">状态</th>
@@ -270,7 +270,14 @@ var _statusTab = 'all';
 
 function esc(s){ if(!s) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-function loadData(){ _items = MOCK_DATA.getClosureIssues(); }
+function loadData(){ _items = MOCK_DATA.getClosureIssues().filter(function(i){ return i.type !== '应建未建围挡'; }); }
+
+function findIssueHoarding(issue){
+  if(!issue||!issue.fenceId)return null;
+  var all=MOCK_DATA.getHoardings();
+  return all.find(function(h){return h.id===issue.fenceId&&(!issue._projectName||h.projectName===issue._projectName)&&(!issue.engineerName||h.engineerName===issue.engineerName);})||
+    all.find(function(h){return h.id===issue.fenceId&&(!issue._projectName||h.projectName===issue._projectName);})||null;
+}
 
 function renderTable(){
   loadData();
@@ -280,6 +287,7 @@ function renderTable(){
   var ft = document.getElementById('filterType').value;
   var proj = document.getElementById('filterProject').value;
   var eng = document.getElementById('filterEngineer').value;
+  var fenceKw = (document.getElementById('filterFence').value||'').trim().toLowerCase();
 
   if(kw) _items = _items.filter(function(i){ return (i.details||'').toLowerCase().indexOf(kw)>-1||(i._projectName||'').toLowerCase().indexOf(kw)>-1||(i.engineerName||'').toLowerCase().indexOf(kw)>-1; });
   if(st!=='all') _items = _items.filter(function(i){ return i.status === st; });
@@ -287,6 +295,7 @@ function renderTable(){
   if(ft!=='all') _items = _items.filter(function(i){ return i.type === ft; });
   if(proj!=='all') _items = _items.filter(function(i){ return (i._projectName||'') === proj; });
   if(eng!=='all') _items = _items.filter(function(i){ return (i.engineerName||'') === eng; });
+  if(fenceKw) _items = _items.filter(function(i){ var h=findIssueHoarding(i);return ((h&&h.fenceName)||'').toLowerCase().indexOf(fenceKw)>-1; });
 
   var total = _items.length;
   var start = (_page-1)*_pageSize;
@@ -296,14 +305,12 @@ function renderTable(){
   pageItems.forEach(function(i, idx){
     var sc = i.status==='待整改'?'待整改':i.status==='整改逾期'?'整改逾期':'整改完成';
     var sCls = i.status==='待整改'?'tag-warning':i.status==='整改逾期'?'tag-danger':'tag-success';
-    var hoard = i.fenceId ? MOCK_DATA.findFenceById(i.fenceId) : null;
+    var hoard = findIssueHoarding(i);
     var fenceName = hoard ? (hoard.fenceName || hoard.engineerName || '--') : '--';
     h += '<tr><td>'+(start+idx+1)+'</td>'+
-      '<td><span class="issue-type-text">'+esc(i.type||'')+'</span></td>'+
-      '<td style="text-align:left">'+esc(i._projectName||'--')+'</td>'+
       '<td style="text-align:left">'+esc(fenceName)+'</td>'+
       '<td style="text-align:left">'+esc(i.engineerName||'--')+'</td>'+
-      '<td>'+esc(i.street||'--')+'</td>'+
+      '<td><span class="issue-type-text">'+esc(i.type||'')+'</span></td>'+
       '<td>'+esc(i._constructUnit||i.responsibleUnit||'--')+'</td>'+
       '<td>'+esc(i.source||'--')+'</td>'+
       '<td><span class="tag '+sCls+'">'+sc+'</span></td>'+
@@ -313,7 +320,7 @@ function renderTable(){
       (i.status==='待整改'||i.status==='整改逾期'?'<a class="table-action-link" href="javascript:void(0)" onclick="openTransferModal(\''+i.id+'\')">转派</a>':'')+
       '</div></td></tr>';
   });
-  if(!total) h = '<tr><td colspan="11" style="padding:40px;color:var(--text-tertiary)">暂无数据</td></tr>';
+  if(!total) h = '<tr><td colspan="9" style="padding:40px;color:var(--text-tertiary)">暂无数据</td></tr>';
   document.getElementById('tableBody').innerHTML = h;
 
   var totalPages = Math.ceil(total/_pageSize);
@@ -330,11 +337,12 @@ function renderTable(){
   // Populate filter dropdowns (once)
   if(!document.getElementById('filterProject').dataset.loaded){
     var all = MOCK_DATA.getClosureIssues();
-    var projects = {}, engineers = {};
-    all.forEach(function(i){ if(i._projectName) projects[i._projectName]=true; if(i.engineerName) engineers[i.engineerName]=true; });
-    var psel = document.getElementById('filterProject'), esel = document.getElementById('filterEngineer');
+    var projects = {}, engineers = {}, fences = {};
+    all.forEach(function(i){var h=findIssueHoarding(i);if(i._projectName)projects[i._projectName]=true;if(i.engineerName)engineers[i.engineerName]=true;if(h&&h.fenceName)fences[h.fenceName]=true;});
+    var psel = document.getElementById('filterProject'), esel = document.getElementById('filterEngineer'), fsel=document.getElementById('filterFenceOptions');
     Object.keys(projects).sort().forEach(function(t){ var o=document.createElement('option');o.value=t;o.textContent=t;psel.appendChild(o); });
     Object.keys(engineers).sort().forEach(function(t){ var o=document.createElement('option');o.value=t;o.textContent=t;esel.appendChild(o); });
+    Object.keys(fences).sort().forEach(function(t){var o=document.createElement('option');o.value=t;fsel.appendChild(o);});
     document.getElementById('filterProject').dataset.loaded='1';
   }
 }
@@ -402,7 +410,7 @@ function showMsg(m){ var d=document.createElement('div');d.style.cssText='positi
 
 (function initTypeFilter(){
   var s=document.getElementById('filterType');if(!s)return;
-  var types=window.MOCK_DATA?MOCK_DATA.getStreetIssueTypes():[];
+  var types=(window.MOCK_DATA?MOCK_DATA.getStreetIssueTypes():[]).filter(function(t){return t!=='应建未建围挡';});
   types.forEach(function(t){var o=document.createElement('option');o.value=t;o.textContent=t;s.appendChild(o);});
 })();
 renderTable();

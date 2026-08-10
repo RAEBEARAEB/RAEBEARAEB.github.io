@@ -44,7 +44,11 @@
       // ── 群众上报演示数据 ──
       { id: 'YZY-034', type: '围挡破损', fenceId: 'WD-2026-0001', fenceAddr: '福田区福华三路', details: '福华三路围挡靠近人行道处有一块面板脱落，露出内部钢架，行人经过容易刮伤', status: '整改完成', source: '群众上报', reportTime: _d(5)+' 10:20:00', engineerName: '穗莞深城际轨道交通深圳机场至前海段工程I标土建一工区', _projectName: '穗莞深城际轨道交通深圳机场至前海段工程', responsibleUnit: '深圳市市政工程总公司', _rectification: {"rectTime": "2026-07-25 14:00:00", "rectifier": "刘伟", "rectifierUnit": "深圳市市政工程总公司", "desc": "已更换脱落面板，焊缝加固并打磨锋利边缘", "photos": ["../围挡破损.png"]}, photos: ['../围挡破损.png'], location: { lat: 22.550, lng: 114.062, addr: '福田区福华三路靠近人行道处' } },
       { id: 'YZY-035', type: '围挡脏污', fenceId: 'WD-2026-0001', fenceAddr: '福田区福华三路', details: '围挡表面有大面积泥浆污渍，下雨后泥水顺着围挡流到人行道上，影响通行', status: '待整改', source: '群众上报', reportTime: _d(2)+' 08:45:00', engineerName: '穗莞深城际轨道交通深圳机场至前海段工程I标土建一工区', _projectName: '穗莞深城际轨道交通深圳机场至前海段工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png'], location: { lat: 22.550, lng: 114.061, addr: '福田区福华三路人行道旁' } },
-      { id: 'YZY-036', type: '围挡安全隐患', fenceId: 'WD-2026-0002', fenceAddr: '福田区福华三路西侧', details: '围挡西段靠近路口处有明显倾斜，刮风天晃动厉害，担心会倒下来砸到行人', status: '待整改', source: '群众上报', reportTime: _d(1)+' 18:30:00', engineerName: '穗莞深城际轨道交通深圳机场至前海段工程II标土建二工区', _projectName: '穗莞深城际轨道交通深圳机场至前海段工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png'], location: { lat: 22.547, lng: 114.059, addr: '福田区福华三路西侧路口处' } }
+      { id: 'YZY-036', type: '围挡安全隐患', fenceId: 'WD-2026-0002', fenceAddr: '福田区福华三路西侧', details: '围挡西段靠近路口处有明显倾斜，刮风天晃动厉害，担心会倒下来砸到行人', status: '待整改', source: '群众上报', reportTime: _d(1)+' 18:30:00', engineerName: '穗莞深城际轨道交通深圳机场至前海段工程II标土建二工区', _projectName: '穗莞深城际轨道交通深圳机场至前海段工程', responsibleUnit: '深圳市市政工程总公司', photos: ['../围挡破损.png'], location: { lat: 22.547, lng: 114.059, addr: '福田区福华三路西侧路口处' } },
+      { id: 'YZY-037', type: '围挡基础松动', fenceId: 'WD-2026-0005', fenceAddr: '龙华区民治街道22号线一工区施工段', details: '项目巡检发现施工入口东侧围挡基础连接件松动，已完成紧固处理', status: '整改完成', source: '项目巡检', reportTime: '2026-07-30 10:20:00', engineerName: '深圳市城市轨道交通22号线一期工程施工总承包22101标土建一工区', _projectName: '深圳市城市轨道交通22号线一期工程施工总承包22101标土建一工区', responsibleUnit: '中铁十四局集团有限公司', photos: ['../围挡破损.png'] },
+      { id: 'YZY-038', type: '围挡二维码内容不全', fenceId: 'WD-2026-0006', fenceAddr: '福田区福城南产业片区10-08-03宗地', details: '项目巡检发现围挡公示二维码缺少责任单位信息，已更新公示内容', status: '整改完成', source: '项目巡检', reportTime: '2026-07-29 15:30:00', engineerName: '福城南产业片区10-08-03宗地项目桩基础工程', _projectName: '福城南产业片区10-08-03宗地项目', responsibleUnit: '深圳市建安集团有限公司', photos: ['../围挡破损.png'] },
+      { id: 'YZY-039', type: '围挡脏污', fenceId: 'WD-2026-0007', fenceAddr: '福田区福城南产业片区10-08-03宗地', details: '项目巡检发现基坑围挡局部泥浆污染，已安排责任单位清洗处理', status: '待整改', source: '项目巡检', reportTime: '2026-07-31 09:40:00', engineerName: '福城南产业片区10-08-03宗地项目基坑支护与土石方工程', _projectName: '福城南产业片区10-08-03宗地项目', responsibleUnit: '深圳市地质建设工程公司', photos: ['../围挡破损.png'] },
+      { id: 'YZY-040', type: '围挡喷淋不符合要求', fenceId: 'WD-2026-0004', fenceAddr: '龙华区民治街道民丰路88号', details: '项目巡检发现喷淋头堵塞，已疏通并恢复正常喷淋', status: '整改完成', source: '项目巡检', reportTime: '2026-07-28 14:10:00', engineerName: '龙城北综合车场主体工程', _projectName: '龙城北综合车场工程(含保障性租赁住房)', responsibleUnit: '深圳市建工集团股份有限公司', photos: ['../围挡破损.png'] }
     ];
 
   function getInitialData() {
@@ -54,7 +58,7 @@
 
 
     return {
-      version: 52,
+      version: 73,
       updatedAt: new Date().toISOString(),
       projects: [
         /* ── 项目 1：福田 ── */
@@ -122,9 +126,10 @@
                 { id: 'cr_g1', changer: '刘伟', unit: '深圳市市政工程总公司', role: '施工人员', date: '2026-04-20 14:30', type: '变更操作', content: '围挡材质变更，由彩钢板调整为装配式钢结构喷绘围挡', field: '围挡材质', before: '彩钢板', after: '装配式钢结构喷绘围挡' }
               ],
               patrolRecords: [
+                { id: 'pr3_score_week', date: '2026-07-29', time: '09:10', inspector: '刘伟', result: '正常', issues: [], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' },
                 { id: 'pr3', date: '2026-05-10', time: '10:00', inspector: '刘伟', result: '异常', issues: [{type:'围挡尺寸不合规', unit:'深圳市市政工程总公司', detail:'围挡实测高度2.0m，低于规范要求的2.5m标准高度，需立即调整', status:'待整改', source:'项目巡检'}], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' },
                 { id: 'pr16', date: '2026-05-03', time: '08:50', inspector: '陈刚', result: '正常', issues: [], panoramaSrc: 'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492' },
-                { id: 'pr3_today', date: _d(0), time: '09:30', inspector: '刘伟', result: '正常', issues: [], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' }
+                { id: 'pr3_today', date: _d(0), time: '09:30', inspector: '刘伟', result: '异常', issues: [{type:'围挡脏污', unit:'深圳市市政工程总公司', detail:'围挡下沿存在泥浆污染，影响沿街整体观感，需安排清洗。', status:'待整改', source:'项目巡检', photos:['../围挡破损.png'], location:{lat:22.5471,lng:114.0600,addr:'福田区福华三路沟槽段围挡中部'}}], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' }
               ]
             }
           ]
@@ -162,10 +167,12 @@
                 { id: 'cr_ns3', changer: '张项目', unit: '深圳市绿篱建设工程有限公司', role: '项目负责人', date: '2026-07-15 10:00', type: '移交操作', content: '国际演艺中心建设主体工程已完工，围挡转为待认领状态，等待后续工程接收认领', field: '工程移交', before: '国际演艺中心建设主体工程', after: '待认领' }
               ],
               patrolRecords: [
+                { id: 'pr_lh_score_week', date: '2026-07-28', time: '09:25', inspector: '李明', result: '正常', issues: [], panoramaSrc: 'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492' },
                 { id: 'pr_lh1', date: '2026-05-28', time: '09:00', inspector: '李明', result: '正常', issues: [], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' },
                 { id: 'pr_lh2', date: '2026-06-10', time: '14:30', inspector: '李巡检', result: '正常', issues: [], panoramaSrc: 'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492' },
                 { id: 'pr_lh3', date: '2026-07-22', time: '10:30', inspector: '张建国', result: '异常', issues: [{type:'围挡破损', unit:'深圳市绿篱建设工程有限公司', detail:'围挡破损人可通行', status:'待整改', source:'监管巡查', supervisor:'张建国', location:{lat:22.5372,lng:113.9598,addr:'南山区科技南路18号东北角围挡范围处'}}], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' },
-                { id: 'pr_lh_today', date: _d(0), time: '10:15', inspector: '李明', result: '正常', issues: [], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' }
+                { id: 'pr_lh_recent', date: _d(1), time: '16:20', inspector: '李明', result: '正常', issues: [], panoramaSrc: 'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492' },
+                { id: 'pr_lh_today', date: _d(0), time: '10:15', inspector: '李明', result: '异常', issues: [{type:'公益广告污损', unit:'深圳市绿篱建设工程有限公司', detail:'东北角公益广告画面局部褪色并有污渍，需更换画面。', status:'待整改', source:'项目巡检', photos:['../围挡破损.png'], location:{lat:22.5372,lng:113.9598,addr:'南山区科技南路18号东北角围挡'}}], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' }
               ]
             },
             {
@@ -186,8 +193,11 @@
                 { id: 'cr_jk2', changer: '张项目', unit: '深圳市岩土工程有限公司', role: '项目负责人', date: '2026-06-10 14:30', type: '认领操作', content: '国际演艺中心地基与基础工程正式认领接管该围挡', before: '待认领', after: '国际演艺中心地基与基础工程' }
               ],
               patrolRecords: [
+                { id: 'pr_jk_score_week', date: '2026-07-30', time: '14:10', inspector: '王强', result: '正常', issues: [], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' },
                 { id: 'pr_jk1', date: '2026-06-05', time: '09:00', inspector: '王强', result: '正常', issues: [], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' },
-                { id: 'pr_jk2', date: '2026-06-20', time: '14:30', inspector: '李巡检', result: '正常', issues: [], panoramaSrc: 'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492' }
+                { id: 'pr_jk2', date: '2026-06-20', time: '14:30', inspector: '李巡检', result: '正常', issues: [], panoramaSrc: 'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492' },
+                { id: 'pr_jk_recent', date: _d(1), time: '15:10', inspector: '王强', result: '正常', issues: [], panoramaSrc: 'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492' },
+                { id: 'pr_jk_today', date: _d(0), time: '11:20', inspector: '王强', result: '正常', issues: [], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' }
               ]
             },
             {
@@ -249,6 +259,7 @@
                 { id: 'cr_lh3', changer: '张项目', unit: '深圳市建工集团股份有限公司', role: '项目负责人', date: '2026-07-20 10:00', type: '取消移交', content: '取消前次移交操作，围挡恢复已安装状态', before: '待认领', after: '龙城北综合车场主体工程' }
               ],
               patrolRecords: [
+                { id: 'pr_lh4_score_week', date: '2026-07-28', time: '14:00', inspector: '周文', result: '异常', issues: [{type:'围挡喷淋不符合要求', unit:'深圳市建工集团股份有限公司', detail:'喷淋头堵塞，已完成疏通处理', status:'整改完成', source:'项目巡检'}], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' },
                 { id: 'pr_lh1', date: '2026-07-15', time: '09:00', inspector: '周文', result: '正常', issues: [], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' },
                 { id: 'pr_lh2', date: '2026-06-20', time: '14:30', inspector: '赵巡检', result: '正常', issues: [], panoramaSrc: 'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492' }
               ]
@@ -286,8 +297,10 @@
                 { id: 'cr_m22_1', changer: '李强', unit: '中铁十四局集团有限公司', role: '施工人员', date: '2026-03-01 08:00', type: '新增围挡', content: '22号线一工区开工，新建施工围挡', field: '', before: '', after: '' }
               ],
               patrolRecords: [
+                { id: 'pr_m22_score_week', date: '2026-07-30', time: '10:20', inspector: '李强', result: '异常', issues: [{type:'围挡基础松动', unit:'中铁十四局集团有限公司', detail:'施工入口东侧围挡基础连接件松动，已完成紧固处理', status:'整改完成', source:'项目巡检'}], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' },
                 { id: 'pr_m22_1', date: '2026-06-12', time: '09:00', inspector: '李强', result: '正常', issues: [], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' },
-                { id: 'pr_m22_today', date: _d(0), time: '10:00', inspector: '李强', result: '正常', issues: [], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' }
+                { id: 'pr_m22_recent', date: _d(1), time: '15:40', inspector: '李强', result: '正常', issues: [], panoramaSrc: 'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492' },
+                { id: 'pr_m22_today', date: _d(0), time: '10:00', inspector: '李强', result: '异常', issues: [{type:'围挡基础松动', unit:'中铁十四局集团有限公司', detail:'施工入口东侧一处围挡基础连接件松动，需及时加固。', status:'待整改', source:'项目巡检', photos:['../围挡破损.png'], location:{lat:22.6451,lng:114.0518,addr:'龙华区民治街道22号线一工区施工入口东侧'}}], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' }
               ]
             }
           ]
@@ -324,7 +337,8 @@
               ],
               patrolRecords: [
                 { id: 'pr_fn_1', date: '2026-06-18', time: '14:00', inspector: '王勇', result: '正常', issues: [], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' },
-                { id: 'pr_fn_today', date: _d(0), time: '15:30', inspector: '王勇', result: '正常', issues: [], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' }
+                { id: 'pr_fn1_score_week', date: '2026-07-29', time: '15:30', inspector: '王勇', result: '异常', issues: [{type:'围挡二维码内容不全', unit:'深圳市建安集团有限公司', detail:'公示二维码缺少责任单位信息，已更新', status:'整改完成', source:'项目巡检'}], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' },
+                { id: 'pr_fn_today', date: _d(0), time: '15:30', inspector: '王勇', result: '异常', issues: [{type:'围挡二维码内容不全', unit:'深圳市建安集团有限公司', detail:'围挡公示二维码扫码后缺少当前责任单位信息，需补充更新。', status:'待整改', source:'项目巡检', photos:['../围挡破损.png'], location:{lat:22.5351,lng:114.0677,addr:'福田区福城南产业片区桩基围挡主入口'}}], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' }
               ]
             },
             {
@@ -344,7 +358,8 @@
                 { id: 'cr_fn_2', changer: '王勇', unit: '深圳市地质建设工程公司', role: '施工人员', date: '2026-04-01 08:00', type: '新增围挡', content: '基坑支护与土石方工程开工，新建施工围挡', field: '', before: '', after: '' }
               ],
               patrolRecords: [
-                { id: 'pr_fn_2', date: '2026-07-10', time: '10:00', inspector: '王勇', result: '正常', issues: [], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' }
+                { id: 'pr_fn_2', date: '2026-07-10', time: '10:00', inspector: '王勇', result: '正常', issues: [], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' },
+                { id: 'pr_fn2_score_week', date: '2026-07-31', time: '09:40', inspector: '王勇', result: '异常', issues: [{type:'围挡脏污', unit:'深圳市地质建设工程公司', detail:'基坑围挡局部泥浆污染，已安排清洗', status:'待整改', source:'项目巡检'}], panoramaSrc: 'https://www.720yun.com/vr/1c1jt7mOey1' }
               ]
             }
           ]
@@ -354,7 +369,7 @@
   }
 
   /* ── 加载或初始化 ── */
-  var CURRENT_VERSION = 69;
+  var CURRENT_VERSION = 73;
   var stored = localStorage.getItem(STORAGE_KEY);
   if (stored) {
     var parsed = JSON.parse(stored);
@@ -479,12 +494,12 @@
       var patrolScore = Math.round(30 * patrolRate);
       var d1 = hasFence === 0 ? 0 : (hasFence + patrolScore);
       var self = 0, supervisor = 0, street = 0;
-      projHoards.forEach(function (h) { issues.forEach(function (iss) { if (iss.fenceId === h.id) { if (iss.source === '项目巡检') self++; else if (iss.source === '监管巡查') supervisor++; else if (iss.source === '街道上报') street++; } }); });
+      projHoards.forEach(function (h) { issues.forEach(function (iss) { if (iss.fenceId === h.id && (!iss._projectName || iss._projectName === proj.name)) { if (iss.source === '项目巡检') self++; else if (iss.source === '监管巡查') supervisor++; else if (iss.source === '街道上报') street++; } }); });
       var totalF = self + supervisor + street;
       var discRate = totalF > 0 ? self / totalF : 0;
       var discScore = Math.round(30 * discRate);
       var tR = 0, cR = 0;
-      projHoards.forEach(function (h) { issues.forEach(function (iss) { if (iss.fenceId === h.id) { tR++; if (iss.status === '整改完成' || iss.status === '已通过') cR++; } }); });
+      projHoards.forEach(function (h) { issues.forEach(function (iss) { if (iss.fenceId === h.id && (!iss._projectName || iss._projectName === proj.name)) { tR++; if (iss.status === '整改完成' || iss.status === '已通过') cR++; } }); });
       var rectRate = tR > 0 ? cR / tR : 1;
       var rectScore = Math.round(30 * rectRate);
       var d2 = d1 === 0 ? 0 : (discScore + rectScore);

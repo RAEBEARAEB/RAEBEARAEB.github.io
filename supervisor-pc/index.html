@@ -161,8 +161,10 @@ a:hover{color:var(--text-link-hover)}
 .dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:6px;vertical-align:middle;flex-shrink:0}
 .dot-red{background:#ff4d4f}
 .dot-orange{background:#fa8c16}
+.dot-blue{background:var(--color-primary-500)}
 .days-danger{color:#ff4d4f;font-weight:500;font-size:13px}
 .days-warning{color:#fa8c16;font-weight:500;font-size:13px}
+.days-removed{color:var(--color-primary-500);font-weight:500;font-size:13px}
 
 /* ═══ 图表区两栏 ═══ */
 .chart-row{display:flex;gap:var(--space-4);align-items:stretch}
@@ -202,6 +204,13 @@ a:hover{color:var(--text-link-hover)}
 #supTop10Card .col-num{color:#8c8c8c;font-size:12px}
 #supTop10Card .table-action-link{color:#1677ff;font-size:13px;cursor:pointer;text-decoration:none}
 #supTop10Card .table-action-link:hover{color:#1677ff;text-decoration:underline}
+#supTop10Card .top10-header-actions{display:flex;align-items:center;gap:8px}
+#supTop10Card .top10-sort-btn{height:28px;padding:0 9px;display:inline-flex;align-items:center;gap:4px;border:1px solid var(--border-color-light);border-radius:var(--border-radius-md);background:#fff;color:var(--text-secondary);font-family:var(--font-family);font-size:var(--font-size-xs);cursor:pointer;white-space:nowrap}
+#supTop10Card .top10-sort-btn:hover{border-color:var(--color-primary-300);color:var(--color-primary-600);background:var(--color-primary-50)}
+#supTop10Card .top10-sort-btn svg{width:12px;height:12px;transition:transform .15s ease}
+#supTop10Card .top10-sort-btn.reverse svg{transform:rotate(180deg)}
+#supTop10Card .top10-project,#supTop10Card .top10-unit{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#supTop10Card .top10-rank{font-weight:var(--font-weight-bold);color:var(--text-primary)}
 
 /* ═══ 工具类 ═══ */
 .text-link{color:var(--text-link);font-size:var(--font-size-xs);display:inline-flex;align-items:center;gap:2px;cursor:pointer}
@@ -262,10 +271,10 @@ a:hover{color:var(--text-link-hover)}
         <li class="nav-group-label">围挡管理</li>
         <li class="nav-item"><a href="redline.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8l-5 5-5-5"/><line x1="12" y1="13" x2="12" y2="3"/></svg>项目红线管理</a></li>
         <li class="nav-item"><a href="index_v3_project.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>围挡档案管理</a></li>
-        <li class="nav-item"><a href="panorama_patrol_v2.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>全景巡查</a></li>
+        <li class="nav-item"><a href="panorama_patrol_v3.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>全景巡查</a></li>
         <li class="nav-item"><a href="supervisor-issue-list.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>问题闭环处置</a></li>
         <li class="nav-group-label">统计报表</li>
-        <li class="nav-item"><a href="score-management.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>围挡评分管理</a></li>
+        <li class="nav-item"><a href="score-management_v2.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>围挡评分管理</a></li>
       </ul>
       <div class="sidebar-bottom"><div class="sidebar-version">v2.0.0 · 2026.05</div></div>
     </aside>
@@ -313,8 +322,8 @@ a:hover{color:var(--text-link-hover)}
           <div class="card-body" style="padding:var(--space-3)"><div id="supScoreDistChart" class="sup-dist-chart"></div></div>
         </div>
         <div class="card" id="supTop10Card">
-          <div class="card-header"><div class="card-title">本周低评分围挡 TOP10 <span style="font-size:12px;color:var(--text-tertiary);font-weight:400;margin-left:4px" id="top10DateRange"></span></div><a href="score-management.html" class="chart-tab" style="text-decoration:none">查看全部</a></div>
-          <div class="card-body" style="padding:0"><div class="table-wrapper" style="max-height:360px;overflow-y:auto"><table class="table" id="supTop10Table"><thead><tr><th style="width:32px;text-align:center;position:sticky;top:0;z-index:2">序号</th><th style="width:110px">关联工程</th><th style="width:80px">所属区域</th><th style="width:72px;text-align:center">围挡状态</th><th style="width:48px;text-align:center">得分</th><th style="width:56px;text-align:center">平均得分</th><th style="width:60px;text-align:center">等级</th></tr></thead><tbody></tbody></table></div></div>
+          <div class="card-header"><div class="card-title">上期围挡评分TOP10 <span style="font-size:12px;color:var(--text-tertiary);font-weight:400;margin-left:4px" id="top10DateRange"></span></div><div class="top10-header-actions"><button class="top10-sort-btn" id="top10SortBtn" type="button" onclick="toggleTop10Order()" title="切换查看全市排名最前或最后的项目"><span id="top10SortText">排名正序</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 7l4-4 4 4M12 3v18M16 17l-4 4-4-4"/></svg></button><a href="score-management_v2.html" class="chart-tab" style="text-decoration:none">查看全部</a></div></div>
+          <div class="card-body" style="padding:0"><div class="table-wrapper" style="max-height:360px;overflow-y:auto"><table class="table" id="supTop10Table"><thead><tr><th style="width:88px;text-align:center;position:sticky;top:0;z-index:2">上期全市排名</th><th style="width:34%">项目名称</th><th style="width:32%">责任单位</th><th style="width:72px;text-align:center">上期得分</th><th style="width:72px;text-align:center">上期等级</th></tr></thead><tbody></tbody></table></div></div>
         </div>
       </div>
       <!-- ═══ 待办 + 提醒（双卡片并排）═══ -->
@@ -322,19 +331,12 @@ a:hover{color:var(--text-link-hover)}
       <!-- 待办事项 -->
       <div class="card">
         <div class="card-header">
-          <div class="card-title">待办事项 <span class="count-badge" id="supTodoBadge">6</span></div>
+          <div class="card-title">待办事项 <span class="count-badge" id="supTodoBadge">0</span></div>
         </div>
         <div class="card-body">
           <table class="table" id="todoTable">
             <thead><tr><th style="width:36px;text-align:center">序号</th><th style="width:64px">类型</th><th style="width:70px">关联工程</th><th style="width:112px">上报时间</th><th style="width:56px">操作</th></tr></thead>
-            <tbody>
-              <tr data-type="verify"><td class="col-num">1</td><td><span class="todo-tag">待校核</span></td><td>管道铺设工程</td><td>2026-05-08 09:00</td><td><button class="table-action-link">去校核</button></td></tr>
-              <tr data-type="verify"><td class="col-num">2</td><td><span class="todo-tag">待校核</span></td><td>沟槽开挖工程</td><td>2026-05-08 08:30</td><td><button class="table-action-link">去校核</button></td></tr>
-              <tr data-type="verify"><td class="col-num">3</td><td><span class="todo-tag">待校核</span></td><td>主体结构工程</td><td>2026-05-09 10:00</td><td><button class="table-action-link">去校核</button></td></tr>
-              <tr data-type="verify"><td class="col-num">4</td><td><span class="todo-tag">待校核</span></td><td>道路恢复工程</td><td>2026-05-10 14:00</td><td><button class="table-action-link">去校核</button></td></tr>
-              <tr data-type="verify"><td class="col-num">5</td><td><span class="todo-tag">待校核</span></td><td>基坑围护工程</td><td>2026-05-10 09:30</td><td><button class="table-action-link">去校核</button></td></tr>
-              <tr data-type="verify"><td class="col-num">6</td><td><span class="todo-tag">待校核</span></td><td>路面修复工程</td><td>2026-05-11 14:00</td><td><button class="table-action-link">去校核</button></td></tr>
-            </tbody>
+            <tbody></tbody>
           </table>
         </div>
       </div>
@@ -344,20 +346,15 @@ a:hover{color:var(--text-link-hover)}
           <div class="card-title">提醒事项</div>
         </div>
         <div class="tab-bar">
-          <button class="tab-btn active" data-filter="all" onclick="filterRemindTab(this)">全部<span class="tab-count">(5)</span></button>
-          <button class="tab-btn" data-filter="overdue" onclick="filterRemindTab(this)">超期提醒<span class="tab-count">(2)</span></button>
-          <button class="tab-btn" data-filter="expiring" onclick="filterRemindTab(this)">临期预警<span class="tab-count">(3)</span></button>
+          <button class="tab-btn active" data-filter="all" onclick="filterRemindTab(this)">全部<span class="tab-count" id="remindCountAll">(0)</span></button>
+          <button class="tab-btn" data-filter="overdue" onclick="filterRemindTab(this)">超期提醒<span class="tab-count" id="remindCountOverdue">(0)</span></button>
+          <button class="tab-btn" data-filter="expiring" onclick="filterRemindTab(this)">临期预警<span class="tab-count" id="remindCountExpiring">(0)</span></button>
+          <button class="tab-btn" data-filter="removed" onclick="filterRemindTab(this)">拆除提醒<span class="tab-count" id="remindCountRemoved">(0)</span></button>
         </div>
         <div class="card-body">
           <table class="table" id="remindTable">
             <thead><tr><th style="width:44px">预警类型</th><th style="width:60px">关联工程</th><th style="width:68px">预警详情</th><th style="width:44px">操作</th></tr></thead>
-            <tbody>
-              <tr data-type="overdue"><td><span class="dot dot-red"></span>超期提醒</td><td>管道铺设工程</td><td><span class="days-danger">超期未拆14天</span></td><td><a href="detail_info_v3.html" class="table-action-link">查看</a></td></tr>
-              <tr data-type="overdue"><td><span class="dot dot-red"></span>超期提醒</td><td>沟槽开挖工程</td><td><span class="days-danger">超期未拆23天</span></td><td><a href="detail_info_v3.html" class="table-action-link">查看</a></td></tr>
-              <tr data-type="expiring"><td><span class="dot dot-orange"></span>临期预警</td><td>主体结构工程</td><td><span class="days-warning">距拆除还剩7天</span></td><td><a href="detail_info_v3.html" class="table-action-link">查看</a></td></tr>
-              <tr data-type="expiring"><td><span class="dot dot-orange"></span>临期预警</td><td>道路恢复工程</td><td><span class="days-warning">距拆除还剩15天</span></td><td><a href="detail_info_v3.html" class="table-action-link">查看</a></td></tr>
-              <tr data-type="expiring"><td><span class="dot dot-orange"></span>临期预警</td><td>基坑围护工程</td><td><span class="days-warning">距拆除还剩30天</span></td><td><a href="detail_info_v3.html" class="table-action-link">查看</a></td></tr>
-            </tbody>
+            <tbody></tbody>
           </table>
         </div>
       </div>
@@ -482,46 +479,50 @@ distChart.setOption({
   series:SCORE_DIM_DATA.station.data.map(function(s){return{name:s.name,type:'bar',stack:'total',data:s.vals,barWidth:20,itemStyle:{color:s.name==='优秀'?'#1A9042':s.name==='良好'?'#1862D4':s.name==='警示'?'#D48A00':'#D13B2F'},emphasis:{focus:'series'}};})
 });
 
-// TOP10 table — 本周低评分围挡
-(function(){
-  var now=new Date();
-  var day=now.getDay();day=day===0?7:day;
-  var monday=new Date(now);monday.setDate(now.getDate()-day+1);
+// 上期围挡评分TOP10 — 项目视角，默认展示上期全市排名最前的项目
+var _top10Order='asc';
+var _top10AllData=[];
+function top10Esc(value){return String(value==null?'':value).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function buildProjectTop10(){
+  var now=new Date(),day=now.getDay()||7,currentMonday=new Date(now);
+  currentMonday.setHours(0,0,0,0);currentMonday.setDate(now.getDate()-day+1);
+  var monday=new Date(currentMonday);monday.setDate(currentMonday.getDate()-7);
   var sunday=new Date(monday);sunday.setDate(monday.getDate()+6);
   function fmt(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
   var rangeStr=fmt(monday)+' ~ '+fmt(sunday);
-  document.getElementById('top10DateRange').textContent=rangeStr;
-
-  var scores=MOCK_DATA.getProjectScores();
-  if(!scores||!scores.length)return;
-  // Compute average across past 3 months
-  var now2=new Date(); var avgScores={};
-  for(var m=0;m<3;m++){ var yy=now2.getFullYear(),mm=now2.getMonth()+1-m; if(mm<1){mm+=12;yy--;}
-    var ms=MOCK_DATA.getProjectScores(yy,mm);
-    ms.forEach(function(s){ if(!avgScores[s.projectId])avgScores[s.projectId]={sum:0,cnt:0}; avgScores[s.projectId].sum+=s.total; avgScores[s.projectId].cnt++; });
-  }
-  var hoardings=MOCK_DATA.getHoardings();
-  var fTag={'已安装':'tag-setting','超期未拆':'tag-expired'};
-  var scoredHoards=hoardings.map(function(h){
-    if(h.fenceStatus==='超期未拆')return null;
-    var ps=null;
-    scores.forEach(function(s){if(s.projectId===h.projectId)ps=s;});
-    var avg=avgScores[h.projectId]?Math.round(avgScores[h.projectId].sum/avgScores[h.projectId].cnt):(ps?ps.total:0);
-    return ps?{engineerName:h.engineerName,fenceStatus:h.fenceStatus,street:h.projectStreet||h.street,district:h.projectDistrict,total:ps.total,avg:avg,grade:ps.grade,gradeCls:ps.gradeCls,projectName:h.projectName,projectStatus:h.projectStatus,constructUnit:h.constructUnit,period:rangeStr}:null;
-  }).filter(Boolean);
-  scoredHoards.sort(function(a,b){return a.total-b.total;});
-  var top10=scoredHoards.slice(0,10);
-  var tbody='';
-  top10.forEach(function(h,i){
-    var scCls=h.total<55?' low':'',avgCls=h.avg<55?' low':'';
-    tbody+='<tr><td class="col-num">'+(i+1)+'</td><td><div class="info-name">'+h.engineerName+'</div></td><td>'+h.district+'</td><td class="col-center"><span class="tag '+((fTag[h.fenceStatus])||'tag-default')+'">'+h.fenceStatus+'</span></td><td class="col-center"><span class="sup-table-score'+scCls+'">'+h.total+'</span></td><td class="col-center"><span class="sup-table-score'+avgCls+'">'+h.avg+'</span></td><td class="col-center"><span class="sup-table-grade '+h.gradeCls+'">'+h.grade+'</span></td></tr>';
-  });
-  document.querySelector('#supTop10Table tbody').innerHTML=tbody;
-
-  // Export helper
-  window._top10Data=top10;
+  document.getElementById('top10DateRange').textContent='（'+rangeStr+'）';
   window._top10Range=rangeStr;
-})();
+
+  var projects=MOCK_DATA.getProjects?MOCK_DATA.getProjects():[];
+  var scores=MOCK_DATA.getProjectScores?MOCK_DATA.getProjectScores(monday.getFullYear(),monday.getMonth()+1):[];
+  var projectMap={};projects.forEach(function(p){projectMap[p.id]=p;});
+  var ranked=scores.map(function(s){
+    var project=projectMap[s.projectId]||{},units=[];
+    (project.hoardings||[]).forEach(function(h){var unit=h.constructUnit||project.constructUnit||'';if(unit&&units.indexOf(unit)===-1)units.push(unit);});
+    if(!units.length&&project.constructUnit)units.push(project.constructUnit);
+    return{projectId:s.projectId,projectName:s.projectName||project.name||'—',units:units,total:s.total,grade:s.grade,gradeCls:s.gradeCls,period:rangeStr};
+  }).sort(function(a,b){return b.total-a.total;});
+  var lastScore=null,currentRank=0;
+  ranked.forEach(function(row){if(lastScore===null||row.total!==lastScore){currentRank++;lastScore=row.total;}row.rank=currentRank;});
+  _top10AllData=ranked;
+  renderProjectTop10();
+}
+function renderProjectTop10(){
+  var data=_top10AllData.slice().sort(function(a,b){return _top10Order==='asc'?a.rank-b.rank:b.rank-a.rank;}).slice(0,10),tbody='';
+  data.forEach(function(row){
+    var scCls=row.total<55?' low':'',units=row.units.join('；')||'—';
+    tbody+='<tr><td class="col-center"><span class="top10-rank">'+row.rank+'</span></td><td title="'+top10Esc(row.projectName)+'"><span class="top10-project">'+top10Esc(row.projectName)+'</span></td><td title="'+top10Esc(units)+'"><span class="top10-unit">'+top10Esc(units)+'</span></td><td class="col-center"><span class="sup-table-score'+scCls+'">'+row.total+'</span></td><td class="col-center"><span class="sup-table-grade '+row.gradeCls+'">'+top10Esc(row.grade)+'</span></td></tr>';
+  });
+  document.querySelector('#supTop10Table tbody').innerHTML=tbody||'<tr><td colspan="5" class="col-center" style="padding:32px;color:var(--text-tertiary)">本期暂无评分数据</td></tr>';
+  window._top10Data=data;
+}
+function toggleTop10Order(){
+  _top10Order=_top10Order==='asc'?'desc':'asc';
+  document.getElementById('top10SortText').textContent=_top10Order==='asc'?'排名正序':'排名倒序';
+  document.getElementById('top10SortBtn').classList.toggle('reverse',_top10Order==='desc');
+  renderProjectTop10();
+}
+buildProjectTop10();
 
 window.addEventListener('resize',function(){distChart.resize()});
 
@@ -539,6 +540,87 @@ function filterRemindTab(btn){
   var filter=btn.getAttribute('data-filter');
   document.querySelectorAll('#remindTable tbody tr').forEach(function(r){r.style.display=filter==='all'||r.getAttribute('data-type')===filter?'':'none'});
 }
+/* 监管首页待办：直接读取 mock 中需要校核的围挡 */
+function renderSupervisorTodoList(){
+  var tbody=document.querySelector('#todoTable tbody');
+  if(!tbody)return;
+  var hoardings=window.MOCK_DATA&&MOCK_DATA.getHoardings?MOCK_DATA.getHoardings():[];
+  var todos=hoardings.filter(function(h){return h.needVerify==='是'}).map(function(h){
+    var records=(h.changeRecords||[]).slice().sort(function(a,b){return String(b.date||'').localeCompare(String(a.date||''))});
+    return{h:h,date:records.length?records[0].date:''};
+  }).sort(function(a,b){return String(b.date||'').localeCompare(String(a.date||''))});
+  var badge=document.getElementById('supTodoBadge');if(badge)badge.textContent=todos.length;
+  if(!todos.length){
+    tbody.innerHTML='<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text-tertiary)">暂无待办事项</td></tr>';
+    return;
+  }
+  tbody.innerHTML='';
+  todos.forEach(function(item,index){
+    var h=item.h,tr=document.createElement('tr');tr.setAttribute('data-type','verify');
+    var cells=[String(index+1),'待校核',h.engineerName||'—',item.date||'—'];
+    cells.forEach(function(value,i){
+      var td=document.createElement('td');
+      if(i===0)td.className='col-num';
+      if(i===1){var tag=document.createElement('span');tag.className='todo-tag';tag.textContent=value;td.appendChild(tag)}
+      else if(i===2){var name=document.createElement('span');name.className='info-name';name.textContent=value;name.title=value;td.appendChild(name)}
+      else td.textContent=value;
+      tr.appendChild(td);
+    });
+    var actionTd=document.createElement('td'),link=document.createElement('a');
+    link.className='table-action-link';link.textContent='去校核';
+    link.href='detail_info_v3.html?project='+encodeURIComponent(h.projectName||'')+'&engineering='+encodeURIComponent(h.engineerName||'');
+    actionTd.appendChild(link);tr.appendChild(actionTd);tbody.appendChild(tr);
+  });
+}
+
+/* 监管首页提醒：超期、30天内临期及拆除事件均读取 mock */
+function renderSupervisorReminderList(){
+  var tbody=document.querySelector('#remindTable tbody');
+  if(!tbody)return;
+  var hoardings=window.MOCK_DATA&&MOCK_DATA.getHoardings?MOCK_DATA.getHoardings():[];
+  var now=new Date(),today=new Date(now.getFullYear(),now.getMonth(),now.getDate()),dayMs=86400000,items=[];
+  hoardings.forEach(function(h){
+    if(h.fenceStatus==='超期未拆'&&h.custodyEnd){
+      var overdueEnd=new Date(h.custodyEnd);overdueEnd=new Date(overdueEnd.getFullYear(),overdueEnd.getMonth(),overdueEnd.getDate());
+      items.push({type:'overdue',h:h,days:Math.max(0,Math.floor((today-overdueEnd)/dayMs)),sortDate:h.custodyEnd});
+    }else if(h.fenceStatus!=='已拆除'&&h.custodyEnd){
+      var expiringEnd=new Date(h.custodyEnd);expiringEnd=new Date(expiringEnd.getFullYear(),expiringEnd.getMonth(),expiringEnd.getDate());
+      var remaining=Math.floor((expiringEnd-today)/dayMs);
+      if(remaining>=0&&remaining<=30)items.push({type:'expiring',h:h,days:remaining,sortDate:h.custodyEnd});
+    }
+    (h.changeRecords||[]).forEach(function(record){
+      if(record.type==='拆除操作'||record.after==='已拆除')items.push({type:'removed',h:h,record:record,sortDate:record.date||''});
+    });
+  });
+  var priority={removed:0,overdue:1,expiring:2};
+  items.sort(function(a,b){
+    if(priority[a.type]!==priority[b.type])return priority[a.type]-priority[b.type];
+    if(a.type==='overdue')return b.days-a.days;
+    if(a.type==='expiring')return a.days-b.days;
+    return String(b.sortDate||'').localeCompare(String(a.sortDate||''));
+  });
+  tbody.innerHTML='';
+  items.forEach(function(item){
+    var h=item.h,tr=document.createElement('tr');tr.setAttribute('data-type',item.type);
+    var typeTd=document.createElement('td'),dot=document.createElement('span');
+    dot.className='dot '+(item.type==='overdue'?'dot-red':item.type==='expiring'?'dot-orange':'dot-blue');
+    typeTd.appendChild(dot);typeTd.appendChild(document.createTextNode(item.type==='overdue'?'超期提醒':item.type==='expiring'?'临期预警':'拆除提醒'));
+    var engineerTd=document.createElement('td'),engineer=document.createElement('span');
+    engineer.className='info-name';engineer.textContent=h.engineerName||'—';engineer.title=h.engineerName||'';engineerTd.appendChild(engineer);
+    var detailTd=document.createElement('td'),detail=document.createElement('span');
+    detail.className=item.type==='overdue'?'days-danger':item.type==='expiring'?'days-warning':'days-removed';
+    detail.textContent=item.type==='overdue'?'超期未拆'+item.days+'天':item.type==='expiring'?'距拆除还剩'+item.days+'天':'已于 '+String(item.record.date||'').replace(/^\d{4}-/,'')+' 拆除';
+    detailTd.appendChild(detail);
+    var actionTd=document.createElement('td'),link=document.createElement('a');link.className='table-action-link';link.textContent='查看';
+    link.href='detail_info_v3.html?project='+encodeURIComponent(h.projectName||'')+'&engineering='+encodeURIComponent(h.engineerName||'');
+    actionTd.appendChild(link);tr.appendChild(typeTd);tr.appendChild(engineerTd);tr.appendChild(detailTd);tr.appendChild(actionTd);tbody.appendChild(tr);
+  });
+  if(!items.length)tbody.innerHTML='<tr><td colspan="4" style="text-align:center;padding:24px;color:var(--text-tertiary)">暂无提醒事项</td></tr>';
+  var setCount=function(id,type){var el=document.getElementById(id);if(el)el.textContent='('+(type==='all'?items.length:items.filter(function(it){return it.type===type}).length)+')'};
+  setCount('remindCountAll','all');setCount('remindCountOverdue','overdue');setCount('remindCountExpiring','expiring');setCount('remindCountRemoved','removed');
+}
+renderSupervisorTodoList();
+renderSupervisorReminderList();
 function switchSupTodoTab(tab){
   document.querySelectorAll('#supTodoTabs .todo-tab').forEach(function(t){t.classList.toggle('active',t.textContent.indexOf(tab==='todo'?'待办':'提醒')>-1)});
   document.querySelectorAll('#supTodoPanel_todo, #supTodoPanel_remind').forEach(function(p){p.classList.remove('active')});
@@ -547,13 +629,13 @@ function switchSupTodoTab(tab){
 function exportTop10(){
   var data=window._top10Data||[];
   if(!data.length)return alert('暂无数据可导出');
-  var rows=[['序号','关联工程','关联项目','所属区域','所属街道','围挡状态','工程状态','责任单位','评分周期','得分','平均得分','等级']];
-  data.forEach(function(h,i){
-    rows.push([String(i+1),h.engineerName,h.projectName,h.district,h.street||'',h.fenceStatus,h.projectStatus,h.constructUnit,window._top10Range||'',String(h.total),String(h.avg),h.grade]);
+  var rows=[['上期全市排名','项目名称','责任单位','评分周期','上期得分','上期等级']];
+  data.forEach(function(row){
+    rows.push([String(row.rank),row.projectName,(row.units||[]).join('；'),window._top10Range||'',String(row.total),row.grade]);
   });
   var csv=rows.map(function(r){return r.map(function(c){return'"'+(c||'').replace(/"/g,'""')+'"'}).join(',');}).join('\n');
   var BOM='﻿';var blob=new Blob([BOM+csv],{type:'text/csv;charset=utf-8'});
-  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='本周低评分围挡TOP10_'+window._top10Range+'.csv';a.click();
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='上期围挡评分TOP10_'+(_top10Order==='asc'?'排名正序':'排名倒序')+'_'+window._top10Range+'.csv';a.click();
 }
 </script>
 

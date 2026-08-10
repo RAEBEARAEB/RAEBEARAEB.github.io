@@ -349,7 +349,7 @@ a:hover{color:var(--text-link-hover)}
           <span class="score-title">围挡管理综合评分</span>
           <div class="score-selectors">
             <select class="score-sel" id="scoreProject" onchange="onScoreProjectChange()"></select>
-            <select class="score-sel" id="scoreEngineer" onchange="renderScoreCard()"></select>
+            <select class="score-sel" id="scoreFence" aria-label="围挡筛选" onchange="renderScoreCard()"></select>
           </div>
         </div>
         <div class="score-divider"></div>
@@ -366,7 +366,7 @@ a:hover{color:var(--text-link-hover)}
             <div style="font-weight:var(--font-weight-bold);font-size:var(--font-size-md);color:var(--text-title);margin-bottom:var(--space-3)">一、基本规则</div>
             <table style="width:100%;border-collapse:collapse;font-size:var(--font-size-sm);margin-bottom:var(--space-4)">
               <tr><td style="padding:4px 8px;color:var(--text-secondary);width:90px">评分周期</td><td style="padding:4px 8px">每自然周（周一至周日）</td></tr>
-              <tr><td style="padding:4px 8px;color:var(--text-secondary)">评分对象</td><td style="padding:4px 8px">可按工程评分，也可按项目评分</td></tr>
+              <tr><td style="padding:4px 8px;color:var(--text-secondary)">评分对象</td><td style="padding:4px 8px">可查看项目下全部围挡综合评分，也可按单个围挡查看</td></tr>
               <tr><td style="padding:4px 8px;color:var(--text-secondary)">项目评分</td><td style="padding:4px 8px">取项目下所有有效子围挡评分的算术平均值</td></tr>
             </table>
             <div style="font-weight:var(--font-weight-bold);font-size:var(--font-size-md);color:var(--text-title);margin-bottom:var(--space-3)">二、评分维度</div>
@@ -455,104 +455,36 @@ var SCORE_DATA = {};
     return -1;
   }
 
-  var iFt = idxFor('福田');
-  var iNs = idxFor('南山');
-
-  // ── 福田中心区市政管网改造工程 ──
-  if (iFt >= 0) {
-    SCORE_DATA[names[iFt]] = {
-      engineers: ['全部工程', '管道铺设工程', '沟槽开挖工程', '道路恢复工程', '路面修复工程'],
-      '全部工程': {
-        total: 84, grade: '良好', change: 1, changeDir: 'up',
-        d1: {score: 41, max: 50, actualDays: 6, totalDays: 7},
-        d2: {score: 43, max: 50, detail: '沟槽开挖工程自查超期1个（-5分）、监管超期0个'},
-        reward: {bonus: 0, patrolWeeks: 2, rectifyWeeks: 0},
-        tips: [
-          '沟槽开挖工程本周缺漏巡检2天，建议提升该工程巡检频次',
-          '沟槽开挖工程发现问题后应在24小时内完成整改，避免扣分'
-        ]
-      },
-      '管道铺设工程': {
-        total: 90, grade: '优秀', change: 2, changeDir: 'up',
-        d1: {score: 46, max: 50, actualDays: 6, totalDays: 7},
-        d2: {score: 44, max: 50, detail: '自查超期0个 / 监管发现超期0个'},
-        reward: {bonus: 0, patrolWeeks: 2, rectifyWeeks: 0},
-        tips: [
-          '本周缺漏巡检1天，建议坚持每日巡检习惯',
-          '本周整改满分，请继续保持当前管理水平',
-          '距离连续3周满分仅差1周，下周继续保持可获得巡检连续性奖励加分'
-        ]
-      },
-      '沟槽开挖工程': {
-        total: 75, grade: '良好', change: -3, changeDir: 'down',
-        d1: {score: 35, max: 50, actualDays: 5, totalDays: 7},
-        d2: {score: 40, max: 50, detail: '自查超期1个（-5分） / 监管发现超期0个'},
-        reward: {bonus: 0, patrolWeeks: 0, rectifyWeeks: 0},
-        tips: [
-          '本周缺漏巡检2天，建议坚持每日巡检习惯',
-          '自查发现问题后应在24小时内完成整改，避免因整改超期被扣分'
-        ]
-      },
-      '道路恢复工程': {
-        total: 88, grade: '优秀', change: 1, changeDir: 'up',
-        d1: {score: 43, max: 50, actualDays: 6, totalDays: 7},
-        d2: {score: 45, max: 50, detail: '自查超期0个 / 监管发现超期0个'},
-        reward: {bonus: 0, patrolWeeks: 2, rectifyWeeks: 1},
-        tips: [
-          '本周缺漏巡检1天，建议坚持每日巡检习惯',
-          '本周整改满分，请继续保持当前管理水平'
-        ]
-      },
-      '路面修复工程': {
-        total: 28, grade: '差', change: -20, changeDir: 'down',
-        d1: {score: 8, max: 50, actualDays: 1, totalDays: 7},
-        d2: {score: 20, max: 50, detail: '自查超期2个（-10分） / 监管发现超期2个（-20分）'},
-        reward: {bonus: 0, patrolWeeks: 0, rectifyWeeks: 0},
-        tips: [
-          '本周仅巡检1天，巡检执行率严重不足，建议立即建立每日巡检制度',
-          '自查问题超期2个，监管发现超期2个，建议24小时内完成整改以避免持续扣分'
-        ]
-      }
-    };
+  function gradeOf(s){ return s>=85?'优秀':s>=70?'良好':s>=55?'警示':'差'; }
+  // 按工程名关键字给出演示评分（未命中给默认分），工程名取自 mock-data，避免重命名后失配
+  function engScore(n){
+    if(n.indexOf('I标土建一工区')!==-1) return {total:90,grade:'优秀',change:2,changeDir:'up',d1:{score:46,max:50,actualDays:6,totalDays:7},d2:{score:44,max:50,detail:'自查超期0个 / 监管发现超期0个'},reward:{bonus:0,patrolWeeks:2,rectifyWeeks:0},tips:['本周缺漏巡检1天，建议坚持每日巡检习惯','本周整改满分，请继续保持当前管理水平','距离连续3周满分仅差1周，下周继续保持可获得巡检连续性奖励加分']};
+    if(n.indexOf('II标土建二工区')!==-1) return {total:75,grade:'良好',change:-3,changeDir:'down',d1:{score:35,max:50,actualDays:5,totalDays:7},d2:{score:40,max:50,detail:'自查超期1个（-5分） / 监管发现超期0个'},reward:{bonus:0,patrolWeeks:0,rectifyWeeks:0},tips:['本周缺漏巡检2天，建议坚持每日巡检习惯','自查发现问题后应在24小时内完成整改，避免因整改超期被扣分']};
+    if(n.indexOf('地基与基础')!==-1) return {total:68,grade:'警示',change:-5,changeDir:'down',d1:{score:25,max:50,actualDays:3,totalDays:7},d2:{score:43,max:50,detail:'自查超期1个（-5分） / 监管发现超期0个'},reward:{bonus:0,patrolWeeks:0,rectifyWeeks:0},tips:['本周仅巡检3天，远低于应巡检天数7天，建议立即加强巡检安排','自查发现问题后应在24小时内完成整改，避免因整改超期被扣分']};
+    if(n.indexOf('主体工程')!==-1) return {total:100,grade:'优秀',change:5,changeDir:'up',d1:{score:50,max:50,actualDays:7,totalDays:7},d2:{score:50,max:50,detail:'本周无超期未整改问题'},reward:{bonus:5,patrolWeeks:3,rectifyWeeks:3},tips:['本周巡检与整改均满分，请继续保持当前管理水平和巡检习惯','已获得巡检连续性奖励+3分','已获得整改连续性奖励+5分']};
+    if(n.indexOf('外立面')!==-1) return {total:82,grade:'良好',change:1,changeDir:'up',d1:{score:43,max:50,actualDays:6,totalDays:7},d2:{score:44,max:50,detail:'自查超期0个 / 监管发现超期0个'},reward:{bonus:0,patrolWeeks:2,rectifyWeeks:1},tips:['本周缺漏巡检1天，建议坚持每日巡检习惯','本周整改满分，请继续保持当前管理水平']};
+    if(n.indexOf('桩基础')!==-1) return {total:88,grade:'优秀',change:1,changeDir:'up',d1:{score:44,max:50,actualDays:6,totalDays:7},d2:{score:44,max:50,detail:'自查超期0个 / 监管发现超期0个'},reward:{bonus:0,patrolWeeks:2,rectifyWeeks:1},tips:['本周巡检执行良好，请继续保持','本周整改满分，请继续保持当前管理水平']};
+    if(n.indexOf('基坑支护')!==-1) return {total:72,grade:'良好',change:-2,changeDir:'down',d1:{score:38,max:50,actualDays:5,totalDays:7},d2:{score:39,max:50,detail:'自查超期1个（-5分） / 监管发现超期0个'},reward:{bonus:0,patrolWeeks:1,rectifyWeeks:0},tips:['本周缺漏巡检2天，建议坚持每日巡检习惯','自查发现问题后应在24小时内完成整改']};
+    return {total:80,grade:'良好',change:0,changeDir:'up',d1:{score:40,max:50,actualDays:6,totalDays:7},d2:{score:42,max:50,detail:'自查超期0个 / 监管发现超期0个'},reward:{bonus:0,patrolWeeks:1,rectifyWeeks:0},tips:['建议保持每日巡检习惯','发现问题应在24小时内完成整改']};
   }
-
-  // ── 南山区科技园综合体项目 ──
-  if (iNs >= 0) {
-    SCORE_DATA[names[iNs]] = {
-      engineers: ['全部工程', '基坑围护工程', '主体结构工程'],
-      '全部工程': {
-        total: 78, grade: '良好', change: 2, changeDir: 'up',
-        d1: {score: 37, max: 50, actualDays: 5, totalDays: 7},
-        d2: {score: 41, max: 50, detail: '基坑围护工程自查超期1个（-5分）'},
-        reward: {bonus: 0, patrolWeeks: 2, rectifyWeeks: 0},
-        tips: [
-          '基坑围护工程本周仅巡检3天，建议提升该工程巡检频次',
-          '基坑围护工程发现问题后应在24小时内完成整改，避免扣分'
-        ]
-      },
-      '基坑围护工程': {
-        total: 68, grade: '警示', change: -5, changeDir: 'down',
-        d1: {score: 25, max: 50, actualDays: 3, totalDays: 7},
-        d2: {score: 43, max: 50, detail: '自查超期1个（-5分） / 监管发现超期0个'},
-        reward: {bonus: 0, patrolWeeks: 0, rectifyWeeks: 0},
-        tips: [
-          '本周仅巡检3天，远低于应巡检天数7天，建议立即加强巡检安排',
-          '自查发现问题后应在24小时内完成整改，避免因整改超期被扣分'
-        ]
-      },
-      '主体结构工程': {
-        total: 100, grade: '优秀', change: 5, changeDir: 'up',
-        d1: {score: 50, max: 50, actualDays: 7, totalDays: 7},
-        d2: {score: 50, max: 50, detail: '本周无超期未整改问题'},
-        reward: {bonus: 5, patrolWeeks: 3, rectifyWeeks: 3},
-        tips: [
-          '本周巡检与整改均满分，请继续保持当前管理水平和巡检习惯',
-          '已获得巡检连续性奖励+3分',
-          '已获得整改连续性奖励+5分'
-        ]
-      }
-    };
+  function buildProj(idx, allTotal, allTips){
+    var p=projs[idx];
+    var fences=(p.hoardings||[]).filter(function(h){return h.fenceStatus!=='已拆除'&&h.fenceName;});
+    var seen={};fences=fences.filter(function(h){if(seen[h.fenceName])return false;seen[h.fenceName]=true;return true;});
+    var fenceNames=fences.map(function(h){return h.fenceName;});
+    var entry={fences:['全部围挡'].concat(fenceNames)};
+    var d1s=Math.round(allTotal*0.5);
+    entry['全部围挡']={total:allTotal,grade:gradeOf(allTotal),change:1,changeDir:'up',d1:{score:d1s,max:50,actualDays:6,totalDays:7},d2:{score:allTotal-d1s,max:50,detail:'详见各子围挡明细'},reward:{bonus:0,patrolWeeks:2,rectifyWeeks:0},tips:allTips};
+    fences.forEach(function(h){entry[h.fenceName]=engScore(h.engineerName||'');});
+    return entry;
   }
+  [['穗莞深',84,['部分工程本周缺漏巡检，建议提升巡检频次','发现问题应在24小时内完成整改，避免扣分']],
+   ['国际演艺中心',78,['部分工程本周巡检天数偏低，建议加强巡检安排','发现问题后应在24小时内完成整改，避免扣分']],
+   ['龙城北',81,['建议保持每日巡检习惯','发现问题应在24小时内完成整改']],
+   ['22号线',86,['本周巡检执行良好，请继续保持','本周整改满分，请继续保持当前管理水平']],
+   ['福城南',85,['本周巡检执行良好，请继续保持','发现问题应在24小时内完成整改']]].forEach(function(c){
+    var i=idxFor(c[0]); if(i>=0) SCORE_DATA[names[i]]=buildProj(i,c[1],c[2]);
+  });
 })();
 
 function getScoreColor(total) {
@@ -610,8 +542,8 @@ var HIST_SCORES = {
   }
 };
 
-function getHistData(projName, engName, range) {
-  var key = engName + '@' + projName;
+function getHistData(projName, fenceName, range) {
+  var key = fenceName + '@' + projName;
   if (HIST_SCORES[key] && HIST_SCORES[key][range]) return HIST_SCORES[key][range];
   // Generate from default with slight variation based on key hash
   var hash = 0;
@@ -701,10 +633,10 @@ function makeScoreChartOption(xData, data, lastIdx) {
 
 var _histChart = null, _histRange = '3m';
 
-function renderHistChart(projName, engName) {
+function renderHistChart(projName, fenceName) {
   var box = document.getElementById('scoreChartBox');
   if (!box) return;
-  var data = getHistData(projName, engName, _histRange);
+  var data = getHistData(projName, fenceName, _histRange);
   var xData = data.map(function(d){return d.w;});
   var lastIdx = data.length - 1;
   if (_histChart) { _histChart.dispose(); _histChart = null; }
@@ -783,25 +715,25 @@ function switchHistRange(btn, range) {
   btn.classList.add('active');
   _histRange = range;
   var projSel = document.getElementById('scoreProject');
-  var engSel = document.getElementById('scoreEngineer');
-  if (projSel && engSel) renderHistChart(projSel.value, engSel.value);
+  var fenceSel = document.getElementById('scoreFence');
+  if (projSel && fenceSel) renderHistChart(projSel.value, fenceSel.value);
 }
 
 function renderScoreCard() {
   var projSel = document.getElementById('scoreProject');
-  var engSel = document.getElementById('scoreEngineer');
+  var fenceSel = document.getElementById('scoreFence');
   var body = document.getElementById('scoreBody');
-  if (!projSel || !engSel || !body) return;
+  if (!projSel || !fenceSel || !body) return;
   var projName = projSel.value;
-  var engName = engSel.value;
+  var fenceName = fenceSel.value;
   var projData = SCORE_DATA[projName];
   if (!projData) {
     body.innerHTML = '<div class="score-col" style="grid-column:1/-1;text-align:center;padding:32px 0;color:var(--text-tertiary);font-size:var(--font-size-sm)">暂无评分数据</div>';
     return;
   }
-  var d = projData[engName];
+  var d = projData[fenceName];
   if (!d) {
-    body.innerHTML = '<div class="score-col" style="grid-column:1/-1;text-align:center;padding:32px 0;color:var(--text-tertiary);font-size:var(--font-size-sm)">暂无该工程评分数据</div>';
+    body.innerHTML = '<div class="score-col" style="grid-column:1/-1;text-align:center;padding:32px 0;color:var(--text-tertiary);font-size:var(--font-size-sm)">暂无该围挡评分数据</div>';
     return;
   }
   var sc = getScoreColor(d.total);
@@ -914,26 +846,27 @@ function renderScoreCard() {
     });
     tipsEl.innerHTML = '<div class="score-sug-title">提升建议</div>' + sugHtml;
   }
-  renderHistChart(projName, engName);
+  renderHistChart(projName, fenceName);
 }
 
 function onScoreProjectChange() {
   var projSel = document.getElementById('scoreProject');
-  var engSel = document.getElementById('scoreEngineer');
-  if (!projSel || !engSel) return;
+  var fenceSel = document.getElementById('scoreFence');
+  if (!projSel || !fenceSel) return;
   var projName = projSel.value;
   var projData = SCORE_DATA[projName];
-  engSel.innerHTML = '';
-  if (projData && projData.engineers) {
-    projData.engineers.forEach(function(e) {
+  fenceSel.innerHTML = '';
+  if (projData && projData.fences) {
+    projData.fences.forEach(function(fenceName) {
       var opt = document.createElement('option');
-      opt.value = e; opt.textContent = e;
-      engSel.appendChild(opt);
+      opt.value = fenceName; opt.textContent = fenceName;
+      fenceSel.appendChild(opt);
     });
+    fenceSel.value = '全部围挡';
   } else {
     var opt = document.createElement('option');
-    opt.value = ''; opt.textContent = '暂无工程数据';
-    engSel.appendChild(opt);
+    opt.value = ''; opt.textContent = '暂无围挡数据';
+    fenceSel.appendChild(opt);
   }
   renderScoreCard();
 }
@@ -993,8 +926,9 @@ function renderTodoList() {
   var html = '';
   pending.forEach(function(iss, idx) {
     var engName = iss.engineerName || '—';
-    var pName = getProjectNameByFenceId(iss.fenceId);
-    var info = pName ? pName + ' · ' + engName : engName;
+    /* 围挡编号在不同项目中可能重复，优先使用问题记录内的真实项目归属 */
+    var pName = iss._projectName || getProjectNameByFenceId(iss.fenceId);
+    var info = engName;
     var rt = iss.reportTime || '';
     var rtDisplay = rt.length >= 16 ? rt.slice(5, 16).replace('T', ' ') : rt;
     var tagCls = 'todo-tag';
@@ -1020,11 +954,11 @@ function renderRemindList(filter) {
       end = new Date(end.getFullYear(), end.getMonth(), end.getDate());
       var days = Math.floor((today - end) / (1000 * 60 * 60 * 24));
       items.push({type: 'overdue', days: days, h: h});
-    } else if (h.fenceStatus === '超期未拆') {
+    } else if (h.fenceStatus !== '已拆除' && h.custodyEnd) {
       var end2 = new Date(h.custodyEnd);
       end2 = new Date(end2.getFullYear(), end2.getMonth(), end2.getDate());
       var days2 = Math.floor((end2 - today) / (1000 * 60 * 60 * 24));
-      items.push({type: 'expiring', days: days2, h: h});
+      if (days2 >= 0 && days2 <= 30) items.push({type: 'expiring', days: days2, h: h});
     }
   });
   // Sort: overdue first (most overdue), then expiring (soonest)
@@ -1061,7 +995,7 @@ function renderRemindList(filter) {
     var h = it.h;
     var engName = h.engineerName || '—';
     var pName = h.projectName || getProjectNameByFenceId(h.id);
-    var info = pName ? pName + ' · ' + engName : engName;
+    var info = engName;
     var detailHtml = '';
     if (it.type === 'overdue') {
       detailHtml = '<span class="days-danger">超期未拆' + it.days + '天</span>';

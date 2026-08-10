@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>围挡巡查 — 方案A Demo</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css" />
+<style>
+:root {
+  --color-primary-50:#EBF2FF;--color-primary-500:#1862D4;--color-primary-600:#104FAD;--color-primary-700:#0A3C86;
+  --color-gray-0:#FFF;--color-gray-50:#F7F8FA;--color-gray-100:#F0F1F5;--color-gray-200:#E3E6ED;
+  --color-gray-300:#C6CBD8;--color-gray-400:#9CA3B0;--color-gray-500:#6B7280;--color-gray-600:#4B5563;
+  --color-gray-700:#374151;--color-gray-800:#1F2937;--color-gray-900:#111827;
+  --color-success:#1A9042;--color-success-light:#E6F4EA;--color-warning:#D48A00;--color-warning-light:#FEF3CD;
+  --color-danger:#D13B2F;--color-danger-light:#FDECEA;
+  --text-title:var(--color-gray-900);--text-primary:var(--color-gray-800);--text-secondary:var(--color-gray-600);--text-tertiary:var(--color-gray-400);
+  --border-color-light:var(--color-gray-200);--border-color-default:var(--color-gray-300);
+  --border-radius-sm:2px;--border-radius-md:4px;--border-radius-lg:6px;
+  --bg-page:var(--color-gray-50);--bg-card:var(--color-gray-0);--bg-sidebar:#0D2B55;
+  --shadow-sm:0 1px 2px rgba(0,0,0,0.04);--shadow-md:0 2px 8px rgba(0,0,0,0.06);--shadow-card:0 1px 4px rgba(0,0,0,0.05);
+  --space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:20px;--space-6:24px;--space-8:32px;
+  --font-family:"PingFang SC","Microsoft YaHei","Helvetica Neue",Arial,sans-serif;
+  --font-size-xs:12px;--font-size-sm:13px;--font-size-md:14px;--font-size-lg:16px;--font-size-xl:18px;--font-size-2xl:20px;
+  --font-weight-regular:400;--font-weight-medium:500;--font-weight-bold:600;
+  --transition-fast:0.15s ease;--header-height:56px;--sidebar-width:220px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{font-family:var(--font-family);font-size:var(--font-size-md);color:var(--text-primary);background:var(--bg-page);line-height:1.6;-webkit-font-smoothing:antialiased;height:100%}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:var(--color-gray-300);border-radius:3px}
+
+.layout-wrapper{display:flex;flex-direction:column;height:100vh;overflow:hidden}
+.layout-header{height:var(--header-height);background:var(--bg-card);border-bottom:1px solid var(--border-color-light);display:flex;align-items:center;padding:0;position:fixed;top:0;left:0;right:0;z-index:100;box-shadow:var(--shadow-sm)}
+.layout-header::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--color-primary-600),#3D7FED,var(--color-primary-600))}
+.header-logo{display:flex;align-items:center;gap:var(--space-4);padding:0 var(--space-6);height:100%;border-right:1px solid var(--color-gray-100)}
+.header-logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--color-primary-500),var(--color-primary-700));border-radius:var(--border-radius-md);display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;font-weight:var(--font-weight-bold)}
+.header-logo-text{font-size:var(--font-size-xl);font-weight:var(--font-weight-bold);color:var(--text-title)}
+.header-right{margin-left:auto;display:flex;align-items:center;height:100%;padding:0 var(--space-5)}
+.header-user{display:flex;align-items:center;gap:var(--space-2);cursor:pointer}
+.header-avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#C6D9FF,#9DBEFF);display:flex;align-items:center;justify-content:center;font-size:var(--font-size-xs);color:var(--color-primary-700);font-weight:var(--font-weight-medium)}
+.header-user-name{font-size:var(--font-size-sm)}
+.layout-body{display:flex;margin-top:var(--header-height);height:calc(100vh - var(--header-height));overflow:hidden}
+.layout-sidebar{width:var(--sidebar-width);background:var(--bg-sidebar);flex-shrink:0;display:flex;flex-direction:column;overflow-y:auto}
+.nav-menu{list-style:none;padding:var(--space-4) 0;flex:1}
+.nav-group-label{font-size:11px;color:rgba(255,255,255,0.25);letter-spacing:0.08em;padding:var(--space-5) var(--space-5) var(--space-1);font-weight:var(--font-weight-medium);text-transform:uppercase}
+.nav-item{position:relative}
+.nav-item a{display:flex;align-items:center;gap:var(--space-3);padding:0 var(--space-5);height:40px;font-size:var(--font-size-sm);color:rgba(255,255,255,0.55);transition:all var(--transition-fast);text-decoration:none}
+.nav-item a:hover{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.85)}
+.nav-item a.active{background:rgba(24,98,212,0.25);color:#fff;font-weight:var(--font-weight-medium)}
+.nav-item a.active::before{content:'';position:absolute;left:0;top:4px;bottom:4px;width:3px;background:#fff;border-radius:0 2px 2px 0}
+.nav-icon{width:16px;height:16px;flex-shrink:0;opacity:0.7}.nav-item a.active .nav-icon{opacity:1}
+.sidebar-bottom{padding:var(--space-3) var(--space-5);border-top:1px solid rgba(255,255,255,0.06);font-size:11px;color:rgba(255,255,255,0.2)}
+.layout-main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+
+.breadcrumb{padding:var(--space-3) var(--space-6) 0;font-size:var(--font-size-sm);color:var(--text-tertiary);flex-shrink:0}
+.breadcrumb a{color:var(--text-tertiary);text-decoration:none}.breadcrumb .sep{color:var(--color-gray-300)}.breadcrumb .current{color:var(--text-primary);font-weight:var(--font-weight-medium)}
+.page-header{padding:var(--space-3) var(--space-6) var(--space-4);flex-shrink:0}
+.page-title{font-size:var(--font-size-2xl);font-weight:var(--font-weight-bold);color:var(--text-title);display:flex;align-items:center;gap:var(--space-3)}
+.page-title::before{content:'';width:4px;height:24px;background:var(--color-primary-500);border-radius:2px}
+
+/* ═══ Content area: fence panel + main ═══ */
+.content-row{flex:1;display:flex;gap:0;overflow:hidden;padding:0 var(--space-6) var(--space-6)}
+
+/* ── Left: Fence Panel ── */
+.fence-panel{width:240px;flex-shrink:0;background:var(--bg-card);border:1px solid var(--border-color-light);border-radius:var(--border-radius-lg) 0 0 var(--border-radius-lg);display:flex;flex-direction:column;overflow:hidden;box-shadow:var(--shadow-sm)}
+.fence-panel-hd{padding:var(--space-3) var(--space-4);border-bottom:1px solid var(--border-color-light);background:var(--color-gray-50);font-size:var(--font-size-sm);font-weight:var(--font-weight-bold);color:var(--text-title);display:flex;align-items:center;gap:var(--space-2)}
+.fence-panel-search{padding:var(--space-2) var(--space-3)}
+.fence-panel-search input{width:100%;height:30px;border:1px solid var(--border-color-light);border-radius:var(--border-radius-md);padding:0 var(--space-3);font-size:var(--font-size-xs);outline:none;font-family:var(--font-family)}
+.fence-panel-search input:focus{border-color:var(--color-primary-400)}
+.fence-panel-list{flex:1;overflow-y:auto}
+.fence-item{padding:var(--space-3) var(--space-4);border-bottom:1px solid var(--color-gray-50);cursor:pointer;transition:all var(--transition-fast);border-left:3px solid transparent}
+.fence-item:hover{background:var(--color-gray-50)}
+.fence-item.selected{background:var(--color-primary-50);border-left-color:var(--color-primary-500)}
+.fence-item-title{font-size:var(--font-size-sm);font-weight:var(--font-weight-bold);color:var(--text-primary);margin-bottom:1px}
+.fence-item-eng{font-size:var(--font-size-xs);color:var(--text-secondary)}
+.fence-item-meta{display:flex;gap:var(--space-3);margin-top:3px;font-size:11px;color:var(--text-tertiary)}
+.fence-item-meta span{display:flex;align-items:center;gap:2px}
+.fence-item-status{display:inline-flex;align-items:center;padding:1px 6px;border-radius:999px;font-size:10px;font-weight:var(--font-weight-medium)}
+.fence-item-status.active{background:var(--color-success-light);color:var(--color-success)}
+.fence-item-status.inactive{background:var(--color-gray-100);color:var(--text-tertiary)}
+
+/* ── Right: Calendar + Records ── */
+.main-right{flex:1;display:flex;flex-direction:column;overflow:hidden;margin-left:-1px}
+.cal-card{background:var(--bg-card);border:1px solid var(--border-color-light);border-radius:0 var(--border-radius-lg) 0 0;overflow:hidden;box-shadow:var(--shadow-sm);flex-shrink:0}
+.cal-hd{display:flex;align-items:center;justify-content:space-between;padding:var(--space-3) var(--space-4);background:var(--color-gray-50);border-bottom:1px solid var(--border-color-light)}
+.cal-hd-left{display:flex;align-items:center;gap:var(--space-3)}
+.cal-hd-title{font-size:var(--font-size-md);font-weight:var(--font-weight-bold);color:var(--text-title)}
+.cal-hd-nav{display:flex;align-items:center;gap:2px}
+.cal-hd-nav button{width:28px;height:28px;border:1px solid var(--border-color-light);border-radius:var(--border-radius-md);background:var(--bg-card);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all var(--transition-fast)}
+.cal-hd-nav button:hover{background:var(--color-gray-50);border-color:var(--color-gray-300)}
+.cal-hd-month{font-size:var(--font-size-md);font-weight:var(--font-weight-bold);color:var(--text-primary);min-width:80px;text-align:center}
+.cal-hd-right{display:flex;gap:var(--space-2)}
+.cal-today-btn{height:28px;padding:0 12px;border:1px solid var(--color-primary-400);border-radius:var(--border-radius-md);background:var(--bg-card);color:var(--color-primary-500);font-size:var(--font-size-xs);cursor:pointer;font-weight:var(--font-weight-medium);font-family:var(--font-family)}
+.cal-today-btn:hover{background:var(--color-primary-50)}
+.cal-body{padding:var(--space-3) var(--space-4)}
+.cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px}
+.cal-weekday{text-align:center;font-size:11px;color:var(--text-tertiary);font-weight:var(--font-weight-medium);padding:3px 0}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cal-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:var(--border-radius-md);font-size:var(--font-size-sm);cursor:pointer;transition:all .12s;position:relative}
+.cal-day:hover{background:var(--color-gray-100)}
+.cal-day.other{color:var(--color-gray-300);cursor:default}.cal-day.other:hover{background:transparent}
+.cal-day.today{font-weight:var(--font-weight-bold);color:var(--color-primary-500);background:var(--color-primary-50);box-shadow:inset 0 0 0 1.5px var(--color-primary-300)}
+.cal-day.selected{background:var(--color-primary-500);color:#fff;font-weight:var(--font-weight-bold)}
+.cal-day.has-normal::after{content:'';position:absolute;bottom:3px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:var(--color-success)}
+.cal-day.has-issue::after{content:'';position:absolute;bottom:3px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:var(--color-danger)}
+.cal-day.selected::after{background:#fff}
+.cal-legend{display:flex;gap:var(--space-4);padding:6px 2px 2px;font-size:10px;color:var(--text-tertiary)}
+.cal-legend span{display:flex;align-items:center;gap:4px}
+.cal-legend .dot{display:inline-block;width:8px;height:8px;border-radius:50%}
+
+/* ── Records Panel ── */
+.records-panel{flex:1;overflow-y:auto;background:var(--bg-card);border:1px solid var(--border-color-light);border-top:none;border-radius:0 0 var(--border-radius-lg) 0;padding:var(--space-4);box-shadow:var(--shadow-sm)}
+.records-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-3)}
+.records-title{font-size:var(--font-size-md);font-weight:var(--font-weight-bold)}
+.records-count{font-size:var(--font-size-xs);color:var(--text-tertiary)}.records-count strong{color:var(--text-primary)}
+.patrol-card{background:var(--bg-card);border:1px solid var(--border-color-light);border-radius:var(--border-radius-lg);margin-bottom:var(--space-3);overflow:hidden;box-shadow:var(--shadow-sm)}
+.patrol-card:hover{box-shadow:var(--shadow-md)}
+.patrol-card-body{display:flex;gap:var(--space-3);padding:var(--space-3) var(--space-4)}
+.patrol-thumb{width:72px;height:54px;border-radius:var(--border-radius-md);flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:10px;gap:2px}
+.patrol-thumb .ti{font-size:18px}
+.patrol-info{flex:1;min-width:0}
+.patrol-info-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:2px}
+.patrol-person{font-size:var(--font-size-sm);font-weight:var(--font-weight-bold)}
+.patrol-time{font-size:var(--font-size-xs);color:var(--text-tertiary);white-space:nowrap}
+.patrol-unit{font-size:var(--font-size-xs);color:var(--text-secondary);margin-bottom:2px}
+.patrol-loc{font-size:var(--font-size-xs);color:var(--text-tertiary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.patrol-issue-bar{display:flex;align-items:center;gap:var(--space-2);padding:var(--space-2) var(--space-4);background:var(--color-warning-light);font-size:var(--font-size-xs);color:var(--color-warning);font-weight:var(--font-weight-medium);border-top:1px solid rgba(212,138,0,0.15)}
+.patrol-empty{text-align:center;padding:var(--space-8);color:var(--text-tertiary);font-size:var(--font-size-sm)}
+.patrol-empty .ti{font-size:36px;display:block;margin-bottom:var(--space-2);opacity:0.3}
+</style>
+</head>
+<body>
+<div class="layout-wrapper">
+<header class="layout-header">
+  <div class="header-logo"><div class="header-logo-icon"><i class="ti ti-building-fortress" style="font-size:20px"></i></div><span class="header-logo-text">深圳市建设施工围挡数字化管理系统</span></div>
+  <div class="header-right"><div class="header-user"><div class="header-avatar">张</div><span class="header-user-name">张项目</span></div></div>
+</header>
+<div class="layout-body">
+<aside class="layout-sidebar"><ul class="nav-menu">
+  <li class="nav-item"><a href="#"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>首页</a></li>
+  <li class="nav-group-label">围挡管理</li>
+  <li class="nav-item"><a href="#"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>围挡档案管理</a></li>
+  <li class="nav-item"><a href="#" class="active"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>围挡巡查</a></li>
+  <li class="nav-item"><a href="#"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>问题闭环处置</a></li>
+</ul><div class="sidebar-bottom">v2.0.0 · 2026.07</div></aside>
+<main class="layout-main">
+  <div class="breadcrumb"><a href="#">首页</a><span class="sep">/</span><span>围挡管理</span><span class="sep">/</span><span class="current">围挡巡查</span></div>
+  <div class="page-header"><h1 class="page-title">围挡巡查</h1></div>
+  <div class="content-row">
+
+    <!-- ══ Left: Fence List ══ -->
+    <div class="fence-panel">
+      <div class="fence-panel-hd"><i class="ti ti-fence" style="font-size:14px"></i> 关联围挡</div>
+      <div class="fence-panel-search"><input type="text" id="fenceSearch" placeholder="搜索围挡…" oninput="renderFenceList()"></div>
+      <div class="fence-panel-list" id="fenceList"></div>
+    </div>
+
+    <!-- ══ Right: Calendar + Records ══ -->
+    <div class="main-right">
+      <div class="cal-card">
+        <div class="cal-hd">
+          <div class="cal-hd-left"><span class="cal-hd-title"><i class="ti ti-calendar-month" style="font-size:15px"></i> 巡检日历</span></div>
+          <div class="cal-hd-nav">
+            <button onclick="changeMonth(-1)">&lt;</button>
+            <span class="cal-hd-month" id="calMonthLabel">2026年7月</span>
+            <button onclick="changeMonth(1)">&gt;</button>
+          </div>
+          <div class="cal-hd-right"><button class="cal-today-btn" onclick="goToday()">今天</button></div>
+        </div>
+        <div class="cal-body">
+          <div class="cal-weekdays" id="calWeekdays"></div>
+          <div class="cal-grid" id="calGrid"></div>
+          <div class="cal-legend">
+            <span><span class="dot" style="width:4px;height:4px;background:var(--color-success)"></span> 正常</span>
+            <span><span class="dot" style="width:4px;height:4px;background:var(--color-danger)"></span> 含问题</span>
+            <span><span class="dot" style="width:4px;height:4px;background:var(--color-gray-300)"></span> 无记录</span>
+          </div>
+        </div>
+      </div>
+      <div class="records-panel">
+        <div class="records-header"><span class="records-title" id="recordsDateTitle">巡查记录</span><span class="records-count" id="recordsCount"></span></div>
+        <div id="recordsList"><div class="patrol-empty"><i class="ti ti-calendar-search"></i>选择左侧围挡和日历日期<br>查看巡查记录</div></div>
+      </div>
+    </div>
+
+  </div>
+</main></div></div>
+
+<script src="../../mock-data.js"></script>
+<script>
+var calYear = new Date().getFullYear(), calMonth = new Date().getMonth()+1, selectedDate = new Date().toISOString().slice(0,10);
+var currentFence = null, allFences = [], allPatrols = {};
+
+/* ── data ── */
+function buildFences(){
+  try{ var h=MOCK_DATA.getHoardings(); if(h&&h.length){ allFences=h.slice(0,5).map(function(x,i){return{id:x.id||'FB-00'+(i+1),name:x.engineerName||'围挡块'+(i+1),len:x.length||'--',h:x.height||'--',unit:x.constructUnit||'--',status:x.fenceStatus||'在用'}});return;}}catch(e){}
+  allFences=[{id:'FB-001',name:'管道铺设工程',len:'320m',h:'2.5m',unit:'深圳市市政工程总公司',status:'在用'},{id:'FB-002',name:'沟槽开挖工程',len:'180m',h:'2.5m',unit:'深圳市市政工程总公司',status:'在建'},{id:'FB-003',name:'主体结构工程',len:'260m',h:'3.0m',unit:'中建三局',status:'已竣工'}];
+}
+function genPatrols(fid){
+  var r=[],n=new Date(),ps=['刘伟','陈刚','王强'],ls=['福华三路中段','福华三路东段','福华三路西段'];
+  for(var d=0;d<45;d++){var dt=new Date(n);dt.setDate(dt.getDate()-d);var ds=dt.toISOString().slice(0,10);if(d<2||Math.random()>0.3){var c=Math.random()>0.7?2:1;for(var j=0;j<c;j++){var hi=Math.random()>0.75;r.push({id:'PR-'+fid+'-'+ds+'-'+j,fenceId:fid,date:ds,time:(8+Math.floor(Math.random()*9))+':'+String(Math.floor(Math.random()*60)).padStart(2,'0'),person:ps[Math.floor(Math.random()*ps.length)],unit:'项目方自查',location:ls[Math.floor(Math.random()*ls.length)],panoramaCount:1+Math.floor(Math.random()*4),hasIssue:hi,issueType:hi?['围挡破损','围挡脏污','围挡基础松动'][Math.floor(Math.random()*3)]:null,issueDesc:hi?'巡检发现问题已记录上报':null,status:hi?(Math.random()>0.5?'待整改':'整改完成'):'正常'});}}}
+  r.sort(function(a,b){return(b.date+b.time).localeCompare(a.date+a.time)});return r;
+}
+buildFences();allFences.forEach(function(f){allPatrols[f.id]=genPatrols(f.id);});
+
+/* ── fence list ── */
+function renderFenceList(){
+  var kw=(document.getElementById('fenceSearch').value||'').trim().toLowerCase();
+  var list=allFences;if(kw)list=list.filter(function(f){return f.name.toLowerCase().indexOf(kw)>-1||f.id.toLowerCase().indexOf(kw)>-1});
+  document.getElementById('fenceList').innerHTML=list.map(function(f){
+    var sel=f===currentFence?' selected':'';
+    var sc=f.status==='在用'?'active':'inactive';
+    return '<div class="fence-item'+sel+'" onclick="selectFence(\''+f.id+'\')"><div class="fence-item-title">围挡块 '+f.id.slice(-1)+'</div><div class="fence-item-eng">'+f.name+'</div><div class="fence-item-meta"><span class="fence-item-status '+sc+'">'+f.status+'</span><span>'+f.len+' · '+f.h+'</span></div></div>';
+  }).join('');
+}
+function selectFence(fid){currentFence=allFences.find(function(f){return f.id===fid});renderFenceList();renderCalendar();renderRecords();}
+
+/* ── calendar ── */
+function changeMonth(d){calMonth+=d;if(calMonth>12){calMonth=1;calYear++}if(calMonth<1){calMonth=12;calYear--}renderCalendar();renderRecords();}
+function goToday(){var n=new Date();calYear=n.getFullYear();calMonth=n.getMonth()+1;selectedDate=n.toISOString().slice(0,10);renderCalendar();renderRecords();}
+function renderCalendar(){
+  var wd=['日','一','二','三','四','五','六'];
+  document.getElementById('calWeekdays').innerHTML=wd.map(function(w){return'<div class="cal-weekday">'+w+'</div>'}).join('');
+  document.getElementById('calMonthLabel').textContent=calYear+'年'+calMonth+'月';
+  var fd=new Date(calYear,calMonth-1,1).getDay(),dim=new Date(calYear,calMonth,0).getDate(),today=new Date().toISOString().slice(0,10);
+  var ps=currentFence?allPatrols[currentFence.id]||[]:[],ds={};
+  ps.forEach(function(p){if(!ds[p.date])ds[p.date]='normal';if(p.hasIssue)ds[p.date]='issue'});
+  var h='';for(var i=0;i<fd;i++)h+='<div class="cal-day other"></div>';
+  for(var d=1;d<=dim;d++){var dk=calYear+'-'+String(calMonth).padStart(2,'0')+'-'+String(d).padStart(2,'0'),cls=['cal-day'];if(dk===today)cls.push('today');if(dk===selectedDate)cls.push('selected');if(ds[dk]==='issue')cls.push('has-issue');else if(ds[dk]==='normal')cls.push('has-normal');h+='<div class="'+cls.join(' ')+'" onclick="selectDate(\''+dk+'\')">'+d+'</div>';}
+  document.getElementById('calGrid').innerHTML=h;
+}
+function selectDate(dk){selectedDate=dk;renderCalendar();renderRecords();}
+
+/* ── records ── */
+function renderRecords(){
+  var el=document.getElementById('recordsList'),te=document.getElementById('recordsDateTitle'),ce=document.getElementById('recordsCount');
+  if(!selectedDate){te.textContent='巡查记录';ce.innerHTML='<span style="color:var(--text-tertiary)">请点击日历选择日期</span>';el.innerHTML='<div class="patrol-empty"><i class="ti ti-calendar-search"></i>选择日历日期查看巡查记录</div>';return;}
+  var ps=currentFence?allPatrols[currentFence.id]||[]:[],dr=ps.filter(function(p){return p.date===selectedDate});
+  var dp=selectedDate.split('-'),wk=['日','一','二','三','四','五','六'][new Date(selectedDate).getDay()];
+  te.textContent=parseInt(dp[1])+'月'+parseInt(dp[2])+'日 星期'+wk;
+  if(!dr.length){ce.textContent='无巡查记录';el.innerHTML='<div class="patrol-empty"><i class="ti ti-mood-happy"></i>当天无巡查记录</div>';return;}
+  ce.innerHTML='共 <strong>'+dr.length+'</strong> 次';
+  el.innerHTML=dr.map(function(r){
+    var bg=r.hasIssue?'var(--color-danger-light)':'var(--color-success-light)',fc=r.hasIssue?'var(--color-danger)':'var(--color-success)',ic=r.hasIssue?'ti-alert-triangle':'ti-check';
+    var h='<div class="patrol-card"><div class="patrol-card-body">';
+    h+='<div class="patrol-thumb" style="background:'+bg+';color:'+fc+'"><i class="ti '+ic+'"></i><span>'+r.panoramaCount+'张全景</span></div>';
+    h+='<div class="patrol-info"><div class="patrol-info-top"><span class="patrol-person">'+r.person+'</span><span class="patrol-time">'+r.time+'</span></div>';
+    h+='<div class="patrol-unit">'+r.unit+'</div><div class="patrol-loc"><i class="ti ti-map-pin" style="font-size:11px"></i> '+r.location+'</div>';
+    if(!r.hasIssue)h+='<div style="margin-top:2px"><span style="font-size:10px;padding:2px 6px;border-radius:999px;background:var(--color-success-light);color:var(--color-success)"><i class="ti ti-check" style="font-size:10px"></i> 正常</span></div>';
+    h+='</div></div>';
+    if(r.hasIssue)h+='<div class="patrol-issue-bar"><i class="ti ti-alert-triangle"></i> '+r.issueType+' — '+r.issueDesc+'</div>';
+    return h+'</div>';
+  }).join('');
+}
+
+(function(){
+  currentFence=allFences[0];renderFenceList();renderCalendar();renderRecords();
+})();
+</script>
+</body>
+</html>
