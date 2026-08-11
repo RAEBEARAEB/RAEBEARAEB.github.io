@@ -468,67 +468,212 @@
   };
 
   /* ═══ Project Scores ═══ */
-  function _daysInMonth(y, m) { return new Date(y, m, 0).getDate(); }
-  function _getGrade(s) {
-    if (s >= 85) return { grade: '优秀', cls: 'excellent', icon: '🏆' };
-    if (s >= 70) return { grade: '良好', cls: 'good', icon: '✅' };
-    if (s >= 55) return { grade: '警示', cls: 'warn', icon: '⚠️' };
+  function _roundScore(value) { return Math.round(Number(value) || 0); }
+  function _average(values) {
+    var valid = values.filter(function (value) { return typeof value === 'number' && isFinite(value); });
+    return valid.length ? Math.round(valid.reduce(function (sum, value) { return sum + value; }, 0) / valid.length * 10) / 10 : null;
+  }
+  function _getGrade(score) {
+    var s = Math.max(0, Math.min(115, Number(score) || 0));
+    if (s >= 100) return { grade: '优秀', cls: 'excellent', icon: '🏆' };
+    if (s >= 80) return { grade: '良好', cls: 'good', icon: '✅' };
+    if (s >= 60) return { grade: '警示', cls: 'warn', icon: '⚠️' };
     return { grade: '差', cls: 'poor', icon: '❌' };
   }
-  window.MOCK_DATA.getProjectScores = function (year, month) {
-    var now = new Date(); if (!year) year = now.getFullYear(); if (!month) month = now.getMonth() + 1;
-    var days = _daysInMonth(year, month);
-    var expectedPatrolDays = Math.round(days * 0.6);
-    var monthPrefix = year + '-' + String(month).padStart(2, '0');
-    var projects = this.getProjects();
-    var allHoards = this.getHoardings();
-    var issues = this.getStreetIssues();
-    var results = [];
-    projects.forEach(function (proj) {
-      var projHoards = allHoards.filter(function (h) { return h.projectName === proj.name; });
-      var hasFence = projHoards.length > 0 ? 10 : 0;
-      var pDates = {};
-      projHoards.forEach(function (h) { (h.patrolRecords || []).forEach(function (p) { if (p.date && p.date.indexOf(monthPrefix) === 0) pDates[p.date] = true; }); });
-      var actualDays = Object.keys(pDates).length;
-      var patrolRate = expectedPatrolDays > 0 ? Math.min(1, actualDays / expectedPatrolDays) : 0;
-      var patrolScore = Math.round(30 * patrolRate);
-      var d1 = hasFence === 0 ? 0 : (hasFence + patrolScore);
-      var self = 0, supervisor = 0, street = 0;
-      projHoards.forEach(function (h) { issues.forEach(function (iss) { if (iss.fenceId === h.id && (!iss._projectName || iss._projectName === proj.name)) { if (iss.source === '项目巡检') self++; else if (iss.source === '监管巡查') supervisor++; else if (iss.source === '街道上报') street++; } }); });
-      var totalF = self + supervisor + street;
-      var discRate = totalF > 0 ? self / totalF : 0;
-      var discScore = Math.round(30 * discRate);
-      var tR = 0, cR = 0;
-      projHoards.forEach(function (h) { issues.forEach(function (iss) { if (iss.fenceId === h.id && (!iss._projectName || iss._projectName === proj.name)) { tR++; if (iss.status === '整改完成' || iss.status === '已通过') cR++; } }); });
-      var rectRate = tR > 0 ? cR / tR : 1;
-      var rectScore = Math.round(30 * rectRate);
-      var d2 = d1 === 0 ? 0 : (discScore + rectScore);
-      var total = d1 + d2;
-      var grade = _getGrade(total);
-      var sug = [];
-      if (hasFence === 0) sug.push('您的项目尚未录入围挡信息，请尽快在围挡档案管理中完成围挡登记');
-      else {
-        if (patrolRate < 0.5) sug.push('您的日常巡检频率偏低（当前' + actualDays + '天/应巡检' + expectedPatrolDays + '天），建议加强日常巡检频次');
-        if (discRate < 0.5 && totalF > 0) sug.push('您的自查问题发现率较低，建议巡检中加强对围挡破损、脏污等常见问题的关注');
-        if (rectRate < 0.7 && tR > 0) sug.push('您的整改及时率较低，建议收到整改通知后48小时内完成整改');
-      }
-      if (!sug.length) sug.push('各项指标表现良好，请继续保持当前管理水平和巡检习惯');
-      results.push({ projectId: proj.id, projectName: proj.name, district: proj.district || '', d1: d1, d2: d2, total: total, grade: grade.grade, gradeCls: grade.cls, suggestions: sug, hoardingsCount: projHoards.length });
+  function _uniqueCount(values, fallback) {
+    if (Array.isArray(values)) {
+      var seen = {};
+      values.forEach(function (value) { if (value !== null && value !== undefined && value !== '') seen[String(value)] = true; });
+      return Object.keys(seen).length;
+    }
+    return Math.max(0, Number(fallback) || 0);
+  }
+  function _dedupeSuggestions(items) {
+    return items.filter(function (item, index, all) { return item && all.indexOf(item) === index; });
+  }
+  function _normalisePeriod(start, end) {
+    if (typeof start === 'number') {
+      var year = start, month = Number(end) || 1;
+      return { start: year + '-' + String(month).padStart(2, '0') + '-01', end: year + '-' + String(month).padStart(2, '0') + '-' + String(new Date(year, month, 0).getDate()).padStart(2, '0') };
+    }
+    if (typeof start === 'string' && typeof end === 'string') return { start: start, end: end };
+    var today = new Date(), day = today.getDay() || 7, sunday = new Date(today), monday = new Date(today);
+    sunday.setDate(today.getDate() - day); monday.setDate(sunday.getDate() - 6);
+    function fmt(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+    return { start: fmt(monday), end: fmt(sunday) };
+  }
+
+  window.MOCK_DATA.getScoreGrade = function (score) { return _getGrade(score); };
+  window.MOCK_DATA.calculatePatrolScore = function (validDays, actualDays) {
+    var n = Math.max(0, Math.floor(Number(validDays) || 0));
+    var a = Math.max(0, Math.floor(Number(actualDays) || 0));
+    if (a > n) return { valid: false, participated: false, score: null, N: n, A: a, T: n > 0 ? Math.max(1, Math.floor(n * 0.8)) : null };
+    if (n === 0) return { valid: true, participated: false, score: null, N: 0, A: 0, T: null };
+    var t = Math.max(1, Math.floor(n * 0.8)), score;
+    if (a < t) score = a / t * 60;
+    else if (a === t && t < n) score = 60;
+    else if (a > t) score = 60 + (a - t) / (n - t) * 15;
+    else score = 75;
+    return { valid: true, participated: true, score: _roundScore(score), N: n, A: a, T: t };
+  };
+  window.MOCK_DATA.calculateIssueScore = function (metrics) {
+    metrics = metrics || {};
+    var selfFound = Math.max(0, Number(metrics.selfFound) || 0);
+    var selfOverdue = _uniqueCount(metrics.selfOverdueIssueIds, metrics.selfOverdue);
+    var supervisorFound = Math.max(0, Number(metrics.supervisorFound) || 0);
+    var supervisorOverdue = _uniqueCount(metrics.supervisorOverdueIssueIds, metrics.supervisorOverdue);
+    return Math.max(0, Math.min(35, _roundScore(25 + Math.min(selfFound, 10) - 10 * selfOverdue - 15 * supervisorFound - 15 * supervisorOverdue)));
+  };
+  window.MOCK_DATA.calculateBonusScore = function (metrics) {
+    metrics = metrics || {};
+    return (Number(metrics.patrolStreakWeeks) >= 2 ? 3 : 0) + (Number(metrics.rectifyStreakWeeks) >= 2 && Number(metrics.rectifyDueIssues) > 0 ? 2 : 0);
+  };
+  window.MOCK_DATA.calculateFenceScore = function (metrics) {
+    metrics = metrics || {};
+    var patrol = this.calculatePatrolScore(metrics.validDays, metrics.actualDays);
+    if (!patrol.valid) return { valid: false, participated: false, total: null, grade: '—', gradeCls: 'none', d1: null, d2: null, bonus: null, patrol: patrol, metrics: metrics };
+    if (!patrol.participated) return { valid: true, participated: false, total: null, grade: '—', gradeCls: 'none', d1: null, d2: null, bonus: null, patrol: patrol, metrics: metrics };
+    var issue = this.calculateIssueScore(metrics), bonus = this.calculateBonusScore(metrics);
+    var total = Math.max(0, Math.min(115, _roundScore(patrol.score + issue + bonus))), grade = _getGrade(total);
+    return { valid: true, participated: true, total: total, grade: grade.grade, gradeCls: grade.cls, d1: patrol.score, d2: issue, bonus: bonus, patrol: patrol, metrics: metrics };
+  };
+
+  window.MOCK_DATA.getFenceScoreSuggestions = function (metrics, score) {
+    metrics = metrics || {};
+    score = score || this.calculateFenceScore(metrics);
+    if (!score.valid) return [];
+    if (!score.participated || Number(metrics.validDays) === 0) return ['本期不参与评分'];
+    var suggestions = [], n = score.patrol.N, a = score.patrol.A, t = score.patrol.T;
+    var found = Math.max(0, Number(metrics.periodFoundIssues) || 0);
+    var needsRectification = Math.max(0, Number(metrics.periodRectificationIssues) || 0);
+    var pending = Math.max(0, Number(metrics.currentPendingIssues) || 0);
+    var overdue = Math.max(0, Number(metrics.currentOverdueIssues) || 0);
+    var overdueThisPeriod = _uniqueCount(metrics.periodOverdueDeductionIssueIds, metrics.periodOverdueDeductionIssues);
+    var allTimely = metrics.allRectificationsWithin24Hours === true && overdue === 0 && overdueThisPeriod === 0;
+
+    if (a === 0) suggestions.push('本期尚无巡检记录，请及时安排巡检');
+    else if (a < t) suggestions.push('本期仅巡检' + a + '天，巡检频次偏低，建议及时加强巡检安排。');
+    else if (a < n) suggestions.push('本期已巡检' + a + '天，距全勤还差' + (n - a) + '天，请继续坚持每日巡检');
+
+    if (found === 0 && needsRectification === 0) {
+      suggestions.push(a < t ? '本期暂未发现问题，建议加强问题排查' : '本期暂未发现问题，请继续保持当前管理水平');
+    } else if (pending > 0) {
+      if (overdue > 0) suggestions.push('当前待整改问题' + pending + '个，其中' + overdue + '个问题整改超期，请尽快完成整改，避免因整改超期导致持续扣分');
+      else suggestions.push('当前待整改问题' + pending + '个，发现问题后应在24小时内尽快完成整改，避免因整改超期导致扣分');
+    } else if (needsRectification > 0 && allTimely) {
+      suggestions.push('本期问题已全部按时整改完成，请继续保持当前管理水平');
+    }
+
+    var patrolWeeks = Math.max(0, Number(metrics.patrolStreakWeeks) || 0);
+    var rectifyWeeks = Math.max(0, Number(metrics.rectifyStreakWeeks) || 0);
+    if (patrolWeeks >= 2 && rectifyWeeks >= 2) suggestions.push('本周已获得巡检连续奖励+3分和整改连续奖励+2分，请继续保持');
+    else if (patrolWeeks >= 2) suggestions.push('本周已获得巡检连续性奖励+3分，请继续保持');
+    else if (rectifyWeeks >= 2) suggestions.push('本周已获得整改连续性奖励+2分，请继续保持');
+    else {
+      if (patrolWeeks === 1) suggestions.push('本周已达成巡检全勤，再保持1周可获得巡检连续奖励+3分！');
+      if (rectifyWeeks === 1) suggestions.push('本周问题整改已达标，再保持1周可获得整改连续奖励+2分！');
+    }
+    return _dedupeSuggestions(suggestions);
+  };
+
+  window.MOCK_DATA.getProjectScoreSuggestions = function (fenceScores) {
+    fenceScores = Array.isArray(fenceScores) ? fenceScores : [];
+    if (fenceScores.length && fenceScores.every(function (row) { return row.valid && !row.participated && row.patrol && row.patrol.N === 0; })) return ['本期不参与评分'];
+    var participating = fenceScores.filter(function (row) { return row.participated && typeof row.total === 'number'; });
+    if (!participating.length) return [];
+    var suggestions = [];
+    var lowPatrol = participating.filter(function (row) { return row.patrol.A < row.patrol.T; });
+    if (lowPatrol.length) {
+      suggestions.push(lowPatrol.map(function (row) { return row.fenceName; }).join('、') + '本期仅巡检' + lowPatrol[0].patrol.A + '天，建议提升该围挡巡检频次');
+    }
+    var overdue = participating.filter(function (row) {
+      return _uniqueCount(row.metrics.periodOverdueDeductionIssueIds, row.metrics.periodOverdueDeductionIssues) > 0;
     });
-    results.sort(function (a, b) { return a.total - b.total; });
+    if (overdue.length) suggestions.push(overdue.map(function (row) { return row.fenceName; }).join('、') + '发现问题后应在24小时内完成整改，避免扣分');
+    if (participating.every(function (row) { return row.d1 === 75 && row.d2 === 35; })) suggestions.push('本期巡检与整改均达标，请继续保持当前管理水平和巡检习惯');
+    return _dedupeSuggestions(suggestions);
+  };
+
+  var _scoreProfiles = {
+    'p1|WD-2026-0002': { validDays: 7, actualDays: 2, selfFound: 0, selfOverdue: 0, supervisorFound: 0, supervisorOverdue: 0, periodFoundIssues: 0, periodRectificationIssues: 0, currentPendingIssues: 0, currentOverdueIssues: 0, periodOverdueDeductionIssues: 0, allRectificationsWithin24Hours: false, patrolStreakWeeks: 0, rectifyStreakWeeks: 0, rectifyDueIssues: 0 },
+    'p2|WD-2026-0001': { validDays: 7, actualDays: 7, selfFound: 10, selfOverdue: 0, supervisorFound: 0, supervisorOverdue: 0, periodFoundIssues: 10, periodRectificationIssues: 10, currentPendingIssues: 0, currentOverdueIssues: 0, periodOverdueDeductionIssues: 0, allRectificationsWithin24Hours: true, patrolStreakWeeks: 2, rectifyStreakWeeks: 2, rectifyDueIssues: 1 },
+    'p2|WD-2026-0002': { validDays: 7, actualDays: 6, selfFound: 0, selfOverdue: 0, supervisorFound: 0, supervisorOverdue: 0, periodFoundIssues: 0, periodRectificationIssues: 0, currentPendingIssues: 0, currentOverdueIssues: 0, periodOverdueDeductionIssues: 0, allRectificationsWithin24Hours: false, patrolStreakWeeks: 0, rectifyStreakWeeks: 0, rectifyDueIssues: 0 },
+    'p3|WD-2026-0004': { validDays: 7, actualDays: 4, selfFound: 0, selfOverdue: 0, supervisorFound: 0, supervisorOverdue: 0, periodFoundIssues: 0, periodRectificationIssues: 0, currentPendingIssues: 0, currentOverdueIssues: 0, periodOverdueDeductionIssues: 0, allRectificationsWithin24Hours: false, patrolStreakWeeks: 0, rectifyStreakWeeks: 0, rectifyDueIssues: 0 },
+    'p4|WD-2026-0005': { validDays: 7, actualDays: 7, selfFound: 0, selfOverdue: 0, supervisorFound: 0, supervisorOverdue: 0, periodFoundIssues: 0, periodRectificationIssues: 0, currentPendingIssues: 0, currentOverdueIssues: 0, periodOverdueDeductionIssues: 0, allRectificationsWithin24Hours: false, patrolStreakWeeks: 2, rectifyStreakWeeks: 0, rectifyDueIssues: 0 },
+    'p5|WD-2026-0006': { validDays: 7, actualDays: 5, selfFound: 0, selfOverdue: 0, supervisorFound: 0, supervisorOverdue: 0, periodFoundIssues: 0, periodRectificationIssues: 0, currentPendingIssues: 0, currentOverdueIssues: 0, periodOverdueDeductionIssues: 0, allRectificationsWithin24Hours: false, patrolStreakWeeks: 0, rectifyStreakWeeks: 0, rectifyDueIssues: 0 },
+    'p5|WD-2026-0007': { validDays: 7, actualDays: 5, selfFound: 10, selfOverdue: 1, selfOverdueIssueIds: ['LEGACY-001','LEGACY-001'], supervisorFound: 0, supervisorOverdue: 0, periodFoundIssues: 0, periodRectificationIssues: 1, currentPendingIssues: 1, currentOverdueIssues: 1, periodOverdueDeductionIssueIds: ['LEGACY-001','LEGACY-001'], allRectificationsWithin24Hours: false, patrolStreakWeeks: 0, rectifyStreakWeeks: 0, rectifyDueIssues: 0 }
+  };
+  window.MOCK_DATA.getFenceScores = function (periodStart, periodEnd) {
+    var period = _normalisePeriod(periodStart, periodEnd), results = [], self = this;
+    this.getProjects().forEach(function (project) {
+      (project.hoardings || []).forEach(function (fence) {
+        var profile = _scoreProfiles[project.id + '|' + fence.id];
+        if (!profile) return;
+        var score = self.calculateFenceScore(profile), suggestions = self.getFenceScoreSuggestions(profile, score);
+        results.push({
+          projectId: project.id, projectName: project.name, district: project.district || '', street: project.street || '',
+          fenceId: fence.id, fenceName: fence.fenceName || '', engineerName: fence.engineerName || '—',
+          responsibleUnit: fence.constructUnit || '—', constructUnit: fence.constructUnit || '—', projectStatus: project.status || '', fenceStatus: fence.fenceStatus || '', periodStart: period.start, periodEnd: period.end,
+          valid: score.valid, participated: score.participated, d1: score.d1, d2: score.d2, bonus: score.bonus, total: score.total, grade: score.grade, gradeCls: score.gradeCls,
+          patrol: score.patrol, metrics: profile, suggestions: suggestions
+        });
+      });
+    });
     return results;
   };
-  window.MOCK_DATA.getScoreSummary = function () {
-    var s = this.getProjectScores();
-    var r = { total: s.length, excellent: 0, good: 0, warn: 0, poor: 0, newPoor: [], byDistrict: {} };
-    s.forEach(function (x) {
-      if (x.grade === '优秀') r.excellent++; else if (x.grade === '良好') r.good++; else if (x.grade === '警示') r.warn++; else { r.poor++; r.newPoor.push(x); }
-      if (!r.byDistrict[x.district]) r.byDistrict[x.district] = { excellent: 0, good: 0, warn: 0, poor: 0 };
-      if (x.grade === '优秀') r.byDistrict[x.district].excellent++;
-      else if (x.grade === '良好') r.byDistrict[x.district].good++;
-      else if (x.grade === '警示') r.byDistrict[x.district].warn++;
-      else r.byDistrict[x.district].poor++;
+  window.MOCK_DATA.getEngineeringScores = function (periodStart, periodEnd) {
+    var groups = {};
+    this.getFenceScores(periodStart, periodEnd).forEach(function (row) {
+      var key = row.projectId + '|' + row.engineerName;
+      if (!groups[key]) groups[key] = { projectId: row.projectId, projectName: row.projectName, district: row.district, street: row.street, engineerName: row.engineerName, responsibleUnits: [], fenceScores: [] };
+      groups[key].fenceScores.push(row);
+      if (groups[key].responsibleUnits.indexOf(row.responsibleUnit) < 0) groups[key].responsibleUnits.push(row.responsibleUnit);
     });
-    return r;
+    return Object.keys(groups).map(function (key) {
+      var group = groups[key], total = _average(group.fenceScores.map(function (row) { return row.total; })), grade = total === null ? { grade: '—', cls: 'none' } : _getGrade(total);
+      group.total = total; group.grade = grade.grade; group.gradeCls = grade.cls; group.participated = total !== null; group.hoardingsCount = group.fenceScores.length;
+      return group;
+    });
+  };
+  window.MOCK_DATA.getProjectScores = function (periodStart, periodEnd) {
+    var groups = {}, projectsById = {}, self = this;
+    this.getProjects().forEach(function (project) { projectsById[project.id] = project; });
+    this.getEngineeringScores(periodStart, periodEnd).forEach(function (row) {
+      if (!groups[row.projectId]) groups[row.projectId] = [];
+      groups[row.projectId].push(row);
+    });
+    var results = Object.keys(groups).map(function (projectId) {
+      var project = projectsById[projectId], engineeringScores = groups[projectId], total = _average(engineeringScores.map(function (row) { return row.total; })), grade = total === null ? { grade: '—', cls: 'none' } : _getGrade(total);
+      var fenceScores = engineeringScores.reduce(function (all, row) { return all.concat(row.fenceScores); }, []);
+      return {
+        projectId: projectId, projectName: project.name, district: project.district || '', street: project.street || '',
+        d1: _average(engineeringScores.map(function (row) { return _average(row.fenceScores.map(function (fence) { return fence.d1; })); })),
+        d2: _average(engineeringScores.map(function (row) { return _average(row.fenceScores.map(function (fence) { return fence.d2; })); })),
+        bonus: _average(engineeringScores.map(function (row) { return _average(row.fenceScores.map(function (fence) { return fence.bonus; })); })),
+        total: total, grade: grade.grade, gradeCls: grade.cls, participated: total !== null,
+        suggestions: self.getProjectScoreSuggestions(fenceScores),
+        hoardingsCount: engineeringScores.reduce(function (sum, row) { return sum + row.hoardingsCount; }, 0), engineeringScores: engineeringScores
+      };
+    });
+    results.sort(function (a, b) {
+      if (a.total === null && b.total === null) return 0;
+      if (a.total === null) return 1;
+      if (b.total === null) return -1;
+      return b.total - a.total;
+    });
+    return results;
+  };
+  window.MOCK_DATA.getScoreSummary = function (periodStart, periodEnd) {
+    var scores = this.getProjectScores(periodStart, periodEnd);
+    var result = { total: scores.length, excellent: 0, good: 0, warn: 0, poor: 0, newPoor: [], byDistrict: {} };
+    scores.forEach(function (row) {
+      if (!row.participated) { result.total--; return; }
+      var key = row.grade === '优秀' ? 'excellent' : row.grade === '良好' ? 'good' : row.grade === '警示' ? 'warn' : 'poor';
+      result[key]++;
+      if (key === 'poor') result.newPoor.push(row);
+      if (!result.byDistrict[row.district]) result.byDistrict[row.district] = { excellent: 0, good: 0, warn: 0, poor: 0 };
+      result.byDistrict[row.district][key]++;
+    });
+    return result;
   };
 })();

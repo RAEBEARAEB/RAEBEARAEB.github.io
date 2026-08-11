@@ -367,26 +367,26 @@ a:hover{color:var(--text-link-hover)}
             <table style="width:100%;border-collapse:collapse;font-size:var(--font-size-sm);margin-bottom:var(--space-4)">
               <tr><td style="padding:4px 8px;color:var(--text-secondary);width:90px">评分周期</td><td style="padding:4px 8px">每自然周（周一至周日）</td></tr>
               <tr><td style="padding:4px 8px;color:var(--text-secondary)">评分对象</td><td style="padding:4px 8px">可查看项目下全部围挡综合评分，也可按单个围挡查看</td></tr>
-              <tr><td style="padding:4px 8px;color:var(--text-secondary)">项目评分</td><td style="padding:4px 8px">取项目下所有有效子围挡评分的算术平均值</td></tr>
+              <tr><td style="padding:4px 8px;color:var(--text-secondary)">项目评分</td><td style="padding:4px 8px">先计算工程下有效子围挡平均分，再取项目下工程平均分</td></tr>
             </table>
             <div style="font-weight:var(--font-weight-bold);font-size:var(--font-size-md);color:var(--text-title);margin-bottom:var(--space-3)">二、评分维度</div>
             <div style="margin-bottom:var(--space-3);padding:var(--space-3);background:var(--color-gray-50);border-radius:var(--border-radius-md);font-size:var(--font-size-sm);color:var(--text-secondary)">
-              <div style="font-weight:var(--font-weight-bold);color:var(--text-primary);margin-bottom:4px">维度一：日常巡检执行率（满分50分）</div>
-              <div>得分 =（本周期内实际有巡检记录的天数 / 本周期内子围挡有效天数）× 50</div>
+              <div style="font-weight:var(--font-weight-bold);color:var(--text-primary);margin-bottom:4px">维度一：日常巡检执行率（满分75分）</div>
+              <div>有效天数N，达标天数T=max（1，向下取整N×80%）；实际巡检天数A低于T时按60分折算，达到T得60分，超过T后线性增加至75分</div>
             </div>
             <div style="margin-bottom:var(--space-3);padding:var(--space-3);background:var(--color-gray-50);border-radius:var(--border-radius-md);font-size:var(--font-size-sm);color:var(--text-secondary)">
-              <div style="font-weight:var(--font-weight-bold);color:var(--text-primary);margin-bottom:4px">维度二：问题发现与闭环（满分50分，最低0分）</div>
-              <div>基础50分：自查发现但未在24小时内完成整改，每个扣5分</div>
-              <div>监管发现且未在24小时内完成整改，每个扣10分</div>
+              <div style="font-weight:var(--font-weight-bold);color:var(--text-primary);margin-bottom:4px">维度二：问题发现与闭环（满分35分，最低0分）</div>
+              <div>基础25分；自查发现每个加1分，最多加10分；自查超期每个扣10分</div>
+              <div>监管发现每个扣15分，监管发现且超期每个再扣15分</div>
             </div>
             <div style="font-weight:var(--font-weight-bold);font-size:var(--font-size-md);color:var(--text-title);margin-bottom:var(--space-3)">三、等级划分</div>
             <table style="width:100%;border-collapse:collapse;font-size:var(--font-size-sm)">
               <thead><tr style="background:var(--color-gray-50)"><th style="padding:6px 8px;text-align:left;border-bottom:1px solid var(--border-color-light)">等级</th><th style="padding:6px 8px;text-align:left;border-bottom:1px solid var(--border-color-light)">分数区间</th><th style="padding:6px 8px;text-align:left;border-bottom:1px solid var(--border-color-light)">处置建议</th></tr></thead>
               <tbody>
-                <tr><td style="padding:6px 8px;border-bottom:1px solid var(--border-color-light)"><span style="color:var(--color-success);font-weight:var(--font-weight-bold)">优秀</span></td><td style="padding:6px 8px;border-bottom:1px solid var(--border-color-light)">85分及以上</td><td style="padding:6px 8px;border-bottom:1px solid var(--border-color-light)">通报表扬，日常监督免罚一次</td></tr>
-                <tr><td style="padding:6px 8px;border-bottom:1px solid var(--border-color-light)"><span style="color:var(--color-primary-500);font-weight:var(--font-weight-bold)">良好</span></td><td style="padding:6px 8px;border-bottom:1px solid var(--border-color-light)">70-84分</td><td style="padding:6px 8px;border-bottom:1px solid var(--border-color-light)">正常管理</td></tr>
-                <tr><td style="padding:6px 8px;border-bottom:1px solid var(--border-color-light)"><span style="color:var(--color-warning);font-weight:var(--font-weight-bold)">警示</span></td><td style="padding:6px 8px;border-bottom:1px solid var(--border-color-light)">55-69分</td><td style="padding:6px 8px;border-bottom:1px solid var(--border-color-light)">约谈提醒</td></tr>
-                <tr><td style="padding:6px 8px"><span style="color:var(--color-danger);font-weight:var(--font-weight-bold)">差</span></td><td style="padding:6px 8px">54分及以下</td><td style="padding:6px 8px">通报公示，列入重点监管名单</td></tr>
+                <tr><td style="padding:6px 8px;border-bottom:1px solid var(--border-color-light)"><span style="color:var(--color-success);font-weight:var(--font-weight-bold)">优秀</span></td><td style="padding:6px 8px;border-bottom:1px solid var(--border-color-light)">100-115分</td><td style="padding:6px 8px;border-bottom:1px solid var(--border-color-light)">通报表扬，日常监督免罚一次</td></tr>
+                <tr><td style="padding:6px 8px;border-bottom:1px solid var(--border-color-light)"><span style="color:var(--color-primary-500);font-weight:var(--font-weight-bold)">良好</span></td><td style="padding:6px 8px;border-bottom:1px solid var(--border-color-light)">80-99分</td><td style="padding:6px 8px;border-bottom:1px solid var(--border-color-light)">正常管理</td></tr>
+                <tr><td style="padding:6px 8px;border-bottom:1px solid var(--border-color-light)"><span style="color:var(--color-warning);font-weight:var(--font-weight-bold)">警示</span></td><td style="padding:6px 8px;border-bottom:1px solid var(--border-color-light)">60-79分</td><td style="padding:6px 8px;border-bottom:1px solid var(--border-color-light)">约谈提醒</td></tr>
+                <tr><td style="padding:6px 8px"><span style="color:var(--color-danger);font-weight:var(--font-weight-bold)">差</span></td><td style="padding:6px 8px">0-59分</td><td style="padding:6px 8px">通报公示，列入重点监管名单</td></tr>
               </tbody></table>
           </div>
         </div>
@@ -447,50 +447,28 @@ a:hover{color:var(--text-link-hover)}
 var SCORE_DATA = {};
 (function(){
   var projs = MOCK_DATA.getProjects();
-  var names = projs.map(function(p){ return p.name; });
-
-  // Helper: pick project index by name substring match
-  function idxFor(pat) {
-    for (var i = 0; i < names.length; i++) { if (names[i].indexOf(pat) !== -1) return i; }
-    return -1;
-  }
-
-  function gradeOf(s){ return s>=85?'优秀':s>=70?'良好':s>=55?'警示':'差'; }
-  // 按工程名关键字给出演示评分（未命中给默认分），工程名取自 mock-data，避免重命名后失配
-  function engScore(n){
-    if(n.indexOf('I标土建一工区')!==-1) return {total:90,grade:'优秀',change:2,changeDir:'up',d1:{score:46,max:50,actualDays:6,totalDays:7},d2:{score:44,max:50,detail:'自查超期0个 / 监管发现超期0个'},reward:{bonus:0,patrolWeeks:2,rectifyWeeks:0},tips:['本周缺漏巡检1天，建议坚持每日巡检习惯','本周整改满分，请继续保持当前管理水平','距离连续3周满分仅差1周，下周继续保持可获得巡检连续性奖励加分']};
-    if(n.indexOf('II标土建二工区')!==-1) return {total:75,grade:'良好',change:-3,changeDir:'down',d1:{score:35,max:50,actualDays:5,totalDays:7},d2:{score:40,max:50,detail:'自查超期1个（-5分） / 监管发现超期0个'},reward:{bonus:0,patrolWeeks:0,rectifyWeeks:0},tips:['本周缺漏巡检2天，建议坚持每日巡检习惯','自查发现问题后应在24小时内完成整改，避免因整改超期被扣分']};
-    if(n.indexOf('地基与基础')!==-1) return {total:68,grade:'警示',change:-5,changeDir:'down',d1:{score:25,max:50,actualDays:3,totalDays:7},d2:{score:43,max:50,detail:'自查超期1个（-5分） / 监管发现超期0个'},reward:{bonus:0,patrolWeeks:0,rectifyWeeks:0},tips:['本周仅巡检3天，远低于应巡检天数7天，建议立即加强巡检安排','自查发现问题后应在24小时内完成整改，避免因整改超期被扣分']};
-    if(n.indexOf('主体工程')!==-1) return {total:100,grade:'优秀',change:5,changeDir:'up',d1:{score:50,max:50,actualDays:7,totalDays:7},d2:{score:50,max:50,detail:'本周无超期未整改问题'},reward:{bonus:5,patrolWeeks:3,rectifyWeeks:3},tips:['本周巡检与整改均满分，请继续保持当前管理水平和巡检习惯','已获得巡检连续性奖励+3分','已获得整改连续性奖励+5分']};
-    if(n.indexOf('外立面')!==-1) return {total:82,grade:'良好',change:1,changeDir:'up',d1:{score:43,max:50,actualDays:6,totalDays:7},d2:{score:44,max:50,detail:'自查超期0个 / 监管发现超期0个'},reward:{bonus:0,patrolWeeks:2,rectifyWeeks:1},tips:['本周缺漏巡检1天，建议坚持每日巡检习惯','本周整改满分，请继续保持当前管理水平']};
-    if(n.indexOf('桩基础')!==-1) return {total:88,grade:'优秀',change:1,changeDir:'up',d1:{score:44,max:50,actualDays:6,totalDays:7},d2:{score:44,max:50,detail:'自查超期0个 / 监管发现超期0个'},reward:{bonus:0,patrolWeeks:2,rectifyWeeks:1},tips:['本周巡检执行良好，请继续保持','本周整改满分，请继续保持当前管理水平']};
-    if(n.indexOf('基坑支护')!==-1) return {total:72,grade:'良好',change:-2,changeDir:'down',d1:{score:38,max:50,actualDays:5,totalDays:7},d2:{score:39,max:50,detail:'自查超期1个（-5分） / 监管发现超期0个'},reward:{bonus:0,patrolWeeks:1,rectifyWeeks:0},tips:['本周缺漏巡检2天，建议坚持每日巡检习惯','自查发现问题后应在24小时内完成整改']};
-    return {total:80,grade:'良好',change:0,changeDir:'up',d1:{score:40,max:50,actualDays:6,totalDays:7},d2:{score:42,max:50,detail:'自查超期0个 / 监管发现超期0个'},reward:{bonus:0,patrolWeeks:1,rectifyWeeks:0},tips:['建议保持每日巡检习惯','发现问题应在24小时内完成整改']};
-  }
-  function buildProj(idx, allTotal, allTips){
-    var p=projs[idx];
-    var fences=(p.hoardings||[]).filter(function(h){return h.fenceStatus!=='已拆除'&&h.fenceName;});
-    var seen={};fences=fences.filter(function(h){if(seen[h.fenceName])return false;seen[h.fenceName]=true;return true;});
-    var fenceNames=fences.map(function(h){return h.fenceName;});
-    var entry={fences:['全部围挡'].concat(fenceNames)};
-    var d1s=Math.round(allTotal*0.5);
-    entry['全部围挡']={total:allTotal,grade:gradeOf(allTotal),change:1,changeDir:'up',d1:{score:d1s,max:50,actualDays:6,totalDays:7},d2:{score:allTotal-d1s,max:50,detail:'详见各子围挡明细'},reward:{bonus:0,patrolWeeks:2,rectifyWeeks:0},tips:allTips};
-    fences.forEach(function(h){entry[h.fenceName]=engScore(h.engineerName||'');});
-    return entry;
-  }
-  [['穗莞深',84,['部分工程本周缺漏巡检，建议提升巡检频次','发现问题应在24小时内完成整改，避免扣分']],
-   ['国际演艺中心',78,['部分工程本周巡检天数偏低，建议加强巡检安排','发现问题后应在24小时内完成整改，避免扣分']],
-   ['龙城北',81,['建议保持每日巡检习惯','发现问题应在24小时内完成整改']],
-   ['22号线',86,['本周巡检执行良好，请继续保持','本周整改满分，请继续保持当前管理水平']],
-   ['福城南',85,['本周巡检执行良好，请继续保持','发现问题应在24小时内完成整改']]].forEach(function(c){
-    var i=idxFor(c[0]); if(i>=0) SCORE_DATA[names[i]]=buildProj(i,c[1],c[2]);
+  var fenceScores = MOCK_DATA.getFenceScores ? MOCK_DATA.getFenceScores() : [];
+  var projectScores = MOCK_DATA.getProjectScores ? MOCK_DATA.getProjectScores() : [];
+  projs.forEach(function(project){
+    var rows = fenceScores.filter(function(row){ return row.projectId === project.id; });
+    var projectRow = projectScores.filter(function(row){ return row.projectId === project.id; })[0];
+    if (!projectRow || !rows.length) return;
+    var entry = {fences:['全部围挡'].concat(rows.map(function(row){ return row.fenceName; }))};
+    var avgActual = Math.round(rows.reduce(function(sum,row){ return sum + row.patrol.A; },0) / rows.length);
+    var avgValid = Math.round(rows.reduce(function(sum,row){ return sum + row.patrol.N; },0) / rows.length);
+    entry['全部围挡']={total:projectRow.total,grade:projectRow.grade,change:0,changeDir:'up',d1:{score:projectRow.d1,max:75,actualDays:avgActual,totalDays:avgValid},d2:{score:projectRow.d2,max:35,detail:'详见各子围挡明细'},reward:{bonus:projectRow.bonus,patrolWeeks:0,rectifyWeeks:0},tips:projectRow.suggestions};
+    rows.forEach(function(row){
+      var m=row.metrics;
+      entry[row.fenceName]={total:row.total,grade:row.grade,change:0,changeDir:'up',d1:{score:row.d1,max:75,actualDays:row.patrol.A,totalDays:row.patrol.N},d2:{score:row.d2,max:35,detail:'自查发现'+m.selfFound+'个 / 自查超期'+m.selfOverdue+'个 / 监管发现'+m.supervisorFound+'个'},reward:{bonus:row.bonus,patrolWeeks:m.patrolStreakWeeks,rectifyWeeks:m.rectifyStreakWeeks},tips:row.suggestions};
+    });
+    SCORE_DATA[project.name]=entry;
   });
 })();
 
 function getScoreColor(total) {
-  if (total >= 85) return '#1A9042';
-  if (total >= 70) return '#1862D4';
-  if (total >= 55) return '#D48A00';
+  if (total >= 100) return '#1A9042';
+  if (total >= 80) return '#1862D4';
+  if (total >= 60) return '#D48A00';
   return '#D13B2F';
 }
 
@@ -521,9 +499,9 @@ function _weekRange(dateStr) {
 }
 
 function _scoreGrade(score) {
-  if (score >= 85) return '优秀';
-  if (score >= 70) return '良好';
-  if (score >= 55) return '警示';
+  if (score >= 100) return '优秀';
+  if (score >= 80) return '良好';
+  if (score >= 60) return '警示';
   return '差';
 }
 
@@ -537,8 +515,8 @@ function _enrichData(pts) {
 
 var HIST_SCORES = {
   _default: {
-    '3m':  _enrichData([{w:'5/19',s:65},{w:'5/26',s:68},{w:'6/2',s:70},{w:'6/9',s:72},{w:'6/16',s:74},{w:'6/23',s:79},{w:'6/30',s:80},{w:'7/7',s:84}]),
-    '12m': _enrichData([{w:'4/21',s:58},{w:'4/28',s:61},{w:'5/5',s:63},{w:'5/12',s:62},{w:'5/19',s:65},{w:'5/26',s:68},{w:'6/2',s:70},{w:'6/9',s:72},{w:'6/16',s:74},{w:'6/23',s:79},{w:'6/30',s:80},{w:'7/7',s:84}])
+    '3m':  _enrichData([{w:'5/19',s:73},{w:'5/26',s:76},{w:'6/2',s:80},{w:'6/9',s:84},{w:'6/16',s:88},{w:'6/23',s:93},{w:'6/30',s:98},{w:'7/7',s:104}]),
+    '12m': _enrichData([{w:'4/21',s:58},{w:'4/28',s:62},{w:'5/5',s:67},{w:'5/12',s:70},{w:'5/19',s:73},{w:'5/26',s:76},{w:'6/2',s:80},{w:'6/9',s:84},{w:'6/16',s:88},{w:'6/23',s:93},{w:'6/30',s:98},{w:'7/7',s:104}])
   }
 };
 
@@ -551,7 +529,7 @@ function getHistData(projName, fenceName, range) {
   var base = HIST_SCORES._default[range];
   return base.map(function(pt, j) {
     var off = (hash >> (j * 3)) & 7;
-    var s = Math.max(0, Math.min(100, pt.s + off - 3));
+    var s = Math.max(0, Math.min(115, pt.s + off - 3));
     return {w: pt.w, s: s, r: pt.r, g: _scoreGrade(s)};
   });
 }
@@ -559,7 +537,7 @@ function getHistData(projName, fenceName, range) {
 function makeScoreChartOption(xData, data, lastIdx) {
   var yData = data.map(function(d){return d.s;});
   var gTop = 6, gBot = 20, gH = 140 - gTop - gBot; // estimated grid height for percentage calc
-  function yPct(v) { return (gTop + (100 - v) / 100 * gH) / 140 * 100; }
+  function yPct(v) { return (gTop + (115 - v) / 115 * gH) / 140 * 100; }
   return {
     tooltip: {
       trigger: 'axis',
@@ -581,10 +559,10 @@ function makeScoreChartOption(xData, data, lastIdx) {
     },
     grid: {left: 42, right: 8, top: gTop, bottom: gBot},
     graphic: [
-      {type:'text', left: 2, top: yPct(27).toFixed(1)+'%', style:{text:'差', fontSize:12, fill:'#D13B2F', textAlign:'right'}, z:10},
-      {type:'text', left: 2, top: yPct(62).toFixed(1)+'%', style:{text:'警示', fontSize:12, fill:'#D48A00', textAlign:'right'}, z:10},
-      {type:'text', left: 2, top: yPct(77).toFixed(1)+'%', style:{text:'良好', fontSize:12, fill:'#1862D4', textAlign:'right'}, z:10},
-      {type:'text', left: 2, top: yPct(92).toFixed(1)+'%', style:{text:'优秀', fontSize:12, fill:'#1A9042', textAlign:'right'}, z:10}
+      {type:'text', left: 2, top: yPct(30).toFixed(1)+'%', style:{text:'差', fontSize:12, fill:'#D13B2F', textAlign:'right'}, z:10},
+      {type:'text', left: 2, top: yPct(70).toFixed(1)+'%', style:{text:'警示', fontSize:12, fill:'#D48A00', textAlign:'right'}, z:10},
+      {type:'text', left: 2, top: yPct(90).toFixed(1)+'%', style:{text:'良好', fontSize:12, fill:'#1862D4', textAlign:'right'}, z:10},
+      {type:'text', left: 2, top: yPct(107).toFixed(1)+'%', style:{text:'优秀', fontSize:12, fill:'#1A9042', textAlign:'right'}, z:10}
     ],
     xAxis: {
       type: 'category', data: xData,
@@ -593,7 +571,7 @@ function makeScoreChartOption(xData, data, lastIdx) {
       boundaryGap: false
     },
     yAxis: {
-      type: 'value', show: true, min: 0, max: 100,
+      type: 'value', show: true, min: 0, max: 115,
       axisLine: {show: false}, axisTick: {show: false},
       axisLabel: {show: false},
       splitLine: {show: false}
@@ -608,19 +586,19 @@ function makeScoreChartOption(xData, data, lastIdx) {
       markArea: {
         silent: true,
         data: [
-          [{yAxis: 0, itemStyle:{color:'rgba(209,59,47,0.04)'}}, {yAxis: 55}],
-          [{yAxis: 55, itemStyle:{color:'rgba(212,138,0,0.04)'}}, {yAxis: 70}],
-          [{yAxis: 70, itemStyle:{color:'rgba(24,98,212,0.04)'}}, {yAxis: 85}],
-          [{yAxis: 85, itemStyle:{color:'rgba(26,144,66,0.04)'}}, {yAxis: 100}]
+          [{yAxis: 0, itemStyle:{color:'rgba(209,59,47,0.04)'}}, {yAxis: 60}],
+          [{yAxis: 60, itemStyle:{color:'rgba(212,138,0,0.04)'}}, {yAxis: 80}],
+          [{yAxis: 80, itemStyle:{color:'rgba(24,98,212,0.04)'}}, {yAxis: 100}],
+          [{yAxis: 100, itemStyle:{color:'rgba(26,144,66,0.04)'}}, {yAxis: 115}]
         ]
       },
       markLine: {
         silent: true, symbol: 'none',
         label: {show: false},
         data: [
-          {yAxis: 55, lineStyle:{color:'#D13B2F',type:'dashed',opacity:0.5,width:1}},
-          {yAxis: 70, lineStyle:{color:'#D48A00',type:'dashed',opacity:0.5,width:1}},
-          {yAxis: 85, lineStyle:{color:'#1A9042',type:'dashed',opacity:0.5,width:1}}
+          {yAxis: 60, lineStyle:{color:'#D13B2F',type:'dashed',opacity:0.5,width:1}},
+          {yAxis: 80, lineStyle:{color:'#D48A00',type:'dashed',opacity:0.5,width:1}},
+          {yAxis: 100, lineStyle:{color:'#1A9042',type:'dashed',opacity:0.5,width:1}}
         ]
       },
       markPoint: {
@@ -763,7 +741,7 @@ function renderScoreCard() {
   }
   function rewardDots(n, earned) {
     var h = '';
-    for (var i = 0; i < 3; i++) {
+    for (var i = 0; i < 2; i++) {
       var cls = earned ? 'score-reward-dot earned' : (i < n ? 'score-reward-dot fill' : 'score-reward-dot');
       h += '<span class="' + cls + '"></span>';
     }
@@ -774,7 +752,7 @@ function renderScoreCard() {
       '<span class="score-reward-name">' + label + '</span>' +
       '<span class="score-reward-dots-wrap">' +
         '<span class="score-reward-dots">' + rewardDots(weeks, earned) + '</span>' +
-        '<span class="score-reward-progress">' + weeks + '/3周</span>' +
+        '<span class="score-reward-progress">' + Math.min(weeks,2) + '/2周</span>' +
       '</span>' +
       '<span class="score-reward-value' + (earned ? ' earned' : ' zero') + '">' + (earned ? '+' + points + '分' : '+0分') + '</span>' +
     '</div>';
@@ -782,16 +760,16 @@ function renderScoreCard() {
   function buildRewardHTML(r) {
     if (!r) r = {bonus: 0, patrolWeeks: 0, rectifyWeeks: 0};
     var bonusCls = r.bonus > 0 ? ' earned' : ' zero';
-    var patrolEarned = r.patrolWeeks >= 3;
-    var rectifyEarned = r.rectifyWeeks >= 3;
-    var helpTip = '连续3个自然周巡检执行率 =100%：+3分\n连续3个自然周24小时整改完成率 = 100%：+5分\n（发现问题为0时，24h整改完成率为0，总分上限100分）';
+    var patrolEarned = r.patrolWeeks >= 2;
+    var rectifyEarned = r.rectifyWeeks >= 2;
+    var helpTip = '连续2个自然周每日均有有效巡检记录：+3分\n连续2个自然周均有到期问题且全部按期整改：+2分\n基础分与加分合计最高115分';
     return '<div class="score-reward">' +
       '<div class="score-reward-title">' +
         '<span>连续性奖励<span class="score-reward-help-wrap"><span class="score-reward-help">?</span><span class="score-help-tip">' + helpTip.replace(/\n/g,'<br>') + '</span></span></span>' +
         '<span class="score-reward-value' + bonusCls + '">本周 ' + (r.bonus > 0 ? '+' + r.bonus + '分' : '+0分') + '</span>' +
       '</div>' +
       rewardRow('巡检连续达标', r.patrolWeeks, 3, patrolEarned) +
-      rewardRow('整改连续达标', r.rectifyWeeks, 5, rectifyEarned) +
+      rewardRow('整改连续达标', r.rectifyWeeks, 2, rectifyEarned) +
     '</div>';
   }
   var d1Detail = '本周实际巡检' + d.d1.actualDays + '天 / 应巡检' + d.d1.totalDays + '天';
