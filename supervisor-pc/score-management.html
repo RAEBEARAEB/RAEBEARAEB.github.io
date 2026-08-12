@@ -233,29 +233,21 @@ function buildWeeklyPeriods(){
 
 function buildAllScores(){
   var periods=buildWeeklyPeriods();
-  var hoardings=MOCK_DATA.getHoardings();
-  var scores=MOCK_DATA.getProjectScores();
   var all=[];
   periods.forEach(function(per){
-    hoardings.forEach(function(h){
-      var ps=null;
-      if(scores&&scores.length){
-        for(var i=0;i<scores.length;i++){if(scores[i].projectId===h.projectId){ps=scores[i];break;}}
-      }
-      if(!ps)return;
-      var base=ps.total;var rng=(h.id||'').charCodeAt((h.id||'a').length-1)||0;
-      var adj=((rng%7)-3)*3+Math.round((Math.random()-0.5)*6);
-      var sc=Math.max(10,Math.min(100,base+adj));
-      var g=_scoreGrade(sc);
+    var dates=per.value.split('~');
+    var scores=MOCK_DATA.getFenceScores?MOCK_DATA.getFenceScores(dates[0],dates[1]):[];
+    scores.forEach(function(row){
+      var g=_scoreGrade(row.total);
       all.push({
-        engineerName:h.engineerName,projectName:h.projectName,
-        district:h.projectDistrict||h.district||'—',
-        street:h.projectStreet||h.street||'—',
-        fenceStatus:h.fenceStatus,projectStatus:h.projectStatus,
-        constructUnit:h.constructUnit||'—',
+        engineerName:row.engineerName,projectName:row.projectName,
+        district:row.district||'—',
+        street:row.street||'—',
+        fenceStatus:row.fenceStatus,projectStatus:row.projectStatus,
+        constructUnit:row.constructUnit||'—',
         period:per.label,periodVal:per.value,
-        score:sc,grade:g.grade,gradeCls:g.cls,
-        id:h.id+'_'+per.value
+        score:row.total,grade:g.grade,gradeCls:g.cls,
+        id:row.projectId+'_'+row.fenceId+'_'+per.value
       });
     });
   });
@@ -267,9 +259,9 @@ function buildAllScores(){
 }
 
 function _scoreGrade(s){
-  if(s>=85)return{grade:'优秀',cls:'grade-excellent'};
-  if(s>=70)return{grade:'良好',cls:'grade-good'};
-  if(s>=55)return{grade:'警示',cls:'grade-warn'};
+  if(s>=100)return{grade:'优秀',cls:'grade-excellent'};
+  if(s>=80)return{grade:'良好',cls:'grade-good'};
+  if(s>=60)return{grade:'警示',cls:'grade-warn'};
   return{grade:'差',cls:'grade-poor'};
 }
 
@@ -322,7 +314,7 @@ function renderTable(){
   pageItems.forEach(function(r,i){
     var fid=r.id.split('_').slice(0,-1).join('_');
     var avg=fenceAvg[fid]||r.score;
-    var avgCls=avg<55?' score-low':'';
+    var avgCls=avg<60?' score-low':'';
     tbody+='<tr>'+
       '<td class="check-col"><input type="checkbox" class="row-check" data-id="'+r.id+'"></td>'+
       '<td class="col-c" style="color:var(--text-tertiary);font-size:12px">'+(start+i+1)+'</td>'+
@@ -334,7 +326,7 @@ function renderTable(){
       '<td class="col-c" style="font-size:12px">'+engStatusHtml(r.projectStatus)+'</td>'+
       '<td style="font-size:12px">'+esc(r.constructUnit)+'</td>'+
       '<td class="col-c" style="font-size:11px;color:var(--text-secondary)">'+esc(r.period)+'</td>'+
-      '<td class="col-c"><span class="score-num'+(r.score<55?' score-low':'')+'">'+r.score+'</span></td>'+
+      '<td class="col-c"><span class="score-num'+(r.score<60?' score-low':'')+'">'+r.score+'</span></td>'+
       '<td class="col-c"><span class="score-num'+avgCls+'">'+avg+'</span></td>'+
       '<td class="col-c"><span class="tag '+r.gradeCls+'">'+r.grade+'</span></td>'+
     '</tr>';

@@ -134,6 +134,15 @@ a{color:var(--text-link);text-decoration:none;transition:color var(--transition-
 .log-field{display:flex;margin-bottom:var(--space-2);font-size:var(--font-size-sm);line-height:1.6}.log-field:last-child{margin-bottom:0}
 .log-field-lbl{width:72px;flex-shrink:0;color:var(--text-tertiary);font-size:var(--font-size-sm)}
 .log-field-val{color:var(--text-primary);flex:1;min-width:0;word-break:break-all}
+.transfer-route{display:grid;grid-template-columns:minmax(0,1fr) 36px minmax(0,1fr);align-items:stretch;gap:var(--space-2);margin:var(--space-2) 0 var(--space-3)}
+.transfer-snapshot{min-width:0;padding:var(--space-3);border:1px solid var(--border-color-light);border-radius:var(--border-radius-md);background:var(--color-gray-50)}
+.transfer-snapshot.target{border-color:var(--color-primary-200);background:var(--color-primary-50)}
+.transfer-snapshot-label{font-size:11px;color:var(--text-tertiary);margin-bottom:5px}.transfer-snapshot.target .transfer-snapshot-label{color:var(--color-primary-600)}
+.transfer-snapshot-name{font-size:var(--font-size-sm);font-weight:var(--font-weight-bold);color:var(--text-title);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.transfer-snapshot-eng{font-size:var(--font-size-xs);color:var(--text-secondary);line-height:1.5;margin-top:5px;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+.transfer-snapshot-unit{font-size:var(--font-size-xs);color:var(--text-tertiary);margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.transfer-route-arrow{display:flex;align-items:center;justify-content:center;color:var(--color-primary-500);font-size:20px}
+@media(max-width:760px){.transfer-route{grid-template-columns:1fr}.transfer-route-arrow{transform:rotate(90deg);height:24px}}
 .log-photos{display:flex;flex-wrap:wrap;gap:var(--space-2);margin-top:var(--space-2)}
 .log-photos img{width:80px;height:80px;object-fit:cover;border-radius:var(--border-radius-md);border:1px solid var(--border-color-light);cursor:pointer;transition:transform var(--transition-fast)}
 .log-photos img:hover{transform:scale(1.05)}
@@ -214,10 +223,10 @@ function loadDetail(){
     // ═══ 流转日志 (simplified: 上报 → 转派 → 整改) ═══
   var r=_issue._rectification,tr=_issue._transfers||[],items=[];
   // 1. 问题上报
-  items.push({type:'report',title:'问题上报',time:_issue.reportTime,desc:_issue.details,photos:_issue.photos,person:_issue.source==='项目巡检'?'刘伟':_issue.source==='街道上报'?'李伟':_issue.source==='监管巡查'?'张建国':_issue.source==='群众上报'?'市民':'—'});
+  items.push({type:'report',title:'问题上报',time:_issue.reportTime,desc:_issue.details,photos:_issue.photos,person:_issue.reportOperator||(_issue.source==='项目巡检'?'刘伟':_issue.source==='街道上报'?'李伟':_issue.source==='监管巡查'?'张建国':_issue.source==='群众上报'?'市民':'—')});
   // 3. 问题转派 (if any)
   tr.forEach(function(t){
-    items.push({type:'transfer',title:'问题转派',time:t.time,person:t.operator,unit:t.unit,desc:t.desc,originalEng:t.originalEng||'—',transferEng:t.transferEng||'—'});
+    items.push({type:'transfer',title:'问题转派',time:t.time,person:t.operator,unit:t.unit,desc:t.desc,originalEng:t.originalEng||'—',transferEng:t.transferEng||'—',transfer:t});
   });
   // 4. 整改处置
   if(r)items.push({type:'rectify',title:'整改处置',time:r.rectTime,person:r.rectifier,unit:r.rectifierUnit,desc:r.desc,photos:r.photos});
@@ -239,9 +248,12 @@ function loadDetail(){
       th+='<div class="log-field"><span class="log-field-lbl">操作人</span><span class="log-field-val">'+esc(t.person||'—')+'</span></div>';
     }
     if(t.type==='transfer'){
+      var tr=t.transfer||t;
+      var sourceFence=tr.sourceFenceName||'围挡信息未记录',targetFence=tr.targetFenceName||'围挡信息未记录';
+      var sourceEng=tr.sourceEngineeringNameSnapshot||tr.originalEng||'—',targetEng=tr.targetEngineeringNameSnapshot||tr.transferEng||'—';
+      var sourceUnit=tr.sourceResponsibleUnitNameSnapshot||'—',targetUnit=tr.targetResponsibleUnitNameSnapshot||'—';
       th+='<div class="log-field"><span class="log-field-lbl">转派人</span><span class="log-field-val">'+esc(t.person||'—')+(t.unit?'（'+esc(t.unit)+'）':'')+'</span></div>';
-      th+='<div class="log-field"><span class="log-field-lbl">原关联工程</span><span class="log-field-val">'+esc(t.originalEng||_issue.engineerName||'—')+'</span></div>';
-		      th+='<div class="log-field"><span class="log-field-lbl">转派工程</span><span class="log-field-val">'+esc(t.transferEng||'—')+'</span></div>';
+      th+='<div class="transfer-route"><div class="transfer-snapshot"><div class="transfer-snapshot-label">转派前</div><div class="transfer-snapshot-name" title="'+esc(sourceFence)+'">'+esc(sourceFence)+'</div><div class="transfer-snapshot-eng" title="'+esc(sourceEng)+'">'+esc(sourceEng)+'</div><div class="transfer-snapshot-unit" title="'+esc(sourceUnit)+'">'+esc(sourceUnit)+'</div></div><div class="transfer-arrow">→</div><div class="transfer-snapshot target"><div class="transfer-snapshot-label">转派后</div><div class="transfer-snapshot-name" title="'+esc(targetFence)+'">'+esc(targetFence)+'</div><div class="transfer-snapshot-eng" title="'+esc(targetEng)+'">'+esc(targetEng)+'</div><div class="transfer-snapshot-unit" title="'+esc(targetUnit)+'">'+esc(targetUnit)+'</div></div></div>';
       if(t.desc)th+='<div class="log-field"><span class="log-field-lbl">转派说明</span><span class="log-field-val">'+esc(t.desc)+'</span></div>';
     }
     if(t.type==='rectify'){

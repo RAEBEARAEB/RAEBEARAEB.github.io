@@ -92,6 +92,16 @@ a { color: var(--accent-500); text-decoration: none; }
 .header-user-info { display: flex; flex-direction: column; line-height: 1.3; }
 .header-user-name { font-size: 13px; color: var(--ink-800); font-weight: 500; }
 .header-user-role { font-size: 10px; color: var(--ink-400); }
+.header-account-wrap{position:relative}
+.header-account-caret{font-size:10px;color:var(--ink-400);transition:transform .15s}
+.header-account-wrap.open .header-account-caret{transform:rotate(180deg)}
+.account-menu{display:none;position:absolute;right:0;top:45px;width:244px;padding:6px;background:var(--white);border:1px solid var(--ink-150);border-radius:8px;box-shadow:0 12px 30px rgba(15,23,42,.14);z-index:300}
+.header-account-wrap.open .account-menu{display:block}
+.account-menu-label{padding:6px 9px 5px;color:var(--ink-400);font-size:10px}
+.account-option{display:flex;align-items:center;gap:9px;width:100%;padding:8px 9px;border:0;border-radius:6px;background:transparent;text-align:left;cursor:pointer;font-family:var(--font-base)}
+.account-option:hover{background:var(--ink-50)}.account-option.active{background:var(--accent-30)}
+.account-option-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#DBEAFE;color:#1E40AF;font-size:11px;font-weight:600;flex-shrink:0}
+.account-option-text{min-width:0;display:flex;flex-direction:column}.account-option-name{font-size:12px;color:var(--ink-800);font-weight:500}.account-option-org{font-size:10px;color:var(--ink-400);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .layout-body { display: flex; margin-top: var(--header-h); height: calc(100vh - var(--header-h)); overflow: hidden; }
 .layout-sidebar { width: var(--sidebar-w); background: var(--navy-sidebar); flex-shrink: 0; display: flex; flex-direction: column; overflow-y: auto; }
 .nav-menu { list-style: none; padding: 12px 0; flex: 1; }
@@ -545,6 +555,16 @@ a { color: var(--accent-500); text-decoration: none; }
 .project-tools-row .panel-left-search:focus-within{border-color:var(--accent-300);box-shadow:0 0 0 2px rgba(29,95,205,.06)}
 .project-tools-row .panel-left-search input{min-width:0;font-size:11px}
 .project-tools-row .project-sort{width:112px;max-width:112px;height:28px;padding:0 22px 0 8px;border-color:var(--ink-200);border-radius:4px;color:var(--ink-600);font-size:10px;text-overflow:clip}
+.scope-filter-btn{height:28px;padding:0 9px;border:1px solid var(--ink-200);border-radius:4px;background:var(--white);color:var(--ink-600);font-size:10px;white-space:nowrap;cursor:pointer;font-family:var(--font-base)}
+.scope-filter-btn:hover,.scope-filter-btn.active{border-color:var(--accent-300);color:var(--accent-600);background:var(--accent-30)}
+.scope-summary{min-height:25px;margin:0 10px;padding:3px 2px 5px;display:flex;align-items:center;gap:5px;border-bottom:1px solid var(--ink-100);font-size:10px;line-height:1.35;cursor:pointer}
+.scope-summary-label{color:var(--ink-400);flex-shrink:0}.scope-summary-value{min-width:0;flex:1;color:var(--ink-600);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.scope-clear{display:none;width:18px;height:18px;padding:0;border:0;background:transparent;color:var(--ink-400);cursor:pointer;border-radius:3px}.scope-clear:hover{background:var(--ink-100);color:var(--ink-700)}.scope-clear.show{display:inline-flex;align-items:center;justify-content:center}
+.scope-filter-panel{display:none;margin:0 10px 7px;padding:8px;border:1px solid var(--ink-150);border-radius:5px;background:var(--ink-50)}.scope-filter-panel.show{display:block}
+.scope-field{margin-bottom:7px}.scope-field:last-child{margin-bottom:0}.scope-field-label{display:block;margin-bottom:3px;color:var(--ink-400);font-size:10px}
+.scope-select,.scope-tree-trigger{width:100%;height:27px;padding:0 25px 0 8px;border:1px solid var(--ink-200);border-radius:4px;background:var(--white);color:var(--ink-700);font-size:10px;font-family:var(--font-base);outline:none;text-align:left}
+.scope-tree{position:relative}.scope-tree-trigger{cursor:pointer}.scope-tree-panel{display:none;position:absolute;left:0;right:0;top:30px;max-height:210px;overflow:auto;padding:4px;background:var(--white);border:1px solid var(--ink-150);border-radius:5px;box-shadow:0 8px 20px rgba(15,23,42,.12);z-index:50}.scope-tree-panel.show{display:block}
+.scope-tree-node{padding:5px 7px;border-radius:3px;color:var(--ink-600);font-size:10px;cursor:pointer}.scope-tree-node:hover{background:var(--ink-50)}.scope-tree-node.selected{background:var(--accent-30);color:var(--accent-600)}
 .panel-left-filter{margin:0;padding:4px 10px 8px;border-bottom:1px solid var(--ink-100);gap:4px}
 .panel-left-filter .ftab{height:28px;box-sizing:border-box;padding:5px 0;border:0;border-radius:4px;background:transparent;color:var(--ink-400);font-weight:500}
 .panel-left-filter .ftab:hover{background:var(--ink-50);color:var(--ink-600)}
@@ -627,9 +647,17 @@ a { color: var(--accent-500); text-decoration: none; }
     </div>
     <div class="header-right">
       <a href="dashboard_map.html" class="header-dashboard-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="1" y="1" width="22" height="22" rx="2.5"/><line x1="1" y1="8" x2="23" y2="8"/><line x1="1" y1="16" x2="23" y2="16"/><line x1="8" y1="8" x2="8" y2="23"/><line x1="16" y1="8" x2="16" y2="23"/><circle cx="4" cy="4" r="1.2" fill="currentColor" stroke="none"/><circle cx="20" cy="12" r="2.5"/></svg>围挡一张图</a>
-      <div class="header-user">
-        <div class="header-avatar">张</div>
-        <div class="header-user-info"><span class="header-user-name">张建国</span><span class="header-user-role">深圳市住房和建设局</span></div>
+      <div class="header-account-wrap" id="headerAccountWrap">
+        <div class="header-user" onclick="toggleAccountMenu(event)" title="切换原型演示账号">
+          <div class="header-avatar" id="headerAvatar">张</div>
+          <div class="header-user-info"><span class="header-user-name" id="headerUserName">张建国</span><span class="header-user-role" id="headerUserOrg">深圳市住房和建设局</span></div>
+          <i class="fas fa-chevron-down header-account-caret"></i>
+        </div>
+        <div class="account-menu" id="accountMenu">
+          <div class="account-menu-label">切换原型演示账号</div>
+          <button class="account-option active" type="button" data-mode="city" onclick="switchDemoAccount('city',event)"><span class="account-option-avatar">张</span><span class="account-option-text"><span class="account-option-name">张建国</span><span class="account-option-org">深圳市住房和建设局 · 市级账号</span></span></button>
+          <button class="account-option" type="button" data-mode="district" onclick="switchDemoAccount('district',event)"><span class="account-option-avatar">李</span><span class="account-option-text"><span class="account-option-name">李明</span><span class="account-option-org">深圳市南山区住房和建设局 · 区级账号</span></span></button>
+        </div>
       </div>
     </div>
   </header>
@@ -669,10 +697,17 @@ a { color: var(--accent-500); text-decoration: none; }
               <i class="fas fa-search" style="color:var(--ink-400);font-size:12px"></i>
               <input type="text" placeholder="输入项目/工程名称" oninput="filterProjectList(this.value)">
             </div>
-            <select class="project-sort" id="projectSort" onchange="setProjectSort(this.value)" title="项目排序">
-              <option value="recent">最近巡检优先</option>
-              <option value="less">巡检较少优先</option>
-            </select>
+            <button class="scope-filter-btn" id="scopeFilterBtn" type="button" onclick="toggleScopeFilter()"><i class="fas fa-filter"></i> 筛选</button>
+          </div>
+          <div class="scope-summary" id="scopeSummary" onclick="toggleScopeFilter()" title="点击调整筛选范围"><span class="scope-summary-label">当前范围</span><span class="scope-summary-value" id="scopeSummaryValue">全部项目</span><button class="scope-clear" id="scopeClearBtn" type="button" title="清除筛选" onclick="clearScopeFilter(event)"><i class="fas fa-times"></i></button></div>
+          <div class="scope-filter-panel" id="scopeFilterPanel">
+            <div id="cityScopeFields">
+              <div class="scope-field"><label class="scope-field-label">辖区</label><select class="scope-select" id="districtFilter" onchange="changeScopeFilter()"><option value="">全部辖区</option></select></div>
+              <div class="scope-field"><label class="scope-field-label">监管单位</label><select class="scope-select" id="regulatorFilter" onchange="changeScopeFilter()"><option value="">全部监管单位</option></select></div>
+            </div>
+            <div id="districtScopeFields" style="display:none">
+              <div class="scope-field"><label class="scope-field-label">监督组</label><div class="scope-tree" id="scopeGroupTree"><button class="scope-tree-trigger" id="scopeGroupTrigger" type="button" onclick="toggleScopeGroupTree(event)">全部监督组</button><div class="scope-tree-panel" id="scopeGroupPanel"></div></div></div>
+            </div>
           </div>
           <div class="panel-left-filter" aria-label="巡检观察周期">
             <span class="ftab" data-period="today" onclick="setPeriod('today',this)">今日</span>
@@ -1574,7 +1609,77 @@ function toast(m,isErr) {
    Init
    ═══════════════════════════════════════════ */
 /* ═══ 全景巡查优化方案 V1.0：业务交互覆盖 ═══ */
-var _projectSort='recent',_calendarCollapsed=false;_period='month';
+var _calendarCollapsed=false;_period='month';
+var _accountMode='city',_districtFilter='',_regulatorFilter='',_groupFilter='';
+var DISTRICT_ACCOUNT_NAME='南山区',DISTRICT_ACCOUNT_ORG='深圳市南山区住房和建设局';
+var SUP_GROUP_TREE=[{name:'质监站',children:[{name:'安全督导部'},{name:'抽检办'},{name:'监督一部',children:[{name:'一部一组(陈江华)'},{name:'一部二组(王琨)'}]},{name:'监督二部',children:[{name:'二部一组(渠明)'},{name:'二部二组(梁映)'}]},{name:'巡查一部'},{name:'巡查二部'},{name:'质量技术部'},{name:'综合管理部'}]}];
+
+function supGroupLeaves(name){
+  if(!name)return null;
+  function walk(n){if(n.children){var r=[];n.children.forEach(function(c){r=r.concat(walk(c));});return r;}return[n.name];}
+  function find(nodes){for(var i=0;i<nodes.length;i++){if(nodes[i].name===name)return walk(nodes[i]);if(nodes[i].children){var found=find(nodes[i].children);if(found)return found;}}return null;}
+  return find(SUP_GROUP_TREE);
+}
+function renderScopeGroupTree(){
+  var panel=document.getElementById('scopeGroupPanel');if(!panel)return;
+  var html='<div class="scope-tree-node'+(!_groupFilter?' selected':'')+'" onclick="pickScopeGroup(\'\',event)">全部监督组</div>';
+  function walk(nodes,depth){nodes.forEach(function(n){html+='<div class="scope-tree-node'+(_groupFilter===n.name?' selected':'')+'" style="padding-left:'+(7+depth*14)+'px" onclick="pickScopeGroup(\''+escA(n.name)+'\',event)">'+escH(n.name)+'</div>';if(n.children)walk(n.children,depth+1);});}
+  walk(SUP_GROUP_TREE,0);panel.innerHTML=html;
+}
+function initScopeFilters(){
+  var districts=[],units=[];
+  allProjects.forEach(function(p){if(p.district&&districts.indexOf(p.district)<0)districts.push(p.district);if(p.regulatorUnit&&units.indexOf(p.regulatorUnit)<0)units.push(p.regulatorUnit);});
+  ['深圳市建设工程质量监督总站','深圳市施工安全监督站'].forEach(function(u){if(units.indexOf(u)<0)units.push(u);});
+  districts.sort();units.sort();
+  var d=document.getElementById('districtFilter'),u=document.getElementById('regulatorFilter');
+  if(d)d.innerHTML='<option value="">全部辖区</option>'+districts.map(function(x){return'<option value="'+escH(x)+'">'+escH(x)+'</option>';}).join('');
+  if(u)u.innerHTML='<option value="">全部监管单位</option>'+units.map(function(x){return'<option value="'+escH(x)+'">'+escH(x)+'</option>';}).join('');
+  renderScopeGroupTree();updateAccountAndScopeUI();
+}
+function toggleAccountMenu(event){if(event)event.stopPropagation();document.getElementById('headerAccountWrap').classList.toggle('open');}
+function switchDemoAccount(mode,event){
+  if(event)event.stopPropagation();_accountMode=mode==='district'?'district':'city';
+  _districtFilter='';_regulatorFilter='';_groupFilter='';
+  var d=document.getElementById('districtFilter'),u=document.getElementById('regulatorFilter');if(d)d.value='';if(u)u.value='';
+  document.getElementById('headerAccountWrap').classList.remove('open');renderScopeGroupTree();updateAccountAndScopeUI();renderProjectList(getProjectKeyword());
+}
+function updateAccountAndScopeUI(){
+  var districtMode=_accountMode==='district';
+  document.getElementById('headerAvatar').textContent=districtMode?'李':'张';document.getElementById('headerUserName').textContent=districtMode?'李明':'张建国';document.getElementById('headerUserOrg').textContent=districtMode?DISTRICT_ACCOUNT_ORG:'深圳市住房和建设局';
+  document.querySelectorAll('.account-option').forEach(function(el){el.classList.toggle('active',el.getAttribute('data-mode')===_accountMode);});
+  document.getElementById('cityScopeFields').style.display=districtMode?'none':'';document.getElementById('districtScopeFields').style.display=districtMode?'':'none';
+  var scopeParts=[],filterCount=0;
+  if(districtMode){scopeParts.push(DISTRICT_ACCOUNT_NAME);scopeParts.push(_groupFilter||'全部监督组');if(_groupFilter)filterCount=1;}
+  else{if(_districtFilter){scopeParts.push(_districtFilter);filterCount++;}if(_regulatorFilter){scopeParts.push(shortRegulatorName(_regulatorFilter));filterCount++;}if(!scopeParts.length)scopeParts.push('全部项目');}
+  var scopeText=scopeParts.join(' · '),summary=document.getElementById('scopeSummaryValue');summary.textContent=scopeText;summary.title=scopeParts.join(' · ');
+  var btn=document.getElementById('scopeFilterBtn');btn.classList.toggle('active',filterCount>0);btn.innerHTML='<i class="fas fa-filter"></i> 筛选'+(filterCount?' '+filterCount:'');
+  document.getElementById('scopeClearBtn').classList.toggle('show',filterCount>0);
+}
+function shortRegulatorName(name){return name==='深圳市建设工程质量监督总站'?'市质监站':name==='深圳市施工安全监督站'?'市安监站':name.replace('深圳市','').replace('住房和建设局','住建局');}
+function toggleScopeFilter(){document.getElementById('scopeFilterPanel').classList.toggle('show');}
+function changeScopeFilter(){_districtFilter=document.getElementById('districtFilter').value;_regulatorFilter=document.getElementById('regulatorFilter').value;updateAccountAndScopeUI();renderProjectList(getProjectKeyword());}
+function toggleScopeGroupTree(event){if(event)event.stopPropagation();document.getElementById('scopeGroupPanel').classList.toggle('show');}
+function pickScopeGroup(name,event){if(event)event.stopPropagation();_groupFilter=name||'';document.getElementById('scopeGroupTrigger').textContent=_groupFilter||'全部监督组';document.getElementById('scopeGroupPanel').classList.remove('show');renderScopeGroupTree();updateAccountAndScopeUI();renderProjectList(getProjectKeyword());}
+function clearScopeFilter(event){
+  if(event){event.stopPropagation();event.preventDefault();}_districtFilter='';_regulatorFilter='';_groupFilter='';
+  var d=document.getElementById('districtFilter'),u=document.getElementById('regulatorFilter');if(d)d.value='';if(u)u.value='';document.getElementById('scopeGroupTrigger').textContent='全部监督组';
+  renderScopeGroupTree();updateAccountAndScopeUI();renderProjectList(getProjectKeyword());
+}
+function getProjectKeyword(){var input=document.querySelector('.panel-left-search input');return input?input.value:'';}
+function projectMatchesScope(project){
+  if(_accountMode==='district'){
+    if(project.district!==DISTRICT_ACCOUNT_NAME)return false;
+    var leaves=supGroupLeaves(_groupFilter);if(leaves&&leaves.indexOf(project.supervisionGroup||'')<0)return false;
+    return true;
+  }
+  if(_districtFilter&&project.district!==_districtFilter)return false;
+  if(_regulatorFilter&&project.regulatorUnit!==_regulatorFilter)return false;
+  return true;
+}
+document.addEventListener('click',function(event){
+  var account=document.getElementById('headerAccountWrap');if(account&&!account.contains(event.target))account.classList.remove('open');
+  var tree=document.getElementById('scopeGroupTree');if(tree&&!tree.contains(event.target))document.getElementById('scopeGroupPanel').classList.remove('show');
+});
 
 function getActiveFencesByProject(pname){
   return allHoardings.filter(function(f){return f.projectName===pname&&f.fenceStatus!=='已拆除';});
@@ -1597,9 +1702,9 @@ function flattenProjectRecords(fences){
   return records.sort(function(a,b){return(b.date||'').localeCompare(a.date||'')||(b.time||'').localeCompare(a.time||'');});
 }
 function getProjectPatrolMetric(fences,range){
-  var dates={},latest='';
-  fences.forEach(function(f){(f.patrolRecords||[]).forEach(function(r){if(!r.date)return;if(r.date>=range.start&&r.date<=range.end)dates[r.date]=true;if(r.date>latest)latest=r.date;});});
-  return{patrolDays:Object.keys(dates).length,latestDate:latest};
+  var dates={},latestDate='',latestAt='';
+  fences.forEach(function(f){(f.patrolRecords||[]).forEach(function(r){if(!r.date)return;if(r.date>=range.start&&r.date<=range.end)dates[r.date]=true;var at=r.date+' '+(r.time||'00:00:00');if(at>latestAt){latestAt=at;latestDate=r.date;}});});
+  return{patrolDays:Object.keys(dates).length,latestDate:latestDate,latestAt:latestAt};
 }
 function shortDate(ds){return ds&&ds.length>=10?ds.slice(5):'暂无记录';}
 function formatSelectedDate(ds){return ds&&ds.length>=10?ds.slice(5).replace('-','月')+'日':'未选择日期';}
@@ -1608,34 +1713,35 @@ function setPeriod(period,el){
   _period=period;document.querySelectorAll('.panel-left-filter .ftab').forEach(function(t){t.classList.remove('active');});if(el)el.classList.add('active');
   var input=document.querySelector('.panel-left-search input');renderProjectList(input?input.value:'');if(activeProjectName)updateRightSummary();
 }
-function setProjectSort(value){_projectSort=value||'recent';var input=document.querySelector('.panel-left-search input');renderProjectList(input?input.value:'');}
-
 function renderProjectList(keyword){
   var scroll=document.getElementById('project-list-scroll'),count=document.getElementById('project-count');if(!scroll)return;
   var range=getObservationRange(_period),list=[];
   allProjects.forEach(function(p){
+    if(!projectMatchesScope(p))return;
     var fences=getActiveFencesByProject(p.name);if(!fences.length)return;
     var status=computeProjectStatus(allHoardings.filter(function(f){return f.projectName===p.name;}));
     var metric=getProjectPatrolMetric(fences,range);
-    list.push({project:p,fences:fences,status:status,patrolDays:metric.patrolDays,latestDate:metric.latestDate});
+    list.push({project:p,fences:fences,status:status,patrolDays:metric.patrolDays,latestDate:metric.latestDate,latestAt:metric.latestAt});
   });
   list.sort(function(a,b){
-    if(_projectSort==='less')return a.patrolDays-b.patrolDays||(b.latestDate||'').localeCompare(a.latestDate||'');
-    return(b.latestDate||'').localeCompare(a.latestDate||'')||b.fences.length-a.fences.length||a.patrolDays-b.patrolDays;
+    return(b.latestAt||'').localeCompare(a.latestAt||'')||(a.project.name||'').localeCompare(b.project.name||'','zh-CN');
   });
-  _projListCache=list;if(count)count.textContent=list.length;
-  var kw=(keyword||'').trim().toLowerCase(),html='';
-  list.forEach(function(item){
+  var kw=(keyword||'').trim().toLowerCase();
+  var visible=list.filter(function(item){var p=item.project;return!kw||(p.name||'').toLowerCase().indexOf(kw)>=0||item.fences.some(function(f){return(f.engineerName||'').toLowerCase().indexOf(kw)>=0||(f.constructUnit||'').toLowerCase().indexOf(kw)>=0;});});
+  _projListCache=visible;if(count)count.textContent=visible.length;
+  var html='';
+  visible.forEach(function(item){
     var p=item.project;
-    var matched=!kw||(p.name||'').toLowerCase().indexOf(kw)>=0||item.fences.some(function(f){return(f.engineerName||'').toLowerCase().indexOf(kw)>=0||(f.constructUnit||'').toLowerCase().indexOf(kw)>=0;});
-    if(!matched)return;
     var patrolText=_period==='today'?(item.patrolDays?'今日已巡':'今日未巡'):('已巡 '+item.patrolDays+'/'+range.days);
     html+='<div class="project-card'+(activeProjectName===p.name?' active-proj':'')+'" data-project="'+escH(p.name)+'" onclick="selProject(\''+escA(p.name)+'\')">'+
       '<div class="proj-top"><div class="proj-name">'+escH(p.name)+'</div></div>'+
       '<div class="proj-stat-row"><span class="proj-patrol">'+patrolText+'</span><span class="proj-latest">最近巡检 '+shortDate(item.latestDate)+'</span></div></div>';
   });
-  scroll.innerHTML=html||'<div class="fence-empty"><i class="fas fa-inbox"></i>'+(list.length?'无匹配结果':'暂无项目数据')+'</div>';
+  if(activeProjectName&&!visible.some(function(item){return item.project.name===activeProjectName;}))clearActiveProjectForScope();
+  scroll.innerHTML=html||'<div class="fence-empty"><i class="fas fa-inbox"></i><span>当前范围内暂无项目</span>'+(hasExplicitScopeFilter()?'<button type="button" onclick="clearScopeFilter(event)" style="margin-top:8px;border:0;background:transparent;color:var(--accent-600);font-size:11px;cursor:pointer">清除筛选</button>':'')+'</div>';
 }
+function hasExplicitScopeFilter(){return _accountMode==='district'?!!_groupFilter:!!(_districtFilter||_regulatorFilter);}
+function clearActiveProjectForScope(){activeProjectName=null;activeFenceId=null;activePatrolRecord=null;_activeProjectFences=[];_activeProjectRecords=[];patrolSelectedDate='';issueList=[];document.querySelectorAll('.project-card.active-proj').forEach(function(el){el.classList.remove('active-proj');});hideAll();var placeholder=document.getElementById('center-placeholder');if(placeholder)placeholder.style.display='flex';toggleRightPanel(false);updateContextBar();}
 
 function selProject(pname){
   activeProjectName=pname;
@@ -1742,7 +1848,7 @@ function renderPatrolRecordsPC(){
   }).join('');
 }
 
-initIssueTypeSelect(); loadData(); renderProjectList(); toggleRightPanel(false);
+initIssueTypeSelect(); loadData(); initScopeFilters(); renderProjectList(); toggleRightPanel(false);
 // 自动选中第一个项目
 setTimeout(function(){
   if(_projListCache && _projListCache.length){ selProject(_projListCache[0].project.name); }

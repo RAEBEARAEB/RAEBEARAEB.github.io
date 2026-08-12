@@ -435,6 +435,20 @@ var SCORE_DIM_DATA = {
     ]
   }
 };
+(function syncScoreDistribution(){
+  var scores=MOCK_DATA.getProjectScores?MOCK_DATA.getProjectScores():[];
+  ['station','district','street'].forEach(function(dim){SCORE_DIM_DATA[dim].data.forEach(function(series){series.vals=series.vals.map(function(){return 0;});});});
+  function add(dim,label,grade){
+    var d=SCORE_DIM_DATA[dim],labelIndex=d.labels.indexOf(label),series=d.data.filter(function(item){return item.name===grade;})[0];
+    if(labelIndex>=0&&series)series.vals[labelIndex]++;
+  }
+  scores.forEach(function(row){
+    var station=/轨道|城际/.test(row.projectName)?'市政站':'建筑站';
+    add('station',station,row.grade);
+    add('district',row.district,row.grade);
+    add('street',String(row.street||'').replace(/街道$/,''),row.grade);
+  });
+})();
 var _STREET_FULL=SCORE_DIM_DATA.street.labels.slice();
 var _STREET_FULL_DATA=JSON.parse(JSON.stringify(SCORE_DIM_DATA.street.data));
 var _scoreDim='station',distChart=echarts.init(document.getElementById('supScoreDistChart'));
@@ -494,7 +508,7 @@ function buildProjectTop10(){
   window._top10Range=rangeStr;
 
   var projects=MOCK_DATA.getProjects?MOCK_DATA.getProjects():[];
-  var scores=MOCK_DATA.getProjectScores?MOCK_DATA.getProjectScores(monday.getFullYear(),monday.getMonth()+1):[];
+  var scores=MOCK_DATA.getProjectScores?MOCK_DATA.getProjectScores(fmt(monday),fmt(sunday)):[];
   var projectMap={};projects.forEach(function(p){projectMap[p.id]=p;});
   var ranked=scores.map(function(s){
     var project=projectMap[s.projectId]||{},units=[];
@@ -510,7 +524,7 @@ function buildProjectTop10(){
 function renderProjectTop10(){
   var data=_top10AllData.slice().sort(function(a,b){return _top10Order==='asc'?a.rank-b.rank:b.rank-a.rank;}).slice(0,10),tbody='';
   data.forEach(function(row){
-    var scCls=row.total<55?' low':'',units=row.units.join('；')||'—';
+    var scCls=row.total<60?' low':'',units=row.units.join('；')||'—';
     tbody+='<tr><td class="col-center"><span class="top10-rank">'+row.rank+'</span></td><td title="'+top10Esc(row.projectName)+'"><span class="top10-project">'+top10Esc(row.projectName)+'</span></td><td title="'+top10Esc(units)+'"><span class="top10-unit">'+top10Esc(units)+'</span></td><td class="col-center"><span class="sup-table-score'+scCls+'">'+row.total+'</span></td><td class="col-center"><span class="sup-table-grade '+row.gradeCls+'">'+top10Esc(row.grade)+'</span></td></tr>';
   });
   document.querySelector('#supTop10Table tbody').innerHTML=tbody||'<tr><td colspan="5" class="col-center" style="padding:32px;color:var(--text-tertiary)">本期暂无评分数据</td></tr>';

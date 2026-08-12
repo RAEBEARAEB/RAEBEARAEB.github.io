@@ -71,7 +71,7 @@
           buildUnit: '深圳市福田区建筑工务署', buildContact: '陈华 13700137001',
           constructUnit: '深圳市市政工程总公司', constructContact: '刘伟 13600136001',
           supervisorUnit: '深圳市合诚工程监理有限公司',
-          regulatorUnit: '深圳市福田区住房和建设局',
+          regulatorUnit: '深圳市福田区住房和建设局', supervisionGroup: '一部一组(陈江华)',
           designUnit: '深圳市市政设计研究院有限公司',
           redlineGeo: [[22.545,114.057],[22.552,114.057],[22.552,114.065],[22.545,114.065]],
           hoardings: [
@@ -144,7 +144,7 @@
           buildUnit: '深圳市南山科技园开发有限公司', buildContact: '李明 13800138001',
           constructUnit: '中建三局集团有限公司', constructContact: '王强 13900139001',
           supervisorUnit: '深圳市招商工程监理有限公司',
-          regulatorUnit: '深圳市南山区住房和建设局',
+          regulatorUnit: '深圳市南山区住房和建设局', supervisionGroup: '一部二组(王琨)',
           designUnit: '深圳市建筑设计研究总院有限公司',
           redlineGeo: [[22.532,113.954],[22.541,113.954],[22.541,113.962],[22.532,113.962]],
           hoardings: [
@@ -236,7 +236,7 @@
           buildUnit: '深圳市龙华区建筑工务署', buildContact: '赵刚 13800138003',
           constructUnit: '深圳市建工集团股份有限公司', constructContact: '周文 13900139003',
           supervisorUnit: '深圳市广通工程监理有限公司',
-          regulatorUnit: '深圳市龙华区住房和建设局',
+          regulatorUnit: '深圳市龙华区住房和建设局', supervisionGroup: '二部一组(渠明)',
           designUnit: '深圳市建筑设计研究总院有限公司',
           redlineGeo: [[22.625,114.038],[22.632,114.038],[22.632,114.046],[22.625,114.046]],
           hoardings: [
@@ -276,7 +276,7 @@
           buildUnit: '深圳市地铁集团有限公司', buildContact: '陈工 13800138022',
           constructUnit: '中铁十四局集团有限公司', constructContact: '李强 13800138022',
           supervisorUnit: '深圳市铁科建设监理有限公司',
-          regulatorUnit: '深圳市龙华区住房和建设局',
+          regulatorUnit: '深圳市龙华区住房和建设局', supervisionGroup: '二部二组(梁映)',
           designUnit: '中铁工程设计咨询集团有限公司',
           redlineGeo: [[22.643,114.050],[22.647,114.050],[22.647,114.054],[22.643,114.054]],
           hoardings: [
@@ -315,7 +315,7 @@
           buildUnit: '深圳市福田产业投资开发有限公司', buildContact: '王工 13800138005',
           constructUnit: '深圳市建安集团有限公司', constructContact: '王勇 13800138005',
           supervisorUnit: '深圳市现代建设监理有限公司',
-          regulatorUnit: '深圳市福田区住房和建设局',
+          regulatorUnit: '深圳市福田区住房和建设局', supervisionGroup: '巡查一部',
           designUnit: '深圳华森建筑与工程设计顾问有限公司',
           redlineGeo: [[22.533,114.066],[22.537,114.066],[22.537,114.070],[22.533,114.070]],
           hoardings: [
@@ -386,6 +386,22 @@
     localStorage.setItem(STORAGE_KEY, JSON.stringify(window.MOCK_DATA));
   }
 
+  /* 兼容旧缓存：补齐稳定的监督组归属，不重置已有原型数据。 */
+  var _supervisionGroupByProject = {
+    p1: '一部一组(陈江华)', p2: '一部二组(王琨)', p3: '二部一组(渠明)',
+    p4: '二部二组(梁映)', p5: '巡查一部'
+  };
+  var _supervisionGroupChanged = false;
+  (window.MOCK_DATA.projects || []).forEach(function (project) {
+    if (!project.supervisionGroup && _supervisionGroupByProject[project.id]) {
+      project.supervisionGroup = _supervisionGroupByProject[project.id];
+      _supervisionGroupChanged = true;
+    }
+  });
+  if (_supervisionGroupChanged) {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(window.MOCK_DATA)); } catch (e) {}
+  }
+
   /* ═══ Helper ═══ */
   function _each(fn) {
     (window.MOCK_DATA.projects || []).forEach(function (p) {
@@ -448,17 +464,206 @@
   };
 
   /* ═══ Closure Issues ═══ */
+  var CLOSURE_OVERRIDE_KEY = 'HOARDING_CLOSURE_ISSUE_OVERRIDES_V1';
+  function _getClosureIssueOverrides() {
+    try { return JSON.parse(localStorage.getItem(CLOSURE_OVERRIDE_KEY) || '{}') || {}; } catch (e) { return {}; }
+  }
+  function _saveClosureIssueOverride(issue) {
+    var overrides = _getClosureIssueOverrides();
+    overrides[issue.id] = {
+      fenceId: issue.fenceId || '', fenceName: issue.fenceName || '', fenceAddr: issue.fenceAddr || '',
+      engineerName: issue.engineerName || '', responsibleUnit: issue.responsibleUnit || '',
+      _reportSnapshot: issue._reportSnapshot || null, _transfers: issue._transfers || []
+    };
+    try { localStorage.setItem(CLOSURE_OVERRIDE_KEY, JSON.stringify(overrides)); } catch (e) {}
+  }
+  function _formatIssueDateTime(date) {
+    function pad(value) { return String(value).padStart(2, '0'); }
+    return date.getFullYear() + '-' + pad(date.getMonth() + 1) + '-' + pad(date.getDate()) + ' ' +
+      pad(date.getHours()) + ':' + pad(date.getMinutes()) + ':' + pad(date.getSeconds());
+  }
+  function _shiftIssueTime(dateTime, minutes) {
+    var parsed = new Date(String(dateTime || '').replace(' ', 'T'));
+    if (isNaN(parsed.getTime())) parsed = new Date();
+    parsed.setMinutes(parsed.getMinutes() + minutes);
+    return _formatIssueDateTime(parsed);
+  }
+  function _getIssueReportOperator(issue) {
+    if (issue.reportOperator) return issue.reportOperator;
+    if (issue.source === '项目巡检') return '刘伟';
+    if (issue.source === '街道上报') return '李伟';
+    if (issue.source === '监管巡查') return issue.supervisor || '张建国';
+    if (issue.source === '群众上报') return '市民';
+    return '—';
+  }
+  function _getOriginalEngineering(issue) {
+    var engineeringPairs = {
+      '穗莞深城际轨道交通深圳机场至前海段工程I标土建一工区': '穗莞深城际轨道交通深圳机场至前海段工程II标土建二工区',
+      '穗莞深城际轨道交通深圳机场至前海段工程II标土建二工区': '穗莞深城际轨道交通深圳机场至前海段工程I标土建一工区',
+      '国际演艺中心建设主体工程': '国际演艺中心地基与基础工程',
+      '国际演艺中心地基与基础工程': '国际演艺中心建设主体工程',
+      '国际演艺中心建设工程外立面装饰幕墙工程': '国际演艺中心建设主体工程',
+      '福城南产业片区10-08-03宗地项目桩基础工程': '福城南产业片区10-08-03宗地项目基坑支护与土石方工程',
+      '福城南产业片区10-08-03宗地项目基坑支护与土石方工程': '福城南产业片区10-08-03宗地项目桩基础工程'
+    };
+    return engineeringPairs[issue.engineerName] || '未明确关联工程';
+  }
+  function _findIssueFence(projectName, fenceId, engineerName) {
+    var fences = window.MOCK_DATA.getHoardings();
+    return fences.find(function (fence) {
+      return fence.projectName === projectName && fence.id === fenceId && (!engineerName || fence.engineerName === engineerName);
+    }) || fences.find(function (fence) {
+      return fence.projectName === projectName && fence.id === fenceId;
+    }) || fences.find(function (fence) {
+      return fence.projectName === projectName && engineerName && fence.engineerName === engineerName;
+    }) || null;
+  }
+  function _fenceSnapshot(fence) {
+    if (!fence) return null;
+    return {
+      fenceId: fence.id || '',
+      fenceName: fence.fenceName || '围挡信息未记录',
+      engineeringId: fence.engineeringId || '',
+      engineeringName: fence.engineerName || '—',
+      responsibleUnitId: fence.responsibleUnitId || '',
+      responsibleUnitName: fence.constructUnit || '—'
+    };
+  }
+  function _getRectificationDescription(issue) {
+    var descriptions = {
+      '围挡破损': '已更换破损围挡面板并完成连接部位加固，现场复查无安全隐患。',
+      '围挡脏污': '已完成围挡表面清洗，污染区域已恢复整洁。',
+      '围挡基础松动': '已紧固松动连接件并完成防锈处理，围挡基础状态稳定。',
+      '张贴小广告': '已清除残留广告并完成表面清洁，围挡立面恢复整洁。',
+      '围挡喷淋不符合要求': '已疏通堵塞喷头并更换损坏部件，喷淋设施恢复正常。',
+      '围挡公益广告画面不连贯': '已补全缺失画面并调整拼接位置，公益广告画面保持连续。',
+      '围挡二维码内容不全': '已更新围挡公示二维码内容，责任单位等信息可正常查看。'
+    };
+    return descriptions[issue.type] || '已按要求完成现场整改，经复查问题已消除。';
+  }
+  function _ensureCompletedIssueFlow(issue) {
+    if (issue.status !== '整改完成' && issue.status !== '已通过') return issue;
+    issue.reportOperator = _getIssueReportOperator(issue);
+
+    var transferTime = _shiftIssueTime(issue.reportTime, 90);
+    if (!Array.isArray(issue._transfers) || !issue._transfers.length) {
+      var targetFence = _findIssueFence(issue._projectName || '', issue.fenceId || '', issue.engineerName || '');
+      issue._transfers = [{
+        time: transferTime,
+        operator: '张建国',
+        unit: '深圳市住房和建设局',
+        originalEng: _getOriginalEngineering(issue),
+        transferEng: issue.engineerName || '—',
+        sourceFenceId: '',
+        sourceFenceName: '围挡信息未记录',
+        sourceEngineeringId: '',
+        sourceEngineeringNameSnapshot: _getOriginalEngineering(issue),
+        sourceResponsibleUnitId: '',
+        sourceResponsibleUnitNameSnapshot: '—',
+        targetFenceId: targetFence ? targetFence.id : (issue.fenceId || ''),
+        targetFenceName: targetFence ? targetFence.fenceName : '围挡信息未记录',
+        targetEngineeringId: targetFence ? (targetFence.engineeringId || '') : '',
+        targetEngineeringNameSnapshot: targetFence ? (targetFence.engineerName || '—') : (issue.engineerName || '—'),
+        targetResponsibleUnitId: targetFence ? (targetFence.responsibleUnitId || '') : '',
+        targetResponsibleUnitNameSnapshot: targetFence ? (targetFence.constructUnit || '—') : (issue.responsibleUnit || '—'),
+        desc: '经核实，将问题转派至对应工程责任单位办理整改。'
+      }];
+    } else {
+      issue._transfers.forEach(function (transfer) {
+        transfer.time = transfer.time || transferTime;
+        transfer.operator = transfer.operator || '张建国';
+        transfer.unit = transfer.unit || '深圳市住房和建设局';
+        transfer.originalEng = transfer.originalEng || _getOriginalEngineering(issue);
+        transfer.transferEng = transfer.transferEng || issue.engineerName || '—';
+        transfer.desc = transfer.desc || '经核实，将问题转派至对应工程责任单位办理整改。';
+      });
+    }
+
+    var lastTransferTime = issue._transfers[issue._transfers.length - 1].time;
+    var rectificationTime = _shiftIssueTime(lastTransferTime, 300);
+    if (!issue._rectification) issue._rectification = {};
+    if (!issue._rectification.rectTime || issue._rectification.rectTime <= lastTransferTime) issue._rectification.rectTime = rectificationTime;
+    issue._rectification.rectifier = issue._rectification.rectifier || (issue.responsibleUnit === '深圳市市政工程总公司' ? '刘伟' : '王强');
+    issue._rectification.rectifierUnit = issue._rectification.rectifierUnit || issue.responsibleUnit || '项目责任单位';
+    issue._rectification.desc = issue._rectification.desc || _getRectificationDescription(issue);
+    if (!Array.isArray(issue._rectification.photos) || !issue._rectification.photos.length) issue._rectification.photos = (issue.photos || ['../围挡破损.png']).slice();
+    return issue;
+  }
   window.MOCK_DATA.getClosureIssues = function () {
     var all = [];
     try { var raw = localStorage.getItem('YZY_STREET_ISSUES'); if (raw) all = JSON.parse(raw); } catch (e) {}
     var demoIds = {};
     _demoIssues.forEach(function(d){ demoIds[d.id] = true; });
     all = all.filter(function(i){ return !demoIds[i.id]; }).concat(_demoIssues);
-    all.forEach(function (i) { i._unregistered = !i.fenceId && !i._projectName; });
+    var overrides = _getClosureIssueOverrides();
+    all.forEach(function (i) {
+      var saved = overrides[i.id];
+      if (saved) {
+        ['fenceId','fenceName','fenceAddr','engineerName','responsibleUnit','_reportSnapshot','_transfers'].forEach(function (key) {
+          if (saved.hasOwnProperty(key)) i[key] = saved[key];
+        });
+      }
+      i._unregistered = !i.fenceId && !i._projectName;
+      _ensureCompletedIssueFlow(i);
+    });
     return all;
   };
   window.MOCK_DATA.getClosureDetail = function (issueId) {
     return window.MOCK_DATA.getClosureIssues().find(function (i) { return i.id === issueId; });
+  };
+  window.MOCK_DATA.transferClosureIssue = function (issueId, targetFenceId, description, operator) {
+    var issue = window.MOCK_DATA.getClosureDetail(issueId);
+    if (!issue) return { ok: false, message: '未找到问题记录' };
+    var projectName = issue._projectName || '';
+    var sourceFence = _findIssueFence(projectName, issue.fenceId || '', issue.engineerName || '');
+    var targetFence = _findIssueFence(projectName, targetFenceId || '', '');
+    if (!targetFence || targetFence.projectName !== projectName) return { ok: false, message: '目标围挡不属于当前项目' };
+    if (targetFence.id === issue.fenceId) return { ok: false, message: '不能转派至当前围挡' };
+    if (targetFence.fenceStatus === '已拆除' || targetFence.fenceStatus === '待认领' || !targetFence.constructUnit) {
+      return { ok: false, message: '该围挡当前无法承接整改任务' };
+    }
+    var source = _fenceSnapshot(sourceFence) || {
+      fenceId: issue.fenceId || '', fenceName: issue.fenceName || '围挡信息未记录', engineeringId: '',
+      engineeringName: issue.engineerName || '—', responsibleUnitId: '', responsibleUnitName: issue.responsibleUnit || '—'
+    };
+    var target = _fenceSnapshot(targetFence);
+    if (!issue._reportSnapshot) {
+      issue._reportSnapshot = {
+        fenceId: source.fenceId, fenceName: source.fenceName,
+        engineeringName: source.engineeringName, responsibleUnitName: source.responsibleUnitName
+      };
+    }
+    var nowText = _formatIssueDateTime(new Date());
+    operator = operator || {};
+    var transfer = {
+      time: nowText,
+      operator: operator.name || '刘伟',
+      unit: operator.unit || '项目责任单位',
+      desc: description || '',
+      sourceFenceId: source.fenceId,
+      sourceFenceName: source.fenceName,
+      sourceEngineeringId: source.engineeringId,
+      sourceEngineeringNameSnapshot: source.engineeringName,
+      sourceResponsibleUnitId: source.responsibleUnitId,
+      sourceResponsibleUnitNameSnapshot: source.responsibleUnitName,
+      targetFenceId: target.fenceId,
+      targetFenceName: target.fenceName,
+      targetEngineeringId: target.engineeringId,
+      targetEngineeringNameSnapshot: target.engineeringName,
+      targetResponsibleUnitId: target.responsibleUnitId,
+      targetResponsibleUnitNameSnapshot: target.responsibleUnitName,
+      originalEng: source.engineeringName,
+      transferEng: target.engineeringName
+    };
+    if (!Array.isArray(issue._transfers)) issue._transfers = [];
+    issue._transfers.push(transfer);
+    issue.fenceId = target.fenceId;
+    issue.fenceName = target.fenceName;
+    issue.fenceAddr = targetFence.address || issue.fenceAddr || '';
+    issue.engineerName = target.engineeringName;
+    issue.responsibleUnit = target.responsibleUnitName;
+    _saveClosureIssueOverride(issue);
+    return { ok: true, issue: issue, transfer: transfer, targetFence: targetFence };
   };
   window.MOCK_DATA.getStreetIssues = function () {
     return window.MOCK_DATA.getClosureIssues();

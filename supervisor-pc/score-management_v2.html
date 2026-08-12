@@ -83,7 +83,7 @@ body{overflow:hidden}button,input,select{font:inherit}a{text-decoration:none;col
         </div>
       </section>
       <section class="result-card">
-        <div class="result-toolbar"><span class="result-count" id="resultCount">共 0 个项目</span><div class="score-help-wrap"><button class="score-help" type="button" aria-expanded="false" id="scoreHelpBtn" onclick="toggleScoreHelp(event)"><span>评分说明</span><span class="help-icon">?</span></button><div class="score-popover" id="scorePopover"><strong>围挡评分说明</strong>围挡评分综合考虑日常巡检、问题整改和连续表现；详细评分规则以现行管理要求为准。</div></div></div>
+        <div class="result-toolbar"><span class="result-count" id="resultCount">共 0 个项目</span><div class="score-help-wrap"><button class="score-help" type="button" aria-expanded="false" id="scoreHelpBtn" onclick="toggleScoreHelp(event)"><span>评分说明</span><span class="help-icon">?</span></button><div class="score-popover" id="scorePopover"><strong>围挡评分说明</strong>日常巡检执行率75分、问题发现与闭环35分、连续表现加分5分，最高115分；优秀100-115分、良好80-99分、警示60-79分、差0-59分。</div></div></div>
         <div class="table-wrap" id="tableWrap"><table class="table"><thead id="scoreHead"></thead><tbody id="scoreBody"></tbody></table><div class="empty" id="emptyState" style="display:none"></div></div>
         <div class="pagination"><span id="pageSummary">每页20条</span><div class="page-controls"><button class="page-btn" id="prevBtn" type="button" onclick="changePage(-1)" aria-label="上一页">‹</button><span class="page-current" id="pageCurrent">1</span><button class="page-btn" id="nextBtn" type="button" onclick="changePage(1)" aria-label="下一页">›</button></div></div>
       </section>
@@ -126,8 +126,9 @@ body{overflow:hidden}button,input,select{font:inherit}a{text-decoration:none;col
       {id:'WD-2026-0007',fenceName:'福城南基坑围挡',engineerName:'福城南产业片区10-08-03宗地项目基坑支护与土石方工程',constructUnit:'深圳市地质建设工程公司',fenceStatus:'待认领',patrolRecords:[{date:'2026-07-31',result:'异常'}]}
     ]}
   ];
-  var totals={p1:29,p2:33,p3:43,p4:72,p5:60};
-  window.MOCK_DATA={version:73,projects:projects,getProjects:function(){return this.projects;},getHoardings:function(){var all=[];this.projects.forEach(function(p){(p.hoardings||[]).forEach(function(h){var row={};Object.keys(h).forEach(function(k){row[k]=h[k];});row.projectId=p.id;row.projectName=p.name;all.push(row);});});return all;},getProjectScores:function(){return this.projects.map(function(p){return{projectId:p.id,projectName:p.name,total:totals[p.id]};});}};
+  var totals={p1:49,p2:104,p3:73,p4:103,p5:85};
+  var engineeringTotals={'p1|穗莞深城际轨道交通深圳机场至前海段工程II标土建二工区':49,'p2|国际演艺中心建设主体工程':115,'p2|国际演艺中心地基与基础工程':93,'p3|龙城北综合车场主体工程':73,'p4|深圳市城市轨道交通22号线一期工程施工总承包22101标土建一工区':103,'p5|福城南产业片区10-08-03宗地项目桩基础工程':85,'p5|福城南产业片区10-08-03宗地项目基坑支护与土石方工程':85};
+  window.MOCK_DATA={version:74,projects:projects,getProjects:function(){return this.projects;},getHoardings:function(){var all=[];this.projects.forEach(function(p){(p.hoardings||[]).forEach(function(h){var row={};Object.keys(h).forEach(function(k){row[k]=h[k];});row.projectId=p.id;row.projectName=p.name;all.push(row);});});return all;},getProjectScores:function(){return this.projects.map(function(p){return{projectId:p.id,projectName:p.name,total:totals[p.id]};});},getEngineeringScores:function(){var self=this,rows=[];this.projects.forEach(function(p){(p.hoardings||[]).forEach(function(h){var key=p.id+'|'+h.engineerName;if(typeof engineeringTotals[key]==='number')rows.push({projectId:p.id,projectName:p.name,engineerName:h.engineerName,responsibleUnits:[h.constructUnit||p.constructUnit||'—'],total:engineeringTotals[key]});});});return rows;}};
 })();
 </script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -135,8 +136,8 @@ body{overflow:hidden}button,input,select{font:inherit}a{text-decoration:none;col
 var state={view:'project',period:'',keyword:'',unit:'',group:'all',grade:'all',sortField:'rank',sortDir:'asc',page:1,pageSize:20};
 var periods=[],projectRows=[],engineeringRows=[],filteredRows=[];
 function esc(value){var div=document.createElement('div');div.textContent=value==null?'':String(value);return div.innerHTML;}
-function clampScore(value){return Math.max(0,Math.min(100,Math.round(value*10)/10));}
-function scoreGrade(score){if(score==null)return{label:'—',cls:'tag-none'};if(score>=85)return{label:'优秀',cls:'tag-excellent'};if(score>=70)return{label:'良好',cls:'tag-good'};if(score>=55)return{label:'警示',cls:'tag-warning'};return{label:'差',cls:'tag-poor'};}
+function clampScore(value){return Math.max(0,Math.min(115,Math.round(value*10)/10));}
+function scoreGrade(score){if(score==null)return{label:'—',cls:'tag-none'};if(score>=100)return{label:'优秀',cls:'tag-excellent'};if(score>=80)return{label:'良好',cls:'tag-good'};if(score>=60)return{label:'警示',cls:'tag-warning'};return{label:'差',cls:'tag-poor'};}
 function formatDate(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function isoWeek(d){var date=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));var day=date.getUTCDay()||7;date.setUTCDate(date.getUTCDate()+4-day);var start=new Date(Date.UTC(date.getUTCFullYear(),0,1));return Math.ceil((((date-start)/86400000)+1)/7);}
 function buildPeriods(){var now=new Date(),day=now.getDay()||7,currentMon=new Date(now);currentMon.setHours(0,0,0,0);currentMon.setDate(now.getDate()-day+1);var list=[];for(var i=1;i<=8;i++){var mon=new Date(currentMon);mon.setDate(mon.getDate()-i*7);var sun=new Date(mon);sun.setDate(sun.getDate()+6);list.push({value:formatDate(mon)+'~'+formatDate(sun),label:mon.getFullYear()+'年第'+isoWeek(mon)+'周',range:formatDate(mon)+' 至 '+formatDate(sun),index:i-1});}return list;}
@@ -167,25 +168,26 @@ function projectHoardings(project){
   });
 }
 function buildScoreRows(){
-  var projects=getSourceProjects(),periodScoreMaps={};
+  var projects=getSourceProjects(),periodScoreMaps={},periodEngineeringMaps={};
   periods.forEach(function(period){
-    var baseScores=[],start=period.value.split('~')[0].split('-');
-    try{if(window.MOCK_DATA&&typeof window.MOCK_DATA.getProjectScores==='function')baseScores=window.MOCK_DATA.getProjectScores(Number(start[0]),Number(start[1]))||[];}catch(e){baseScores=[];}
-    var map={};baseScores.forEach(function(s){map[s.projectName]=s.total;});periodScoreMaps[period.value]=map;
+    var baseScores=[],engineeringScores=[],dates=period.value.split('~');
+    try{if(window.MOCK_DATA&&typeof window.MOCK_DATA.getProjectScores==='function')baseScores=window.MOCK_DATA.getProjectScores(dates[0],dates[1])||[];}catch(e){baseScores=[];}
+    try{if(window.MOCK_DATA&&typeof window.MOCK_DATA.getEngineeringScores==='function')engineeringScores=window.MOCK_DATA.getEngineeringScores(dates[0],dates[1])||[];}catch(e){engineeringScores=[];}
+    var map={},engineeringMap={};baseScores.forEach(function(s){map[s.projectName]=s.total;});engineeringScores.forEach(function(s){engineeringMap[s.projectId+'|'+s.engineerName]=s.total;});periodScoreMaps[period.value]=map;periodEngineeringMaps[period.value]=engineeringMap;
   });
   projectRows=[];engineeringRows=[];
   projects.forEach(function(project,pIndex){
     var hoardings=projectHoardings(project),engMap={};
     hoardings.forEach(function(h){var eng=h.engineerName||'未关联工程';if(!engMap[eng])engMap[eng]={name:eng,unit:h.constructUnit||project.constructUnit||'—',fences:[]};engMap[eng].fences.push(h);});
-    var engines=Object.keys(engMap).map(function(key){return engMap[key];}),fallbackBase=engines.length?clampScore(68+pIndex*4+engines.length):null;
+    var engines=Object.keys(engMap).map(function(key){return engMap[key];});
     periods.forEach(function(period,periodIndex){
-      var baseMap=periodScoreMaps[period.value]||{},base=typeof baseMap[project.name]==='number'?baseMap[project.name]:fallbackBase,periodShift=0,engineScores=[];
+      var baseMap=periodScoreMaps[period.value]||{},engineeringMap=periodEngineeringMaps[period.value]||{},base=typeof baseMap[project.name]==='number'?baseMap[project.name]:null,engineScores=[];
       engines.forEach(function(engine,eIndex){
-        var symmetric=(eIndex-(engines.length-1)/2)*4,current=base==null?null:clampScore(base+periodShift+symmetric),life=current==null?null:clampScore(current+((pIndex+eIndex)%5)-2);
+        var current=typeof engineeringMap[project.id+'|'+engine.name]==='number'?clampScore(engineeringMap[project.id+'|'+engine.name]):null,life=current;
         var grade=scoreGrade(current);engineScores.push(current);
         engineeringRows.push({id:'E-'+pIndex+'-'+eIndex+'-'+periodIndex,period:period.value,engineeringName:engine.name,projectName:project.name,unit:engine.unit,group:teamFor(project),score:current,grade:grade.label,gradeCls:grade.cls,total:life,participated:current!=null,reason:current==null?'本期未参与评分':'',projectStatus:project.status||''});
       });
-      var participated=engineScores.length>0&&engineScores.some(function(s){return s!=null;}),projectScore=participated?average(engineScores):null,units=distinct(engines.map(function(e){return e.unit;}).filter(function(u){return u&&u!=='—';})),total=projectScore==null?null:clampScore(projectScore+((pIndex%5)-2)),grade=scoreGrade(projectScore);
+      var participated=typeof base==='number',projectScore=participated?clampScore(base):null,units=distinct(engines.map(function(e){return e.unit;}).filter(function(u){return u&&u!=='—';})),total=projectScore,grade=scoreGrade(projectScore);
       projectRows.push({id:'P-'+pIndex+'-'+periodIndex,period:period.value,projectName:project.name,units:units,group:teamFor(project),score:projectScore,grade:grade.label,gradeCls:grade.cls,total:total,participated:participated,reason:participated?'':'本期项目下未安装围挡，不参与评分',projectStatus:project.status||''});
     });
   });
