@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
@@ -210,7 +210,7 @@ a:hover{color:var(--text-link-hover)}
 #supTop10Card .top10-sort-btn svg{width:12px;height:12px;transition:transform .15s ease}
 #supTop10Card .top10-sort-btn.reverse svg{transform:rotate(180deg)}
 #supTop10Card .top10-project,#supTop10Card .top10-unit{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#supTop10Card .top10-rank{font-weight:var(--font-weight-bold);color:var(--text-primary)}
+#supTop10Card .top10-percentile{min-width:54px;height:22px;padding:0 8px;display:inline-flex;align-items:center;justify-content:center;border-radius:11px;background:var(--color-primary-50);color:var(--color-primary-600);font-size:var(--font-size-xs);font-weight:var(--font-weight-bold);font-variant-numeric:tabular-nums;white-space:nowrap}
 
 /* ═══ 工具类 ═══ */
 .text-link{color:var(--text-link);font-size:var(--font-size-xs);display:inline-flex;align-items:center;gap:2px;cursor:pointer}
@@ -274,7 +274,7 @@ a:hover{color:var(--text-link-hover)}
         <li class="nav-item"><a href="panorama_patrol_v3.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>全景巡查</a></li>
         <li class="nav-item"><a href="supervisor-issue-list.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>问题闭环处置</a></li>
         <li class="nav-group-label">统计报表</li>
-        <li class="nav-item"><a href="score-management_v2.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>围挡评分管理</a></li>
+        <li class="nav-item"><a href="score-management_v3.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>围挡评分管理</a></li>
       </ul>
       <div class="sidebar-bottom"><div class="sidebar-version">v2.0.0 · 2026.05</div></div>
     </aside>
@@ -322,8 +322,8 @@ a:hover{color:var(--text-link-hover)}
           <div class="card-body" style="padding:var(--space-3)"><div id="supScoreDistChart" class="sup-dist-chart"></div></div>
         </div>
         <div class="card" id="supTop10Card">
-          <div class="card-header"><div class="card-title">上期围挡评分TOP10 <span style="font-size:12px;color:var(--text-tertiary);font-weight:400;margin-left:4px" id="top10DateRange"></span></div><div class="top10-header-actions"><button class="top10-sort-btn" id="top10SortBtn" type="button" onclick="toggleTop10Order()" title="切换查看全市排名最前或最后的项目"><span id="top10SortText">排名正序</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 7l4-4 4 4M12 3v18M16 17l-4 4-4-4"/></svg></button><a href="score-management_v2.html" class="chart-tab" style="text-decoration:none">查看全部</a></div></div>
-          <div class="card-body" style="padding:0"><div class="table-wrapper" style="max-height:360px;overflow-y:auto"><table class="table" id="supTop10Table"><thead><tr><th style="width:88px;text-align:center;position:sticky;top:0;z-index:2">上期全市排名</th><th style="width:34%">项目名称</th><th style="width:32%">责任单位</th><th style="width:72px;text-align:center">上期得分</th><th style="width:72px;text-align:center">上期等级</th></tr></thead><tbody></tbody></table></div></div>
+          <div class="card-header"><div class="card-title">上期围挡评分TOP10 <span style="font-size:12px;color:var(--text-tertiary);font-weight:400;margin-left:4px" id="top10DateRange"></span></div><div class="top10-header-actions"><button class="top10-sort-btn" id="top10SortBtn" type="button" onclick="toggleTop10Order()" title="切换查看全市排名最前或最后的项目"><span id="top10SortText">排名正序</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 7l4-4 4 4M12 3v18M16 17l-4 4-4-4"/></svg></button><a href="score-management_v3.html" class="chart-tab" style="text-decoration:none">查看全部</a></div></div>
+          <div class="card-body" style="padding:0"><div class="table-wrapper" style="max-height:360px;overflow-y:auto"><table class="table" id="supTop10Table"><thead><tr><th style="width:100px;text-align:center;position:sticky;top:0;z-index:2" title="按上期全市全部参评项目的密集排名计算，百分比向上取整；同分项目显示相同结果">上期全市排名</th><th style="width:34%">项目名称</th><th style="width:32%">责任单位</th><th style="width:72px;text-align:center">上期得分</th><th style="width:72px;text-align:center">上期等级</th></tr></thead><tbody></tbody></table></div></div>
         </div>
       </div>
       <!-- ═══ 待办 + 提醒（双卡片并排）═══ -->
@@ -516,8 +516,8 @@ function buildProjectTop10(){
     if(!units.length&&project.constructUnit)units.push(project.constructUnit);
     return{projectId:s.projectId,projectName:s.projectName||project.name||'—',units:units,total:s.total,grade:s.grade,gradeCls:s.gradeCls,period:rangeStr};
   }).sort(function(a,b){return b.total-a.total;});
-  var lastScore=null,currentRank=0;
-  ranked.forEach(function(row){if(lastScore===null||row.total!==lastScore){currentRank++;lastScore=row.total;}row.rank=currentRank;});
+  var lastScore=null,currentRank=0,participantCount=ranked.length;
+  ranked.forEach(function(row){if(lastScore===null||row.total!==lastScore){currentRank++;lastScore=row.total;}row.rank=currentRank;row.percentile=Math.max(1,Math.ceil(currentRank/participantCount*100));row.cityParticipantCount=participantCount;});
   _top10AllData=ranked;
   renderProjectTop10();
 }
@@ -525,7 +525,7 @@ function renderProjectTop10(){
   var data=_top10AllData.slice().sort(function(a,b){return _top10Order==='asc'?a.rank-b.rank:b.rank-a.rank;}).slice(0,10),tbody='';
   data.forEach(function(row){
     var scCls=row.total<60?' low':'',units=row.units.join('；')||'—';
-    tbody+='<tr><td class="col-center"><span class="top10-rank">'+row.rank+'</span></td><td title="'+top10Esc(row.projectName)+'"><span class="top10-project">'+top10Esc(row.projectName)+'</span></td><td title="'+top10Esc(units)+'"><span class="top10-unit">'+top10Esc(units)+'</span></td><td class="col-center"><span class="sup-table-score'+scCls+'">'+row.total+'</span></td><td class="col-center"><span class="sup-table-grade '+row.gradeCls+'">'+top10Esc(row.grade)+'</span></td></tr>';
+    tbody+='<tr><td class="col-center"><span class="top10-percentile" title="全市参评'+row.cityParticipantCount+'个项目，上期密集排名第'+row.rank+'位">前'+row.percentile+'%</span></td><td title="'+top10Esc(row.projectName)+'"><span class="top10-project">'+top10Esc(row.projectName)+'</span></td><td title="'+top10Esc(units)+'"><span class="top10-unit">'+top10Esc(units)+'</span></td><td class="col-center"><span class="sup-table-score'+scCls+'">'+row.total+'</span></td><td class="col-center"><span class="sup-table-grade '+row.gradeCls+'">'+top10Esc(row.grade)+'</span></td></tr>';
   });
   document.querySelector('#supTop10Table tbody').innerHTML=tbody||'<tr><td colspan="5" class="col-center" style="padding:32px;color:var(--text-tertiary)">本期暂无评分数据</td></tr>';
   window._top10Data=data;
@@ -645,7 +645,7 @@ function exportTop10(){
   if(!data.length)return alert('暂无数据可导出');
   var rows=[['上期全市排名','项目名称','责任单位','评分周期','上期得分','上期等级']];
   data.forEach(function(row){
-    rows.push([String(row.rank),row.projectName,(row.units||[]).join('；'),window._top10Range||'',String(row.total),row.grade]);
+    rows.push(['前'+row.percentile+'%',row.projectName,(row.units||[]).join('；'),window._top10Range||'',String(row.total),row.grade]);
   });
   var csv=rows.map(function(r){return r.map(function(c){return'"'+(c||'').replace(/"/g,'""')+'"'}).join(',');}).join('\n');
   var BOM='﻿';var blob=new Blob([BOM+csv],{type:'text/csv;charset=utf-8'});
@@ -655,3 +655,4 @@ function exportTop10(){
 
 </body>
 </html>
+

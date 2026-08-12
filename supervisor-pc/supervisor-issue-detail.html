@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
@@ -170,7 +170,7 @@ a{color:var(--text-link);text-decoration:none;transition:color var(--transition-
 <li class="nav-item"><a href="panorama_patrol_v3.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>全景巡查</a></li>
         <li class="nav-item"><a href="supervisor-issue-list.html" class="active"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>问题闭环处置</a></li>
           <li class="nav-group-label">统计报表</li>
-          <li class="nav-item"><a href="score-management_v2.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>围挡评分管理</a></li></ul>
+          <li class="nav-item"><a href="score-management_v3.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>围挡评分管理</a></li></ul>
 <div class="sidebar-bottom"><div class="sidebar-version">v2.0.0 · 2026.06</div></div></aside>
 <main class="layout-main">
 <div class="breadcrumb"><span class="breadcrumb-item"><a href="index.html">监管总览</a></span><span class="breadcrumb-sep">/</span><span class="breadcrumb-item"><a href="supervisor-issue-list.html">问题闭环处置</a></span><span class="breadcrumb-sep">/</span><span class="breadcrumb-item">围挡问题详情</span></div>
@@ -204,9 +204,12 @@ function loadDetail(){
   _issue=MOCK_DATA.getClosureDetail(decodeURIComponent(issueId));if(!_issue)return;
   var sc=_issue.status==='待整改'?'待整改':_issue.status==='整改逾期'?'整改逾期':'整改完成';
   var sCls=_issue.status==='待整改'?'tag-warning':_issue.status==='整改逾期'?'tag-danger':'tag-success';
+  var _hoard=_issue.fenceId&&MOCK_DATA.findFenceById?MOCK_DATA.findFenceById(_issue.fenceId):null;
+  var _fenceName=_hoard?(_hoard.fenceName||_hoard.name||'--'):'--';
 
   // ═══ 围挡问题信息 ═══
-  var h='<div class="detail-item"><span class="detail-label">问题类型</span><span class="detail-value" style="color:var(--color-primary-500);font-weight:var(--font-weight-medium)">'+esc(_issue.type||'--')+'</span></div>'+
+  var h='<div class="detail-item"><span class="detail-label">围挡名称</span><span class="detail-value">'+esc(_fenceName)+'</span></div>'+
+    '<div class="detail-item"><span class="detail-label">问题类型</span><span class="detail-value" style="color:var(--color-primary-500);font-weight:var(--font-weight-medium)">'+esc(_issue.type||'--')+'</span></div>'+
     '<div class="detail-item"><span class="detail-label">问题状态</span><span class="detail-value"><span class="tag '+sCls+'">'+sc+'</span></span></div>'+
     '<div class="detail-item"><span class="detail-label">问题来源</span><span class="detail-value">'+esc(_issue.source||'--')+'</span></div>'+
     '<div class="detail-item"><span class="detail-label">关联项目</span><span class="detail-value">'+esc(_issue._projectName||'--')+'</span></div>'+
@@ -302,3 +305,4 @@ loadDetail();
 </script>
 </body>
 </html>
+

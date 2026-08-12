@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
@@ -110,7 +110,7 @@ a{color:var(--text-link);text-decoration:none}::-webkit-scrollbar{width:6px}::-w
 <li class="nav-item"><a href="panorama_patrol_v3.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>全景巡查</a></li>
         <li class="nav-item"><a href="supervisor-issue-list.html" class="active"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>问题闭环处置</a></li>
           <li class="nav-group-label">统计报表</li>
-          <li class="nav-item"><a href="score-management_v2.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>围挡评分管理</a></li></ul><div class="sidebar-bottom"><div class="sidebar-version">v2.0.0 · 2026.06</div></div></aside>
+          <li class="nav-item"><a href="score-management_v3.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>围挡评分管理</a></li></ul><div class="sidebar-bottom"><div class="sidebar-version">v2.0.0 · 2026.06</div></div></aside>
 <main class="layout-main">
 <div class="breadcrumb"><a href="supervisor-issue-list.html">问题闭环处置</a><span class="sep">/</span><span class="current" id="breadcrumbProj">项目问题</span></div>
 <div class="page-header"><div class="page-title" id="projPageTitle">项目围挡问题</div><div class="page-actions"><button class="btn btn-ghost" onclick="window.location.href='supervisor-issue-list.html'">← 返回</button></div></div>
@@ -129,7 +129,7 @@ a{color:var(--text-link);text-decoration:none}::-webkit-scrollbar{width:6px}::-w
 <div class="table-wrap">
   <table class="table">
     <thead><tr>
-      <th style="width:32px">序号</th><th style="width:90px">问题类型</th><th style="width:120px;text-align:left">关联工程</th><th style="width:80px">所属街道</th><th style="width:140px">责任单位</th><th style="width:75px">问题来源</th><th style="width:75px">状态</th><th style="width:100px">上报时间</th><th style="width:80px">操作</th>
+      <th style="width:32px">序号</th><th style="width:90px">问题类型</th><th id="fenceNameHead" style="width:120px;text-align:left">围挡名称</th><th style="width:120px;text-align:left">关联工程</th><th id="streetHead" style="width:80px;display:none">所属街道</th><th style="width:140px">责任单位</th><th style="width:75px">问题来源</th><th style="width:75px">状态</th><th style="width:100px">上报时间</th><th style="width:80px">操作</th>
     </tr></thead>
     <tbody id="tableBody"></tbody>
   </table>
@@ -154,6 +154,15 @@ document.getElementById('projPageTitle').textContent=_isUnregistered?'未报建-
 if(_isUnregistered){
   document.getElementById('filterEngineer').style.display='none';
   document.getElementById('filterStreet').style.display='';
+  document.getElementById('fenceNameHead').style.display='none';
+  document.getElementById('streetHead').style.display='';
+}
+
+function findIssueFence(issue){
+  if(!issue||!issue.fenceId)return null;
+  if(MOCK_DATA.findFenceById){var exact=MOCK_DATA.findFenceById(issue.fenceId);if(exact)return exact;}
+  var all=MOCK_DATA.getHoardings?MOCK_DATA.getHoardings():[];
+  return all.find(function(h){return h.id===issue.fenceId;})||null;
 }
 
 function loadData(){
@@ -239,10 +248,12 @@ function renderTable(){
     var sc=i.status==='待整改'?'待整改':i.status==='整改逾期'?'整改逾期':'整改完成';
     var sCls=i.status==='待整改'?'tag-warning':i.status==='整改逾期'?'tag-danger':'tag-success';
     var engCol=_isUnregistered?'<span style="color:var(--text-tertiary)">—</span>':esc(i.engineerName||'--');
+    var fence=findIssueFence(i),fenceName=fence?(fence.fenceName||fence.name||'--'):'--';
     h+='<tr><td>'+(start+idx+1)+'</td>'+
       '<td><span class="issue-type-text">'+esc(i.type||'')+'</span></td>'+
+      (_isUnregistered?'':'<td style="text-align:left" title="'+esc(fenceName)+'">'+esc(fenceName)+'</td>')+
       '<td style="text-align:left">'+engCol+'</td>'+
-      '<td>'+esc(i.street||'--')+'</td>'+
+      (_isUnregistered?'<td>'+esc(i.street||'--')+'</td>':'')+
       '<td>'+esc(i._constructUnit||i.responsibleUnit||'--')+'</td>'+
       '<td>'+esc(i.source||'--')+'</td>'+
       '<td><span class="tag '+sCls+'">'+sc+'</span></td>'+
@@ -266,3 +277,4 @@ renderTable();
 </script>
 </body>
 </html>
+

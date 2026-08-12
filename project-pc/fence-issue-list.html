@@ -119,13 +119,15 @@ a:hover{color:var(--color-primary-600)}
 .modal-bd{padding:var(--space-4);overflow-y:auto;flex:1}
 .modal-ft{padding:var(--space-3) var(--space-5);border-top:1px solid var(--border-color-light);display:flex;justify-content:flex-end;gap:var(--space-2);flex-shrink:0}
 .transfer-list{max-height:320px;overflow-y:auto}
-.transfer-item{display:flex;align-items:center;gap:var(--space-2);padding:var(--space-2);border:1px solid var(--border-color-light);border-radius:var(--border-radius-md);cursor:pointer;margin-bottom:var(--space-2);transition:all var(--transition-fast)}
+.transfer-item{display:flex;align-items:flex-start;gap:var(--space-3);padding:var(--space-3);border:1px solid var(--border-color-light);border-radius:var(--border-radius-md);cursor:pointer;margin-bottom:var(--space-2);transition:all var(--transition-fast)}
 .transfer-item:hover{border-color:var(--color-primary-300);background:var(--color-primary-50)}
 .transfer-item.selected{border-color:var(--color-primary-500);background:var(--color-primary-50)}
-.transfer-item input[type="radio"]{accent-color:var(--color-primary-500);cursor:pointer}
+.transfer-item input[type="radio"]{accent-color:var(--color-primary-500);cursor:pointer;margin-top:4px}
 .transfer-body{flex:1;min-width:0}
-.transfer-title{font-size:var(--font-size-sm);color:var(--text-primary);font-weight:var(--font-weight-medium)}
-.transfer-meta{font-size:var(--font-size-xs);color:var(--text-tertiary);margin-top:2px}
+.transfer-title-row{display:flex;align-items:center;justify-content:space-between;gap:var(--space-2)}
+.transfer-title{font-size:var(--font-size-sm);color:var(--text-primary);font-weight:var(--font-weight-bold);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.transfer-engineer{font-size:var(--font-size-xs);color:var(--text-secondary);margin-top:5px;line-height:1.5;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+.transfer-meta{font-size:var(--font-size-xs);color:var(--text-tertiary);margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .transfer-warn{padding:var(--space-3);background:var(--color-warning-light);border-radius:var(--border-radius-md);color:var(--color-warning-dark);font-size:var(--font-size-sm);margin-bottom:var(--space-3);display:flex;align-items:center;gap:var(--space-2)}
 .transfer-warn svg{width:18px;height:18px;flex-shrink:0}
 .search-bar select{min-width:130px}
@@ -252,7 +254,7 @@ a:hover{color:var(--color-primary-600)}
   <div class="modal">
     <div class="modal-hd"><span style="font-size:var(--font-size-lg);font-weight:var(--font-weight-bold)">转派围挡问题</span><button class="modal-close" onclick="closeTransferModal()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
     <div class="modal-bd">
-      <div class="transfer-warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>是否确认非当前围挡问题？请选择正确的围挡进行转派</div>
+      <div class="transfer-warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>请选择问题实际所属的子围挡。转派后，问题将由目标围挡当前责任单位继续整改。</div>
       <div style="margin-bottom:var(--space-3)"><div style="font-size:var(--font-size-sm);font-weight:var(--font-weight-medium);margin-bottom:4px"><span style="color:var(--color-danger)">*</span> 转派说明</div><textarea id="transferDesc" rows="3" style="width:100%;border:1px solid var(--border-color-light);border-radius:var(--border-radius-md);padding:var(--space-2) var(--space-3);font-size:var(--font-size-sm);font-family:var(--font-family);resize:vertical;outline:none" placeholder="请填写转派理由"></textarea></div>
       <div class="transfer-list" id="transferList"></div>
     </div>
@@ -373,24 +375,34 @@ function renderStatusTabs(){
 function goPage(p){ _page = p; renderTable(); }
 
 /* ═══ 转派 ═══ */
-var _transferIssueId = null, _transferFenceId = null;
+var _transferIssueId = null, _transferFenceId = null, _transferFence = null;
 function openTransferModal(issueId){
   _transferIssueId = issueId;
   _transferFenceId = null;
+  _transferFence = null;
+  document.getElementById('transferDesc').value='';
   var issue = MOCK_DATA.getClosureDetail(issueId);
   if(!issue) return;
-  var all = MOCK_DATA.getHoardings().filter(function(h){ return h.projectName === (issue._projectName||'') && h.id !== (issue.fenceId||''); });
+  var all = MOCK_DATA.getHoardings().filter(function(h){
+    return h.projectName === (issue._projectName||'') && h.id !== (issue.fenceId||'') &&
+      h.fenceStatus !== '已拆除' && h.fenceStatus !== '待认领' && !!h.constructUnit;
+  });
   var h = '';
-  if(!all.length) h = '<div style="text-align:center;padding:20px;color:var(--text-tertiary)">同项目下暂无其他围挡</div>';
+  if(!all.length) h = '<div style="text-align:center;padding:20px;color:var(--text-tertiary)">同项目下暂无可转派的其他围挡</div>';
   else all.forEach(function(f){
     var st=f.fenceStatus||'已安装', stTagCls='tag-default';
     if(st==='已安装'||st==='在建')stTagCls='tag-setting';
     else if(st==='超期未拆')stTagCls='tag-warning';
-    else if(st==='超期未拆')stTagCls='tag-danger';
-    h += '<label class="transfer-item"><input type="radio" name="transferFence" value="'+f.id+'" onchange="_transferFenceId=\''+f.id+'\'"><div class="transfer-body"><div class="transfer-title">'+esc(f.engineerName||'')+' <span class="tag '+stTagCls+'" style="font-size:10px">'+esc(st)+'</span></div><div class="transfer-meta">'+esc(f.constructUnit||'')+'</div></div></label>';
+    h += '<label class="transfer-item" title="'+esc((f.fenceName||'')+'｜'+(f.engineerName||'')+'｜'+(f.constructUnit||''))+'"><input type="radio" name="transferFence" value="'+f.id+'" onchange="selectTransferFence(\''+f.id+'\',this)"><div class="transfer-body"><div class="transfer-title-row"><div class="transfer-title">'+esc(f.fenceName||'未命名围挡')+'</div><span class="tag '+stTagCls+'" style="font-size:10px">'+esc(st)+'</span></div><div class="transfer-engineer">'+esc(f.engineerName||'未关联工程')+'</div><div class="transfer-meta">责任单位：'+esc(f.constructUnit||'—')+'</div></div></label>';
   });
   document.getElementById('transferList').innerHTML = h;
   document.getElementById('transferModal').classList.add('show');
+}
+function selectTransferFence(fenceId,input){
+  _transferFenceId=fenceId;
+  _transferFence=MOCK_DATA.getHoardings().find(function(f){return f.id===fenceId;})||null;
+  document.querySelectorAll('.transfer-item').forEach(function(el){el.classList.remove('selected');});
+  if(input&&input.closest)input.closest('.transfer-item').classList.add('selected');
 }
 function closeTransferModal(){ document.getElementById('transferModal').classList.remove('show'); }
 function receiveIssue(issueId){
@@ -402,9 +414,14 @@ function confirmTransfer(){
   if(!_transferFenceId){ showMsg('请选择目标围挡'); return; }
   var desc = document.getElementById('transferDesc').value.trim();
   if(!desc){ showMsg('请填写转派理由'); return; }
-  if(!confirm('确认将此问题转派至围挡 '+_transferFenceId+'？')) return;
+  var targetName=_transferFence&&_transferFence.fenceName?_transferFence.fenceName:_transferFenceId;
+  var targetUnit=_transferFence&&_transferFence.constructUnit?_transferFence.constructUnit:'目标责任单位';
+  if(!confirm('确认将此问题转派至“'+targetName+'”吗？转派后将由'+targetUnit+'继续整改。')) return;
+  var result=MOCK_DATA.transferClosureIssue?MOCK_DATA.transferClosureIssue(_transferIssueId,_transferFenceId,desc,{name:'刘伟',unit:'项目责任单位'}):{ok:false,message:'当前数据源不支持转派'};
+  if(!result.ok){showMsg(result.message||'转派失败');return;}
   showMsg('已转派');
   closeTransferModal();
+  renderTable();
 }
 function showMsg(m){ var d=document.createElement('div');d.style.cssText='position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.8);color:#fff;padding:12px 24px;border-radius:8px;font-size:14px;z-index:9999';d.textContent=m;document.body.appendChild(d);setTimeout(function(){d.remove()},2000); }
 
