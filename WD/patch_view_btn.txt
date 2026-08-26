@@ -1,1 +1,0 @@
-      html += '<div class="patrol-record-pc-actions"><button class="patrol-record-pc-view-btn" onclick="event.stopPropagation();viewPatrolPanorama(\''+(r.id||'')+'\')"><i class="fas fa-play"></i> 查看</button></div>';
