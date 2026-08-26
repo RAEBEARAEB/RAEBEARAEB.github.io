@@ -1,0 +1,52 @@
+	var fenceId=APP.patrolFenceId;
+	if(!fenceId){
+	  var af=getProjectFences(APP.currentProjectId).filter(function(f){return f.fenceStatus!=='已到期';});
+	  fenceId=af.length?af[0].id:'';
+	  APP.patrolFenceId=fenceId;
+	}
+	var fence=getProjectFences(APP.currentProjectId).find(function(f){return f.id===fenceId;});
+	var patrols=fence?fence._patrolRecords||[]:[];
+	if(!patrols.length){
+	  html='<div style="padding:40px 16px;text-align:center;color:var(--text-tertiary);font-size:var(--font-sm)">暂无巡检记录</div>';
+	}else{
+	  allEmpty=false;
+	  patrols.sort(function(a,b){return b.date.localeCompare(a.date)});
+	  if(periodFilter==='custom'&&customDate) patrols=patrols.filter(function(p){return p.date===customDate;});
+	  var dayMap={};
+	  patrols.forEach(function(p){var d=p.date||'';if(!dayMap[d])dayMap[d]=[];dayMap[d].push(p);});
+	  var dayKeys=Object.keys(dayMap).sort(function(a,b){return b.localeCompare(a)});
+	  dayKeys.forEach(function(dateStr){
+	    var parts=dateStr.split('-');
+	    var label=parts[0]+'年'+parseInt(parts[1],10)+'月'+parseInt(parts[2],10)+'日';
+	    var d=new Date(dateStr);
+	    var wd=isNaN(d.getTime())?'':('星期'+weekdays[d.getDay()]);
+	    var records=dayMap[dateStr];
+	    html+='<div class="patrol-day-header">'+label+' '+wd+' <span style="font-size:var(--font-xs);color:var(--text-sub);font-weight:var(--fw-regular)">'+records.length+'条</span></div>';
+	    records.forEach(function(p){
+	      var cacheIdx=APP._patrolCache.length;
+	      APP._patrolCache.push({record:p,fenceId:fenceId});
+	      var resultLabel=p.result==='正常'?'正常':'问题';
+	      var resultCls=p.result==='正常'?'patrol-result--normal':'patrol-result--abnormal';
+	      var dotColor=p.result==='正常'?'var(--green)':'var(--red)';
+	      html+='<div class="patrol-card" onclick="openPatrolDetail('+cacheIdx+')">'+
+	        '<div class="patrol-card-body">'+
+	        '<div class="patrol-info">'+
+	        '<div class="patrol-info-top">'+
+	        '<div class="patrol-person">巡检人：'+escHtml(p.inspector)+'</div>'+
+	        '<div class="patrol-time">'+_patrolTime(p)+'</div>'+
+	        '</div>'+
+	        '<div class="patrol-result '+resultCls+'">'+
+	        '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:'+dotColor+';flex-shrink:0"></span>'+
+	        resultLabel+'</div>'+
+	        ((p.issues&&p.issues.length)?'<div class="patrol-remark">问题详情：'+escHtml(p.issues.join('、'))+'</div>':(p.remark?'<div class="patrol-remark">备注：'+escHtml(p.remark)+'</div>':''))+
+	        '</div></div>'+
+	        '</div>';
+	    });
+	  });
+	}
+	}
+
+	  document.getElementById('patrolList').innerHTML=html;
+	  document.getElementById('patrolEmpty').classList.toggle('hidden',!allEmpty);
+
+	}
