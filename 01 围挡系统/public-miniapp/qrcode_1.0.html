@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>围挡信息公示 - 深圳市建设施工围挡数字化管理系统</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css" />
+<style>
+/* ═══ Design Token ═══ */
+:root{
+  --color-primary-50:#EBF2FF;--color-primary-100:#C6D9FF;--color-primary-200:#9DBEFF;
+  --color-primary-300:#6B9EF5;--color-primary-400:#3D7FED;--color-primary-500:#1862D4;
+  --color-primary-600:#104FAD;--color-primary-700:#0A3C86;--color-primary-800:#062A60;--color-primary-900:#031940;
+  --color-gray-0:#FFFFFF;--color-gray-50:#F7F8FA;--color-gray-100:#F0F1F5;--color-gray-200:#E3E6ED;
+  --color-gray-300:#C6CBD8;--color-gray-400:#9CA3B0;--color-gray-500:#6B7280;--color-gray-600:#4B5563;
+  --color-gray-700:#374151;--color-gray-800:#1F2937;--color-gray-900:#111827;
+  --color-success-light:#E6F4EA;--color-success:#1A9042;--color-success-dark:#136B31;
+  --color-warning-light:#FEF3CD;--color-warning:#D48A00;--color-warning-dark:#9E6600;
+  --color-danger-light:#FDECEA;--color-danger:#D13B2F;--color-danger-dark:#9E2C22;
+  --color-info-light:#E8F3FF;--color-info:#1862D4;--color-info-dark:#104FAD;
+  --text-title:var(--color-gray-900);--text-primary:var(--color-gray-800);--text-secondary:var(--color-gray-600);
+  --text-tertiary:var(--color-gray-400);--text-link:var(--color-primary-500);--text-link-hover:var(--color-primary-600);--text-inverse:#FFFFFF;
+  --border-color-light:var(--color-gray-200);--border-color-default:var(--color-gray-300);--border-color-focus:var(--color-primary-500);
+  --border-radius-sm:2px;--border-radius-md:4px;--border-radius-lg:6px;
+  --bg-page:var(--color-gray-50);--bg-card:var(--color-gray-0);--bg-overlay:rgba(0,0,0,0.45);
+  --shadow-sm:0 1px 2px rgba(0,0,0,0.04);--shadow-md:0 2px 8px rgba(0,0,0,0.06);
+  --shadow-card:0 1px 4px rgba(0,0,0,0.05);
+  --space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:20px;
+  --space-6:24px;--space-8:32px;--space-10:40px;
+  --font-family:"PingFang SC","Microsoft YaHei","Helvetica Neue",Arial,sans-serif;
+  --font-size-xs:12px;--font-size-sm:13px;--font-size-md:14px;--font-size-lg:16px;
+  --font-size-xl:18px;--font-size-2xl:20px;--font-size-3xl:24px;
+  --font-weight-regular:400;--font-weight-medium:500;--font-weight-bold:600;
+  --line-height-tight:1.4;--line-height-normal:1.6;
+  --transition-fast:0.15s ease;--transition-normal:0.2s ease;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{font-family:var(--font-family);font-size:var(--font-size-md);color:var(--text-primary);background:var(--bg-page);line-height:var(--line-height-normal);-webkit-font-smoothing:antialiased;height:100%}
+a{color:var(--text-link);text-decoration:none}
+
+@media(min-width:500px){
+  body{background:linear-gradient(145deg,#E2E8F0 0%,#CBD5E1 100%);display:flex;align-items:center;justify-content:center;height:100vh;padding:0}
+}
+.phone-wrapper{width:100%;max-width:420px;height:100vh;position:relative;background:var(--bg-page);display:flex;flex-direction:column;overflow:hidden}
+@media(min-width:500px){
+  .phone-wrapper{height:min(92vh,844px);border-radius:44px;box-shadow:0 0 0 2px #1a1a1a,0 0 0 5px #333,0 0 0 7px #1a1a1a,0 20px 60px rgba(0,0,0,0.3),inset 0 0 2px rgba(255,255,255,0.1);overflow:hidden}
+}
+.phone-status-bar{height:48px;background:#000;display:flex;align-items:flex-end;justify-content:space-between;padding:0 var(--space-6) 6px;color:#fff;font-size:12px;font-weight:var(--font-weight-medium);flex-shrink:0;position:relative}
+@media(min-width:500px){.phone-status-bar{background:var(--color-primary-800)}}
+.status-bar-left{display:flex;align-items:center;gap:4px}
+.status-bar-right{display:flex;align-items:center;gap:6px}
+.status-bar-right svg{width:14px;height:14px}
+.dynamic-island{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:120px;height:28px;background:#000;border-radius:20px}
+@media(min-width:500px){.dynamic-island{background:#000}}
+.mobile-header{background:var(--color-primary-500);color:var(--text-inverse);padding:0 var(--space-4);height:44px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.mobile-header-title{font-size:var(--font-size-lg);font-weight:var(--font-weight-bold);display:flex;align-items:center;gap:var(--space-2)}
+.mobile-header-title svg{width:18px;height:18px;flex-shrink:0}
+.header-btn{background:rgba(255,255,255,0.15);border:none;color:var(--text-inverse);height:30px;padding:0 var(--space-3);border-radius:var(--border-radius-md);font-size:var(--font-size-sm);font-family:var(--font-family);font-weight:var(--font-weight-medium);cursor:pointer;display:flex;align-items:center;gap:var(--space-1);transition:background var(--transition-fast)}
+.header-btn:active{background:rgba(255,255,255,0.3)}
+.header-btn svg{width:13px;height:13px}
+.phone-screen{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;position:relative}
+.phone-screen::-webkit-scrollbar{width:0;display:none}
+.hero-section{position:relative;width:100%;height:130px;overflow:hidden;background:#2D3A4A}
+.hero-section img{width:100%;height:100%;object-fit:cover;display:block;opacity:0.85}
+.hero-gradient{position:absolute;inset:0;background:linear-gradient(180deg,rgba(13,43,85,0.15) 0%,rgba(13,43,85,0.75) 100%)}
+.hero-info{position:absolute;bottom:0;left:0;right:0;padding:var(--space-3) var(--space-4) var(--space-4);color:#FFFFFF}
+.hero-project{font-size:var(--font-size-lg);font-weight:var(--font-weight-bold);line-height:var(--line-height-tight);margin-bottom:2px;text-shadow:0 1px 3px rgba(0,0,0,0.3)}
+.hero-engineer{font-size:var(--font-size-sm);color:rgba(255,255,255,0.9);font-weight:var(--font-weight-medium)}
+.hero-address{font-size:var(--font-size-xs);color:rgba(255,255,255,0.75);margin-top:var(--space-1);display:flex;align-items:flex-start;gap:3px;line-height:1.3}
+.hero-address svg{width:11px;height:11px;flex-shrink:0;margin-top:1px;opacity:0.75}
+.spec-row{display:flex;gap:var(--space-2);padding:var(--space-3) var(--space-4);background:var(--bg-card);border-bottom:1px solid var(--border-color-light)}
+.spec-chip{flex:1;background:var(--color-primary-50);border:1px solid #C6D9FF;border-radius:var(--border-radius-md);padding:var(--space-2) var(--space-2);text-align:center}
+.spec-chip-label{font-size:var(--font-size-xs);color:var(--text-tertiary);margin-bottom:1px}
+.spec-chip-value{font-size:var(--font-size-lg);font-weight:var(--font-weight-bold);color:var(--color-primary-700)}
+.spec-chip-unit{font-size:var(--font-size-xs);font-weight:var(--font-weight-regular);color:var(--text-secondary);margin-left:1px}
+.spec-chip.highlight{background:var(--color-warning-light);border-color:#F5D98B}
+.spec-chip.highlight .spec-chip-value{color:var(--color-warning-dark)}
+
+/* ═══ 地图 ═══ */
+.map-section{position:relative;width:100%;height:200px;background:#E8ECF0;overflow:hidden}
+.map-section .leaflet-container{width:100%;height:100%}
+.map-legend-bar{display:flex;gap:16px;padding:6px 14px;font-size:10px;color:var(--text-tertiary);background:var(--bg-card);border-bottom:1px solid var(--border-color-light)}
+.map-legend-bar span{display:flex;align-items:center;gap:4px}
+.map-legend-bar .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+
+.content{padding:var(--space-3) var(--space-4) 0}
+.info-card{background:var(--bg-card);border-radius:var(--border-radius-lg);box-shadow:var(--shadow-card);border:1px solid var(--border-color-light);margin-bottom:var(--space-3);overflow:hidden}
+.info-card-header{padding:var(--space-3) var(--space-4);background:var(--color-gray-50);border-bottom:1px solid var(--border-color-light);display:flex;align-items:center;gap:var(--space-2)}
+.info-card-header svg{width:15px;height:15px;color:var(--color-primary-500)}
+.info-card-title{font-size:var(--font-size-md);font-weight:var(--font-weight-bold);color:var(--text-title)}
+.info-card-body{padding:var(--space-3) var(--space-4)}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-2) var(--space-6)}
+.info-item{display:flex;flex-direction:column;gap:1px}
+.info-label{font-size:var(--font-size-xs);color:var(--text-tertiary);line-height:1.2}
+.info-value{font-size:var(--font-size-sm);color:var(--text-primary);font-weight:var(--font-weight-medium);line-height:var(--line-height-tight)}
+.info-value.time-range{color:var(--color-primary-600)}
+.company-row{display:flex;align-items:flex-start;gap:var(--space-2);padding:var(--space-2) 0;border-bottom:1px solid var(--border-color-light)}
+.company-row:last-child{border-bottom:none}
+.company-tag{flex-shrink:0;background:var(--color-gray-100);color:var(--text-secondary);font-size:var(--font-size-xs);padding:2px var(--space-2);border-radius:var(--border-radius-sm);line-height:var(--line-height-tight);white-space:nowrap;min-width:52px;text-align:center}
+.company-name{font-size:var(--font-size-sm);color:var(--text-primary);line-height:var(--line-height-tight)}
+
+/* ═══ 问题类型 ═══ */
+.issue-type-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:var(--space-3)}
+.issue-type-chip{border:1.5px solid var(--border-color-light);border-radius:10px;padding:11px 8px;text-align:center;font-size:var(--font-size-sm);color:var(--text-secondary);cursor:pointer;transition:all var(--transition-fast);background:var(--bg-card)}
+.issue-type-chip.selected{border-color:var(--color-primary-500);background:var(--color-primary-50);color:var(--color-primary-500);font-weight:var(--font-weight-bold)}
+
+/* ═══ 照片 ═══ */
+.photo-upload-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.photo-add-btn{width:72px;height:72px;border:1.5px dashed var(--border-color-default);border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;color:var(--text-tertiary);font-size:11px;gap:3px;background:var(--bg-card);flex-shrink:0}
+.photo-thumb{width:72px;height:72px;border-radius:10px;overflow:hidden;position:relative;flex-shrink:0;border:1px solid var(--border-color-light)}
+.photo-thumb img{width:100%;height:100%;object-fit:cover}
+.photo-thumb .photo-del{position:absolute;top:3px;right:3px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,0.55);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;line-height:1}
+
+/* ═══ 位置 ═══ */
+.location-display{display:flex;align-items:center;gap:10px;padding:12px;background:var(--bg-card);border:1px solid var(--color-primary-300);border-radius:10px;font-size:var(--font-size-sm);color:var(--color-primary-600);cursor:pointer;font-weight:var(--font-weight-medium)}
+.location-display i{color:var(--color-primary-500);font-size:18px;flex-shrink:0}
+
+/* ═══ 定位选择器 ═══ */
+.loc-picker-overlay{position:absolute;inset:0;background:var(--bg-page);z-index:300;display:flex;flex-direction:column}
+.loc-picker-header{display:flex;align-items:center;justify-content:space-between;padding:48px var(--space-4) 0;background:var(--color-primary-500);flex-shrink:0}
+.loc-picker-header .back-btn{display:flex;align-items:center;gap:3px;background:none;border:none;color:#fff;font-size:var(--font-size-md);cursor:pointer;padding:10px 6px;opacity:0.92}
+.loc-picker-header .back-btn:active{opacity:0.7}
+.loc-picker-header .title-section{display:flex;align-items:center;gap:8px}
+.loc-picker-header .title{font-size:var(--font-size-lg);font-weight:var(--font-weight-bold);color:#fff;letter-spacing:0.3px}
+.loc-picker-header .confirm-btn{background:rgba(255,255,255,0.95);border:none;color:var(--color-primary-600);padding:6px 14px;border-radius:20px;font-size:var(--font-size-sm);cursor:pointer;font-weight:var(--font-weight-bold);transition:all var(--transition-fast)}
+.loc-picker-header .confirm-btn:active{background:#fff;transform:scale(0.96)}
+.loc-picker-map{flex:1;position:relative;overflow:hidden}
+.loc-picker-curr-btn{position:absolute;top:calc(48px + 50px);left:50%;transform:translateX(-50%);z-index:500;background:rgba(0,0,0,0.60);color:#fff;padding:5px 14px;border-radius:20px;font-size:var(--font-size-xs);cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:4px;border:none;font-family:var(--font-family)}
+.loc-picker-curr-btn:active{background:rgba(0,0,0,0.80)}
+.loc-picker-map .leaflet-container{width:100%;height:100%}
+/* 十字准星 */
+.loc-picker-crosshair{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;z-index:500;display:flex;flex-direction:column;align-items:center}
+.loc-picker-crosshair .pin-wrap{position:relative;display:flex;flex-direction:column;align-items:center}
+.loc-picker-crosshair svg{width:34px;height:34px;color:var(--color-danger);filter:drop-shadow(0 2px 4px rgba(0,0,0,0.35));animation:pinBounce 0.3s ease-out}
+@keyframes pinBounce{0%{transform:translateY(-10px);opacity:0}60%{transform:translateY(2px)}100%{transform:translateY(0);opacity:1}}
+.loc-picker-crosshair .pin-dot{width:5px;height:5px;background:rgba(0,0,0,0.3);border-radius:50%;margin-top:-1px}
+/* 图例 */
+.loc-picker-legend{position:absolute;top:10px;right:10px;z-index:500;background:rgba(255,255,255,0.94);border-radius:8px;padding:6px 12px;font-size:10px;line-height:2;pointer-events:none;box-shadow:0 1px 4px rgba(0,0,0,0.08)}
+.loc-picker-legend .legend-row{display:flex;align-items:center;gap:6px}
+.loc-picker-legend .legend-row .leg-line{width:14px;height:0;border-top:2px solid;flex-shrink:0;border-radius:1px}
+.loc-picker-legend .legend-row .leg-dash{border-top-style:dashed}
+.loc-picker-legend .legend-row .leg-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.loc-picker-status{display:flex;align-items:center;gap:4px;color:rgba(255,255,255,0.85);font-size:var(--font-size-xs);padding:4px 0}
+.loc-picker-status .dot{width:5px;height:5px;background:#4ADE80;border-radius:50%;animation:pulse 1.8s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+
+.report-field-label{font-size:var(--font-size-sm);font-weight:var(--font-weight-medium);color:var(--text-primary);margin-bottom:6px;display:flex;align-items:center;gap:2px}
+.report-field-label .required{color:var(--color-danger)}
+
+.report-section{background:var(--bg-card);border-radius:var(--border-radius-lg);box-shadow:var(--shadow-card);border:1px solid var(--border-color-light);margin-bottom:var(--space-3);overflow:hidden}
+.report-header{padding:var(--space-3) var(--space-4);background:var(--color-gray-50);border-bottom:1px solid var(--border-color-light);display:flex;align-items:center;gap:var(--space-2)}
+.report-header svg{width:15px;height:15px;color:var(--color-warning)}
+.report-title{font-size:var(--font-size-md);font-weight:var(--font-weight-bold);color:var(--text-title)}
+.report-body{padding:var(--space-4)}
+.report-textarea{width:100%;height:80px;padding:var(--space-3);font-family:var(--font-family);font-size:var(--font-size-md);color:var(--text-primary);background:var(--bg-page);border:1px solid var(--border-color-default);border-radius:var(--border-radius-md);outline:none;resize:vertical;transition:border-color var(--transition-fast)}
+.report-textarea::placeholder{color:var(--text-tertiary)}
+.report-textarea:focus{border-color:var(--border-color-focus);box-shadow:0 0 0 2px var(--color-primary-50)}
+.report-btn{width:100%;height:40px;margin-top:var(--space-3);background:var(--color-primary-500);color:var(--text-inverse);border:none;border-radius:var(--border-radius-md);font-family:var(--font-family);font-size:var(--font-size-md);font-weight:var(--font-weight-medium);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:var(--space-2);transition:background var(--transition-fast)}
+.report-btn:active{background:var(--color-primary-600)}
+.report-btn svg{width:16px;height:16px}
+.footer{text-align:center;padding:var(--space-4) var(--space-4) var(--space-8);font-size:var(--font-size-xs);color:var(--text-tertiary);line-height:var(--line-height-normal)}
+.footer-line{width:32px;height:2px;background:var(--border-color-light);margin:0 auto var(--space-2);border-radius:1px}
+.phone-home-bar{height:20px;background:var(--bg-page);flex-shrink:0;display:flex;align-items:center;justify-content:center}
+@media(min-width:500px){.phone-home-bar{background:var(--bg-card)}}
+.home-indicator{width:134px;height:5px;background:var(--color-gray-300);border-radius:3px}
+.fab{position:absolute;bottom:36px;right:var(--space-3);z-index:60;height:44px;padding:0 var(--space-4);border-radius:22px;background:var(--color-primary-500);color:var(--text-inverse);border:none;cursor:pointer;box-shadow:0 4px 14px rgba(24,98,212,0.4);display:flex;align-items:center;justify-content:center;gap:6px;transition:all var(--transition-fast);font-family:var(--font-family);font-size:var(--font-size-md);font-weight:var(--font-weight-bold);white-space:nowrap}
+.fab:active{transform:scale(0.95);background:var(--color-primary-600)}
+.fab svg{width:16px;height:16px;flex-shrink:0}
+.toast{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.85);background:rgba(0,0,0,0.78);color:#FFFFFF;border-radius:var(--border-radius-lg);padding:var(--space-5) var(--space-6);font-size:var(--font-size-sm);line-height:var(--line-height-normal);text-align:center;z-index:200;opacity:0;transition:all 0.25s ease;pointer-events:none;max-width:280px;width:85%}
+.toast.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.toast-icon{width:36px;height:36px;margin:0 auto var(--space-2);background:var(--color-success);border-radius:50%;display:flex;align-items:center;justify-content:center}
+.toast-icon svg{width:20px;height:20px;color:#FFFFFF}
+.drawer-overlay{position:absolute;inset:0;background:var(--bg-overlay);z-index:100;opacity:0;visibility:hidden;transition:all var(--transition-normal)}
+.drawer-overlay.open{opacity:1;visibility:visible}
+.drawer{position:absolute;top:0;right:0;bottom:0;width:85%;max-width:360px;background:var(--bg-card);z-index:101;transform:translateX(100%);transition:transform 0.3s ease;display:flex;flex-direction:column;border-radius:0}
+@media(min-width:500px){.drawer{border-radius:0 0 0 0}}
+.drawer.open{transform:translateX(0)}
+.drawer-header{height:44px;padding:0 var(--space-4);background:var(--color-primary-500);color:var(--text-inverse);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.drawer-title{font-size:var(--font-size-lg);font-weight:var(--font-weight-bold)}
+.drawer-close{width:32px;height:32px;display:flex;align-items:center;justify-content:center;background:none;border:none;color:var(--text-inverse);cursor:pointer;border-radius:var(--border-radius-md);transition:background var(--transition-fast)}
+.drawer-close:active{background:rgba(255,255,255,0.2)}
+.drawer-close svg{width:18px;height:18px}
+.drawer-body{flex:1;overflow-y:auto;padding:var(--space-4)}
+.record-empty{text-align:center;padding:var(--space-10) var(--space-4);color:var(--text-tertiary)}
+.record-empty svg{width:40px;height:40px;color:var(--color-gray-300);margin-bottom:var(--space-3)}
+.record-item{background:var(--bg-page);border:1px solid var(--border-color-light);border-radius:var(--border-radius-md);padding:var(--space-3);margin-bottom:var(--space-2)}
+.record-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-1)}
+.record-id{font-size:var(--font-size-xs);color:var(--text-tertiary)}
+.record-status{font-size:var(--font-size-xs);font-weight:var(--font-weight-medium);padding:1px var(--space-2);border-radius:var(--border-radius-sm)}
+.record-status.pending{background:var(--color-warning-light);color:var(--color-warning-dark)}
+.record-status.processing{background:var(--color-info-light);color:var(--color-info-dark)}
+.record-status.done{background:var(--color-success-light);color:var(--color-success-dark)}
+.record-content{font-size:var(--font-size-sm);color:var(--text-primary);margin-bottom:var(--space-1)}
+.record-time{font-size:var(--font-size-xs);color:var(--text-tertiary)}
+</style>
+</head>
+<body>
+<div class="phone-wrapper" id="phoneWrapper">
+  <div class="phone-status-bar"><div class="dynamic-island"></div><div class="status-bar-left">9:41</div><div class="status-bar-right"><svg viewBox="0 0 16 12" fill="currentColor"><rect x="0" y="6" width="2.5" height="6" rx="0.5"/><rect x="4" y="4" width="2.5" height="8" rx="0.5"/><rect x="8" y="2" width="2.5" height="10" rx="0.5"/><rect x="12" y="0" width="2.5" height="12" rx="0.5"/></svg><svg viewBox="0 0 16 12" fill="currentColor"><path d="M8 2.5C5.8 2.5 3.8 3.3 2.3 4.7L1 3.4C2.8 1.6 5.3 0.5 8 0.5s5.2 1.1 7 2.9L13.7 4.7C12.2 3.3 10.2 2.5 8 2.5z"/><path d="M8 6.5c-1.4 0-2.7.6-3.6 1.5L3.1 6.7C4.3 5.5 6.1 4.8 8 4.8s3.7.7 4.9 1.9L11.6 8C10.7 7.1 9.4 6.5 8 6.5z"/><circle cx="8" cy="11" r="1.8"/></svg><svg viewBox="0 0 22 12" fill="currentColor"><rect x="0" y="1" width="18" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.2"/><rect x="19" y="3.5" width="2" height="5" rx="0.8"/><rect x="2" y="3" width="12" height="6" rx="1"/></svg></div></div>
+  <div class="mobile-header">
+    <div class="mobile-header-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>围挡信息公示</div>
+    <button class="header-btn" onclick="openDrawer()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>上报记录</button>
+  </div>
+  <div class="phone-screen" id="phoneScreen">
+    <div class="hero-section">
+      <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='200' viewBox='0 0 420 200'%3E%3Cdefs%3E%3ClinearGradient id='sky' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%2368A4D0'/%3E%3Cstop offset='0.6' stop-color='%23A8CCE8'/%3E%3Cstop offset='1' stop-color='%23C4DBED'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='420' height='200' fill='url(%23sky)'/%3E%3Crect x='20' y='80' width='380' height='120' fill='%238B9E6B' opacity='0.3'/%3E%3Crect x='40' y='60' width='80' height='140' fill='%23707B7D' rx='2'/%3E%3Crect x='140' y='40' width='60' height='160' fill='%2361696B' rx='2'/%3E%3Crect x='220' y='55' width='90' height='145' fill='%237A8588' rx='2'/%3E%3Crect x='330' y='70' width='70' height='130' fill='%236E797C' rx='2'/%3E%3Crect x='30' y='100' width='360' height='3' fill='%23C4A035' opacity='0.6'/%3E%3Crect x='30' y='130' width='360' height='3' fill='%23C4A035' opacity='0.6'/%3E%3Crect x='30' y='160' width='360' height='3' fill='%23C4A035' opacity='0.6'/%3E%3Crect x='40' y='30' width='25' height='8' rx='1' fill='%23B0B0B0'/%3E%3Crect x='140' y='20' width='20' height='8' rx='1' fill='%23A0A0A0'/%3E%3Crect x='220' y='30' width='30' height='8' rx='1' fill='%23B0B0B0'/%3E%3Crect x='330' y='45' width='25' height='8' rx='1' fill='%23A0A0A0'/%3E%3Crect x='10' y='185' width='400' height='15' fill='%23A0977A' opacity='0.4'/%3E%3Crect x='25' y='100' width='370' height='60' fill='%233A6B35' opacity='0.15' rx='2'/%3E%3C/svg%3E" alt="">
+      <div class="hero-gradient"></div>
+      <div class="hero-info"><div class="hero-project">南山区科技园综合体项目</div><div class="hero-engineer">基坑围护工程围挡</div><div class="hero-address"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>深圳市南山区科技园南区高新南一道与科技南路交汇处东南侧</div></div>
+    </div>
+    <div class="spec-row">
+      <div class="spec-chip"><div class="spec-chip-label">围挡长度</div><div class="spec-chip-value">120<span class="spec-chip-unit">m</span></div></div>
+      <div class="spec-chip"><div class="spec-chip-label">围挡高度</div><div class="spec-chip-value">2.5<span class="spec-chip-unit">m</span></div></div>
+      <div class="spec-chip highlight"><div class="spec-chip-label">距拆除</div><div class="spec-chip-value">126<span class="spec-chip-unit">天</span></div></div>
+    </div>
+    <!-- 地图 -->
+    <div class="map-section" id="fenceMap"></div>
+    <div class="map-legend-bar"><span><span class="dot" style="background:#1862D4"></span>围挡范围</span><span><span class="dot" style="background:#D13B2F"></span>项目红线</span><span><span class="dot" style="background:#1A9042"></span>出入口</span></div>
+    <div class="content">
+      <div class="info-card">
+        <div class="info-card-header"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg><span class="info-card-title">围挡信息</span></div>
+        <div class="info-card-body">
+          <div class="info-grid">
+            <div class="info-item"><span class="info-label">设置时间</span><span class="info-value">2025-11-22</span></div>
+            <div class="info-item"><span class="info-label">围挡管护期限</span><span class="info-value time-range">2025-11-22 ~ 2026-08-30</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-header"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg><span class="info-card-title">参建单位</span></div>
+        <div class="info-card-body">
+          <div class="company-row"><span class="company-tag">建设单位</span><span class="company-name">深圳市南山科技创新置业有限公司</span></div>
+          <div class="company-row"><span class="company-tag">施工单位</span><span class="company-name">中建三局第一建设工程有限责任公司</span></div>
+          <div class="company-row"><span class="company-tag">监理单位</span><span class="company-name">深圳市建设监理有限公司</span></div>
+        </div>
+      </div>
+      <div class="report-section" id="reportSection">
+        <div class="report-header"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><span class="report-title">问题快捷上报</span></div>
+        <div class="report-body">
+          <div class="report-field-label"><span class="required">*</span> 问题类型</div>
+          <div class="issue-type-grid" id="issueTypeGrid"></div>
+          <div class="report-field-label"><span class="required">*</span> 问题详情</div>
+          <textarea class="report-textarea" id="reportInput" placeholder="请描述您发现的围挡存在问题"></textarea>
+          <div class="report-field-label" style="margin-top:var(--space-3)"><span class="required">*</span> 现场照片 <span style="font-weight:var(--font-weight-regular);color:var(--text-tertiary)">（至少上传一张）</span></div>
+          <div class="photo-upload-row" id="photoRow">
+            <div class="photo-add-btn" onclick="document.getElementById('cameraInput').click()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>拍照</div>
+            <div class="photo-add-btn" onclick="document.getElementById('photoInput').click()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>相册</div>
+            <input type="file" id="cameraInput" accept="image/*" capture="environment" multiple style="display:none" onchange="handlePhotoSelect(event)">
+            <input type="file" id="photoInput" accept="image/*" multiple style="display:none" onchange="handlePhotoSelect(event)">
+          </div>
+          <div style="font-size:var(--font-size-xs);color:var(--text-tertiary);margin-top:4px">支持 JPG、PNG 格式，单张不超过 5MB</div>
+          <div class="report-field-label" style="margin-top:var(--space-3)"><span class="required">*</span> 问题位置</div>
+          <div class="location-display" id="locationDisplay" onclick="openLocPicker()"><i class="ti ti-map-pin"></i><span id="locationText">点击选择问题位置</span><span style="font-size:var(--font-size-xs);color:var(--text-tertiary);margin-left:auto"><i class="ti ti-chevron-right" style="font-size:14px"></i></span></div>
+          <button class="report-btn" onclick="submitReport()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>上报问题</button>
+        </div>
+      </div>
+      <div class="footer"><div class="footer-line"></div>深圳市建设施工围挡数字化管理系统<br>监督电话：0755-12345</div>
+    </div>
+  </div>
+  <button class="fab" onclick="scrollToReport()" id="fabBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>问题上报</button>
+  <div class="phone-home-bar"><div class="home-indicator"></div></div>
+  <div class="toast" id="toast"></div>
+  <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+  <div class="drawer" id="drawer">
+    <div class="drawer-header"><span class="drawer-title">上报记录</span><button class="drawer-close" onclick="closeDrawer()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="drawer-body" id="recordList"><div class="record-empty" id="recordEmpty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg><div>暂无上报记录</div><div style="font-size:var(--font-size-xs);margin-top:4px;color:var(--text-tertiary)">您上报的问题将在此处显示</div></div></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="../mock-data.js"></script>
+<script>
+var ISSUE_TYPES = ['围挡破损','围挡脏污','围挡缺失','围挡基础松动','围挡占道超限','张贴小广告','应建未建围挡','公益广告污损','公益广告内容不合时宜','公益广告画面不连贯影响整体美观','围挡安全隐患','围挡喷淋不符合要求','围挡二维码内容不全','无围挡维护责任人信息','其他'];
+var reportCount = 0;
+var _photos = [];
+var _selectedType = null;
+var _location = { lat: null, lng: null, addr: '' };
+var _hasPickedLocation = false;
+
+function renderIssueTypes(){
+  var grid = document.getElementById('issueTypeGrid');
+  grid.innerHTML = ISSUE_TYPES.map(function(t){
+    var sel = _selectedType === t ? ' selected' : '';
+    return '<div class="issue-type-chip' + sel + '" onclick="selectType(\'' + t + '\')">' + t + '</div>';
+  }).join('');
+}
+function selectType(t){ _selectedType = t; renderIssueTypes(); }
+
+function handlePhotoSelect(e){
+  var files = e.target.files; if(!files || !files.length) return;
+  for(var i = 0; i < files.length; i++){
+    if(_photos.length >= 9){ showToast('<div>最多上传9张照片</div>'); break; }
+    (function(file){ var r = new FileReader(); r.onload = function(ev){ _photos.push(ev.target.result); renderPhotos(); }; r.readAsDataURL(file); })(files[i]);
+  }
+  e.target.value = '';
+}
+function removePhoto(idx){ _photos.splice(idx, 1); renderPhotos(); }
+function renderPhotos(){
+  var row = document.getElementById('photoRow');
+  var h = _photos.map(function(p, i){ return '<div class="photo-thumb"><img src="' + p + '"><div class="photo-del" onclick="event.stopPropagation();removePhoto(' + i + ')">&times;</div></div>'; }).join('');
+  if(_photos.length < 9){
+    h += '<div class="photo-add-btn" onclick="document.getElementById(\'cameraInput\').click()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>拍照</div>';
+    h += '<div class="photo-add-btn" onclick="document.getElementById(\'photoInput\').click()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>相册</div>';
+  }
+  h += '<input type="file" id="cameraInput" accept="image/*" capture="environment" multiple style="display:none" onchange="handlePhotoSelect(event)"><input type="file" id="photoInput" accept="image/*" multiple style="display:none" onchange="handlePhotoSelect(event)">';
+  row.innerHTML = h;
+}
+
+function openLocPicker(){
+  var overlay = document.createElement('div'); overlay.className = 'loc-picker-overlay'; overlay.id = 'locPickerOverlay';
+  var hs = MOCK_DATA.getHoardings(); var fence = null, project = null;
+  for(var i = 0; i < hs.length; i++){ if(hs[i].id === 'WD-2026-0003'){ fence = hs[i]; break; } }
+  if(!fence) fence = hs[0];
+  var ps = MOCK_DATA.getProjects(); for(var j = 0; j < ps.length; j++){ if(ps[j].name === fence.projectName){ project = ps[j]; break; } }
+  overlay.innerHTML =
+    '<div class="loc-picker-header">' +
+      '<button class="back-btn" onclick="document.getElementById(\'locPickerOverlay\').remove()"><i class="ti ti-chevron-left" style="font-size:20px"></i>返回</button>' +
+      '<div class="title-section"><span class="title">选择位置</span></div>' +
+      '<div class="loc-picker-status"><span class="dot"></span>定位中</div>' +
+      '<button class="confirm-btn" onclick="confirmLocPick()">确定</button>' +
+    '</div>' +
+    '<button class="loc-picker-curr-btn" onclick="useCurrentLoc()"><i class="ti ti-current-location" style="font-size:12px"></i>当前位置</button>' +
+    '<div class="loc-picker-map">' +
+      '<div id="locPickerInnerMap" style="position:absolute;inset:0"></div>' +
+      '<div class="loc-picker-legend">' +
+        '<div class="legend-row"><span class="leg-line" style="border-color:#D13B2F"></span>项目红线</div>' +
+        '<div class="legend-row"><span class="leg-line leg-dash" style="border-color:#1862D4"></span>围挡范围</div>' +
+        '<div class="legend-row"><span class="leg-dot" style="background:#1A9042"></span>出入口</div>' +
+      '</div>' +
+      '<div class="loc-picker-crosshair">' +
+        '<div class="pin-wrap"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg><div class="pin-dot"></div></div>' +
+      '</div>' +
+    '</div>';
+  document.getElementById('phoneWrapper').appendChild(overlay);
+  setTimeout(function(){
+    var mapEl = document.getElementById('locPickerInnerMap'); if(!mapEl) return;
+    var map = L.map(mapEl, { zoomControl: true, attributionControl: false }); map.zoomControl.setPosition('bottomright');
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19 }).addTo(map);
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, opacity: 0.4 }).addTo(map);
+    if(project && project.redlineGeo && project.redlineGeo.length >= 3) L.polygon(project.redlineGeo, { color: '#D13B2F', weight: 2, fillOpacity: 0.08, fillColor: '#D13B2F' }).addTo(map);
+    if(fence && fence.gpsShape && fence.gpsShape.length >= 2){
+      if(fence.gpsShape.length === 2) L.polyline(fence.gpsShape, { color: '#1862D4', weight: 2.5 }).addTo(map);
+      else L.polygon(fence.gpsShape, { color: '#1862D4', weight: 2, fillOpacity: 0.1, fillColor: '#1862D4', dashArray: '6 3' }).addTo(map);
+    }
+    if(fence && fence.entrances) fence.entrances.forEach(function(e){
+      var clr = e.type === 'vehicle' ? '#1862D4' : e.type === 'pedestrian' ? '#1A9042' : e.type === 'temporary' ? '#f0832c' : '#D13B2F';
+      L.circleMarker([e.lat, e.lng], { radius: 5, color: clr, fillColor: clr, fillOpacity: 0.7, weight: 2 }).addTo(map);
+    });
+    var clat = _location.lat || 22.535, clng = _location.lng || 113.943;
+    if(fence && fence.gpsShape && fence.gpsShape.length > 0){ clat = fence.gpsShape[0][0]; clng = fence.gpsShape[0][1]; }
+    map.setView([clat, clng], 16); window._pickerMap = map;
+  }, 200);
+}
+function confirmLocPick(){
+  var map = window._pickerMap; if(!map) return;
+  var c = map.getCenter(); _location.lat = c.lat; _location.lng = c.lng; _location.addr = c.lat.toFixed(6) + ', ' + c.lng.toFixed(6); _hasPickedLocation = true;
+  document.getElementById('locationText').textContent = _location.addr;
+  document.getElementById('locPickerOverlay').remove(); showToast('<div>位置已确认</div>');
+}
+function useCurrentLoc(){
+  var map = window._pickerMap; if(!map) return;
+  if(navigator.geolocation){ navigator.geolocation.getCurrentPosition(function(pos){ map.setView([pos.coords.latitude, pos.coords.longitude], 17); showToast('<div>已定位到当前位置</div>'); }, function(){ showToast('<div>获取定位失败，请手动选择</div>'); }, { timeout: 8000, enableHighAccuracy: true }); }
+  else { showToast('<div>当前设备不支持定位</div>'); }
+}
+
+(function initFenceMap(){
+  var demoFence = (function(){ var hs = MOCK_DATA.getHoardings(); for(var i = 0; i < hs.length; i++){ if(hs[i].id === 'WD-2026-0003') return hs[i]; } return hs[0]; })();
+  var demoProject = (function(){ var ps = MOCK_DATA.getProjects(); for(var i = 0; i < ps.length; i++){ if(ps[i].name === demoFence.projectName) return ps[i]; } return ps[0]; })();
+  var mapEl = document.getElementById('fenceMap'); if(!mapEl) return;
+  var map = L.map(mapEl, { zoomControl: true, attributionControl: false, dragging: true, scrollWheelZoom: true }); map.zoomControl.setPosition('topright');
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19 }).addTo(map);
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, opacity: 0.4 }).addTo(map);
+  if(demoProject && demoProject.redlineGeo && demoProject.redlineGeo.length >= 3) L.polygon(demoProject.redlineGeo, { color: '#D13B2F', weight: 2.5, fillOpacity: 0.08, fillColor: '#D13B2F' }).addTo(map);
+  var others = MOCK_DATA.getHoardings().filter(function(h){ return h.projectName === demoFence.projectName && h.id !== demoFence.id; });
+  others.forEach(function(o){
+    if(o.gpsShape && o.gpsShape.length >= 2){
+      if(o.gpsShape.length === 2) L.polyline(o.gpsShape, { color: '#888', weight: 2, dashArray: '6 4', opacity: 0.6 }).addTo(map).bindTooltip('<b>' + o.id + '</b><br>' + o.engineerName);
+      else L.polygon(o.gpsShape, { color: '#888', weight: 1.5, fillOpacity: 0.03, dashArray: '6 4', opacity: 0.6 }).addTo(map).bindTooltip('<b>' + o.id + '</b><br>' + o.engineerName);
+    }
+    if(o.entrances) o.entrances.forEach(function(e){ L.circleMarker([e.lat, e.lng], { radius: 4, color: '#888', fillColor: '#ccc', fillOpacity: 0.6, weight: 1.5 }).addTo(map).bindTooltip(e.name || '出入口'); });
+  });
+  if(demoFence && demoFence.gpsShape && demoFence.gpsShape.length >= 2){
+    if(demoFence.gpsShape.length === 2) L.polyline(demoFence.gpsShape, { color: '#1862D4', weight: 3 }).addTo(map);
+    else L.polygon(demoFence.gpsShape, { color: '#1862D4', weight: 2.5, fillOpacity: 0.12, fillColor: '#1862D4', dashArray: '8 4' }).addTo(map);
+  }
+  if(demoFence && demoFence.entrances) demoFence.entrances.forEach(function(e){
+    var clr = e.type === 'vehicle' ? '#1862D4' : e.type === 'pedestrian' ? '#1A9042' : e.type === 'temporary' ? '#f0832c' : '#D13B2F';
+    L.circleMarker([e.lat, e.lng], { radius: 6, color: clr, fillColor: clr, fillOpacity: 0.8, weight: 2 }).addTo(map).bindTooltip(e.name || '出入口');
+  });
+  var bounds = L.latLngBounds([]);
+  if(demoFence && demoFence.gpsShape) demoFence.gpsShape.forEach(function(p){ bounds.extend(p); });
+  if(demoProject && demoProject.redlineGeo) demoProject.redlineGeo.forEach(function(p){ bounds.extend(p); });
+  if(bounds.isValid()) map.fitBounds(bounds.pad(0.3)); map.setZoom(Math.min(map.getZoom(), 18));
+})();
+
+function scrollToReport(){ var el = document.getElementById('reportSection'), screen = document.getElementById('phoneScreen'), top = el.offsetTop - screen.offsetTop - 8; screen.scrollTo({top:top, behavior:'smooth'}); }
+function submitReport(){
+  if(!_selectedType){ showToast('<div>请选择问题类型</div>'); return; }
+  var text = document.getElementById('reportInput').value.trim();
+  if(!text){ showToast('<div>请填写问题详情</div>'); return; }
+  if(_photos.length === 0){ showToast('<div>请至少上传一张现场照片</div>'); return; }
+  if(!_hasPickedLocation || _location.lat == null){ showToast('<div>请选择问题位置</div>'); return; }
+  reportCount++; var now = new Date(); var ts = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0')+' '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+  var fullContent = '【' + _selectedType + '】' + text; addRecord(reportCount, fullContent, ts);
+  document.getElementById('reportInput').value = ''; _photos = []; renderPhotos(); _selectedType = null; renderIssueTypes();
+  showToast('<div class="toast-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><div>您已成功上报围挡问题，后续可在上报记录中查看问题处理情况</div>');
+}
+function showToast(html){ var t = document.getElementById('toast'); t.innerHTML = html; t.classList.add('show'); setTimeout(function(){t.classList.remove('show')}, 2500); }
+function addRecord(id, content, time){
+  var e = document.getElementById('recordEmpty'); if(e) e.style.display = 'none';
+  var st = ['pending','processing','done'], sl = ['待处理','处理中','已处理'], si = id <= 1 ? 0 : (id <= 2 ? 1 : 2);
+  var d = document.createElement('div'); d.className = 'record-item';
+  d.innerHTML = '<div class="record-top"><span class="record-id">上报编号：WD' + String(id).padStart(4,'0') + '</span><span class="record-status ' + st[si] + '">' + sl[si] + '</span></div><div class="record-content">' + escapeHtml(content) + '</div><div class="record-time">' + time + '</div>';
+  document.getElementById('recordList').insertBefore(d, document.getElementById('recordList').children.length > 1 ? document.getElementById('recordList').children[1] : null);
+}
+function escapeHtml(s){ var d = document.createElement('div'); d.appendChild(document.createTextNode(s)); return d.innerHTML; }
+function openDrawer(){ document.getElementById('drawerOverlay').classList.add('open'); document.getElementById('drawer').classList.add('open'); }
+function closeDrawer(){ document.getElementById('drawerOverlay').classList.remove('open'); document.getElementById('drawer').classList.remove('open'); }
+renderIssueTypes();
+(function(){
+  var fab = document.getElementById('fabBtn'), screen = document.getElementById('phoneScreen'), report = document.getElementById('reportSection');
+  screen.addEventListener('scroll', function(){ var top = screen.scrollTop, rTop = report.offsetTop - screen.offsetTop; fab.style.opacity = top + screen.height * 0.7 > rTop ? '0.35' : '1'; fab.style.transform = top + screen.height * 0.7 > rTop ? 'scale(0.9)' : 'scale(1)'; });
+})();
+</script>
+</body>
+</html>
