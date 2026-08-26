@@ -1,0 +1,1322 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>建设工程无人机巡检平台｜新增巡检记录</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css">
+  <style>
+    :root {
+      --primary: #1767c2;
+      --primary-dark: #0f4f99;
+      --primary-soft: #eaf3ff;
+      --nav: #173b68;
+      --nav-dark: #102f55;
+      --text: #1d2939;
+      --muted: #667085;
+      --line: #dce3ec;
+      --surface: #ffffff;
+      --bg: #f3f6fa;
+      --success: #16855b;
+      --warning: #b96a09;
+      --danger: #c33434;
+      --shadow: 0 8px 24px rgba(24, 51, 84, .08);
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-width: 1180px; color: var(--text); background: var(--bg); font: 14px/1.5 "Microsoft YaHei", "PingFang SC", Arial, sans-serif; }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    .topbar { height: 58px; display: flex; align-items: center; color: #fff; background: linear-gradient(90deg, var(--nav-dark), var(--nav)); box-shadow: 0 2px 8px rgba(0,0,0,.18); }
+    .brand { width: 248px; padding-left: 24px; font-size: 18px; font-weight: 700; letter-spacing: .5px; }
+    .top-title { padding-left: 22px; font-size: 15px; border-left: 1px solid rgba(255,255,255,.22); }
+    .top-user { position: relative; align-self: stretch; display: flex; align-items: center; margin-left: auto; margin-right: 12px; padding: 0 10px; color: rgba(255,255,255,.88); cursor: pointer; }
+    .top-user:hover { background: rgba(255,255,255,.06); }
+    .user-menu { position: absolute; z-index: 50; top: 52px; right: 0; display: none; width: 176px; padding: 6px; color: var(--text); background: #fff; border: 1px solid #cbd5e1; border-radius: 4px; box-shadow: 0 10px 28px rgba(10,34,60,.22); }
+    .user-menu.show { display: block; }
+    .user-menu button { width: 100%; height: 36px; padding: 0 11px; text-align: left; color: #344054; background: transparent; border: 0; border-radius: 3px; }
+    .user-menu button:hover { color: var(--primary); background: #edf5ff; }
+    .layout { display: grid; grid-template-columns: 208px 1fr; min-height: calc(100vh - 58px); }
+    .sidebar { color: #d7e5f7; background: #173b68; padding: 16px 12px; }
+    .side-section { padding: 9px 12px; margin-top: 8px; color: #88a8ca; font-size: 12px; }
+    .side-item { display: flex; align-items: center; gap: 10px; padding: 11px 14px; margin: 4px 0; border-radius: 4px; }
+    .side-item.active { color: #fff; background: rgba(72,149,233,.35); box-shadow: inset 3px 0 #71b5ff; }
+    .content { padding: 18px 24px 30px; overflow: hidden; }
+    .breadcrumb { margin-bottom: 12px; color: var(--muted); font-size: 13px; }
+    .page-head { display: flex; align-items: center; margin-bottom: 14px; }
+    .page-head h1 { margin: 0; font-size: 21px; }
+    .page-head .badge { margin-left: 12px; padding: 3px 9px; color: #1767c2; background: #eaf3ff; border: 1px solid #c8ddf7; border-radius: 2px; font-size: 12px; }
+    .page-head .note { margin-left: auto; color: var(--muted); font-size: 13px; }
+    .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; box-shadow: var(--shadow); }
+    .stepper { display: grid; grid-template-columns: repeat(3, 1fr); padding: 20px 34px 18px; border-bottom: 1px solid var(--line); }
+    .step { position: relative; display: flex; align-items: center; justify-content: center; gap: 9px; color: #8a94a3; font-weight: 600; }
+    .step:not(:last-child)::after { content: ""; position: absolute; left: calc(50% + 66px); right: calc(-50% + 66px); top: 16px; height: 2px; background: #dfe5ec; }
+    .step.done:not(:last-child)::after { background: #7eb4ee; }
+    .step .num { position: relative; z-index: 1; width: 32px; height: 32px; display: grid; place-items: center; border: 2px solid #cbd3dd; border-radius: 50%; background: #fff; }
+    .step.active { color: var(--primary); }
+    .step.active .num { color: #fff; border-color: var(--primary); background: var(--primary); }
+    .step.done { color: #3f6f9f; }
+    .step.done .num { color: #fff; border-color: #6da7e5; background: #6da7e5; }
+    .step-view { display: none; padding: 22px 26px 18px; min-height: 580px; }
+    .step-view.active { display: block; }
+    .section-title { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; font-size: 16px; font-weight: 700; }
+    .section-title::before { content: ""; width: 4px; height: 17px; background: var(--primary); border-radius: 2px; }
+    .section-hint { margin: -9px 0 18px 12px; color: var(--muted); }
+    .review-sticky-hint { position: sticky; top: 0; z-index: 8; margin: -22px -26px 16px; padding: 12px 26px; color: #52677a; background: rgba(255,255,255,.98); border-bottom: 1px solid #dfe5eb; box-shadow: 0 2px 5px rgba(25,48,70,.06); }
+    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(300px, 1fr)); gap: 18px 28px; max-width: 1000px; }
+    .field label { display: block; margin-bottom: 7px; color: #344054; font-weight: 600; }
+    .required::before { content: "*"; color: var(--danger); margin-right: 4px; }
+    .control { width: 100%; height: 38px; padding: 0 11px; color: var(--text); background: #fff; border: 1px solid #cbd5e1; border-radius: 4px; outline: none; }
+    textarea.control { height: 86px; padding-top: 9px; resize: vertical; }
+    .control:focus { border-color: #5b9fe7; box-shadow: 0 0 0 3px rgba(23,103,194,.11); }
+    .readonly { background: #f5f7fa; color: #596579; }
+    .combo { position: relative; }
+    .combo .control { padding-right: 34px; }
+    .combo::after { content: "⌄"; position: absolute; right: 12px; top: 7px; color: #667085; pointer-events: none; }
+    .combo-options { position: absolute; z-index: 12; left: 0; right: 0; top: 42px; display: none; max-height: 220px; overflow: auto; background: #fff; border: 1px solid #bfcbd9; border-radius: 4px; box-shadow: 0 8px 20px rgba(23,50,80,.14); }
+    .combo-options.show { display: block; }
+    .combo-option { padding: 9px 12px; cursor: pointer; }
+    .combo-option:hover { color: var(--primary); background: #edf5ff; }
+    .combo-option b { display: block; font-weight: 600; }
+    .combo-option small { display: block; margin-top: 2px; color: var(--muted); }
+    .combo-empty { padding: 15px 12px; color: var(--muted); text-align: center; }
+    .span-2 { grid-column: 1 / -1; }
+    .info-strip { display: flex; gap: 26px; padding: 11px 14px; margin-bottom: 18px; color: #3f5874; background: #f2f7fd; border: 1px solid #d6e6f7; }
+    .upload-section { margin-bottom: 18px; border: 1px solid var(--line); border-radius: 5px; }
+    .upload-head { display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 0 16px; background: #f8fafc; border-bottom: 1px solid var(--line); }
+    .upload-head strong { font-size: 15px; }
+    .upload-head small { margin-left: 10px; color: var(--muted); }
+    .upload-head .head-actions { margin-left: auto; display: flex; align-items: center; gap: 8px; flex: 0 0 auto; }
+    .upload-body { padding: 15px; }
+    .btn { height: 36px; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; padding: 0 15px; color: #344054; background: #fff; border: 1px solid #c8d1dc; border-radius: 4px; white-space: nowrap; vertical-align: middle; line-height: 1; }
+    .btn:hover { border-color: #7baee4; color: var(--primary); }
+    .btn.primary { color: #fff; background: var(--primary); border-color: var(--primary); }
+    .btn.primary:hover { background: var(--primary-dark); }
+    .btn.ghost { color: var(--primary); background: #f7fbff; border-color: #a9cbed; }
+    .btn.danger { color: var(--danger); background: #fff; border-color: #e3b3b3; }
+    .btn.text { height: auto; padding: 2px 4px; color: var(--primary); background: transparent; border: 0; }
+    .btn:disabled { cursor: not-allowed; opacity: .45; }
+    .file-input { display: none; }
+    .media-grid { display: grid; grid-template-columns: repeat(6, minmax(130px, 1fr)); gap: 12px; }
+    .pano-grid { grid-template-columns: repeat(2, minmax(390px, 1fr)); gap: 14px; }
+    .media-card { position: relative; min-width: 0; border: 1px solid #d9e1ea; border-radius: 4px; background: #fff; }
+    .media-card:focus-within { z-index: 20; }
+    .pano-card { display: grid; grid-template-columns: 190px minmax(0, 1fr); min-height: 132px; border-radius: 2px; }
+    .pano-card .thumb { height: 100%; min-height: 132px; }
+    .pano-card .media-meta { display: flex; flex-direction: column; justify-content: center; padding: 14px 16px; border-left: 1px solid #e1e7ed; }
+    .media-file-name-overlay { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; padding: 20px 9px 7px; color: #fff; background: linear-gradient(transparent,rgba(10,29,46,.78)); font-size: 11px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    .thumb { height: 92px; position: relative; display: grid; place-items: center; overflow: hidden; color: rgba(255,255,255,.95); background: linear-gradient(145deg, #648db2, #274d72 55%, #7da4ae); }
+    .thumb.alt { background: linear-gradient(145deg, #8a9d70, #3e684c 55%, #7a8f6f); }
+    .thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .thumb .kind { position: absolute; left: 6px; top: 6px; padding: 2px 6px; background: rgba(8,24,42,.67); border-radius: 2px; font-size: 11px; }
+    .thumb .marked { position: absolute; right: 6px; top: 6px; padding: 2px 6px; color: #fff; background: #cf2f25; border: 1px solid rgba(255,255,255,.72); border-radius: 2px; font-size: 11px; font-weight: 600; }
+    .media-meta { padding: 8px; }
+    .file-name { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 12px; }
+    .scene-row { position: relative; display: flex; gap: 5px; margin-top: 7px; }
+    .scene-row::after { content: "⌄"; position: absolute; right: 8px; top: 4px; color: #667085; pointer-events: none; }
+    .scene-row input { min-width: 0; flex: 1; height: 30px; padding: 0 24px 0 7px; border: 1px solid #cbd5e1; border-radius: 3px; outline: none; }
+    .scene-row input:focus { border-color: #5b9fe7; box-shadow: 0 0 0 2px rgba(23,103,194,.1); }
+    .scene-field-label { display: flex; align-items: center; color: #344054; font-size: 13px; font-weight: 600; }
+    .scene-field-label em { margin-left: 4px; color: #cf2f25; font-style: normal; font-size: 13px; font-weight: 600; }
+    .scene-status { margin-top: 5px; color: var(--muted); font-size: 11px; line-height: 1.35; }
+    .scene-status.linked { color: var(--success); }
+    .scene-status.new { color: var(--warning); }
+    .scene-options { position: absolute; z-index: 35; left: 0; right: 0; top: 34px; display: none; max-height: 170px; overflow: auto; background: #fff; border: 1px solid #bfcbd9; border-radius: 3px; box-shadow: 0 8px 18px rgba(23,50,80,.16); }
+    .scene-options.show { display: block; }
+    .scene-option { padding: 8px 9px; cursor: pointer; }
+    .scene-option:hover { color: var(--primary); background: #edf5ff; }
+    .scene-empty { padding: 9px; color: var(--muted); text-align: center; }
+    .pagination { display: flex; justify-content: flex-end; align-items: center; gap: 7px; margin-top: 13px; color: var(--muted); }
+    .annotation-layout { display: grid; grid-template-columns: 250px minmax(500px, 1fr) 300px; gap: 14px; height: 560px; }
+    .work-panel { border: 1px solid var(--line); border-radius: 5px; overflow: hidden; background: #fff; }
+    .work-title { height: 43px; display: flex; align-items: center; padding: 0 12px; background: #f8fafc; border-bottom: 1px solid var(--line); font-weight: 700; }
+    .media-tabs { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--line); }
+    .media-tab { padding: 10px 4px; text-align: center; color: var(--muted); background: #fff; border: 0; border-bottom: 2px solid transparent; }
+    .media-tab.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 700; }
+    .media-tab .tab-count { color: inherit; font-size: 11px; font-weight: 500; }
+    .asset-list { height: 445px; padding: 8px; overflow: auto; }
+    .asset-item { display: grid; grid-template-columns: 58px minmax(0,1fr); align-items: center; gap: 8px; min-height: 58px; padding: 6px; margin-bottom: 6px; background: #fff; border: 1px solid #e2e8ee; border-radius: 2px; cursor: pointer; }
+    .asset-item:hover { background: #f7fafc; border-color: #b7c8d8; }
+    .asset-item.active { background: #edf5ff; border-color: #4f9ae5; box-shadow: 0 0 0 1px rgba(79,154,229,.14); }
+    .asset-item.has-problem { background: #fff; border-color: #e2e8ee; box-shadow: none; }
+    .asset-item.has-problem:hover { background: #f7fafc; border-color: #b7c8d8; }
+    .asset-item.has-problem.active { background: #edf5ff; border-color: #4f9ae5; box-shadow: 0 0 0 1px rgba(79,154,229,.14); }
+    .asset-list-head { height: 43px; display: flex; align-items: center; gap: 9px; padding: 0 12px; color: #344054; background: #f8fafc; border-bottom: 1px solid var(--line); }
+    .asset-list-head strong { font-size: 14px; }
+    .asset-list-head small { color: var(--muted); font-size: 11px; white-space: nowrap; }
+    .asset-kind { color: #125aa9; font-size: 12px; font-weight: 700; }
+    .asset-file-name { overflow: hidden; color: var(--muted); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+    .video-mini { background: linear-gradient(145deg,#435d73,#172b3c); }
+    .asset-play { display: grid; width: 25px; height: 25px; place-items: center; color: #fff; background: rgba(22,143,229,.82); border-radius: 50%; font-size: 11px; }
+    .asset-mini { height: 44px; display: grid; place-items: center; color: #fff; background: linear-gradient(145deg, #7b9ab4, #315a7d); overflow: hidden; font-size: 11px; }
+    .asset-mini img { width: 100%; height: 100%; object-fit: cover; }
+    .asset-copy { min-width: 0; display: flex; flex-direction: column; justify-content: center; }
+    .asset-copy b { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 12px; }
+    .asset-copy span { color: var(--muted); font-size: 11px; }
+    .scene-chip { display: inline-flex; align-items: center; align-self: flex-start; max-width: 100%; padding: 2px 6px; color: #125aa9; background: #eaf3fc; border: 0; border-radius: 2px; font-size: 12px; font-weight: 700; }
+    .scene-chip strong { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    .asset-problem-count { margin-top: 3px; color: var(--muted); font-size: 11px; }
+    .asset-problem-count.has { color: #b42318; font-weight: 600; }
+    .asset-index { color: #344054; font-size: 12px; font-weight: 600; }
+    .viewer { position: relative; height: 100%; display: flex; flex-direction: column; background: #273442; }
+    .viewer-bar { height: 43px; display: flex; align-items: center; padding: 0 12px; color: #d8e5f2; background: #1e2a36; }
+    .viewer-bar span:last-child { margin-left: auto; font-size: 12px; }
+    .viewer-scene { display: none; margin-left: 12px; padding: 3px 8px; color: #d9ebff; background: #315d86; border: 1px solid #5681aa; border-radius: 3px; font-size: 12px; font-weight: 700; }
+    .viewer-scene.show { display: inline-flex; }
+    .image-stage { position: relative; flex: 1; display: grid; place-items: center; overflow: hidden; cursor: crosshair; background: linear-gradient(155deg, #779eb8 0%, #31536f 44%, #617d6c 45%, #344d3e 100%); }
+    .image-stage::before { content: "请选择需要查看的图片"; padding: 8px 12px; color: rgba(255,255,255,.88); background: rgba(16,37,53,.5); border-radius: 3px; }
+    .image-stage.has-image::before { display: none; }
+    .image-stage img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+    .marker { position: absolute; width: 24px; height: 24px; transform: translate(-50%,-50%); border: 3px solid #fff; border-radius: 50%; background: #e13d3d; box-shadow: 0 0 0 3px rgba(225,61,61,.38); }
+    .marker::after { content: ""; position: absolute; left: 7px; top: 18px; border: 3px solid transparent; border-top: 8px solid #e13d3d; }
+    .viewer-foot { min-height: 44px; display: flex; align-items: center; gap: 14px; padding: 8px 12px; color: #d5dfeb; background: #1e2a36; font-size: 12px; }
+    .viewer-action-tip { margin-left: auto !important; padding: 6px 12px; color: #fff; background: #147fbc; border: 0; border-radius: 4px; box-shadow: 0 2px 8px rgba(20,127,188,.28); font-size: 13px !important; font-weight: 700; letter-spacing: .02em; white-space: nowrap; }
+    .problem-form { padding: 13px; height: calc(100% - 43px); overflow: auto; }
+    .problem-form .field { margin-bottom: 13px; }
+    .evidence { height: 110px; display: grid; place-items: center; color: #52677a; background: repeating-linear-gradient(45deg,#edf2f7,#edf2f7 10px,#e4ebf2 10px,#e4ebf2 20px); border: 1px dashed #b9c6d3; border-radius: 4px; text-align: center; }
+    .summary { border: 1px solid var(--line); border-radius: 5px; margin-bottom: 16px; }
+    .summary-head { min-height: 48px; display: flex; align-items: center; padding: 0 16px; background: #f8fafc; border-bottom: 1px solid var(--line); }
+    .summary-head strong { font-size: 15px; }
+    .summary-head .count { margin-left: 10px; color: var(--muted); }
+    .summary-head .btn { margin-left: auto; }
+    .summary-body { padding: 16px; }
+    .kv-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); border-top: 1px solid #dfe5eb; border-left: 1px solid #dfe5eb; }
+    .kv { grid-column: span 4; min-width: 0; min-height: 52px; display: grid; grid-template-columns: 86px minmax(0, 1fr); background: #fff; border-right: 1px solid #dfe5eb; border-bottom: 1px solid #dfe5eb; }
+    .kv.wide { grid-column: span 6; }
+    .kv label { display: flex; align-items: center; padding: 10px 12px; color: #5e6d7c; background: #f5f7f9; font-size: 12px; line-height: 1.4; }
+    .kv b { display: flex; align-items: center; min-width: 0; padding: 10px 12px; color: #172b3d; font-size: 14px; font-weight: 400; line-height: 1.55; overflow-wrap: anywhere; }
+    .review-media-group + .review-media-group { margin-top: 18px; padding-top: 16px; border-top: 1px solid #e7edf3; }
+    .review-media-title { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; color: #25384b; font-size: 14px; font-weight: 600; }
+    .review-media-title span { padding: 1px 7px; color: #4f6f90; background: #edf4fb; border-radius: 10px; font-size: 12px; font-weight: 400; }
+    .review-media-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(138px, 1fr)); gap: 10px; }
+    .review-media-grid.compact { grid-template-columns: repeat(auto-fill, minmax(86px, 1fr)); gap: 8px; }
+    .review-media-card { min-width: 0; overflow: hidden; background: #fff; border: 1px solid #dce5ed; border-radius: 4px; }
+    .review-media-thumb { position: relative; height: 82px; display: grid; place-items: center; overflow: hidden; color: #fff; background: linear-gradient(145deg,#284f70,#6c8fa7); }
+    .review-media-thumb img, .review-media-thumb video { width: 100%; height: 100%; object-fit: cover; }
+    .review-media-grid.compact .review-media-thumb { height: 58px; }
+    .review-media-thumb .play-badge { position: absolute; width: 34px; height: 34px; display: grid; place-items: center; padding-left: 2px; color: #fff; background: rgba(10,31,50,.72); border: 1px solid rgba(255,255,255,.75); border-radius: 50%; font-size: 15px; }
+    .review-media-copy { min-height: 40px; padding: 7px 9px; color: #41566b; font-size: 12px; line-height: 1.45; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .review-media-copy.scene { color: #125aa9; background: #f5f9fd; font-weight: 600; }
+    .review-video-card { cursor: pointer; }
+    .review-media-empty { padding: 16px; color: var(--muted); background: #fafbfd; border: 1px dashed #d7e0e8; text-align: center; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 10px 11px; border-bottom: 1px solid #e4e9ef; text-align: left; vertical-align: middle; }
+    th { color: #475467; background: #f8fafc; font-weight: 600; }
+    .evidence-mini { width: 60px; height: 42px; display: grid; place-items: center; color: #fff; background: linear-gradient(145deg,#b38e6e,#73543d); font-size: 11px; }
+    .empty { padding: 32px; text-align: center; color: var(--muted); }
+    .footer-actions { position: sticky; bottom: 0; display: flex; justify-content: space-between; gap: 10px; padding: 14px 26px; background: rgba(255,255,255,.96); border-top: 1px solid var(--line); }
+    .footer-actions .right { display: flex; gap: 9px; }
+    .toast { position: fixed; left: 50%; top: 76px; z-index: 130; transform: translateX(-50%) translateY(-15px); padding: 10px 18px; color: #fff; background: rgba(22,40,61,.94); border-radius: 4px; opacity: 0; pointer-events: none; transition: .22s ease; box-shadow: var(--shadow); }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .annotation-guide-toast { position: absolute; z-index: 18; top: 50%; left: 50%; display: flex; align-items: center; gap: 17px; padding: 18px 26px; color: #effaff; background: rgba(20,49,70,.96); border-radius: 9px; box-shadow: 0 12px 34px rgba(4,20,32,.38); opacity: 0; pointer-events: none; transform: translate(-50%,-50%) scale(.94); transition: opacity .22s ease,transform .22s ease; }
+    .annotation-guide-toast.show { opacity: 1; transform: translate(-50%,-50%) scale(1); }
+    .annotation-guide-toast svg { width: 48px; height: 60px; flex: 0 0 48px; }
+    .annotation-guide-toast strong { font-size: 18px; line-height: 28px; font-weight: 700; white-space: nowrap; }
+    .modal-mask { position: fixed; inset: 0; z-index: 120; display: none; place-items: center; background: rgba(13,28,45,.45); }
+    .modal-mask.show { display: grid; }
+    .modal { width: 460px; padding: 28px; text-align: center; background: #fff; border-radius: 7px; box-shadow: 0 20px 50px rgba(0,0,0,.22); }
+    .success-icon { width: 58px; height: 58px; display: grid; place-items: center; margin: 0 auto 14px; color: #fff; background: var(--success); border-radius: 50%; font-size: 29px; }
+    .modal h2 { margin: 0 0 8px; }
+    .modal p { color: var(--muted); }
+    .modal .btn { margin-top: 10px; }
+    .failure-modal { width: 560px; padding: 0; overflow: hidden; text-align: left; border-radius: 4px; }
+    .failure-modal-head { display: flex; align-items: flex-start; gap: 13px; padding: 20px 22px 16px; border-bottom: 1px solid var(--line); }
+    .failure-icon { flex: 0 0 auto; width: 34px; height: 34px; display: grid; place-items: center; color: #fff; background: #cf2f25; border-radius: 50%; font-size: 19px; font-weight: 700; }
+    .failure-modal-head h2 { margin: 0 0 4px; font-size: 18px; }
+    .failure-modal-head p { margin: 0; }
+    .failure-list { max-height: 260px; overflow: auto; margin: 0; padding: 6px 22px; list-style: none; }
+    .failure-list li { display: grid; grid-template-columns: minmax(0,1fr) 170px; gap: 16px; padding: 10px 0; border-bottom: 1px solid #edf0f3; }
+    .failure-list li:last-child { border-bottom: 0; }
+    .failure-list b { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-weight: 500; }
+    .failure-list span { color: #b42318; text-align: right; }
+    .failure-modal-actions { display: flex; justify-content: flex-end; padding: 12px 22px 16px; background: #f8fafc; border-top: 1px solid var(--line); }
+    .failure-modal-actions .btn { margin-top: 0; }
+    .video-modal { width: 820px; padding: 0; overflow: hidden; text-align: left; }
+    .video-modal-head { height: 54px; display: flex; align-items: center; padding: 0 18px; border-bottom: 1px solid var(--line); }
+    .video-modal-head h2 { margin: 0; font-size: 17px; }
+    .video-modal-head button { margin-left: auto; width: 32px; height: 32px; color: #667085; background: transparent; border: 0; font-size: 24px; }
+    .video-preview-area { min-height: 440px; display: grid; place-items: center; padding: 18px; background: #111b27; }
+    .video-preview-area video { width: 100%; max-height: 520px; background: #000; }
+    .video-placeholder { color: #d6e0ea; text-align: center; }
+    .video-placeholder .play { width: 64px; height: 64px; display: grid; place-items: center; margin: 0 auto 14px; border: 2px solid #8da5ba; border-radius: 50%; font-size: 25px; }
+    .problem-photo-preview-modal { width: auto; max-width: 92vw; padding: 0; overflow: hidden; text-align: left; background: #fff; }
+    .problem-photo-preview-area { min-width: 560px; min-height: 420px; display: grid; place-items: center; padding: 18px; background: #111b27; }
+    .problem-photo-preview-area img { display: block; max-width: 88vw; max-height: 82vh; object-fit: contain; }
+
+    /* 影像录入与问题标识工作台：现代政务视觉优化 */
+    #step2, #step3 { background: #f6f8fb; }
+    #step1 { padding-bottom: 0; }
+    #step2 { margin: 24px -26px 0; padding: 20px 18px 2px; border-top: 1px solid #e1e7ed; }
+    #step2 .combined-section-title { margin: 0 0 14px 2px; color: #182b3d; font-size: 17px; font-weight: 700; }
+    #step2 .info-strip { min-height: 46px; align-items: center; gap: 0; margin-bottom: 16px; padding: 0 16px; color: #40566d; background: #eef4fa; border: 0; border-left: 3px solid #2878c7; border-radius: 3px; }
+    #step2 .info-strip span { min-width: 0; padding-right: 22px; margin-right: 22px; border-right: 1px solid #d5e0eb; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    #step2 .info-strip span:last-child { padding-right: 0; margin-right: 0; border-right: 0; }
+    #step2 .upload-section { margin-bottom: 16px; overflow: visible; background: #fff; border-color: #dfe6ee; border-radius: 6px; box-shadow: 0 1px 2px rgba(24,48,74,.04); }
+    #step2 .upload-head { min-height: 58px; padding: 0 18px; background: #fff; border-bottom-color: #e7ecf1; }
+    #step2 .upload-head strong { position: relative; padding-left: 11px; color: #182b3d; font-size: 16px; }
+    #step2 .upload-head strong::before { content: ""; position: absolute; left: 0; top: 4px; width: 3px; height: 15px; background: #2878c7; }
+    #step2 .upload-head small { margin-left: 4px; color: #748396; }
+    #step2 .upload-body { padding: 18px; }
+    #step2 .btn.primary { height: 34px; padding: 0 14px; border-radius: 3px; box-shadow: none; }
+    #step2 #mediaGrid { grid-template-columns: repeat(auto-fill, minmax(142px, 1fr)); gap: 10px; }
+    #step2 #mediaGrid .media-card { overflow: hidden; border-color: #dfe6ed; border-radius: 4px; transition: border-color .16s ease, box-shadow .16s ease; }
+    #step2 #mediaGrid .media-card:hover { border-color: #9bbfe3; box-shadow: 0 3px 10px rgba(25,69,110,.09); }
+    #step2 #mediaGrid .thumb { height: auto; aspect-ratio: 16 / 9; background: #e9eef3; }
+    #step2 #mediaGrid .thumb video { width: 100%; height: 100%; object-fit: cover; }
+    #step2 #mediaGrid .video-card { cursor: pointer; }
+    #step2 #mediaGrid .play-badge { position: absolute; left: 50%; top: 50%; z-index: 3; width: 34px; height: 34px; display: grid; place-items: center; padding-left: 2px; color: #fff; background: rgba(13,35,54,.72); border: 1px solid rgba(255,255,255,.78); border-radius: 50%; transform: translate(-50%,-50%); }
+    #step2 .pano-card { overflow: visible; border-color: #dfe6ed; box-shadow: none; }
+    #step2 .pano-card .thumb { border-radius: 3px 0 0 3px; }
+    #step2 .pano-card .media-meta { background: #fbfcfd; }
+    #step2 .scene-row input { height: 36px; padding-left: 10px; background: #fff; border-color: #c9d4df; }
+    #step2 .scene-row::after { top: 7px; }
+    #step2 .scene-status { margin-top: 7px; }
+    #step2 .pagination { margin-top: 16px; padding-top: 12px; border-top: 1px solid #edf0f3; }
+
+    #step3 { padding-top: 20px; }
+    #step3 .section-title { margin: 0 0 4px; color: #182b3d; font-size: 18px; }
+    #step3 .section-title::before { display: none; }
+    #step3 .section-hint { margin: 0 0 16px; color: #758497; }
+    #step3 .annotation-layout { grid-template-columns: 252px minmax(480px, 1fr) 310px; gap: 12px; height: 610px; }
+    #step3 .work-panel { background: #fff; border-color: #dfe6ed; border-radius: 6px; box-shadow: 0 1px 3px rgba(24,48,74,.05); }
+    #step3 .media-tabs { height: 50px; background: #fff; border-bottom-color: #e6ebf0; }
+    #step3 .media-tab { position: relative; padding: 0 4px; color: #647487; background: #fff; border-bottom: 0; }
+    #step3 .media-tab::after { content: ""; position: absolute; left: 24px; right: 24px; bottom: 0; height: 3px; background: transparent; }
+    #step3 .media-tab.active { color: #1767b7; background: #f8fbff; }
+    #step3 .media-tab.active::after { background: #2878c7; }
+    #step3 .asset-list { height: 558px; padding: 10px; }
+    #step3 .asset-item { min-height: 66px; grid-template-columns: 72px 1fr; gap: 10px; padding: 8px; margin-bottom: 8px; background: #fff; border-color: #e7ebf0; border-radius: 4px; }
+    #step3 .asset-item:hover { background: #f8fbfe; border-color: #b7cee5; }
+    #step3 .asset-item.active { background: #f3f8fd; border-color: #6fa7dc; box-shadow: inset 3px 0 #2878c7; }
+    #step3 .asset-item.has-problem { background: #fff8f7; border-color: #edc2be; box-shadow: inset 3px 0 #cf2f25; }
+    #step3 .asset-item.has-problem.active { background: #f3f8fd; border-color: #6fa7dc; box-shadow: inset 3px 0 #cf2f25; }
+    #step3 .asset-mini { height: 50px; background: #e8edf2; border-radius: 2px; }
+    #step3 .scene-chip { padding: 2px 6px; color: #235f96; background: #eef5fb; border-color: #c9dced; border-radius: 2px; }
+    #step3 .asset-problem-count.has { color: #b42318; }
+    #step3 .viewer { background: #101820; border-color: #253746; box-shadow: 0 2px 8px rgba(15,31,45,.14); }
+    #step3 .viewer-bar { height: 48px; color: #24394d; background: #fff; border-bottom: 1px solid #dfe6ed; }
+    #step3 .viewer-scene { color: #245f94; background: #eef5fb; border-color: #c9dced; border-radius: 2px; }
+    #step3 .image-stage { background: #111a23; }
+    #step3 .image-stage::before { color: #d8e2eb; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.18); }
+    #step3 .viewer-foot { min-height: 48px; color: #52677a; background: #fff; border-top: 1px solid #dfe6ed; }
+    #step3 .viewer-foot span:last-child { margin-left: auto; color: #7a8998; }
+    #step3 .work-title { height: 50px; padding: 0 16px; color: #203548; background: #fff; border-bottom-color: #e6ebf0; font-size: 15px; }
+    #step3 .problem-form { height: calc(100% - 50px); padding: 16px; }
+    #step3 .problem-form .field { margin-bottom: 16px; }
+    #step3 .problem-form .field label { margin-bottom: 6px; color: #435467; font-weight: 600; }
+    #step3 .problem-form .control { height: 38px; border-color: #cbd5df; border-radius: 3px; }
+    #step3 .problem-form textarea.control { height: 90px; }
+    #step3 .evidence { height: 116px; color: #718196; background: #f8fafc; border-color: #cdd7e1; border-radius: 3px; }
+
+    /* 单页巡检录入与全屏问题标识二级页 */
+    .main-form-page { padding: 24px 26px 0; }
+    .main-form-page #step1 { padding: 0; }
+    .main-form-page #step2 { margin-top: 24px; }
+    .hazard-section { margin: 18px -8px 0; overflow: hidden; background: #fff; border: 1px solid #dfe6ee; border-radius: 6px; }
+    .hazard-head { min-height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 0 18px; background: #f8fafc; border-bottom: 1px solid #e4eaf0; }
+    .hazard-head > div { display: flex; align-items: baseline; gap: 12px; min-width: 0; }
+    .hazard-head strong { position: relative; padding-left: 11px; color: #182b3d; font-size: 16px; }
+    .hazard-head strong::before { content: ""; position: absolute; left: 0; top: 4px; width: 3px; height: 15px; background: #2878c7; }
+    .hazard-head small { color: #748396; }
+    .hazard-body { padding: 18px; }
+    .hazard-empty { min-height: 104px; display: grid; place-items: center; color: #7b8998; background: #fbfcfd; border: 1px dashed #d5dee7; }
+    .hazard-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    .hazard-table th { padding: 10px 12px; color: #516477; background: #f4f7fa; border-bottom: 1px solid #dfe6ed; text-align: left; font-weight: 600; }
+    .hazard-table td { padding: 12px; color: #263a4d; border-bottom: 1px solid #e7edf2; vertical-align: middle; }
+    .hazard-table tr:last-child td { border-bottom: 0; }
+    .hazard-table .problem-photo { width: 82px; height: 50px; display: grid; place-items: center; color: #fff; background: linear-gradient(145deg,#7a5539,#b18b68); border-radius: 2px; font-size: 12px; }
+    .hazard-table .actions { white-space: nowrap; }
+    .annotation-page { position: fixed; inset: 0; z-index: 90; display: none; flex-direction: column; background: #eef2f6; }
+    .annotation-page.show { display: flex; }
+    body.annotation-open { overflow: hidden; }
+    .annotation-page-head { height: 68px; flex: 0 0 68px; display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 0 24px; color: #fff; background: #153f6a; box-shadow: 0 2px 8px rgba(15,38,62,.18); }
+    .annotation-page-title { display: flex; align-items: center; gap: 22px; min-width: 0; }
+    .annotation-page-title strong { font-size: 20px; }
+    .annotation-page-title span { color: #d7e5f2; font-size: 13px; }
+    .annotation-page-actions { display: flex; align-items: center; gap: 18px; white-space: nowrap; }
+    .annotation-page-actions > span { color: #d7e5f2; }
+    .annotation-page-actions .btn.primary { background: #fff; border-color: #fff; color: #155fa8; }
+    .annotation-meta { display: flex; align-items: baseline; gap: 40px; min-width: 0; }
+    .annotation-meta span { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+    .annotation-meta em { color: #9fb0bf; font-size: 11px; font-style: normal; white-space: nowrap; }
+    .annotation-meta b { max-width: 260px; overflow: hidden; color: #dcebf2; font-size: 12px; font-weight: 500; text-overflow: ellipsis; white-space: nowrap; }
+    .annotation-page #step3 { flex: 1; min-height: 0; padding: 16px 18px 18px; }
+    .annotation-page #step3 .annotation-layout { height: 100%; grid-template-columns: 252px minmax(520px,1fr) 320px; }
+    .annotation-page #step3 .asset-list { height: calc(100vh - 152px); }
+
+    /* 最终统一布局：克制的政务表单与媒体工作台 */
+    .content { overflow: visible; }
+    .panel { overflow: visible; box-shadow: 0 2px 10px rgba(24,51,84,.06); }
+    .main-form-page { padding: 20px 20px 0; }
+    .record-section { margin: 0 0 16px; background: #fff; border: 1px solid #dce3ea; border-radius: 2px; }
+    .record-section-head { min-height: 48px; display: flex; align-items: center; padding: 0 16px; background: #f5f7f9; border-bottom: 1px solid #dce3ea; }
+    .record-section-head strong { color: #203548; font-size: 15px; }
+    .record-section-head > .btn { margin-left: auto; }
+    .section-count { margin-left: 6px; color: #667789; font-size: 13px; font-weight: 400; }
+    .record-section-body { padding: 16px; }
+    .edit-description { display: grid; grid-template-columns: 112px minmax(320px,1fr) 112px minmax(320px,1fr); padding: 0; border: 0; }
+    .edit-label, .edit-value { min-height: 58px; display: flex; align-items: center; border-right: 1px solid #e0e6ec; border-bottom: 1px solid #e0e6ec; }
+    .edit-label { padding: 10px 14px; color: #566779; background: #f7f8fa; font-weight: 600; }
+    .edit-value { min-width: 0; padding: 9px 12px; }
+    .edit-description > :nth-last-child(-n+4) { border-bottom: 0; }
+    .edit-description .span-value { grid-column: span 3; border-right: 0; }
+    .edit-value .control { height: 38px; padding: 0 4px; background: transparent; border: 0; border-radius: 0; box-shadow: none; }
+    .edit-value .control:focus { outline: 0; box-shadow: inset 0 -2px #2878c7; }
+    .edit-value .control.readonly { color: #5c6d7e; background: transparent; }
+    .edit-value textarea.control { min-height: 84px; height: 84px; padding: 7px 4px; line-height: 1.6; resize: none; }
+    .edit-value .combo { width: 100%; }
+    .edit-value.needs-input { position: relative; align-items: flex-start; padding: 9px 12px 25px; background: #f7fbff; }
+    .edit-value.needs-input.no-guide { align-items: center; padding-bottom: 9px; }
+    .edit-value.needs-input .control { height: 38px; padding: 0 10px; background: #fff; border: 1px solid #b7d4ef; border-radius: 3px; box-shadow: 0 0 0 2px rgba(24,144,232,.035); }
+    .edit-value.needs-input textarea.control { min-height: 84px; height: 84px; padding: 9px 10px; }
+    .edit-value.needs-input .control::placeholder { color: #7d9ab2; }
+    .edit-value.needs-input .control:hover { border-color: #6ca9df; }
+    .edit-value.needs-input .control:focus { border-color: #168fe5; box-shadow: 0 0 0 3px rgba(24,144,232,.12); }
+    .field-guide { position: absolute; left: 14px; bottom: 6px; color: #168fe5; font-size: 11px; line-height: 14px; }
+    .edit-value.auto-field .control { color: #667788; background: #f8fafc; }
+    .edit-value.auto-field .control::placeholder { color: #9aa8b5; }
+    .main-form-page #step2 { margin: 0 0 16px; padding: 0; background: #fff; border-top: 1px solid #dce3ea; }
+    .media-section-body { padding: 0 16px 16px; }
+    .media-block { position: relative; padding: 16px 0; transition: background-color .16s ease, outline-color .16s ease; }
+    .media-block + .media-block { border-top: 1px solid #e6ebf0; }
+    .media-block.is-dragover { z-index: 1; background: #f2f8ff; outline: 2px dashed #1684df; outline-offset: -8px; }
+    .media-block.is-dragover::after { content: "松开鼠标上传文件"; position: absolute; inset: 8px; z-index: 20; display: grid; place-items: center; color: #0879d0; background: rgba(242,248,255,.92); font-size: 16px; font-weight: 600; pointer-events: none; }
+    .media-block .empty { cursor: pointer; }
+    .media-block-head { min-height: 38px; display: flex; align-items: center; margin-bottom: 12px; }
+    .media-block-head > div:first-child { min-width: 0; display: flex; align-items: baseline; gap: 12px; }
+    .media-block-head > div:last-child { margin-left: auto; }
+    .media-block-head strong { color: #263b4e; font-size: 14px; }
+    .media-block-head small { color: #768596; }
+    .main-form-page #step2 #mediaGrid { grid-template-columns: repeat(auto-fill, minmax(112px,1fr)); gap: 8px; }
+    .main-form-page #step2 #mediaGrid .media-card { overflow: hidden; border-color: #dbe3ea; border-radius: 2px; box-shadow: none; cursor: pointer; }
+    .main-form-page #step2 #mediaGrid .media-card:hover { border-color: #77aadd; box-shadow: 0 2px 7px rgba(29,76,118,.10); }
+    .main-form-page #step2 #mediaGrid .thumb { aspect-ratio: 16/9; height: auto; min-height: 0; }
+    .main-form-page #step2 #mediaGrid .media-file-name-overlay { padding: 16px 7px 5px; font-size: 10px; }
+    .main-form-page #step2 #mediaGrid .play-badge { width: 28px; height: 28px; font-size: 12px; }
+    .media-duration { position: absolute; right: 5px; bottom: 5px; z-index: 4; padding: 1px 4px; color: #fff; background: rgba(12,29,44,.78); border-radius: 2px; font-size: 10px; }
+    .problem-badge { position: absolute; left: 5px; top: 5px; z-index: 4; padding: 2px 6px; color: #fff; background: #c93b32; border-radius: 2px; font-size: 10px; font-weight: 600; }
+    .media-delete { position: absolute; right: 5px; top: 5px; z-index: 8; width: 22px; height: 22px; display: grid; place-items: center; padding: 0; color: #fff; background: rgba(31,45,58,.78); border: 1px solid rgba(255,255,255,.72); border-radius: 2px; opacity: 0; transition: opacity .15s ease, background .15s ease; }
+    .media-card:hover > .media-delete,
+    .media-card:focus-within > .media-delete { opacity: 1; }
+    .media-delete:hover { background: #b42318; }
+    .main-form-page #step2 .pano-grid { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 10px; }
+    .main-form-page #step2 .pano-grid > .empty { grid-column: 1/-1; }
+    .main-form-page #step2 .pano-card { grid-template-columns: 145px minmax(0,1fr); min-height: 100px; overflow: visible; border-color: #dbe3ea; border-radius: 2px; }
+    .main-form-page #step2 .pano-card .thumb { min-height: 100px; cursor: pointer; }
+    .main-form-page #step2 .pano-card .media-meta { padding: 10px 12px; background: #fbfcfd; }
+    @media (max-width: 1280px) { .main-form-page #step2 .pano-grid { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+    .main-form-page #step2 .pagination { display: none; }
+    .hazard-section { margin: 0 0 16px; border-radius: 2px; }
+    .hazard-section .hazard-body { padding: 0; }
+    .hazard-table th { background: #f7f8fa; }
+    .hazard-table th, .hazard-table td { padding: 11px 14px; }
+    .hazard-table .problem-photo { width: 72px; height: 46px; overflow: hidden; background: #e7edf3; }
+    .hazard-table .problem-photo img { width: 100%; height: 100%; object-fit: cover; cursor: zoom-in; transition: opacity .15s ease; }
+    .hazard-table .problem-photo img:hover { opacity: .82; }
+    .hazard-empty { min-height: 84px; border: 0; background: #fff; }
+    .main-form-page > .footer-actions { margin: 0 -20px; padding: 12px 20px; z-index: 15; box-shadow: none; }
+
+    .annotation-page #step3 .annotation-layout { grid-template-columns: 232px minmax(560px,1fr) 310px; gap: 1px; background: #dce3ea; }
+    .annotation-page #step3 .work-panel { border: 0; border-radius: 0; box-shadow: none; }
+    .annotation-page #step3 .asset-list { height: calc(100vh - 179px); }
+    .annotation-page #step3 .viewer-bar { flex: 0 0 48px; }
+    .annotation-page #step3 .image-stage { cursor: grab; background: #18232e; }
+    .annotation-page #step3 .image-stage.dragging { cursor: grabbing; }
+    .panorama-viewer { width: 100%; height: 100%; }
+    .pano-problem-marker { width: 28px !important; height: 28px !important; display: grid !important; place-items: center; overflow: visible !important; color: #fff; background: #d43b32 !important; background-image: none !important; border: 2px solid #fff; border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,.35); font-size: 13px; font-weight: 700; cursor: pointer; }
+    .pano-problem-marker.draft { background: #1767c2 !important; }
+    .marker-description { position: absolute; left: 32px; top: 50%; max-width: 220px; padding: 5px 9px; overflow: hidden; color: #fff; background: rgba(145,35,31,.94); border: 1px solid rgba(255,255,255,.76); border-radius: 3px; box-shadow: 0 2px 8px rgba(0,0,0,.28); font-size: 12px; font-weight: 500; line-height: 16px; white-space: nowrap; text-overflow: ellipsis; transform: translateY(-50%); }
+    .image-canvas { position: absolute; inset: 0; transform-origin: center center; will-change: transform; }
+    .image-canvas > img { width: 100%; height: 100%; object-fit: contain; pointer-events: none; user-select: none; }
+    .annotation-page #step3 .marker { z-index: 5; width: 27px; height: 27px; display: grid; place-items: center; color: #fff; border: 2px solid #fff; background: #c93b32; box-shadow: 0 0 0 2px rgba(201,59,50,.32); cursor: pointer; font-size: 11px; font-weight: 700; }
+    .annotation-page #step3 .marker .marker-description { pointer-events: auto; }
+    .annotation-page #step3 .marker::after { display: none; }
+    .annotation-page #step3 .asset-problem-count:not(.has) { display: none; }
+    .annotation-page #step3 .asset-item.has-problem { background: #fff; border-color: #e2e8ee; box-shadow: none; }
+    .annotation-page #step3 .asset-item.active,
+    .annotation-page #step3 .asset-item.has-problem.active { background: #edf5ff; border-color: #4f9ae5; box-shadow: 0 0 0 1px rgba(79,154,229,.14); }
+    .annotation-page #step3 .work-title { justify-content: space-between; }
+    .annotation-page #step3 .work-title span { color: #6a7b8d; font-size: 12px; font-weight: 400; }
+    .all-problem-list { height: calc(100vh - 136px); padding: 8px; overflow: auto; }
+    .all-problem-empty { padding: 34px 10px; color: #7b8998; text-align: center; }
+    .all-problem-item { position: relative; display: grid; grid-template-columns: 54px minmax(0,1fr); gap: 9px; padding: 8px 32px 8px 8px; margin-bottom: 7px; background: #fff; border: 1px solid #e2e8ee; cursor: pointer; }
+    .all-problem-item:hover { border-color: #a6c4e2; background: #f8fbfe; }
+    .all-problem-item.active { background: #edf5ff; border-color: #4f9ae5; box-shadow: 0 0 0 1px rgba(79,154,229,.14); }
+    .all-problem-cover { width: 54px; height: 42px; overflow: hidden; background: #e7edf3; }
+    .all-problem-cover img { width: 100%; height: 100%; object-fit: cover; }
+    .all-problem-copy { min-width: 0; }
+    .all-problem-copy-head { min-width: 0; }
+    .all-problem-copy b { display: block; min-width: 0; margin-bottom: 5px; overflow: hidden; color: #2a3f53; font-size: 12px; white-space: nowrap; text-overflow: ellipsis; }
+    .all-problem-copy p { margin: 0; overflow: hidden; color: #667789; font-size: 11px; white-space: nowrap; text-overflow: ellipsis; }
+    .all-problem-delete { position: absolute; right: 5px; top: 5px; z-index: 2; width: 22px; height: 22px; display: grid; place-items: center; padding: 0; color: #fff; background: rgba(31,45,58,.78); border: 1px solid rgba(255,255,255,.72); border-radius: 2px; opacity: 0; transition: opacity .15s ease, background .15s ease; }
+    .all-problem-item:hover .all-problem-delete,
+    .all-problem-item:focus-within .all-problem-delete { opacity: 1; }
+    .all-problem-delete:hover { background: #b42318; }
+
+    /* 二级页左侧使用大图导航带：图片直接展示，名称嵌入底部，问题数独立警示。 */
+    .annotation-page #step3 .annotation-layout { grid-template-columns: 286px minmax(520px,1fr) 310px; }
+    .annotation-page #step3 .asset-list { padding: 12px; background: #f5f7f9; }
+    .annotation-page #step3 .asset-item,
+    .annotation-page #step3 .asset-item.has-problem {
+      position: relative;
+      display: block;
+      width: 100%;
+      min-height: 0;
+      aspect-ratio: 16 / 9;
+      margin: 0 0 12px;
+      padding: 0;
+      overflow: hidden;
+      background: #dfe6ec;
+      border: 2px solid transparent;
+      border-radius: 3px;
+      box-shadow: none;
+    }
+    .annotation-page #step3 .asset-item:hover,
+    .annotation-page #step3 .asset-item.has-problem:hover { background: #dfe6ec; border-color: #8db7df; }
+    .annotation-page #step3 .asset-item.active,
+    .annotation-page #step3 .asset-item.has-problem.active {
+      background: #dfe6ec;
+      border-color: #2176c7;
+      box-shadow: 0 0 0 1px rgba(33,118,199,.18);
+    }
+    .annotation-page #step3 .asset-mini { width: 100%; height: 100%; border: 0; border-radius: 0; background: #dfe6ec; }
+    .annotation-page #step3 .asset-mini img { width: 100%; height: 100%; object-fit: cover; }
+    .annotation-page #step3 .asset-copy {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 2;
+      display: block;
+      min-width: 0;
+      min-height: 44px;
+      padding: 20px 10px 8px;
+      color: #fff;
+      background: linear-gradient(to bottom, rgba(16,29,42,0), rgba(16,29,42,.9));
+      pointer-events: none;
+    }
+    .annotation-page #step3 .scene-chip,
+    .annotation-page #step3 .asset-index {
+      display: block;
+      max-width: 100%;
+      padding: 0;
+      overflow: hidden;
+      color: #fff;
+      background: transparent;
+      border: 0;
+      border-radius: 0;
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 18px;
+      text-overflow: ellipsis;
+      text-shadow: 0 1px 2px rgba(0,0,0,.55);
+      white-space: nowrap;
+    }
+    .annotation-page #step3 .scene-chip strong { color: inherit; font-weight: inherit; }
+    .annotation-page #step3 .asset-problem-count.has {
+      position: absolute;
+      right: 8px;
+      top: 8px;
+      z-index: 3;
+      margin: 0;
+      padding: 3px 8px;
+      color: #fff;
+      background: #c9342c;
+      border: 1px solid rgba(255,255,255,.72);
+      border-radius: 2px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.24);
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 18px;
+      pointer-events: none;
+    }
+    @media (max-width: 1300px) {
+      .annotation-page #step3 .annotation-layout { grid-template-columns: 250px minmax(480px,1fr) 290px; }
+    }
+
+    .problem-modal { width: 760px; padding: 0; overflow: hidden; text-align: left; border-radius: 2px; }
+    .problem-modal-head { height: 58px; display: flex; align-items: center; padding: 0 24px; background: #fff; border-bottom: 1px solid #dfe3e8; }
+    .problem-modal-head h2 { margin: 0; color: #202a35; font-size: 19px; font-weight: 600; }
+    .problem-modal-head button { margin-left: auto; width: 32px; height: 32px; color: #66717d; background: transparent; border: 0; font-size: 22px; cursor: pointer; }
+    .problem-modal-body { padding: 22px 24px 24px; }
+    .problem-modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 20px; }
+    .problem-modal-grid .span-2 { grid-column: 1/-1; }
+    .problem-modal-grid .field > label { margin-bottom: 8px; color: #303841; font-weight: 600; }
+    .problem-modal-grid .control { height: 40px; }
+    .problem-modal-grid textarea.control { height: 92px; padding-top: 10px; }
+    .radio-group { height: 40px; display: flex; align-items: center; gap: 30px; padding: 0 13px; background: #fff; border: 1px solid #cfd5dc; }
+    .radio-group label { display: inline-flex; align-items: center; gap: 4px; margin: 0; font-weight: 400; }
+    .problem-photo-label { display: flex; align-items: center; gap: 14px; margin-bottom: 8px; }
+    .problem-photo-label label { margin: 0; color: #303841; font-weight: 600; }
+    .problem-photo-label span { color: #7b8794; font-size: 12px; font-weight: 400; }
+    .problem-photo-grid { min-height: 112px; display: flex; align-content: flex-start; flex-wrap: wrap; gap: 10px; padding: 14px; background: #fff; border: 1px solid #dfe3e8; }
+    .problem-photo-grid.empty-upload { cursor: pointer; }
+    .problem-photo-grid.empty-upload:hover, .problem-photo-grid.dragging { border-color: #1890e8; background: #fbfdff; }
+    .problem-related-photos { display: none; gap: 8px; flex-wrap: wrap; align-content: flex-start; max-height: 154px; margin: 0 0 10px; padding: 9px 10px; overflow-y: auto; overflow-x: hidden; background: #f5f8fb; border: 1px solid #dfe7ef; scrollbar-width: thin; scrollbar-color: #c3cfda transparent; }
+    .problem-related-photos::-webkit-scrollbar { width: 6px; }
+    .problem-related-photos::-webkit-scrollbar-thumb { border-radius: 8px; background: #c3cfda; }
+    .problem-related-photos.show { display: flex; }
+    .problem-related-title { position: sticky; top: -9px; z-index: 2; width: 100%; padding: 7px 0 5px; color: #52677a; background: #f5f8fb; font-size: 12px; }
+    .problem-related-photo { position: relative; width: 76px; height: 58px; padding: 0; overflow: hidden; background: #e7edf3; border: 1px solid #cbd7e2; cursor: pointer; }
+    .problem-related-photo img { width: 100%; height: 100%; object-fit: cover; }
+    .problem-related-photo span { position: absolute; left: 3px; right: 3px; bottom: 3px; overflow: hidden; color: #fff; background: rgba(12,29,45,.72); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+    .problem-related-photo.selected { border-color: #168fe5; box-shadow: 0 0 0 2px rgba(22,143,229,.22); }
+    .problem-related-photo.selected::after { content: "✓"; position: absolute; right: 3px; top: 2px; width: 16px; height: 16px; color: #fff; background: #168fe5; border-radius: 50%; font-size: 11px; line-height: 16px; }
+    .related-photo-preview { position: fixed; z-index: 120; width: 240px; height: 170px; padding: 4px; pointer-events: none; background: #fff; border: 1px solid #b9c9d8; box-shadow: 0 8px 22px rgba(12,35,58,.25); }
+    .related-photo-preview img { width: 100%; height: 100%; object-fit: contain; }
+    .problem-photo-upload-tile, .problem-photo-add { width: 96px; height: 82px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px; padding: 0; color: #8a949f; background: #fafafa; border: 1px dashed #cfd5dc; cursor: pointer; }
+    .problem-photo-upload-tile .plus, .problem-photo-add .plus { color: #7c8793; font-size: 25px; font-weight: 300; line-height: 1; }
+    .problem-photo-upload-tile .caption, .problem-photo-add .caption { font-size: 12px; }
+    .problem-photo-upload-tile:hover, .problem-photo-add:hover { color: #1890e8; background: #f7fbff; border-color: #1890e8; }
+    .problem-photo-item { position: relative; width: 110px; height: 82px; overflow: hidden; background: #e7edf3; border: 1px solid #d1dae3; }
+    .problem-photo-item img { width: 100%; height: 100%; object-fit: cover; }
+    .problem-photo-item button { position: absolute; right: 4px; top: 4px; width: 22px; height: 22px; padding: 0; color: #fff; background: rgba(196,47,43,.9); border: 0; cursor: pointer; }
+    .problem-modal-actions { display: flex; justify-content: flex-end; gap: 10px; padding: 14px 24px; background: #fff; border-top: 1px solid #dfe3e8; }
+    .problem-modal .btn { margin-top: 0; }
+
+    /* 依据智能监管现有典型页面统一视觉语言 */
+    :root {
+      --primary: #1890e8;
+      --primary-dark: #0f7fd0;
+      --primary-soft: #eaf6ff;
+      --nav: #282d37;
+      --nav-dark: #20242c;
+      --text: #30343b;
+      --muted: #747b85;
+      --line: #dfe2e6;
+      --surface: #fff;
+      --bg: #f5f6f8;
+      --shadow: none;
+    }
+    body { color: var(--text); background: #fff; font-size: 14px; }
+    .topbar { height: 64px; color: #f7fbff; background: linear-gradient(90deg,#24455d 0%,#1d4057 56%,#19384e 100%); box-shadow: 0 2px 9px rgba(20,35,48,.24); }
+    .brand { width: 365px; height: 64px; display: flex; align-items: center; gap: 11px; flex: 0 0 365px; padding: 0 18px; color: #fff; background: transparent; font-size: 17px; font-weight: 600; letter-spacing: .3px; white-space: nowrap; }
+    .brand-mark { width: 38px; height: 38px; display: grid; place-items: center; flex: 0 0 auto; color: #fff; background: linear-gradient(145deg,#2aa4ef,#0878c8); border: 1px solid rgba(255,255,255,.2); border-radius: 8px; box-shadow: 0 3px 9px rgba(4,34,58,.24); }
+    .brand-mark svg { width: 27px; height: 27px; overflow: visible; }
+    .brand-mark .drone-line { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .brand-mark .building-fill { fill: rgba(255,255,255,.22); stroke: currentColor; stroke-width: 1.5; stroke-linejoin: round; }
+    .top-title { display: none; }
+    .top-user { margin-right: 18px; padding: 0 14px; color: rgba(255,255,255,.9); }
+    .top-user:hover { color: #fff; background: rgba(255,255,255,.08); }
+    .user-menu { top: 58px; border-color: #d7dce2; border-radius: 1px; box-shadow: 0 6px 18px rgba(30,36,44,.15); }
+    .layout { grid-template-columns: 220px 1fr; min-height: calc(100vh - 64px); }
+    .sidebar { padding: 18px 0; color: #fff; background: #282d37; }
+    .side-section { margin: 8px 0 4px; padding: 8px 22px; color: #858c97; font-size: 12px; }
+    .side-item { min-height: 46px; margin: 0; padding: 0 22px; color: #f3f4f6; border-radius: 0; }
+    .side-item:hover { background: #222731; }
+    .side-item.active { color: #fff; background: var(--primary); box-shadow: none; }
+    .content { padding: 0 24px 24px; background: #fff; }
+    .breadcrumb { height: 48px; display: flex; align-items: center; margin: 0 -24px 18px; padding: 0 24px; color: #777e87; background: #f5f6f8; border-bottom: 1px solid #eceef1; font-size: 14px; }
+    .page-head { min-height: 54px; margin-bottom: 16px; padding: 0 2px 12px; border-bottom: 1px solid #dfe3e8; }
+    .page-head h1 { color: #222b35; font-size: 24px; line-height: 1.35; font-weight: 600; letter-spacing: .01em; }
+    .panel { background: #fff; border: 0; border-radius: 0; box-shadow: none; }
+    .main-form-page { padding: 0 0 2px; }
+    .record-section { margin-bottom: 16px; border-color: #dfe2e6; border-radius: 0; }
+    .record-section-head { min-height: 50px; padding: 0 18px; background: #f5f6f8; border-bottom-color: #d9dee4; }
+    .record-section-head strong { color: #28313b; font-size: 16px; font-weight: 600; }
+    .record-section-body { padding: 16px 18px; }
+    .edit-description { padding: 0; }
+    .edit-label, .edit-value { min-height: 56px; border-color: #e1e4e8; }
+    .edit-label { color: #46515d; background: #f8f9fa; font-size: 14px; font-weight: 600; }
+    .edit-value .control { color: #343b44; }
+    .edit-value .control:focus { box-shadow: inset 0 -2px var(--primary); }
+    .control { border-color: #cfd4da; border-radius: 1px; }
+    .control:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(24,144,232,.10); }
+    .combo-options, .scene-options { border-radius: 0; box-shadow: 0 4px 14px rgba(30,36,44,.14); }
+    .btn { height: 36px; padding: 0 16px; color: #3f4650; background: #fff; border-color: #cfd4da; border-radius: 2px; }
+    .btn:hover { color: var(--primary); border-color: var(--primary); }
+    .btn.primary { color: #fff; background: var(--primary); border-color: var(--primary); }
+    .btn.primary:hover { background: var(--primary-dark); border-color: var(--primary-dark); }
+    .main-form-page #step2 { border-color: #dfe2e6; }
+    .media-section-body { padding: 0 18px 16px; }
+    .media-block { padding: 16px 0 18px; }
+    .media-block + .media-block { border-top-color: #e3e6ea; }
+    .media-block-head { margin-bottom: 14px; }
+    .media-block-head strong { color: #343c46; font-weight: 500; }
+    .media-block-head small { color: #7b828b; }
+    .main-form-page #step2 #mediaGrid .media-card,
+    .main-form-page #step2 .pano-card { border-color: #dfe2e6; border-radius: 0; }
+    .main-form-page #step2 #mediaGrid .media-card:hover,
+    .main-form-page #step2 .pano-card:hover { border-color: var(--primary); box-shadow: none; }
+    .main-form-page #step2 .pano-card .media-meta { background: #fff; border-left-color: #e1e4e8; }
+    .scene-row input { border-radius: 1px; }
+    .hazard-section { border-radius: 0; }
+    .hazard-table th { color: #404750; background: #f6f7f9; font-weight: 500; }
+    .hazard-table th, .hazard-table td { border-color: #e1e4e8; }
+    .footer-actions { padding: 14px 0; background: #fff; border-top-color: #dfe2e6; }
+    .modal-mask { background: rgba(26,31,38,.48); }
+    .modal, .problem-modal, .failure-modal, .video-modal { border-radius: 1px; box-shadow: 0 12px 36px rgba(25,30,37,.24); }
+    .failure-modal-actions { background: #f6f7f9; border-color: #dfe2e6; }
+    .problem-modal-head, .problem-modal-actions { background: #fff; border-color: #dfe2e6; }
+    .problem-modal-head h2 { color: #202a35; font-weight: 600; }
+    .radio-group, .problem-photo-grid { border-color: #d7dce2; border-radius: 0; }
+    .problem-photo-add, .problem-photo-item { border-radius: 0; }
+
+    /* 沉浸式暗色标识工作台：弱化框架，突出影像、问题标记与当前操作。 */
+    .annotation-page { color: #dce6ef; background: #101821; }
+    .annotation-page-head { height: 64px; flex-basis: 64px; padding: 0 20px; color: #eaf2f8; background: #172635; border-bottom: 1px solid #304252; box-shadow: 0 2px 10px rgba(0,0,0,.3); }
+    .annotation-page-title strong { max-width: 330px; overflow: hidden; color: #f4f8fb; font-size: 15px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+    .annotation-page-title span, .annotation-page-actions > span { color: #9fb0bf; }
+    .annotation-page-actions .btn.primary { color: #fff; background: #168fe5; border-color: #168fe5; }
+    .annotation-meta b { color: #b9d8dc; }
+    .annotation-page #step3 { padding: 14px 16px 16px; background: #101821; }
+    .annotation-page #step3 .annotation-layout { gap: 1px; background: #304252; }
+    .annotation-page #step3 .work-panel { border: 0; border-radius: 0; box-shadow: none; }
+    .annotation-page #step3 .media-tabs,
+    .annotation-page #step3 .asset-list-head,
+    .annotation-page #step3 .work-title,
+    .annotation-page #step3 .viewer-bar { color: #dce6ef; background: #1c2a37; border-color: #304252; }
+    .annotation-page #step3 .media-tab { color: #9fb0bf; background: #1c2a37; }
+    .annotation-page #step3 .media-tab.active { color: #fff; background: #243646; }
+    .annotation-page #step3 .media-tab.active::after { background: #2b9bf0; }
+    .annotation-page #step3 .asset-list { background: #17232e; }
+    .annotation-page #step3 .asset-list { scrollbar-width: thin; scrollbar-color: rgba(111,190,198,.58) transparent; }
+    .annotation-page #step3 .asset-list::-webkit-scrollbar { width: 6px; }
+    .annotation-page #step3 .asset-list::-webkit-scrollbar-track { background: transparent; }
+    .annotation-page #step3 .asset-list::-webkit-scrollbar-thumb { border: 1px solid rgba(8,35,46,.9); border-radius: 8px; background: rgba(111,190,198,.58); }
+    .annotation-page #step3 .asset-list::-webkit-scrollbar-thumb:hover { background: rgba(111,210,210,.8); }
+    .annotation-page #step3 .asset-item { color: #dce6ef; background: #1c2a37; border-color: #344858; }
+    .annotation-page #step3 .asset-item:hover { background: #233746; border-color: #52738d; }
+    .annotation-page #step3 .asset-item.active,
+    .annotation-page #step3 .asset-item.has-problem.active { background: #263d50; border-color: #2b9bf0; box-shadow: 0 0 0 1px rgba(43,155,240,.28); }
+    .annotation-page #step3 .asset-copy,
+    .annotation-page #step3 .scene-chip,
+    .annotation-page #step3 .asset-index,
+    .annotation-page #step3 .work-title strong { color: #e4edf5; }
+    .annotation-page #step3 .asset-mini { background: #101821; border-color: #3b4e5e; }
+    .annotation-page #step3 .asset-list-head { color: #dce6ef; background: #1c2a37; border-color: #304252; }
+    .annotation-page #step3 .asset-list-head small, .annotation-page #step3 .asset-file-name { color: #8fa3b3; }
+    .annotation-page #step3 .asset-kind { color: #8cc8f4; }
+    .annotation-page #step3 .asset-item.video-asset { cursor: pointer; }
+    .annotation-page #step3 .image-stage { background: #0d151d; }
+    .annotation-page #step3 .viewer-foot { color: #9fb0bf; background: #1c2a37; border-color: #304252; }
+    .all-problem-list { color: #dce6ef; background: #17232e; }
+    .all-problem-head { color: #e4edf5; background: #1c2a37; border-color: #304252; }
+    .all-problem-empty { color: #7f919f; }
+    .all-problem-item { color: #dce6ef; background: #1c2a37; border-color: #344858; border-radius: 0; }
+    .all-problem-item:hover, .all-problem-item.active { border-color: #2b9bf0; background: #263d50; box-shadow: none; }
+    .all-problem-copy-head b { color: #f0f5f9; }
+    .all-problem-copy p { color: #9fb0bf; }
+    .toast { top: 76px; border-radius: 2px; }
+
+    /* 上传入口位于分组标题右侧；内容区只承载已上传素材与简洁空状态。 */
+    .media-section-body { padding: 2px 18px 18px; }
+    .media-block { padding: 0; }
+    .media-block + .media-block { margin-top: 18px; padding-top: 18px; border-top: 1px solid #dfe4ea; }
+    .media-block-head { min-height: 48px; margin: 0; padding: 0; background: transparent; border: 0; }
+    .media-block-head > div:first-child { min-width: 0; }
+    .media-block-head strong { color: #2f3c49; font-size: 15px; font-weight: 600; }
+    .media-block-head small { overflow: hidden; color: #74808d; text-overflow: ellipsis; white-space: nowrap; }
+    .media-block > .media-grid { min-height: 112px; padding: 0 0 6px; align-content: start; background: transparent; border: 0; }
+    .main-form-page #step2 .pano-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 14px; }
+    .main-form-page #step2 #mediaGrid { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 8px; }
+    .media-grid.is-empty { min-height: 112px; display: flex; align-items: center; justify-content: center; box-sizing: border-box; background: #fff; }
+    .main-form-page #step2 #mediaGrid .media-card { width: 104px; flex: 0 0 104px; }
+    .main-form-page #step2 #mediaGrid .thumb { width: 104px; height: 112px; aspect-ratio: auto; }
+    .main-form-page #step2 .pano-card { min-height: 112px; }
+    .main-form-page #step2 .pano-card .thumb { min-height: 112px; }
+    .media-block.is-dragover > .media-grid { background: #f5f9fd; }
+    .media-block.is-dragover::after { inset: 48px 0 6px; border-radius: 0; }
+    .media-block .pagination:not(:empty) { margin: 4px 0 0; padding: 8px 0 0; background: transparent; border: 0; border-top: 1px solid #edf0f3; }
+    @media (max-width: 1180px) { .main-form-page #step2 .pano-grid:not(.is-empty) { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+
+    .hazard-section .record-section-head { border-bottom: 1px solid #d9dee4; }
+    .hazard-section .hazard-body { min-height: 126px; background: #fff; }
+    .hazard-empty { min-height: 104px; display: flex; align-items: center; justify-content: center; padding: 18px; color: #6e7b89; background: #fff; border: 0; text-align: center; }
+    .hazard-empty b { display: block; margin-bottom: 5px; color: #354352; font-size: 15px; font-weight: 600; }
+    .hazard-empty p { margin: 0; color: #7b8793; font-size: 13px; }
+    .hazard-table { border-collapse: separate; border-spacing: 0; }
+    .hazard-table th { height: 46px; padding: 0 16px; color: #44515f; background: #f7f8fa; font-size: 14px; font-weight: 600; }
+    .hazard-table td { height: 72px; padding: 11px 16px; color: #384552; vertical-align: middle; }
+    .hazard-table tbody tr:hover td { background: #f8fbfe; }
+    .hazard-table .problem-photo { width: 76px; height: 50px; border: 1px solid #d6dde5; cursor: zoom-in; }
+    .hazard-type { display: inline-block; min-width: 46px; padding: 3px 9px; color: #315f87; text-align: center; background: #eef5fb; border: 1px solid #c9ddec; font-size: 13px; }
+    .hazard-desc { color: #283540; font-weight: 500; line-height: 1.6; }
+    .hazard-table .actions { text-align: center; white-space: nowrap; }
+    .hazard-table .actions .btn + .btn { margin-left: 6px; }
+    .hazard-table .hazard-index { padding-right: 0; padding-left: 0; text-align: center; }
+    .hazard-table td.hazard-index { color: #66758a; }
+  </style>
+<style>
+  #step2 .media-section-body{display:grid;gap:14px}
+  #step2 .media-block{border:0;border-radius:0;background:transparent}
+  #step2 .media-block-head{padding:12px 14px}
+  #step2 #mediaGrid,#step2 #videoGrid{display:flex;flex-wrap:wrap;align-items:flex-start;gap:8px;padding:0 12px 12px}
+  #step2 .photo-association{display:grid;grid-template-columns:auto 1fr;gap:6px;align-items:center;padding:7px 8px;color:#68798a;font-size:11px;background:#fbfcfd;border-top:1px solid #e6edf3}
+  #step2 .photo-association select{min-width:0;width:100%;height:28px;border:1px solid #d3dde6;border-radius:3px;color:#34495e;background:#fff;padding:0 6px;font-size:11px}
+  #step2 .pano-photo-association{display:none}
+  #step2 .video-link-entry{display:flex;gap:8px;align-items:center;min-width:420px}
+  #step2 .video-link-entry .control{width:326px;height:34px;min-height:34px;padding:0 10px;resize:none}
+  #step2 .video-link-entry .btn{height:34px;padding:0 15px;white-space:nowrap}
+  #step2 #videoGrid .video-card{width:132px;flex:0 0 132px;overflow:hidden;border:1px solid #d9e1ea;border-radius:4px;background:#fff;cursor:pointer}
+  #step2 #videoGrid .thumb{position:relative;width:132px;height:92px;overflow:hidden;background:#dce6ec}
+  #step2 #videoGrid .thumb img{display:block;width:100%;height:100%;object-fit:cover}
+  #step2 #videoGrid .play-badge{position:absolute;top:50%;left:50%;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.92);color:#2474ad;font-size:15px;transform:translate(-50%,-50%);box-shadow:0 2px 6px rgba(0,0,0,.18)}
+  #step2 #videoGrid .media-duration{position:absolute;right:5px;bottom:5px;padding:2px 5px;border-radius:3px;color:#fff;background:rgba(21,38,52,.72);font-size:10px}
+  #step2 .pano-index{position:absolute;top:7px;left:7px;z-index:2;display:grid;place-items:center;min-width:25px;height:25px;padding:0 5px;border-radius:13px;color:#fff;background:rgba(22,105,157,.92);font-size:12px;font-weight:700;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+  #step2 .photo-group{width:100%}
+  #step2 .photo-group{padding:0 0 12px;border-bottom:1px solid #e7edf2}
+  #step2 .photo-group:last-child{border-bottom:0}
+  #step2 .photo-group-head{display:flex;align-items:center;gap:8px;padding:7px 0;color:#34495e;font-size:12px;font-weight:700}
+  #step2 .photo-group-head .group-count{color:#8998a7;font-weight:500}
+  #step2 .photo-group-head .group-upload{margin-left:0;height:30px;padding:0 11px;border:1px solid #b9cfe2;border-radius:3px;color:#2878c7;background:#f7fbff;cursor:pointer;font-size:11px}
+  #step2 .photo-group-head .group-upload:hover{border-color:#2878c7;background:#edf6ff}
+  #step2 .photo-group-grid{display:flex;flex-wrap:wrap;gap:8px;padding:0}
+  #step2 .photo-group-empty{padding:8px 0;color:#9aa8b5;font-size:11px}
+  #step2 .pano-card{border-color:#dce5ed;box-shadow:0 1px 2px rgba(24,48,74,.04)}
+  #step2 .pano-card .media-meta{border-left:1px solid #e8edf2}
+
+  /* 影像资料三级分区：仅用标题带与左侧标识建立层级，不增加装饰性横线和圆角套框。 */
+  #step2 .media-section-body{display:block;padding:0 18px 20px}
+  #step2 .media-block{margin:0;padding:0 0 22px;background:#fff}
+  #step2 .media-block + .media-block{margin:0;padding-top:0;border-top:0}
+  #step2 .media-block-head{min-height:54px;margin:0 -18px 16px;padding:0 18px;background:#f7f9fb;border-bottom:1px solid #dce3ea;border-left:3px solid #2b82c9}
+  #step2 .media-block + .media-block .media-block-head{margin-top:0}
+  #step2 .media-block-head strong{color:#24384a;font-size:15px;font-weight:700}
+  #step2 .media-block-head small{color:#748394}
+  #step2 .media-block > .media-grid{min-height:92px;padding:0 6px 2px}
+  #step2 #mediaGrid,#step2 #videoGrid{padding:0 6px 2px}
+  #step2 .media-block:last-child{padding-bottom:4px}
+
+  /* 无人机巡检模块首页 */
+  .record-list-page{min-width:760px}
+  .record-list-page .page-head{justify-content:space-between}
+  .record-list-title{display:flex;align-items:baseline;gap:9px}
+  .record-list-title .count{color:#7f8c99;font-size:14px;font-weight:400}
+  .record-list-toolbar{display:grid;grid-template-columns:minmax(220px,.9fr) minmax(280px,1.25fr) 285px auto;gap:10px;align-items:center;margin-bottom:18px;padding:16px;background:#f7f9fb;border:1px solid #dfe5eb}
+  .record-list-toolbar .control{height:38px;background:#fff}
+  .record-filter-combo{position:relative;min-width:0}
+  .record-filter-combo .control{width:100%}
+  .record-date-picker{position:relative}
+  .record-date-trigger{display:flex;align-items:center;justify-content:space-between;width:100%;height:38px;padding:0 12px;color:#455766;background:#fff;border:1px solid #cfd8e1;cursor:pointer;text-align:left}
+  .record-date-trigger.placeholder{color:#8b98a5}
+  .record-date-panel{position:absolute;z-index:30;top:46px;right:0;width:650px;padding:0;background:#fff;border:1px solid #d5dde5;box-shadow:0 10px 28px rgba(27,48,67,.18)}
+  .record-date-panel[hidden]{display:none}
+  .record-date-inputs{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;padding:14px 16px;border-bottom:1px solid #e3e8ed}
+  .record-date-inputs span{color:#7d8a97;font-size:12px}
+  .record-date-body{display:grid;grid-template-columns:120px 1fr}
+  .record-date-presets{padding:12px;border-right:1px solid #e3e8ed}
+  .record-date-presets b{display:block;margin:0 0 8px 8px;color:#7d8995;font-size:12px}
+  .record-date-presets button{display:block;width:100%;height:34px;padding:0 9px;color:#425466;background:transparent;border:0;cursor:pointer;text-align:left}
+  .record-date-presets button:hover{color:#1478bd;background:#edf6fd}
+  .record-calendar-pair{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:12px}
+  .record-calendar header{display:flex;align-items:center;justify-content:center;height:30px;color:#354758;font-size:13px;font-weight:600}
+  .record-calendar-week,.record-calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);text-align:center}
+  .record-calendar-week span{padding:5px 0;color:#8794a0;font-size:11px}
+  .record-calendar-grid i,.record-calendar-grid button{height:28px;border:0;background:transparent;font-style:normal;font-size:11px}
+  .record-calendar-grid button{color:#465665;cursor:pointer}
+  .record-calendar-grid button:hover{color:#fff;background:#2582c8;border-radius:2px}
+  .record-date-actions{display:flex;justify-content:flex-end;gap:8px;padding:10px 16px;border-top:1px solid #e3e8ed}
+  .record-table-wrap{overflow:auto;background:#fff;border:1px solid #dfe5eb}
+  .record-table{width:100%;min-width:1120px;border-collapse:collapse;table-layout:fixed}
+  .record-table th{height:45px;padding:0 14px;color:#50606f;background:#f4f6f8;border-bottom:1px solid #dfe5eb;text-align:left;font-size:13px;font-weight:600}
+  .record-table td{height:68px;padding:10px 14px;color:#465360;border-bottom:1px solid #edf0f3;vertical-align:middle;font-size:13px}
+  .record-table tbody tr:hover td{background:#f8fbfe}
+  .record-table tbody tr:last-child td{border-bottom:0}
+  .record-table .record-project{overflow:hidden;color:#243442;font-size:14px;font-weight:600;text-overflow:ellipsis;white-space:nowrap}
+  .record-table .record-engineering{overflow:hidden;color:#465767;font-size:13px;text-overflow:ellipsis;white-space:nowrap}
+  .record-media-counts{display:flex;gap:10px;color:#536779;white-space:nowrap}
+  .record-media-counts b{color:#2377b9;font-weight:600}
+  .record-list-empty{display:none;padding:52px 20px;color:#8995a1;text-align:center;background:#fff;border:1px solid #dfe5eb;border-top:0}
+  .record-list-empty.show{display:block}
+  .record-list-footer{display:flex;align-items:center;justify-content:space-between;padding:13px 2px;color:#7d8995;font-size:13px}
+  .record-pagination{display:flex;align-items:center;gap:6px}
+  .record-pagination span{display:grid;place-items:center;min-width:30px;height:30px;border:1px solid #d7dfe7;background:#fff}
+  .record-pagination .active{color:#fff;background:#2582c8;border-color:#2582c8}
+  .form-page-head{justify-content:space-between}
+  .form-page-head .form-title{display:flex;align-items:center;gap:14px}
+  .form-back{padding:0;color:#5e7081;background:none;border:0;cursor:pointer;font-size:13px}
+  .form-back:hover{color:#1683d4}
+  @media(max-width:1280px){.record-list-toolbar{grid-template-columns:1fr 1.2fr}.record-date-picker{grid-column:1}.record-list-toolbar .toolbar-actions{grid-column:2;justify-self:end}.record-date-panel{right:auto;left:0}}
+</style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32" role="img"><g class="drone-line"><path d="M7 9.5h5l2.2 2.3h3.6L20 9.5h5"/><path d="M10.5 9.5 8 14m13.5-4.5L24 14"/><path d="M13.2 12h5.6l-1 4h-3.6z"/><path d="M4.5 7.5h6m11 0h6"/><circle cx="7.5" cy="7.5" r="2.5"/><circle cx="24.5" cy="7.5" r="2.5"/></g><path class="building-fill" d="M9.5 27V17.5h7V27m0 0v-7h6V27z"/><g class="drone-line"><path d="M12.5 21h1m-1 3h1m7-1h-1m-10 4h14"/></g></svg></span><span>建设工程无人机巡检平台</span></div>
+    <div class="top-user" id="userMenuTrigger">第三方巡检人员　张巡检 ▾<div class="user-menu" id="userMenu"><button type="button" id="loadDemo">加载演示数据</button></div></div>
+  </header>
+  <div class="layout">
+    <aside class="sidebar"><div class="side-section">功能菜单</div><div class="side-item active">▣　无人机巡检</div></aside>
+    <main class="content">
+      <div class="record-list-page" id="recordListPage">
+        <div class="breadcrumb">无人机巡检　›　巡检记录</div>
+        <div class="page-head">
+          <div class="record-list-title"><h1>无人机巡检记录</h1><span class="count" id="recordTotalText">共 8 条</span></div>
+          <button class="btn primary" type="button" id="openCreateRecord">＋ 新增巡检记录</button>
+        </div>
+        <section class="record-list-section">
+          <div class="record-list-toolbar">
+            <div class="record-filter-combo"><input class="control" id="recordProjectFilter" list="recordProjectOptions" placeholder="搜索并选择项目" autocomplete="off"><datalist id="recordProjectOptions"><option value="深圳国际演艺中心建设项目"><option value="穗莞深城际轨道交通深圳机场至前海段工程"><option value="龙城北综合车场工程(含保障性租赁住房)"><option value="福城南产业片区10-08-03宗地项目"></datalist></div>
+            <div class="record-filter-combo"><input class="control" id="recordEngineeringFilter" list="recordEngineeringOptions" placeholder="搜索并选择工程" autocomplete="off"><datalist id="recordEngineeringOptions"><option value="国际演艺中心建设主体工程"><option value="国际演艺中心地基与基础工程"><option value="国际演艺中心建设工程外立面装饰幕墙工程"><option value="穗莞深城际轨道交通深圳机场至前海段工程I标土建一工区"><option value="穗莞深城际轨道交通深圳机场至前海段工程II标土建二工区"><option value="龙城北综合车场主体工程"><option value="福城南产业片区10-08-03宗地项目桩基础工程"><option value="福城南产业片区10-08-03宗地项目基坑支护与土石方工程"></datalist></div>
+            <div class="record-date-picker" id="recordDatePicker">
+              <button class="record-date-trigger placeholder" type="button" id="recordDateTrigger"><span id="recordDateLabel">选择时间段</span><span>⌄</span></button>
+              <div class="record-date-panel" id="recordDatePanel" hidden>
+                <div class="record-date-inputs"><input class="control" id="recordDateStart" type="date" aria-label="开始日期"><span>至</span><input class="control" id="recordDateEnd" type="date" aria-label="结束日期"></div>
+                <div class="record-date-body"><nav class="record-date-presets"><b>快捷选择</b><button type="button" data-record-range="30">近30天</button><button type="button" data-record-range="365">近一年</button></nav><div class="record-calendar-pair"><div class="record-calendar" data-calendar-offset="0"></div><div class="record-calendar" data-calendar-offset="1"></div></div></div>
+                <div class="record-date-actions"><button class="btn" type="button" id="clearRecordDate">清空</button><button class="btn primary" type="button" id="confirmRecordDate">确定</button></div>
+              </div>
+            </div>
+            <div class="toolbar-actions"><button class="btn" type="button" id="resetRecordFilters">重置</button></div>
+          </div>
+          <div class="record-table-wrap" id="recordTableWrap">
+            <table class="record-table">
+              <thead><tr><th style="width:150px">巡检时间</th><th style="width:230px">项目名称</th><th style="width:280px">工程名称</th><th style="width:190px">施工单位</th><th style="width:100px">巡检人员</th><th style="width:185px">影像资料</th><th style="width:90px">操作</th></tr></thead>
+              <tbody id="recordTableBody">
+                <tr data-date="2026-08-26" data-project="深圳国际演艺中心建设项目" data-engineering="国际演艺中心建设主体工程"><td>2026-08-26 11:58</td><td><div class="record-project">深圳国际演艺中心建设项目</div></td><td><div class="record-engineering">国际演艺中心建设主体工程</div></td><td>深圳市绿篱建设工程有限公司</td><td>张巡检</td><td><div class="record-media-counts"><span>全景 <b>3</b></span><span>图片 <b>30</b></span><span>视频 <b>2</b></span></div></td><td><button class="btn text" type="button" data-view-record>查看</button></td></tr>
+                <tr data-date="2026-08-25" data-project="深圳国际演艺中心建设项目" data-engineering="国际演艺中心地基与基础工程"><td>2026-08-25 15:30</td><td><div class="record-project">深圳国际演艺中心建设项目</div></td><td><div class="record-engineering">国际演艺中心地基与基础工程</div></td><td>深圳市岩土工程有限公司</td><td>李巡检</td><td><div class="record-media-counts"><span>全景 <b>4</b></span><span>图片 <b>46</b></span><span>视频 <b>1</b></span></div></td><td><button class="btn text" type="button" data-view-record>查看</button></td></tr>
+                <tr data-date="2026-08-23" data-project="穗莞深城际轨道交通深圳机场至前海段工程" data-engineering="穗莞深城际轨道交通深圳机场至前海段工程I标土建一工区"><td>2026-08-23 09:16</td><td><div class="record-project">穗莞深城际轨道交通深圳机场至前海段工程</div></td><td><div class="record-engineering">穗莞深城际轨道交通深圳机场至前海段工程I标土建一工区</div></td><td>深圳市市政工程总公司</td><td>张巡检</td><td><div class="record-media-counts"><span>全景 <b>2</b></span><span>图片 <b>18</b></span><span>视频 <b>0</b></span></div></td><td><button class="btn text" type="button" data-view-record>查看</button></td></tr>
+                <tr data-date="2026-08-20" data-project="龙城北综合车场工程(含保障性租赁住房)" data-engineering="龙城北综合车场主体工程"><td>2026-08-20 14:42</td><td><div class="record-project">龙城北综合车场工程(含保障性租赁住房)</div></td><td><div class="record-engineering">龙城北综合车场主体工程</div></td><td>深圳市建工集团股份有限公司</td><td>王巡检</td><td><div class="record-media-counts"><span>全景 <b>3</b></span><span>图片 <b>24</b></span><span>视频 <b>1</b></span></div></td><td><button class="btn text" type="button" data-view-record>查看</button></td></tr>
+                <tr data-date="2026-08-18" data-project="福城南产业片区10-08-03宗地项目" data-engineering="福城南产业片区10-08-03宗地项目桩基础工程"><td>2026-08-18 10:05</td><td><div class="record-project">福城南产业片区10-08-03宗地项目</div></td><td><div class="record-engineering">福城南产业片区10-08-03宗地项目桩基础工程</div></td><td>深圳市建安集团有限公司</td><td>张巡检</td><td><div class="record-media-counts"><span>全景 <b>2</b></span><span>图片 <b>16</b></span><span>视频 <b>1</b></span></div></td><td><button class="btn text" type="button" data-view-record>查看</button></td></tr>
+                <tr data-date="2026-08-16" data-project="深圳国际演艺中心建设项目" data-engineering="国际演艺中心建设工程外立面装饰幕墙工程"><td>2026-08-16 16:28</td><td><div class="record-project">深圳国际演艺中心建设项目</div></td><td><div class="record-engineering">国际演艺中心建设工程外立面装饰幕墙工程</div></td><td>中建三局集团有限公司</td><td>李巡检</td><td><div class="record-media-counts"><span>全景 <b>2</b></span><span>图片 <b>12</b></span><span>视频 <b>0</b></span></div></td><td><button class="btn text" type="button" data-view-record>查看</button></td></tr>
+                <tr data-date="2026-08-12" data-project="穗莞深城际轨道交通深圳机场至前海段工程" data-engineering="穗莞深城际轨道交通深圳机场至前海段工程II标土建二工区"><td>2026-08-12 08:36</td><td><div class="record-project">穗莞深城际轨道交通深圳机场至前海段工程</div></td><td><div class="record-engineering">穗莞深城际轨道交通深圳机场至前海段工程II标土建二工区</div></td><td>深圳市市政工程总公司</td><td>王巡检</td><td><div class="record-media-counts"><span>全景 <b>3</b></span><span>图片 <b>28</b></span><span>视频 <b>2</b></span></div></td><td><button class="btn text" type="button" data-view-record>查看</button></td></tr>
+                <tr data-date="2026-08-08" data-project="福城南产业片区10-08-03宗地项目" data-engineering="福城南产业片区10-08-03宗地项目基坑支护与土石方工程"><td>2026-08-08 13:20</td><td><div class="record-project">福城南产业片区10-08-03宗地项目</div></td><td><div class="record-engineering">福城南产业片区10-08-03宗地项目基坑支护与土石方工程</div></td><td>深圳市地质建设工程公司</td><td>张巡检</td><td><div class="record-media-counts"><span>全景 <b>1</b></span><span>图片 <b>9</b></span><span>视频 <b>0</b></span></div></td><td><button class="btn text" type="button" data-view-record>查看</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="record-list-empty" id="recordListEmpty">没有找到符合条件的巡检记录</div>
+          <div class="record-list-footer"><span id="recordResultText">显示 1–8 条，共 8 条</span><div class="record-pagination"><span>‹</span><span class="active">1</span><span>›</span></div></div>
+        </section>
+      </div>
+
+      <div class="record-form-view" id="recordFormView" hidden>
+      <div class="breadcrumb">无人机巡检　›　巡检记录　›　新增巡检记录</div>
+      <div class="page-head form-page-head">
+        <div class="form-title"><button class="form-back" type="button" id="backToRecordList">← 返回巡检记录</button><h1>新增无人机巡检记录</h1></div>
+      </div>
+      <section class="panel">
+        <div class="main-form-page" id="mainFormPage">
+          <section class="record-section" id="step1">
+            <div class="record-section-head"><strong>一、巡检基本信息</strong></div>
+            <div class="record-section-body edit-description">
+              <div class="edit-label required">所属工程</div><div class="edit-value needs-input no-guide"><div class="combo"><input class="control" id="projectSelect" placeholder="请搜索并选择巡检的工程" autocomplete="off"><div class="combo-options" id="projectOptions"></div></div></div>
+              <div class="edit-label">所属项目</div><div class="edit-value auto-field"><input class="control readonly" id="projectName" placeholder="选择工程后自动带出" readonly></div>
+              <div class="edit-label">施工单位</div><div class="edit-value auto-field"><input class="control readonly" id="constructUnit" placeholder="选择工程后自动带出" readonly></div>
+              <div class="edit-label required">巡检时间</div><div class="edit-value needs-input no-guide"><input class="control" id="inspectDate" type="datetime-local" step="1"></div>
+              <div class="edit-label">巡检人员</div><div class="edit-value auto-field"><input class="control readonly" id="operator" value="张巡检" readonly></div>
+              <div class="edit-label">巡检说明</div><div class="edit-value needs-input no-guide"><textarea class="control" id="inspectNote" placeholder="请填写本次巡检范围、重点内容或其他说明"></textarea></div>
+            </div>
+          </section>
+
+          <section class="record-section" id="step2">
+            <div class="record-section-head"><strong>二、影像资料</strong></div>
+            <div class="record-section-body media-section-body">
+              <div class="media-block" data-upload-zone="panoInput" data-upload-kind="pano">
+                <div class="media-block-head"><div><strong>全景图片</strong><small>支持 JPG、JPEG、PNG，单张不超过50MB；需填写部位名称</small></div><div><button class="btn primary" type="button" data-file-input="panoInput">上传全景图片</button><input class="file-input" id="panoInput" type="file" accept=".jpg,.jpeg,.png" multiple></div></div>
+                <div class="media-grid pano-grid is-empty" id="panoGrid"></div>
+              </div>
+              <div class="media-block" data-upload-zone="photoInput" data-upload-kind="photo">
+                <div class="media-block-head"><div><strong>图片</strong><small>支持 JPG、JPEG、PNG，单张不超过10MB；按全景图片分组上传关联</small></div><div><input class="file-input" id="photoInput" type="file" accept=".jpg,.jpeg,.png" multiple></div></div>
+                <div class="media-grid is-empty" id="mediaGrid"></div>
+              </div>
+              <div class="media-block" data-upload-kind="video">
+                <div class="media-block-head"><div><strong>视频</strong><small>支持输入视频链接，可一次添加多个视频链接（每行一个）</small></div><div class="video-link-entry"><input class="control" id="videoUrlInput" type="text" placeholder="请输入视频链接并点击添加" aria-label="视频链接"><button class="btn primary" type="button" id="addVideoUrlBtn">添加视频</button></div></div>
+                <div class="media-grid is-empty" id="videoGrid"></div>
+                <div class="pagination" id="uploadPager"></div>
+              </div>
+            </div>
+          </section>
+
+          <section class="record-section hazard-section">
+            <div class="record-section-head"><strong>三、隐患问题 <span class="section-count" id="mainProblemCount">0</span></strong><button class="btn primary" type="button" id="openAnnotationBtn">新增问题</button></div>
+            <div class="record-section-body hazard-body" id="problemSummary"></div>
+          </section>
+
+          <footer class="footer-actions">
+            <span></span>
+            <div class="right"><button class="btn" id="cancelBtn">取消</button><button class="btn primary" id="submitBtn">提交巡检记录</button></div>
+          </footer>
+        </div>
+      </section>
+      </div>
+    </main>
+  </div>
+  <div class="annotation-page" id="annotationPage">
+    <header class="annotation-page-head">
+      <div class="annotation-page-title"><strong id="annotationProjectName">请选择工程</strong><div class="annotation-meta"><span><em>施工单位</em><b id="annotationConstructUnit">—</b></span><span><em>巡检时间</em><b id="annotationInspectDate">—</b></span><span><em>巡检说明</em><b id="annotationInspectNote">—</b></span></div></div>
+      <div class="annotation-page-actions"><button class="btn primary" type="button" id="closeAnnotationBtn">保存并返回</button></div>
+    </header>
+    <div id="step3">
+      <div class="annotation-layout">
+        <div class="work-panel">
+          <div class="asset-list-head"><strong>资源列表</strong></div>
+          <div class="media-tabs" id="annotationAssetTabs" role="tablist" aria-label="资源分类">
+            <button class="media-tab active" type="button" role="tab" aria-selected="true" data-annotation-asset-tab="pano">全景图片 <span class="tab-count" data-annotation-asset-count="pano">（0）</span></button>
+            <button class="media-tab" type="button" role="tab" aria-selected="false" data-annotation-asset-tab="media">图片及视频 <span class="tab-count" data-annotation-asset-count="media">（0）</span></button>
+          </div>
+          <div class="asset-list" id="assetList"></div>
+        </div>
+        <div class="work-panel viewer">
+          <div class="viewer-bar"><span id="viewerName">请选择图片</span><span class="viewer-scene" id="viewerSceneTag"></span><span class="viewer-action-tip">可右键点击问题位置新增问题</span></div>
+          <div class="annotation-guide-toast" id="annotationGuideToast" role="status" aria-live="polite"><svg viewBox="0 0 32 40" aria-hidden="true"><path d="M16 2C8.8 2 4 7.1 4 14.4v10.9C4 32.7 8.8 38 16 38s12-5.3 12-12.7V14.4C28 7.1 23.2 2 16 2Z" fill="none" stroke="#dff7ff" stroke-width="2"/><path d="M16 3v13M5 15h22" fill="none" stroke="#dff7ff" stroke-width="2"/><path d="M17 3.3c5.8.4 9.5 4.8 9.5 11.2H17V3.3Z" fill="#38bdf8"/><path d="M21.8 7.2v3.4" stroke="#0e4665" stroke-width="2" stroke-linecap="round"/></svg><strong>可右键点击问题位置新增问题</strong></div>
+          <div class="image-stage" id="imageStage"></div>
+          <div class="viewer-foot"><span>拖动画面查看，滚轮可缩放</span><span id="markerInfo">尚未标识位置</span></div>
+        </div>
+        <div class="work-panel">
+          <div class="work-title">全部问题 <span id="allProblemCount">0</span></div>
+          <div class="all-problem-list" id="annotationProblemList"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-mask" id="problemModal"><div class="modal problem-modal"><div class="problem-modal-head"><h2 id="problemModalTitle">新增隐患问题</h2><button type="button" id="closeProblemModal" aria-label="关闭">×</button></div><div class="problem-modal-body"><div class="problem-modal-grid"><div class="field"><label>问题位置</label><input class="control" id="problemLocation" placeholder="请输入具体问题位置"></div><div class="field"><label class="required">检查类型</label><div class="radio-group"><label><input type="radio" name="checkType" value="安全" checked> 安全</label><label><input type="radio" name="checkType" value="质量"> 质量</label></div></div><div class="field span-2"><label class="required">问题描述</label><textarea class="control" id="problemDesc" placeholder="请输入问题描述"></textarea></div><div class="field span-2"><div class="problem-photo-label"><label class="required">问题照片</label><span>支持 JPG、JPEG、PNG，单张不超过10MB；支持多选、拖拽上传、 Ctrl+V 粘贴或直接选择关联图片</span></div><div class="problem-related-photos" id="problemRelatedPhotos"></div><div class="problem-photo-grid" id="problemPhotoGrid"></div><input class="file-input" id="problemPhotoInput" type="file" accept=".jpg,.jpeg,.png" multiple></div></div></div><div class="problem-modal-actions"><button class="btn" type="button" id="cancelProblem">取消</button><button class="btn primary" type="button" id="saveProblem">保存问题</button></div></div></div>
+  <div class="toast" id="toast"></div>
+  <div class="modal-mask" id="successModal"><div class="modal"><div class="success-icon">✓</div><h2>巡检记录提交成功</h2><p>已形成工程级巡检记录，巡检报告正在生成。<br>本页面为交互原型，不会保存真实数据。</p><button class="btn primary" id="closeModal">返回巡检记录</button></div></div>
+  <div class="modal-mask" id="uploadFailureModal"><div class="modal failure-modal"><div class="failure-modal-head"><div class="failure-icon">!</div><div><h2>文件上传失败</h2><p id="uploadFailureSummary">请检查失败文件后重新上传。</p></div></div><ul class="failure-list" id="uploadFailureList"></ul><div class="failure-modal-actions"><button class="btn primary" id="closeUploadFailure">我知道了</button></div></div></div>
+  <div class="modal-mask" id="videoModal"><div class="modal video-modal"><div class="video-modal-head"><h2 id="videoPreviewTitle">视频预览</h2><button type="button" id="closeVideoModal" aria-label="关闭">×</button></div><div class="video-preview-area" id="videoPreviewArea"></div></div></div>
+  <div class="modal-mask" id="problemPhotoPreviewModal"><div class="modal problem-photo-preview-modal"><div class="video-modal-head"><h2>问题照片预览</h2><button type="button" id="closeProblemPhotoPreview" aria-label="关闭">×</button></div><div class="problem-photo-preview-area" id="problemPhotoPreviewArea"></div></div></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
+  <script src="pano-demo-data.js"></script>
+  <script>
+    const state = { mediaKind: 'pano', annotationAssetTab: 'pano', selectedId: null, selectedEngineeringId: null, marker: null, editingProblemId: null, panoramas: [], photos: [], videos: [], problems: [], draftPhotos: [], photoUploadPanoId: '', viewerScale: 1, viewerX: 0, viewerY: 0, dragging: false, dragStart: null, panoramaViewer: null, panoramaViewerAssetId: null, panoramaHotspotIds: [], submitted: false };
+    const engineeringOptions = [
+      {id:'p1-e1',name:'穗莞深城际轨道交通深圳机场至前海段工程I标土建一工区',project:'穗莞深城际轨道交通深圳机场至前海段工程',constructUnit:'深圳市市政工程总公司',status:'已竣工'},
+      {id:'p1-e2',name:'穗莞深城际轨道交通深圳机场至前海段工程II标土建二工区',project:'穗莞深城际轨道交通深圳机场至前海段工程',constructUnit:'深圳市市政工程总公司',status:'在建'},
+      {id:'p2-e1',name:'国际演艺中心建设主体工程',project:'国际演艺中心建设工程',constructUnit:'深圳市绿篱建设工程有限公司',status:'在建'},
+      {id:'p2-e2',name:'国际演艺中心地基与基础工程',project:'国际演艺中心建设工程',constructUnit:'深圳市岩土工程有限公司',status:'在建'},
+      {id:'p2-e3',name:'国际演艺中心建设工程外立面装饰幕墙工程',project:'国际演艺中心建设工程',constructUnit:'中建三局集团有限公司',status:'已竣工'},
+      {id:'p3-e1',name:'龙城北综合车场主体工程',project:'龙城北综合车场工程(含保障性租赁住房)',constructUnit:'深圳市建工集团股份有限公司',status:'在建'},
+      {id:'p4-e1',name:'深圳市城市轨道交通22号线一期工程施工总承包22101标土建一工区',project:'深圳市城市轨道交通22号线一期工程施工总承包22101标土建一工区',constructUnit:'中铁十四局集团有限公司',status:'在建'},
+      {id:'p5-e1',name:'福城南产业片区10-08-03宗地项目桩基础工程',project:'福城南产业片区10-08-03宗地项目',constructUnit:'深圳市建安集团有限公司',status:'在建'},
+      {id:'p5-e2',name:'福城南产业片区10-08-03宗地项目基坑支护与土石方工程',project:'福城南产业片区10-08-03宗地项目',constructUnit:'深圳市地质建设工程公司',status:'在建'}
+    ];
+    const scenes = ['项目全景', '施工主入口', '主体结构区', '塔吊作业区'];
+    const demoPhotoAssets = ['施工隐患_脚手架与现场杂物.jpg','施工隐患_临边切割作业.jpg','施工隐患_高处作业平台.jpg','施工隐患_梯道设置不规范.jpg','施工现场_安全检查.png','施工隐患_脚手架攀爬.jpg'];
+    const $ = id => document.getElementById(id);
+    function selectedEngineering() { return engineeringOptions.find(item=>item.id===state.selectedEngineeringId); }
+    function updateAnnotationHeader(){const e=selectedEngineering();$('annotationProjectName').textContent=e?.project||$('projectName').value||'请选择工程';$('annotationConstructUnit').textContent=e?.constructUnit||$('constructUnit').value||'—';$('annotationInspectDate').textContent=($('inspectDate').value||'').replace('T',' ')||'—';$('annotationInspectNote').textContent=$('inspectNote').value.trim()||'—';}
+    function currentLocalDateTime() { const now=new Date(); const local=new Date(now.getTime()-now.getTimezoneOffset()*60000); return local.toISOString().slice(0,19); }
+    $('inspectDate').value=currentLocalDateTime();
+
+    function showRecordList(){
+      $('recordFormView').hidden=true;
+      $('recordListPage').hidden=false;
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+    function showCreateRecord(){
+      $('recordListPage').hidden=true;
+      $('recordFormView').hidden=false;
+      $('inspectDate').value=currentLocalDateTime();
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+    function filterRecordList(){
+      const project=$('recordProjectFilter').value.trim().toLowerCase();
+      const engineering=$('recordEngineeringFilter').value.trim().toLowerCase();
+      const start=$('recordDateStart').value;
+      const end=$('recordDateEnd').value;
+      let visible=0;
+      document.querySelectorAll('#recordTableBody tr').forEach(row=>{
+        const matchProject=!project||(row.dataset.project||'').toLowerCase().includes(project);
+        const matchEngineering=!engineering||(row.dataset.engineering||'').toLowerCase().includes(engineering);
+        const matchStart=!start||row.dataset.date>=start;
+        const matchEnd=!end||row.dataset.date<=end;
+        row.hidden=!(matchProject&&matchEngineering&&matchStart&&matchEnd);
+        if(!row.hidden)visible++;
+      });
+      $('recordTableWrap').style.display=visible?'block':'none';
+      $('recordListEmpty').classList.toggle('show',!visible);
+      $('recordTotalText').textContent=`共 ${visible} 条`;
+      $('recordResultText').textContent=visible?`显示 1–${visible} 条，共 ${visible} 条`:'共 0 条';
+    }
+    $('openCreateRecord').addEventListener('click',showCreateRecord);
+    $('backToRecordList').addEventListener('click',showRecordList);
+    document.querySelector('.side-item').addEventListener('click',showRecordList);
+    ['recordProjectFilter','recordEngineeringFilter'].forEach(id=>$(id).addEventListener('input',filterRecordList));
+    function dateValue(date){const local=new Date(date.getTime()-date.getTimezoneOffset()*60000);return local.toISOString().slice(0,10);}
+    function renderRecordCalendars(){
+      const base=new Date();base.setDate(1);
+      document.querySelectorAll('[data-calendar-offset]').forEach(calendar=>{
+        const shown=new Date(base.getFullYear(),base.getMonth()+Number(calendar.dataset.calendarOffset),1);
+        const year=shown.getFullYear(),month=shown.getMonth(),days=new Date(year,month+1,0).getDate(),lead=shown.getDay();
+        calendar.innerHTML=`<header>${year}年${month+1}月</header><div class="record-calendar-week">${['日','一','二','三','四','五','六'].map(day=>`<span>${day}</span>`).join('')}</div><div class="record-calendar-grid">${Array.from({length:lead},()=>'<i></i>').join('')}${Array.from({length:days},(_,index)=>{const value=`${year}-${String(month+1).padStart(2,'0')}-${String(index+1).padStart(2,'0')}`;return `<button type="button" data-record-date="${value}">${index+1}</button>`}).join('')}</div>`;
+      });
+      document.querySelectorAll('[data-record-date]').forEach(button=>button.addEventListener('click',()=>{
+        const value=button.dataset.recordDate,start=$('recordDateStart'),end=$('recordDateEnd');
+        if(!start.value||(start.value&&end.value)){start.value=value;end.value='';}else if(value<start.value){end.value=start.value;start.value=value;}else end.value=value;
+      }));
+    }
+    function updateRecordDateLabel(){
+      const start=$('recordDateStart').value,end=$('recordDateEnd').value,label=$('recordDateLabel'),trigger=$('recordDateTrigger');
+      label.textContent=start&&end?`${start} 至 ${end}`:start?`${start} 起`:'选择时间段';
+      trigger.classList.toggle('placeholder',!start);
+    }
+    renderRecordCalendars();
+    $('recordDateTrigger').addEventListener('click',()=>{$('recordDatePanel').hidden=!$('recordDatePanel').hidden;});
+    $('confirmRecordDate').addEventListener('click',()=>{updateRecordDateLabel();filterRecordList();$('recordDatePanel').hidden=true;});
+    $('clearRecordDate').addEventListener('click',()=>{$('recordDateStart').value='';$('recordDateEnd').value='';updateRecordDateLabel();filterRecordList();});
+    document.querySelectorAll('[data-record-range]').forEach(button=>button.addEventListener('click',()=>{const end=new Date(),start=new Date();start.setDate(end.getDate()-Number(button.dataset.recordRange)+1);$('recordDateStart').value=dateValue(start);$('recordDateEnd').value=dateValue(end);updateRecordDateLabel();filterRecordList();$('recordDatePanel').hidden=true;}));
+    document.addEventListener('mousedown',event=>{if(!event.target.closest('#recordDatePicker'))$('recordDatePanel').hidden=true;});
+    $('resetRecordFilters').addEventListener('click',()=>{['recordProjectFilter','recordEngineeringFilter','recordDateStart','recordDateEnd'].forEach(id=>$(id).value='');updateRecordDateLabel();$('recordDatePanel').hidden=true;filterRecordList();});
+    document.querySelectorAll('[data-view-record]').forEach(button=>button.addEventListener('click',()=>toast('原型演示：进入该条无人机巡检记录详情')));
+
+    function toast(msg) { const el = $('toast'); el.textContent = msg; el.classList.add('show'); clearTimeout(window.toastTimer); window.toastTimer = setTimeout(() => el.classList.remove('show'), 2200); }
+    function escapeHtml(v='') { return String(v).replace(/[&<>'"]/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[s])); }
+    function validateMainForm() {
+      const engineering=selectedEngineering();
+      if (!engineering || $('projectSelect').value!==engineering.name || !$('inspectDate').value) { toast('请从下拉候选项中选择所属工程，并确认巡检时间'); return false; }
+      if (!state.panoramas.length && !state.photos.length) { toast('请至少上传一张巡检图片，或加载演示数据'); return false; }
+      if (state.panoramas.some(x => !x.scene)) { toast('请为每张全景图片关联部位名称'); return false; }
+      return true;
+    }
+    function openAnnotation(problemId, requestedKind) {
+      if (!state.panoramas.length && !state.photos.length) { toast('请先上传全景图片或图片'); return; }
+      const problem=problemId?state.problems.find(item=>item.id===problemId):null;
+      if(problem){state.mediaKind=problem.sourceKind;state.selectedId=problem.sourceId;}
+      if(state.mediaKind==='pano'&&!state.panoramas.length)state.mediaKind='photo';
+      if(state.mediaKind==='photo'&&!state.photos.length)state.mediaKind='pano';
+      state.annotationAssetTab=(problem?.sourceKind||requestedKind)==='pano'?'pano':(problem||requestedKind)?'media':(state.panoramas.length?'pano':'media');
+      updateAnnotationHeader();$('annotationPage').classList.add('show'); document.body.classList.add('annotation-open');showAnnotationGuide();
+      const assets=currentAssets(); const target=assets.some(x=>x.id===state.selectedId)?state.selectedId:assets[0]?.id;
+      renderAssetList(); selectAsset(target||null); updateAnnotationCount(); renderAnnotationProblems();
+      if(problem) openProblemModal(problem.id);
+    }
+    function closeAnnotation() {
+      closeProblemModal();
+      destroyPanoramaViewer();
+      clearTimeout(window.annotationGuideTimer);$('annotationGuideToast').classList.remove('show');
+      $('annotationPage').classList.remove('show'); document.body.classList.remove('annotation-open');
+      state.editingProblemId=null; state.marker=null; renderProblemSummary(); renderUploads();
+    }
+    function showAnnotationGuide(){
+      const guide=$('annotationGuideToast');
+      clearTimeout(window.annotationGuideTimer);
+      guide.classList.remove('show');
+      requestAnimationFrame(()=>guide.classList.add('show'));
+      window.annotationGuideTimer=setTimeout(()=>guide.classList.remove('show'),3200);
+    }
+    $('openAnnotationBtn').addEventListener('click',()=>openAnnotation());
+    $('closeAnnotationBtn').addEventListener('click',closeAnnotation);
+    document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if($('problemPhotoPreviewModal').classList.contains('show'))closeProblemPhotoPreview();else if($('problemModal').classList.contains('show'))closeProblemModal();else if($('annotationPage').classList.contains('show'))closeAnnotation();});
+    $('submitBtn').addEventListener('click', () => { if (!validateMainForm()) return; $('successModal').classList.add('show'); state.submitted = true; });
+    $('cancelBtn').addEventListener('click', showRecordList);
+    $('closeModal').addEventListener('click', () => { $('successModal').classList.remove('show'); showRecordList(); });
+    function closeUploadFailure(){ $('uploadFailureModal').classList.remove('show'); }
+    $('closeUploadFailure').addEventListener('click',closeUploadFailure);
+    $('uploadFailureModal').addEventListener('click',e=>{if(e.target===$('uploadFailureModal'))closeUploadFailure();});
+    function closeVideoPreview(){ const player=$('videoPreviewArea').querySelector('video'); if(player)player.pause(); $('videoModal').classList.remove('show'); $('videoPreviewArea').innerHTML=''; }
+    $('closeVideoModal').addEventListener('click',closeVideoPreview);
+    $('videoModal').addEventListener('click',e=>{if(e.target===$('videoModal'))closeVideoPreview();});
+    function closeProblemPhotoPreview(){ $('problemPhotoPreviewModal').classList.remove('show'); $('problemPhotoPreviewArea').innerHTML=''; }
+    $('closeProblemPhotoPreview').addEventListener('click',closeProblemPhotoPreview);
+    $('problemPhotoPreviewModal').addEventListener('click',e=>{if(e.target===$('problemPhotoPreviewModal'))closeProblemPhotoPreview();});
+    $('problemSummary').addEventListener('click',e=>{const trigger=e.target.closest('[data-preview-problem-photo]');if(!trigger)return;const problem=state.problems.find(item=>item.id===trigger.dataset.previewProblemPhoto);const photo=problem?.photos?.[0];if(!photo?.url)return;$('problemPhotoPreviewArea').innerHTML=`<img src="${escapeHtml(photo.url)}" alt="问题照片">`;$('problemPhotoPreviewModal').classList.add('show');});
+
+    function renderProjectOptions(keyword='') {
+      const q=keyword.trim().toLowerCase(); const matches=engineeringOptions.filter(item=>item.name.toLowerCase().includes(q)||item.project.toLowerCase().includes(q));
+      $('projectOptions').innerHTML=matches.length?matches.map(item=>`<div class="combo-option" data-engineering="${item.id}"><b>${item.name}</b></div>`).join(''):'<div class="combo-empty">未找到匹配工程</div>';
+      $('projectOptions').classList.add('show');
+      document.querySelectorAll('[data-engineering]').forEach(el=>el.addEventListener('mousedown',e=>{e.preventDefault();const item=engineeringOptions.find(x=>x.id===e.currentTarget.dataset.engineering);if(!item)return;state.selectedEngineeringId=item.id;$('projectSelect').value=item.name;$('projectName').value=item.project;$('constructUnit').value=item.constructUnit;$('projectOptions').classList.remove('show');}));
+    }
+    $('projectSelect').addEventListener('focus',e=>renderProjectOptions(e.target.value));
+    $('projectSelect').addEventListener('input',e=>{state.selectedEngineeringId=null;$('projectName').value='';$('constructUnit').value='';renderProjectOptions(e.target.value);});
+    $('projectSelect').addEventListener('keydown',e=>{if(e.key==='Enter'){const first=document.querySelector('[data-engineering]');if(first){e.preventDefault();first.dispatchEvent(new MouseEvent('mousedown',{bubbles:true}));}}if(e.key==='Escape')$('projectOptions').classList.remove('show');});
+    document.addEventListener('mousedown',e=>{if(!e.target.closest('.combo'))$('projectOptions').classList.remove('show');});
+    function demoMedia() {
+      if (state.panoramas.length || state.photos.length) { toast('演示数据已存在'); return; }
+      if(!state.selectedEngineeringId){const engineering=engineeringOptions.find(item=>item.id==='p2-e1');state.selectedEngineeringId=engineering.id;$('projectSelect').value=engineering.name;$('projectName').value=engineering.project;$('constructUnit').value=engineering.constructUnit;}
+      $('operator').value='张巡检';
+      $('inspectNote').value='重点巡查工程施工现场临边防护、材料堆放及高处作业情况。';
+      state.panoramas = [
+        {id:'pano-1', name:'全景照片示例01.jpg', kind:'pano', scene:'项目全景', url:(window.PANO_DEMO_DATA && window.PANO_DEMO_DATA['全景照片示例01.jpg']) || '全景照片示例01.jpg'},
+        {id:'pano-2', name:'全景照片示例02.jpg', kind:'pano', scene:'塔吊作业区', url:(window.PANO_DEMO_DATA && window.PANO_DEMO_DATA['全景照片示例02.jpg']) || '全景照片示例02.jpg'}
+      ];
+      state.photos = Array.from({length: 36}, (_,i) => ({id:'photo-'+(i+1), name:'DJI_'+String(2601+i).padStart(4,'0')+'.jpg', kind:'photo', panoId:i<20?'pano-1':i<30?'pano-2':'', url:demoPhotoAssets[i%demoPhotoAssets.length], alt:i%3===0}));
+      state.videos = [{id:'video-1', name:'巡检视频_主体结构区.mp4', size:'286 MB', duration:'02:36', kind:'video'}];
+      renderUploads(); toast('已加载 2 张全景图、36 张图片和 1 个视频');
+    }
+    $('userMenuTrigger').addEventListener('click',e=>{e.stopPropagation();$('userMenu').classList.toggle('show');});
+    document.addEventListener('click',()=>{$('userMenu').classList.remove('show');document.querySelectorAll('.scene-options').forEach(panel=>panel.classList.remove('show'));});
+    $('loadDemo').addEventListener('click',e=>{e.stopPropagation();$('userMenu').classList.remove('show');demoMedia();});
+    document.querySelectorAll('[data-file-input]').forEach(button=>button.addEventListener('click',()=>{if(button.dataset.fileInput==='photoInput')state.photoUploadPanoId='';$(button.dataset.fileInput).click();}));
+
+    function addFiles(source, kind) {
+      const files=[...(source.files||source)];
+      const imageExt=['jpg','jpeg','png'], videoExt=['mp4','mov','avi'], allowed=kind==='video'?videoExt:imageExt;
+      const failures=[], valid=[];
+      files.forEach(file=>{const ext=file.name.includes('.')?file.name.split('.').pop().toLowerCase():'';if(!allowed.includes(ext)){failures.push({name:file.name,reason:`格式不支持（允许 ${allowed.join('、').toUpperCase()}）`});return;}const actualKind=kind, maxMb=actualKind==='pano'?50:actualKind==='photo'?10:500;if(file.size>maxMb*1024*1024)failures.push({name:file.name,reason:`文件超过 ${maxMb}MB`});else valid.push({file,actualKind});});
+      valid.forEach(({file,actualKind}, i) => {const target=actualKind==='pano'?state.panoramas:actualKind==='photo'?state.photos:state.videos;target.push({ id: actualKind+'-'+Date.now()+'-'+i, name:file.name, kind:actualKind, scene: actualKind==='pano'?'':undefined, panoId: actualKind==='photo'?(state.photoUploadPanoId||''):undefined, url:URL.createObjectURL(file), size:actualKind==='video'?(file.size/1024/1024).toFixed(1)+' MB':'' });});
+      const label=kind==='pano'?'全景图片':kind==='photo'?'图片':'视频';
+      renderUploads(); if('value' in source)source.value = ''; if(kind==='photo')state.photoUploadPanoId='';
+      if(failures.length){$('uploadFailureSummary').textContent=valid.length?`成功上传 ${valid.length} 个${label}，另有 ${failures.length} 个文件失败。`:`本次选择的 ${failures.length} 个文件均未上传，请检查后重试。`;$('uploadFailureList').innerHTML=failures.map(item=>`<li><b title="${escapeHtml(item.name)}">${escapeHtml(item.name)}</b><span>${escapeHtml(item.reason)}</span></li>`).join('');$('uploadFailureModal').classList.add('show');}
+      else if(valid.length)toast(`${valid.length} 个${label}上传成功`);
+    }
+    $('panoInput').addEventListener('change', e => addFiles(e.target,'pano'));
+    $('photoInput').addEventListener('change', e => addFiles(e.target,'photo'));
+    $('addVideoUrlBtn').addEventListener('click',()=>{const input=$('videoUrlInput'),urls=input.value.split(/[\n,，\s]+/).map(x=>x.trim()).filter(Boolean),valid=urls.filter(url=>{try{new URL(url);return true}catch(e){return false;}});if(!urls.length){toast('请输入视频链接');return;}if(!valid.length){toast('请输入有效的视频链接');return;}valid.forEach((url,i)=>state.videos.push({id:'video-'+Date.now()+'-'+i,name:url,kind:'video',url,source:'link',thumb:demoPhotoAssets[i%demoPhotoAssets.length]}));input.value='';renderUploads();toast(`${valid.length} 个视频链接添加成功`);});
+    $('videoUrlInput').addEventListener('keydown',e=>{if(e.key==='Enter')$('addVideoUrlBtn').click();});
+    document.querySelectorAll('[data-upload-zone]').forEach(zone=>{
+      const input=$(zone.dataset.uploadZone), kind=zone.dataset.uploadKind;
+      ['dragenter','dragover'].forEach(type=>zone.addEventListener(type,event=>{event.preventDefault();event.stopPropagation();zone.classList.add('is-dragover');}));
+      zone.addEventListener('dragleave',event=>{event.preventDefault();if(!zone.contains(event.relatedTarget))zone.classList.remove('is-dragover');});
+      zone.addEventListener('drop',event=>{event.preventDefault();event.stopPropagation();zone.classList.remove('is-dragover');if(event.dataTransfer?.files?.length)addFiles(event.dataTransfer.files,kind);});
+    });
+
+    function problemCountFor(id){return state.problems.filter(problem=>problem.sourceId===id).length;}
+    function problemBadge(item){const count=problemCountFor(item.id);return count?`<span class="problem-badge">${count}个问题</span>`:'';}
+    function thumbHtml(item) { return `<div class="thumb ${item.alt?'alt':''}" data-open-image="${item.id}">${item.url?`<img src="${item.url}" alt="">`:''}${problemBadge(item)}<div class="media-file-name-overlay" title="${escapeHtml(item.name)}">${escapeHtml(item.name)}</div></div>`; }
+    function renderUploads() {
+      $('panoGrid').classList.toggle('is-empty',!state.panoramas.length);
+      $('panoGrid').innerHTML = state.panoramas.length?state.panoramas.map((item,index) => `<div class="media-card pano-card"><button class="media-delete" type="button" data-delete-media="${item.id}" title="删除全景图片">×</button><div class="thumb" data-open-image="${item.id}">${item.url?`<img src="${item.url}" alt="">`:''}<span class="pano-index">${index+1}</span>${problemBadge(item)}</div><div class="media-meta"><div class="scene-field-label">部位名称<em>*</em></div><div class="scene-row"><input data-scene-id="${item.id}" value="${escapeHtml(item.scene||'')}" placeholder="选择已有部位或输入新名称"><div class="scene-options" data-scene-options="${item.id}"></div></div><div class="scene-status ${item.scene?'linked':''}" data-scene-status="${item.id}">${item.scene?'已关联已有标签':'可选择已有部位，或输入新名称'}</div></div></div>`).join(''):'';
+      const photos=state.photos, videos=state.videos;
+      $('mediaGrid').classList.toggle('is-empty',!photos.length);
+      const photoGroups=[...state.panoramas.map((p,i)=>({id:p.id,label:`关联全景${i+1}`,items:photos.filter(photo=>photo.panoId===p.id)})),{id:'',label:'未关联全景',items:photos.filter(photo=>!photo.panoId)}];
+      $('mediaGrid').innerHTML=photoGroups.map(group=>`<div class="photo-group"><div class="photo-group-head"><span>${group.label}</span><span class="group-count">${group.items.length} 张</span><button type="button" class="group-upload" data-group-upload="${group.id}">＋ 上传图片</button></div><div class="photo-group-grid">${group.items.length?group.items.map(item=>`<div class="media-card photo-card"><button class="media-delete" type="button" data-delete-media="${item.id}" title="删除图片">×</button>${thumbHtml(item)}</div>`).join(''):'<div class="photo-group-empty">暂无图片，可点击右侧上传</div>'}</div></div>`).join('');
+      $('videoGrid').classList.toggle('is-empty',!videos.length);
+      $('videoGrid').innerHTML=videos.length?videos.map(item=>`<div class="media-card video-card" data-preview-video="${item.id}"><button class="media-delete" type="button" data-delete-media="${item.id}" title="删除视频">×</button><div class="thumb"><img src="${item.thumb||demoPhotoAssets[0]}" alt="视频缩略图"><span class="play-badge">▶</span><span class="media-duration">${escapeHtml(item.duration||'视频')}</span><div class="media-file-name-overlay" title="${escapeHtml(item.name)}">${escapeHtml(item.name)}</div></div></div>`).join(''):'';
+      $('uploadPager').innerHTML='';
+      document.querySelectorAll('[data-group-upload]').forEach(button=>button.addEventListener('click',()=>{state.photoUploadPanoId=button.dataset.groupUpload||'';$('photoInput').click();}));
+      document.querySelectorAll('[data-scene-id]').forEach(el => {
+        const status=document.querySelector(`[data-scene-status="${el.dataset.sceneId}"]`);
+        const updateStatus=()=>{const value=el.value.trim();status.className='scene-status';if(!value){status.textContent='可选择已有部位，或输入新名称';return;}if(scenes.includes(value)){status.classList.add('linked');status.textContent='已关联已有标签';}else{status.classList.add('new');status.textContent='保存后将新增此部位标签';}};
+        const showOptions=()=>{document.querySelectorAll('.scene-options').forEach(x=>x.classList.remove('show'));const panel=document.querySelector(`[data-scene-options="${el.dataset.sceneId}"]`);const q=el.value.trim();const matches=scenes.filter(scene=>!q||scene.includes(q));panel.innerHTML=matches.length?matches.map(scene=>`<div class="scene-option" data-scene-value="${escapeHtml(scene)}">${escapeHtml(scene)}</div>`).join(''):`<div class="scene-empty">保存后将新增部位标签“${escapeHtml(q)}”</div>`;panel.classList.add('show');panel.querySelectorAll('[data-scene-value]').forEach(option=>option.addEventListener('mousedown',event=>{event.preventDefault();const value=event.currentTarget.dataset.sceneValue;el.value=value;const m=state.panoramas.find(x=>x.id===el.dataset.sceneId);if(m)m.scene=value;updateStatus();panel.classList.remove('show');}));};
+        el.addEventListener('focus',showOptions);
+        el.addEventListener('click',e=>{e.stopPropagation();showOptions();});
+        el.addEventListener('input', e => { const m=state.panoramas.find(x=>x.id===e.target.dataset.sceneId); if(m)m.scene=e.target.value; updateStatus(); showOptions(); });
+        el.addEventListener('change', e => { const value=e.target.value.trim(); const m=state.panoramas.find(x=>x.id===e.target.dataset.sceneId); if(m)m.scene=value; updateStatus(); });
+      });
+      document.querySelectorAll('[data-open-image]').forEach(el=>el.addEventListener('click',e=>{e.stopPropagation();const item=allImages().find(x=>x.id===el.dataset.openImage);if(!item)return;state.mediaKind=item.kind;state.selectedId=item.id;openAnnotation(null,item.kind);}));
+      document.querySelectorAll('[data-delete-media]').forEach(button=>button.addEventListener('click',event=>{event.stopPropagation();deleteMedia(button.dataset.deleteMedia);}));
+      document.querySelectorAll('[data-preview-video]').forEach(el=>el.addEventListener('click',()=>{const video=state.videos.find(v=>v.id===el.dataset.previewVideo);if(!video)return;$('videoPreviewTitle').textContent='视频预览｜'+video.name;$('videoPreviewArea').innerHTML=video.source==='link'?`<div class="video-placeholder"><div class="play">▶</div><b>视频链接</b><div style="margin-top:8px;word-break:break-all"><a href="${escapeHtml(video.url)}" target="_blank" rel="noopener">打开视频链接</a></div></div>`:video.url?`<video src="${video.url}" controls autoplay></video>`:'<div class="video-placeholder"><div class="play">▶</div><b>当前为演示视频，未关联实际视频文件</b><div style="margin-top:8px">上传本地视频后，可在此直接播放预览。</div></div>';$('videoModal').classList.add('show');}));
+    }
+
+    function deleteMedia(mediaId){
+      const item=[...state.panoramas,...state.photos,...state.videos].find(media=>media.id===mediaId);if(!item)return;const linkedCount=problemCountFor(mediaId);
+      if(linkedCount&&!window.confirm(`该图片已关联 ${linkedCount} 个问题，删除图片将同步删除关联问题，是否继续？`))return;
+      if(item.url?.startsWith('blob:'))URL.revokeObjectURL(item.url);if(item.kind==='pano')state.photos.forEach(photo=>{if(photo.panoId===mediaId)photo.panoId='';});state.panoramas=state.panoramas.filter(media=>media.id!==mediaId);state.photos=state.photos.filter(media=>media.id!==mediaId);state.videos=state.videos.filter(media=>media.id!==mediaId);state.problems=state.problems.filter(problem=>problem.sourceId!==mediaId);if(state.selectedId===mediaId){state.selectedId=null;state.marker=null;state.editingProblemId=null;}
+      renderUploads();renderProblemSummary();renderAnnotationProblems();updateAnnotationCount();renderAssetList();if($('annotationPage').classList.contains('show')){selectFirstAsset();}else renderViewer();toast(`${item.kind==='video'?'视频':'图片'}已删除`);
+    }
+
+    function currentAssets() {
+      const source=state.annotationAssetTab==='pano'?[...state.panoramas]:[...state.videos,...state.photos];
+      const kindOrder={pano:0,video:1,photo:2};
+      return source.sort((a,b)=>{
+        if(kindOrder[a.kind]!==kindOrder[b.kind])return kindOrder[a.kind]-kindOrder[b.kind];
+        const aMarked=state.problems.some(problem=>problem.sourceId===a.id), bMarked=state.problems.some(problem=>problem.sourceId===b.id);
+        return Number(bMarked)-Number(aMarked) || source.indexOf(a)-source.indexOf(b);
+      });
+    }
+    function renderAssetList() {
+      const arr=currentAssets();
+      document.querySelector('[data-annotation-asset-count="pano"]').textContent=`（${state.panoramas.length}）`;
+      document.querySelector('[data-annotation-asset-count="media"]').textContent=`（${state.photos.length+state.videos.length}）`;
+      document.querySelectorAll('[data-annotation-asset-tab]').forEach(button=>{const active=button.dataset.annotationAssetTab===state.annotationAssetTab;button.classList.toggle('active',active);button.setAttribute('aria-selected',String(active));});
+      $('assetList').innerHTML=arr.length?arr.map(item=>{const problemCount=problemCountFor(item.id), hasProblem=problemCount>0;const label=item.kind==='pano'?`<div class="scene-chip"><strong>${escapeHtml(item.scene||'未填写部位名称')}</strong></div>`:`<div class="asset-kind">${item.kind==='video'?'视频':'图片'}</div>`;return `<div class="asset-item ${hasProblem?'has-problem':''} ${item.id===state.selectedId?'active':''} ${item.kind==='video'?'video-asset':''}" data-asset="${item.id}" data-kind="${item.kind}"><div class="asset-mini ${item.kind==='video'?'video-mini':''}">${item.kind==='video'?'<span class="asset-play">▶</span>':item.url?`<img src="${item.url}" alt="">`:'巡检图'}</div>${hasProblem?`<div class="asset-problem-count has">${problemCount}个问题</div>`:''}<div class="asset-copy">${label}</div></div>`;}).join(''):'<div class="empty">暂无巡检资源</div>';
+      document.querySelectorAll('[data-asset]').forEach(el=>el.addEventListener('click',()=>{const item=arr.find(x=>x.id===el.dataset.asset);if(!item)return;if(item.kind==='video'){const video=item;$('videoPreviewTitle').textContent='视频预览｜'+video.name;$('videoPreviewArea').innerHTML=video.url?`<video src="${video.url}" controls autoplay></video>`:'<div class="video-placeholder"><div class="play">▶</div><b>当前为演示视频，未关联实际视频文件</b><div style="margin-top:8px">上传本地视频后，可在此直接播放预览。</div></div>';$('videoModal').classList.add('show');return;}selectAsset(item.id);}));
+    }
+    document.querySelectorAll('[data-annotation-asset-tab]').forEach(button=>button.addEventListener('click',()=>{state.annotationAssetTab=button.dataset.annotationAssetTab;state.selectedId=null;renderAssetList();selectFirstAsset();}));
+    function selectFirstAsset(){ const arr=currentAssets().filter(x=>x.kind!=='video'); if(arr.length && !arr.some(x=>x.id===state.selectedId))selectAsset(arr[0].id); else if(!arr.length)selectAsset(null); }
+    function allImages(){return [...state.panoramas,...state.photos];}
+    function resetViewer(){state.viewerScale=1;state.viewerX=0;state.viewerY=0;applyViewerTransform();}
+    function applyViewerTransform(){const canvas=$('imageCanvas');if(canvas){canvas.style.transform=`translate(${state.viewerX}px,${state.viewerY}px) scale(${state.viewerScale})`;canvas.querySelectorAll('.marker').forEach(marker=>marker.style.transform=`translate(-50%,-50%) scale(${1/state.viewerScale})`);}}
+    function destroyPanoramaViewer(){
+      if(state.panoramaViewer){try{state.panoramaViewer.destroy();}catch(error){}state.panoramaViewer=null;}
+      state.panoramaViewerAssetId=null;state.panoramaHotspotIds=[];
+    }
+    function panoramaPoint(problem){
+      if(Number.isFinite(Number(problem.pitch))&&Number.isFinite(Number(problem.yaw)))return{pitch:Number(problem.pitch),yaw:Number(problem.yaw)};
+      return{pitch:90-(Number(problem.y)||50)*1.8,yaw:(Number(problem.x)||50)*3.6-180};
+    }
+    function createPanoramaMarker(hotSpotDiv,args){
+      hotSpotDiv.classList.add('pano-problem-marker');
+      if(args.draft)hotSpotDiv.classList.add('draft');
+      hotSpotDiv.textContent=args.draft?'＋':args.number;
+      if(!args.draft){const description=document.createElement('span');description.className='marker-description';description.textContent=args.desc;description.title=args.desc;hotSpotDiv.appendChild(description);}
+      if(args.problemId)hotSpotDiv.addEventListener('click',event=>{event.stopPropagation();openProblemModal(args.problemId);});
+    }
+    function renderPanoramaViewer(item,problems){
+      let view={pitch:0,yaw:0,hfov:100};
+      if(state.panoramaViewer&&state.panoramaViewerAssetId===item.id){try{view={pitch:state.panoramaViewer.getPitch(),yaw:state.panoramaViewer.getYaw(),hfov:state.panoramaViewer.getHfov()};}catch(error){}}
+      destroyPanoramaViewer();
+      $('imageStage').innerHTML='<div class="panorama-viewer" id="panoramaViewer"></div>';
+      if(!window.pannellum){$('panoramaViewer').innerHTML='<div class="empty" style="height:100%;display:grid;place-items:center;color:#fff">全景解析组件加载失败，请检查网络后刷新页面</div>';return;}
+      const hotSpots=problems.map(problem=>{const point=panoramaPoint(problem),number=state.problems.findIndex(p=>p.id===problem.id)+1,id='problem-hotspot-'+problem.id;state.panoramaHotspotIds.push(id);return{id,pitch:point.pitch,yaw:point.yaw,type:'info',createTooltipFunc:createPanoramaMarker,createTooltipArgs:{problemId:problem.id,number,desc:problem.desc}};});
+      if(state.marker?.mode==='panorama'&&!state.editingProblemId){const id='draft-hotspot';state.panoramaHotspotIds.push(id);hotSpots.push({id,pitch:Number(state.marker.pitch),yaw:Number(state.marker.yaw),type:'info',createTooltipFunc:createPanoramaMarker,createTooltipArgs:{draft:true}});}
+      state.panoramaViewer=window.pannellum.viewer('panoramaViewer',{type:'equirectangular',panorama:item.url,autoLoad:true,showControls:false,draggable:true,mouseZoom:true,keyboardZoom:false,compass:false,minHfov:10,maxHfov:120,pitch:view.pitch,yaw:view.yaw,hfov:view.hfov,hotSpots});
+      state.panoramaViewerAssetId=item.id;
+    }
+    function renderViewer(){
+      const item=allImages().find(x=>x.id===state.selectedId), problems=state.problems.filter(p=>p.sourceId===state.selectedId);
+      $('imageStage').classList.toggle('has-image',!!item?.url);
+      if(!item?.url){destroyPanoramaViewer();$('imageStage').innerHTML='';return;}
+      if(item.kind==='pano'){renderPanoramaViewer(item,problems);return;}
+      destroyPanoramaViewer();
+      const markers=problems.map(problem=>{const number=state.problems.findIndex(p=>p.id===problem.id)+1;return `<button class="marker" type="button" data-marker="${problem.id}" style="left:${problem.x}%;top:${problem.y}%">${number}<span class="marker-description" title="${escapeHtml(problem.desc)}">${escapeHtml(problem.desc)}</span></button>`;}).join('');
+      const draft=state.marker&&!state.editingProblemId?`<button class="marker" type="button" data-draft-marker="true" style="left:${state.marker.x}%;top:${state.marker.y}%">＋</button>`:'';
+      $('imageStage').innerHTML=`<div class="image-canvas" id="imageCanvas"><img src="${item.url}" alt="">${markers}${draft}</div>`;
+      applyViewerTransform();
+      document.querySelectorAll('[data-marker]').forEach(marker=>marker.addEventListener('click',e=>{e.stopPropagation();openProblemModal(marker.dataset.marker);}));
+    }
+    function selectAsset(id) {
+      state.selectedId=id; state.marker=null; state.editingProblemId=null; resetViewer(); const item=allImages().find(x=>x.id===id); renderAssetList();
+      $('viewerName').textContent=item?(item.kind==='pano'?(item.scene||'未填写部位名称'):''):'请选择图片'; $('viewerSceneTag').textContent=''; $('viewerSceneTag').classList.remove('show');
+      $('markerInfo').textContent=problemCountFor(id)?`此图片已标识 ${problemCountFor(id)} 个问题`:'尚未标识问题'; renderViewer(); renderAnnotationProblems();
+    }
+    function focusProblem(problem){selectAsset(problem.sourceId);if(problem.sourceKind==='pano'){const p=panoramaPoint(problem),go=()=>state.panoramaViewer?.lookAt(p.pitch,p.yaw,55,true);state.panoramaViewer?.on('load',go);setTimeout(go,650)}}
+    function stagePoint(event){const rect=$('imageStage').getBoundingClientRect(),cx=rect.left+rect.width/2+state.viewerX,cy=rect.top+rect.height/2+state.viewerY;return{x:Math.max(0,Math.min(100,((event.clientX-cx)/(rect.width*state.viewerScale)+.5)*100)).toFixed(1),y:Math.max(0,Math.min(100,((event.clientY-cy)/(rect.height*state.viewerScale)+.5)*100)).toFixed(1)};}
+    $('imageStage').addEventListener('contextmenu',event=>{event.preventDefault();const item=allImages().find(x=>x.id===state.selectedId);if(!item){toast('请先选择一张图片');return;}state.editingProblemId=null;if(item.kind==='pano'){if(!state.panoramaViewer){toast('全景图片尚未解析完成');return;}const coords=state.panoramaViewer.mouseEventToCoords(event);if(!coords||!Number.isFinite(coords[0])||!Number.isFinite(coords[1]))return;state.marker={mode:'panorama',pitch:coords[0],yaw:coords[1]};}else{state.marker={mode:'photo',...stagePoint(event)};}renderViewer();openProblemModal();});
+    $('imageStage').addEventListener('wheel',event=>{const item=allImages().find(x=>x.id===state.selectedId);if(!item||item.kind==='pano')return;event.preventDefault();state.viewerScale=Math.max(.5,Math.min(4,state.viewerScale+(event.deltaY<0?.15:-.15)));applyViewerTransform();},{passive:false});
+    $('imageStage').addEventListener('mousedown',event=>{const item=allImages().find(x=>x.id===state.selectedId);if(event.button!==0||event.target.closest('.marker')||!item||item.kind==='pano')return;state.dragging=true;state.dragStart={x:event.clientX-state.viewerX,y:event.clientY-state.viewerY};$('imageStage').classList.add('dragging');event.preventDefault();});
+    document.addEventListener('mousemove',event=>{if(!state.dragging)return;state.viewerX=event.clientX-state.dragStart.x;state.viewerY=event.clientY-state.dragStart.y;applyViewerTransform();});
+    document.addEventListener('mouseup',()=>{state.dragging=false;$('imageStage').classList.remove('dragging');});
+    function renderProblemPhotos(){
+      const item=allImages().find(x=>x.id===state.selectedId),related=item?.kind==='pano'?state.photos.filter(photo=>photo.panoId===item.id):[];
+      const relatedBox=$('problemRelatedPhotos');
+      relatedBox.classList.toggle('show',!!related.length);
+      relatedBox.innerHTML=related.length?`<div class="problem-related-title">关联图片列表</div>${related.map(photo=>{const selected=state.draftPhotos.some(item=>item.id===photo.id);return `<button type="button" class="problem-related-photo ${selected?'selected':''}" data-add-related-photo="${photo.id}" data-related-photo-url="${escapeHtml(photo.url)}" title="${escapeHtml(photo.name)}"><img src="${photo.url}" alt=""><span>${escapeHtml(photo.name)}</span></button>`;}).join('')}`:'';
+      $('problemPhotoGrid').classList.toggle('empty-upload',!state.draftPhotos.length);
+      $('problemPhotoGrid').innerHTML=state.draftPhotos.length?'<button class="problem-photo-add" type="button" data-add-problem-photo aria-label="继续添加照片"><span class="plus">＋</span><span class="caption">继续添加</span></button>'+state.draftPhotos.map(photo=>`<div class="problem-photo-item" data-preview-draft-photo="${photo.id}"><img src="${photo.url}" alt=""><button type="button" data-remove-photo="${photo.id}" aria-label="删除">×</button></div>`).join(''):'<button class="problem-photo-upload-tile" type="button" data-add-problem-photo aria-label="上传问题照片"><span class="plus">＋</span><span class="caption">点击上传照片</span></button>';
+      document.querySelectorAll('[data-add-related-photo]').forEach(button=>button.addEventListener('click',event=>{event.stopPropagation();const photo=state.photos.find(item=>item.id===button.dataset.addRelatedPhoto);if(!photo||state.draftPhotos.some(item=>item.id===photo.id))return;state.draftPhotos.push({...photo});renderProblemPhotos();}));
+      document.querySelectorAll('[data-add-related-photo]').forEach(button=>{button.addEventListener('mouseenter',event=>{const preview=document.createElement('div');preview.className='related-photo-preview';preview.dataset.relatedPreview='true';preview.innerHTML=`<img src="${button.dataset.relatedPhotoUrl}" alt="">`;document.body.appendChild(preview);const move=event=>{preview.style.left=`${Math.min(event.clientX+16,window.innerWidth-256)}px`;preview.style.top=`${Math.min(event.clientY+16,window.innerHeight-186)}px`;};button._previewMove=move;button.addEventListener('mousemove',move);move(event);});button.addEventListener('mouseleave',()=>{button._previewMove&&button.removeEventListener('mousemove',button._previewMove);document.querySelector('[data-related-preview]')?.remove();});});
+      document.querySelectorAll('[data-preview-draft-photo]').forEach(item=>item.addEventListener('click',event=>{if(event.target.closest('[data-remove-photo]'))return;const photo=state.draftPhotos.find(photo=>photo.id===item.dataset.previewDraftPhoto);if(!photo?.url)return;$('problemPhotoPreviewArea').innerHTML=`<img src="${escapeHtml(photo.url)}" alt="问题照片">`;$('problemPhotoPreviewModal').classList.add('show');}));
+      document.querySelectorAll('[data-remove-photo]').forEach(button=>button.addEventListener('click',event=>{event.stopPropagation();state.draftPhotos=state.draftPhotos.filter(photo=>photo.id!==button.dataset.removePhoto);renderProblemPhotos();}));
+      document.querySelector('[data-add-problem-photo]')?.addEventListener('click',event=>{event.stopPropagation();$('problemPhotoInput').click();});
+    }
+    function openProblemModal(problemId){
+      const item=allImages().find(x=>x.id===state.selectedId), problem=problemId?state.problems.find(p=>p.id===problemId):null;if(!item)return;
+      if(problem){state.editingProblemId=problem.id;state.marker=item.kind==='pano'?{mode:'panorama',...panoramaPoint(problem)}:{mode:'photo',x:problem.x,y:problem.y};$('problemLocation').value=problem.location||'';$('problemDesc').value=problem.desc||'';document.querySelectorAll('input[name="checkType"]').forEach(radio=>radio.checked=radio.value===problem.checkType);state.draftPhotos=(problem.photos||[]).map(photo=>({...photo}));$('problemModalTitle').textContent='修改隐患问题';}
+      else{state.editingProblemId=null;$('problemLocation').value='';$('problemDesc').value='';document.querySelectorAll('input[name="checkType"]').forEach(radio=>radio.checked=radio.value==='安全');state.draftPhotos=[];$('problemModalTitle').textContent='新增隐患问题';}
+      renderViewer();renderAssetList();renderAnnotationProblems();renderProblemPhotos();$('problemModal').classList.add('show');
+    }
+    function closeProblemModal(){
+      $('problemModal').classList.remove('show');state.editingProblemId=null;state.marker=null;state.draftPhotos=[];$('problemPhotoInput').value='';renderViewer();renderAssetList();renderAnnotationProblems();
+    }
+    $('closeProblemModal').addEventListener('click',closeProblemModal);$('cancelProblem').addEventListener('click',closeProblemModal);$('problemModal').addEventListener('click',e=>{if(e.target===$('problemModal'))closeProblemModal();});
+    function appendProblemPhotos(files){
+      const accepted=['jpg','jpeg','png'],invalid=[];[...files].forEach((file,index)=>{const ext=(file.name||'').split('.').pop().toLowerCase(),isImage=accepted.includes(ext)||file.type==='image/jpeg'||file.type==='image/png';if(!isImage){invalid.push('仅支持 JPG、JPEG、PNG');return;}if(file.size>10*1024*1024){invalid.push('单张图片不能超过10MB');return;}state.draftPhotos.push({id:'photo-'+Date.now()+'-'+index,name:file.name||'粘贴图片',url:URL.createObjectURL(file)});});renderProblemPhotos();if(invalid.length)toast(invalid[0]);
+    }
+    $('problemPhotoInput').addEventListener('change',e=>{appendProblemPhotos(e.target.files);e.target.value='';});
+    $('problemPhotoGrid').addEventListener('click',()=>{if(!state.draftPhotos.length)$('problemPhotoInput').click();});
+    $('problemPhotoGrid').addEventListener('dragover',event=>{event.preventDefault();$('problemPhotoGrid').classList.add('dragging');});
+    $('problemPhotoGrid').addEventListener('dragleave',event=>{if(!event.currentTarget.contains(event.relatedTarget))$('problemPhotoGrid').classList.remove('dragging');});
+    $('problemPhotoGrid').addEventListener('drop',event=>{event.preventDefault();$('problemPhotoGrid').classList.remove('dragging');if(event.dataTransfer?.files?.length)appendProblemPhotos(event.dataTransfer.files);});
+    document.addEventListener('paste',event=>{if(!$('problemModal').classList.contains('show'))return;const files=[...(event.clipboardData?.items||[])].filter(item=>item.type.startsWith('image/')).map(item=>item.getAsFile()).filter(Boolean);if(files.length){event.preventDefault();appendProblemPhotos(files);}});
+    $('saveProblem').addEventListener('click',()=>{
+      const item=allImages().find(x=>x.id===state.selectedId),checkType=document.querySelector('input[name="checkType"]:checked')?.value,desc=$('problemDesc').value.trim();
+      if(!item||!state.marker){toast('请先在图片上标识问题位置');return;}if(!checkType){toast('请选择检查类型');return;}if(!desc){toast('请填写问题描述');return;}if(!state.draftPhotos.length){toast(item.kind==='pano'?'请上传具体隐患位置截图或照片':'请至少上传一张问题照片');return;}
+      const problem={id:state.editingProblemId||'problem-'+Date.now(),sourceId:item.id,sourceName:item.name,sourceKind:item.kind,scene:item.scene||'',x:item.kind==='pano'?undefined:state.marker.x,y:item.kind==='pano'?undefined:state.marker.y,pitch:item.kind==='pano'?state.marker.pitch:undefined,yaw:item.kind==='pano'?state.marker.yaw:undefined,location:$('problemLocation').value.trim(),checkType,source:'监管巡检',desc,photos:state.draftPhotos.map(photo=>({...photo}))};const editing=!!state.editingProblemId;
+      if(editing)state.problems=state.problems.map(old=>old.id===problem.id?problem:old);else state.problems.push(problem);
+      $('problemModal').classList.remove('show');state.editingProblemId=null;state.marker=null;state.draftPhotos=[];renderViewer();renderAssetList();renderAnnotationProblems();renderUploads();renderProblemSummary();updateAnnotationCount();toast(editing?'隐患问题已更新':'隐患问题已保存');
+    });
+
+    function updateAnnotationCount(){const count=state.problems.length;$('allProblemCount').textContent=count;$('mainProblemCount').textContent=count;}
+    function deleteProblem(problemId){
+      state.problems=state.problems.filter(problem=>problem.id!==problemId);if(state.editingProblemId===problemId){state.editingProblemId=null;state.marker=null;state.draftPhotos=[];$('problemModal').classList.remove('show');}
+      renderProblemSummary();renderUploads();renderAnnotationProblems();renderAssetList();renderViewer();updateAnnotationCount();toast('已删除该隐患问题');
+    }
+    function renderAnnotationProblems(){
+      $('annotationProblemList').innerHTML=state.problems.length?state.problems.map((problem,index)=>`<div class="all-problem-item ${problem.id===state.editingProblemId?'active':''}" data-all-problem="${problem.id}"><button class="all-problem-delete" type="button" data-delete-annotation="${problem.id}" title="删除问题" aria-label="删除问题">×</button><div class="all-problem-cover">${problem.photos?.[0]?.url?`<img src="${problem.photos[0].url}" alt="">`:''}</div><div class="all-problem-copy"><div class="all-problem-copy-head"><b title="${escapeHtml(problem.desc)}">${index+1}. ${escapeHtml(problem.desc)}</b></div><p>${escapeHtml(problem.source||'监管巡检')}</p></div></div>`).join(''):'<div class="all-problem-empty">本次巡检暂未标识隐患问题</div>';
+      document.querySelectorAll('[data-delete-annotation]').forEach(button=>button.addEventListener('click',event=>{event.stopPropagation();deleteProblem(button.dataset.deleteAnnotation);}));
+      document.querySelectorAll('[data-all-problem]').forEach(item=>item.addEventListener('click',()=>{const problem=state.problems.find(p=>p.id===item.dataset.allProblem);if(!problem)return;focusProblem(problem);}));
+    }
+    function renderProblemSummary(){
+      $('problemSummary').innerHTML=state.problems.length?`<table class="hazard-table"><thead><tr><th class="hazard-index" style="width:5%">序号</th><th style="width:13%">问题照片</th><th style="width:24%">问题位置</th><th style="width:11%">检查类型</th><th style="width:34%">问题描述</th><th class="actions" style="width:13%">操作</th></tr></thead><tbody>${state.problems.map((problem,index)=>`<tr><td class="hazard-index">${index+1}</td><td><div class="problem-photo">${problem.photos?.[0]?.url?`<img src="${problem.photos[0].url}" alt="问题照片，点击放大" data-preview-problem-photo="${problem.id}">`:''}</div></td><td>${escapeHtml(problem.location||'—')}</td><td><span class="hazard-type">${escapeHtml(problem.checkType)}</span></td><td><div class="hazard-desc">${escapeHtml(problem.desc)}</div></td><td class="actions"><button class="btn text" data-reannotate="${problem.id}">编辑</button><button class="btn text" style="color:var(--danger)" data-delete="${problem.id}">删除</button></td></tr>`).join('')}</tbody></table>`:'<div class="hazard-empty"><div><b>暂无隐患问题</b><p>可点击图片或右上角“新增问题”按钮进入问题标注，若未发现问题可直接提交巡检记录。</p></div></div>';
+      $('openAnnotationBtn').textContent='新增问题';updateAnnotationCount();
+      document.querySelectorAll('[data-delete]').forEach(el=>el.addEventListener('click',()=>deleteProblem(el.dataset.delete)));
+      document.querySelectorAll('[data-reannotate]').forEach(el=>el.addEventListener('click',()=>openAnnotation(el.dataset.reannotate)));
+    }
+    renderUploads(); renderProblemSummary(); updateAnnotationCount();
+  </script>
+<script>
+document.addEventListener('mouseout',e=>{if(e.target.closest?.('.problem-related-photo')&&!e.relatedTarget?.closest?.('.problem-related-photo'))document.querySelectorAll('.related-photo-preview').forEach(x=>x.remove())});document.addEventListener('click',()=>document.querySelectorAll('.related-photo-preview').forEach(x=>x.remove()));
+</script>
+</body>
+</html>

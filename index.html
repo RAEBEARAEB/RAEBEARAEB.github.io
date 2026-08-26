@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>深圳市建设施工围挡数字化管理系统</title>
+<title>建设工程项目原型中心</title>
 <style>
 /* ═══ Design Token ═══ */
 :root{
@@ -57,6 +57,16 @@ body{background:linear-gradient(180deg,#EBF2FF 0%,#F7F8FA 100%)}
 .portal-card-role{font-size:var(--font-size-xs);color:var(--text-tertiary);background:var(--color-gray-100);padding:2px 8px;border-radius:var(--border-radius-sm)}
 
 .portal-footer{margin-top:var(--space-8);text-align:center;font-size:var(--font-size-xs);color:var(--text-tertiary)}
+.project-selector{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-5);width:100%;max-width:760px}
+.project-selector .portal-card{min-height:220px;justify-content:center}
+.project-selector .portal-card-icon{width:56px;height:56px}.project-selector .portal-card-icon svg{width:28px;height:28px}
+.project-selector .portal-card-title{font-size:var(--font-size-xl)}
+.project-view{width:100%;max-width:760px}.project-view[hidden],.project-selector[hidden]{display:none}
+.project-toolbar{display:flex;align-items:center;justify-content:space-between;gap:var(--space-4);margin-bottom:var(--space-5)}
+.project-back{height:34px;padding:0 14px;border:1px solid var(--color-gray-300);border-radius:var(--border-radius-md);background:#fff;color:var(--text-secondary);cursor:pointer}.project-back:hover{border-color:var(--color-primary-300);color:var(--color-primary-500)}
+.project-toolbar-title{flex:1}.project-toolbar-title strong{display:block;color:var(--text-title);font-size:var(--font-size-lg)}.project-toolbar-title span{color:var(--text-tertiary);font-size:var(--font-size-xs)}
+.project-toolbar .portal-plan-btn{margin-top:0;white-space:nowrap}
+@media(max-width:600px){.project-selector{grid-template-columns:1fr}.project-toolbar{align-items:flex-start;flex-wrap:wrap}}
 </style>
 </head>
 <body>
@@ -69,12 +79,41 @@ body{background:linear-gradient(180deg,#EBF2FF 0%,#F7F8FA 100%)}
         <polyline points="9 22 9 12 15 12 15 22"/>
       </svg>
     </div>
-    <h1 class="portal-title">深圳市建设施工围挡数字化管理系统</h1>
-    <p class="portal-subtitle">请选择要查看的原型端（点击在新窗口打开）</p>
-    <a href="https://doc.weixin.qq.com/sheet/e3_AZcAjQbcAJACN6su8WhSWTGeBvnuI?scode=ANEALQdeAA4ZNvnprjAZcAjQbcAJA&tab=000001" target="_blank" class="portal-plan-btn">进度计划</a>
+    <h1 class="portal-title" id="portalTitle">建设工程项目原型中心</h1>
+    <p class="portal-subtitle" id="portalSubtitle">请选择项目，进入后查看该项目各端原型入口</p>
   </div>
 
-  <div class="portal-cards">
+  <div class="project-selector" id="projectSelector">
+    <button type="button" class="portal-card" data-open-project="enclosure">
+      <div class="portal-card-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 4v16M20 4v16M4 8h16M4 16h16M8 8v8M16 8v8"/>
+        </svg>
+      </div>
+      <div class="portal-card-title">建设施工围挡数字化管理系统</div>
+      <div class="portal-card-desc">围挡监管、项目管理、街道巡查及群众服务原型</div>
+      <div class="portal-card-roles"><span class="portal-card-role">6 个端入口</span></div>
+    </button>
+    <button type="button" class="portal-card" data-open-project="drone">
+      <div class="portal-card-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M8 10h8v4H8zM6 12H3M21 12h-3M9 10 6 7M15 10l3-3M9 14l-3 3M15 14l3 3"/>
+          <circle cx="4" cy="7" r="2"/><circle cx="20" cy="7" r="2"/><circle cx="4" cy="17" r="2"/><circle cx="20" cy="17" r="2"/>
+        </svg>
+      </div>
+      <div class="portal-card-title">建设工程无人机巡检系统</div>
+      <div class="portal-card-desc">第三方巡检记录录入与监管平台无人机巡检一张图原型</div>
+      <div class="portal-card-roles"><span class="portal-card-role">2 个需求入口</span></div>
+    </button>
+  </div>
+
+  <section class="project-view" id="enclosureProject" hidden>
+    <div class="project-toolbar">
+      <button type="button" class="project-back" data-back-project>← 返回项目选择</button>
+      <div class="project-toolbar-title"><strong>建设施工围挡数字化管理系统</strong><span>请选择需要查看的系统端</span></div>
+      <a href="https://doc.weixin.qq.com/sheet/e3_AZcAjQbcAJACN6su8WhSWTGeBvnuI?scode=ANEALQdeAA4ZNvnprjAZcAjQbcAJA&tab=000001" target="_blank" class="portal-plan-btn">进度计划</a>
+    </div>
+    <div class="portal-cards">
     <a href="supervisor-pc/index.html" target="_blank" class="portal-card">
       <div class="portal-card-icon">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
@@ -174,10 +213,53 @@ body{background:linear-gradient(180deg,#EBF2FF 0%,#F7F8FA 100%)}
         <span class="portal-card-role">市民群众</span>
       </div>
     </a>
-  </div>
+    </div>
+  </section>
 
-  <div class="portal-footer">v2.0.0 · 2026.05 · 内部原型演示系统</div>
+  <section class="project-view" id="droneProject" hidden>
+    <div class="project-toolbar">
+      <button type="button" class="project-back" data-back-project>← 返回项目选择</button>
+      <div class="project-toolbar-title"><strong>建设工程无人机巡检系统</strong><span>请选择需要查看的需求原型</span></div>
+    </div>
+    <div class="portal-cards">
+      <a href="../../260204 无人机需求/方案及原型HTML/无人机巡检记录录入MVP_原型_20260818_V2.html" target="_blank" class="portal-card">
+        <div class="portal-card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M8 10h8v4H8zM6 12H3M21 12h-3M9 10 6 7M15 10l3-3M9 14l-3 3M15 14l3 3"/>
+            <circle cx="4" cy="7" r="2"/><circle cx="20" cy="7" r="2"/><circle cx="4" cy="17" r="2"/><circle cx="20" cy="17" r="2"/>
+          </svg>
+        </div>
+        <div class="portal-card-title">独立无人机巡检平台</div>
+        <div class="portal-card-desc">第三方巡检人员新增无人机巡检记录、上传影像资料并标注隐患问题</div>
+        <div class="portal-card-roles"><span class="portal-card-role">第三方巡检人员</span><span class="portal-card-role">记录录入</span></div>
+      </a>
+
+      <a href="../../260204 无人机需求/方案及原型HTML/巡检一张图_V5.html" target="_blank" class="portal-card">
+        <div class="portal-card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 5h18v14H3z"/><path d="m3 15 5-5 4 4 3-3 6 6"/><circle cx="17" cy="8" r="1.5"/>
+          </svg>
+        </div>
+        <div class="portal-card-title">无人机巡检一张图</div>
+        <div class="portal-card-desc">面向监管人员的项目分布、巡检统计、项目部位全景及问题标注入口</div>
+        <div class="portal-card-roles"><span class="portal-card-role">监管人员</span><span class="portal-card-role">一张图 V5</span></div>
+      </a>
+    </div>
+  </section>
+
+  <div class="portal-footer">项目原型总入口 · 2026</div>
 
 </div>
+<script>
+const selector=document.getElementById('projectSelector');
+const enclosure=document.getElementById('enclosureProject');
+const drone=document.getElementById('droneProject');
+const title=document.getElementById('portalTitle');
+const subtitle=document.getElementById('portalSubtitle');
+function showProject(name){selector.hidden=true;enclosure.hidden=name!=='enclosure';drone.hidden=name!=='drone';title.textContent=name==='enclosure'?'围挡系统原型入口':'无人机系统原型入口';subtitle.textContent='点击具体入口将在新窗口打开原型';window.scrollTo({top:0,behavior:'smooth'});}
+function showSelector(){selector.hidden=false;enclosure.hidden=true;drone.hidden=true;title.textContent='建设工程项目原型中心';subtitle.textContent='请选择项目，进入后查看该项目各端原型入口';window.scrollTo({top:0,behavior:'smooth'});}
+document.querySelectorAll('[data-open-project]').forEach(button=>button.addEventListener('click',()=>showProject(button.dataset.openProject)));
+document.querySelectorAll('[data-back-project]').forEach(button=>button.addEventListener('click',showSelector));
+</script>
 </body>
 </html>
