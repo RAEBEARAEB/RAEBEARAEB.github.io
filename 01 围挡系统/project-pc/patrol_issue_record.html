@@ -1,0 +1,1576 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>巡查记录</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        :root {
+            --header-height: 56px; --sidebar-width: 320px;
+            --primary-color: #1890ff; --bg-dark: #1f1f1f; --text-light: #fff;
+            --color-danger: #D13B2F; --color-warning: #D48A00; --color-success: #1A9042;
+        }
+        body, html { height: 100%; margin: 0; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: var(--bg-dark); color: var(--text-light); }
+        body { display: flex; flex-direction: column; }
+        .header { height: var(--header-height); background: #141414; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 1px solid #303030; flex-shrink: 0; position: relative; z-index: 100; }
+        .header-title { font-size: 18px; font-weight: 500; display: flex; align-items: center; gap: 10px; }
+        .header-title i { cursor: pointer; }
+        .header-actions button { background: transparent; border: 1px solid #444; color: #ccc; padding: 6px 16px; margin-left: 10px; cursor: pointer; border-radius: 4px; transition: all 0.3s; }
+        .header-actions button.primary { background: var(--primary-color); border-color: var(--primary-color); color: #fff; }
+        .header-actions button.primary:hover { background: #1675d1; }
+        .layout { display: flex; flex: 1; min-height: 0; }
+        .viewport { flex: 1; position: relative; background: #000; overflow: hidden; }
+        #editor-container { width: 100%; height: 100%; }
+        /* Right sidebar */
+        .props { width: var(--sidebar-width); background: #262626; border-left: 1px solid #303030; padding: 0; display: flex; flex-direction: column; }
+        .props-section { padding: 16px; border-bottom: 1px solid #303030; }
+        .props-section-title { font-size: 13px; color: #ddd; font-weight: 500; margin-bottom: 12px; }
+        .btn-screenshot { width: 100%; background: var(--primary-color); border: none; color: #fff; padding: 10px 0; border-radius: 4px; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background 0.2s; }
+        .btn-screenshot:hover { background: #1675d1; }
+        .btn-screenshot:disabled { background: #555; cursor: not-allowed; }
+        .issues-overview { padding: 16px; display: flex; flex-direction: column; gap: 10px; flex: 1; min-height: 0; }
+        .issues-overview-header { display: flex; align-items: center; justify-content: space-between; font-size: 13px; color: #ddd; font-weight: 500; }
+        .issues-overview-count { color: #faad14; font-weight: 600; }
+        .issues-overview-list { margin: 0; padding: 0; list-style: none; overflow: auto; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+        .issue-card { position: relative; background: #1d1d1d; border: 1px solid #333; border-radius: 6px; padding: 10px; display: flex; gap: 10px; }
+        .issue-card:hover { border-color: #555; }
+        .issue-card-img { width: 60px; height: 60px; border-radius: 4px; background-size: cover; background-position: center; flex-shrink: 0; background-color: #333; }
+        .issue-card-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+        .issue-card-type { font-size: 12px; color: #faad14; font-weight: 500; }
+        .issue-card-detail { font-size: 12px; color: #ccc; line-height: 1.4; word-break: break-all; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .issue-card-source { font-size: 11px; color: #91caff; background: rgba(24,144,255,0.12); padding: 1px 6px; border-radius: 3px; display: inline-block; margin-top: 2px; }
+        .issue-card-delete { position: absolute; right: 8px; top: 8px; width: 20px; height: 20px; border-radius: 50%; background: transparent; border: none; color: #ff7875; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s; }
+        .issue-card:hover .issue-card-delete { opacity: 1; }
+        .issue-card-delete:hover { background: rgba(255,77,79,0.2); }
+        #all-issue-empty { font-size: 12px; color: #8c8c8c; text-align: center; padding: 20px 0; }
+        /* ═══ View-mode patrol detail card ═══ */
+        .patrol-detail-sheet { padding: 16px; display: flex; flex-direction: column; gap: 0; }
+        .patrol-detail-sheet-header { display: flex; align-items: center; gap: 8px; margin-bottom: 18px; }
+        .patrol-detail-sheet-header-line { width: 3px; height: 16px; background: var(--primary-color); border-radius: 2px; flex-shrink: 0; }
+        .patrol-detail-sheet-header-text { font-size: 14px; font-weight: 600; color: #e8e8e8; letter-spacing: 0.02em; }
+        .patrol-detail-row { display: flex; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid #2a2a2a; }
+        .patrol-detail-row:first-of-type { padding-top: 0; }
+        .patrol-detail-row:last-of-type { border-bottom: none; padding-bottom: 0; }
+        .patrol-detail-row-label { width: 96px; flex-shrink: 0; font-size: 11px; color: #666; font-weight: 400; letter-spacing: 0.03em; padding-top: 1px; }
+        .patrol-detail-row-value { flex: 1; font-size: 13px; color: #d4d4d4; line-height: 1.6; word-break: break-all; min-width: 0; }
+        .patrol-detail-row-value .is-issue { color: #ff7875; font-weight: 600; }
+        .patrol-detail-row-value .is-ok { color: #6b7280; }
+        .patrol-detail-remark-block { margin-top: 16px; padding: 14px; background: rgba(255,255,255,.03); border: 1px solid #2a2a2a; border-radius: 8px; }
+        .patrol-detail-remark-block-label { font-size: 11px; color: #555; margin-bottom: 6px; font-weight: 400; letter-spacing: 0.04em; }
+        .patrol-detail-remark-block-body { font-size: 13px; color: #bbb; line-height: 1.7; white-space: pre-wrap; word-break: break-all; }
+        .patrol-detail-remark-block.issue { border-color: rgba(255,77,79,.2); background: rgba(255,77,79,.04); }
+        .patrol-detail-remark-block.issue .patrol-detail-remark-block-label { color: #ff7875; }
+        .patrol-detail-remark-block.issue .patrol-detail-remark-block-body { color: #ffb3b0; }
+        /* Toast */
+        .toast { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: #fff; padding: 10px 24px; border-radius: 6px; font-size: 14px; z-index: 5000; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+        .toast.show { opacity: 1; }
+        /* Modal */
+        .modal-mask { position: fixed; inset: 0; background: rgba(0,0,0,0.55); display: none; align-items: center; justify-content: center; z-index: 2800; }
+        .modal-mask.show { display: flex; }
+        .modal-mask.large { z-index: 2100; }
+        .modal { background: #fff; color: #333; border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.3); overflow: hidden; max-height: 95vh; display: flex; flex-direction: column; }
+        .modal-lg { width: 1200px; max-width: 97vw; }
+        .modal-head { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-bottom: 1px solid #e8e8e8; font-size: 16px; font-weight: 600; color: #1F2937; flex-shrink: 0; }
+        .modal-close { width: 28px; height: 28px; border: none; background: none; cursor: pointer; color: #999; font-size: 20px; display: flex; align-items: center; justify-content: center; border-radius: 4px; }
+        .modal-close:hover { background: #f0f0f0; color: #333; }
+        .modal-body { padding: 20px; overflow-y: auto; flex: 1; }
+        .modal-foot { display: flex; justify-content: flex-end; gap: 12px; padding: 12px 20px; border-top: 1px solid #e8e8e8; flex-shrink: 0; }
+        .btn { padding: 7px 16px; border-radius: 4px; border: 1px solid #d9d9d9; cursor: pointer; font-size: 14px; transition: all 0.2s; background: #fff; color: #333; }
+        .btn-primary { background: var(--primary-color); color: #fff; border-color: var(--primary-color); }
+        .btn-primary:hover { background: #1675d1; }
+        .btn-danger { background: var(--color-danger); color: #fff; border-color: var(--color-danger); }
+        .btn-cancel { background: #fff; color: #666; border-color: #d9d9d9; }
+        .btn-cancel:hover { border-color: #999; }
+        /* Annotation area */
+        .annotate-container { position: relative; border: 1px solid #e8e8e8; border-radius: 6px; overflow: hidden; background: #f5f5f5; min-height: 300px; }
+        .annotate-container img, .annotate-container canvas { display: block; max-width: 100%; }
+        .annotate-canvas { position: absolute; top: 0; left: 0; cursor: crosshair; }
+        .annotate-tools { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; align-items: center; }
+        .annotate-tool-btn { padding: 5px 12px; border: 1px solid #d9d9d9; border-radius: 4px; background: #fff; cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 4px; transition: all 0.2s; }
+        .annotate-tool-btn:hover { border-color: var(--primary-color); color: var(--primary-color); }
+        .annotate-tool-btn.active { background: #e6f0ff; border-color: var(--primary-color); color: var(--primary-color); font-weight: 600; }
+        .annotate-tool-btn i { font-size: 14px; }
+        .annotate-color-dot { width: 16px; height: 16px; border-radius: 50%; display: inline-block; border: 2px solid #fff; box-shadow: 0 0 0 1px #d9d9d9; cursor: pointer; }
+        .annotate-color-dot.active { box-shadow: 0 0 0 2px var(--primary-color); }
+        .annotate-colors { display: flex; gap: 6px; align-items: center; margin-left: 8px; }
+        /* Form */
+        .form-group { margin-bottom: 14px; }
+        .form-group:last-child { margin-bottom: 0; }
+        .form-label { display: block; font-size: 13px; color: #374151; margin-bottom: 4px; font-weight: 500; }
+        .form-label .required { color: var(--color-danger); }
+        .form-select, .form-input, .form-textarea, .form-input-readonly { width: 100%; padding: 7px 10px; border: 1px solid #d9d9d9; border-radius: 4px; font-size: 13px; color: #333; outline: none; font-family: inherit; box-sizing: border-box; transition: border-color 0.2s; }
+        .form-select:focus, .form-input:focus, .form-textarea:focus { border-color: var(--primary-color); box-shadow: 0 0 0 2px rgba(24,144,255,0.1); }
+        .form-textarea { min-height: 70px; resize: vertical; }
+        .form-input-readonly { background: #f5f5f5; cursor: pointer; color: #1890ff; display: flex; align-items: center; gap: 6px; }
+        .form-input-readonly:hover { border-color: var(--primary-color); }
+        .annotation-row { display: flex; gap: 20px; }
+        .annotation-left { flex: 1; min-width: 0; }
+        .annotation-right { width: 300px; flex-shrink: 0; display: flex; flex-direction: column; }
+        .inline-loc-map { width: 100%; height: 200px; border-radius: 6px; overflow: hidden; border: 2px solid #e8e8e8; cursor: crosshair; margin-top: 4px; flex-shrink: 0; background: #f5f5f5; }
+        .inline-loc-map.picked { border-color: var(--primary-color); }
+        .inline-loc-status { font-size: 12px; color: #6B7280; margin-top: 4px; display: flex; align-items: center; gap: 4px; }
+        .inline-loc-status.picked { color: #1A9042; font-weight: 500; }
+        /* Patrol info bar */
+        .patrol-info-bar { padding: 12px 16px; background: #1a1a1a; border-bottom: 1px solid #303030; font-size: 12px; color: #999; display: flex; align-items: center; gap: 16px; flex-wrap: nowrap; flex-shrink: 0; }
+        .patrol-info-bar span { display: flex; align-items: center; gap: 4px; }
+        .patrol-info-bar strong { color: #ddd; }
+    </style>
+    <script src="../shared_data.js"></script>
+    <script src="../mock-data.js"></script>
+</head>
+<body>
+    <div class="header">
+        <div class="header-title">
+            <i class="fas fa-chevron-left" style="cursor: pointer;" onclick="goBack()"></i>
+            <span id="header-title-text">巡查记录</span>
+        </div>
+        <div class="header-actions" id="header-actions">
+            <button class="primary" id="btn-save-all" onclick="saveAllIssues()"><i class="fas fa-save"></i> 保存全部问题</button>
+            <button class="primary" id="btn-close" onclick="goBack()" style="display:none"><i class="fas fa-times"></i> 关闭</button>
+        </div>
+    </div>
+    <div class="patrol-info-bar" id="patrol-info-bar">
+        <span><i class="fas fa-calendar"></i> 巡检时间：<strong id="info-time">--</strong></span>
+        <span><i class="fas fa-user"></i> 巡检人：<strong id="info-person">--</strong></span>
+        <span><i class="fas fa-hard-hat"></i> 关联工程：<strong id="info-engineering">--</strong></span>
+    </div>
+    <div class="layout">
+        <div class="viewport">
+            <div id="editor-container"></div>
+        </div>
+        <div class="props">
+            <!-- ═══ View mode: patrol record detail ═══ -->
+            <div id="patrol-detail-card" style="display:none">
+                <div class="patrol-detail-sheet">
+                    <div class="patrol-detail-sheet-header">
+                        <span class="patrol-detail-sheet-header-line"></span>
+                        <span class="patrol-detail-sheet-header-text">巡检记录信息</span>
+                    </div>
+                    <div class="patrol-detail-row">
+                        <span class="patrol-detail-row-label">是否存在问题</span>
+                        <span class="patrol-detail-row-value" id="patrol-detail-hasIssue"></span>
+                    </div>
+                    <!-- No-issue: remark -->
+                    <div id="patrol-detail-remark-row" class="patrol-detail-row">
+                        <span class="patrol-detail-row-label" id="patrol-detail-remarkLabel">备注</span>
+                        <span class="patrol-detail-row-value" id="patrol-detail-remark" style="white-space:pre-wrap"></span>
+                    </div>
+                </div>
+                <!-- Issue list (has issue) -->
+                <div id="patrol-detail-issue-list" style="display:none;padding:0 16px 16px">
+                    <div class="patrol-detail-sheet-header" style="margin-bottom:10px">
+                        <span class="patrol-detail-sheet-header-line"></span>
+                        <span class="patrol-detail-sheet-header-text">问题列表</span>
+                    </div>
+                    <div id="patrol-detail-issue-items"></div>
+                </div>
+            </div>
+            <!-- ═══ AddIssue mode: screenshot button + issue list ═══ -->
+            <div id="addIssue-section">
+                <div class="props-section">
+                    <button class="btn-screenshot" id="btn-screenshot" onclick="captureAndAnnotate()">
+                        <i class="fas fa-camera"></i> 截图并新增问题
+                    </button>
+                </div>
+                <div class="issues-overview">
+                    <div class="issues-overview-header">
+                        <span>全部问题</span>
+                        <span id="all-issue-count" class="issues-overview-count">0</span>
+                    </div>
+                    <ul id="all-issue-list" class="issues-overview-list"></ul>
+                    <div id="all-issue-empty" class="issues-empty">暂无巡检问题记录</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Annotation Modal -->
+    <div class="modal-mask" id="annotate-modal">
+        <div class="modal modal-lg">
+            <div class="modal-head">
+                <span><i class="fas fa-pencil-alt" style="margin-right:8px;color:var(--primary-color)"></i>标注问题</span>
+                <button class="modal-close" onclick="closeAnnotateModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="annotation-row">
+                    <div class="annotation-left">
+                        <div class="annotate-tools">
+                            <button class="annotate-tool-btn active" data-tool="rect" onclick="setAnnotateTool('rect', this)"><i class="far fa-square"></i> 画框</button>
+                            <button class="annotate-tool-btn" data-tool="circle" onclick="setAnnotateTool('circle', this)"><i class="far fa-circle"></i> 画圈</button>
+                            <button class="annotate-tool-btn" data-tool="arrow" onclick="setAnnotateTool('arrow', this)"><i class="fas fa-arrow-right"></i> 箭头</button>
+                            <span class="annotate-colors">
+                                颜色：
+                                <span class="annotate-color-dot active" style="background:#ff4d4f" data-color="#ff4d4f" onclick="setAnnotateColor('#ff4d4f', this)" title="红色"></span>
+                                <span class="annotate-color-dot" style="background:#1890ff" data-color="#1890ff" onclick="setAnnotateColor('#1890ff', this)" title="蓝色"></span>
+                                <span class="annotate-color-dot" style="background:#52c41a" data-color="#52c41a" onclick="setAnnotateColor('#52c41a', this)" title="绿色"></span>
+                            </span>
+                            <button class="annotate-tool-btn" onclick="undoAnnotation()" style="margin-left:auto"><i class="fas fa-undo"></i> 撤销</button>
+                            <button class="annotate-tool-btn" onclick="clearAnnotations()"><i class="fas fa-trash"></i> 清除</button>
+                        </div>
+                        <div class="annotate-container" id="annotate-container">
+                            <img id="annotate-img" src="" alt="截屏" style="display:block;max-width:100%">
+                            <canvas id="annotate-canvas" class="annotate-canvas"></canvas>
+                            <div id="annotate-paste-hint" style="position:absolute;inset:0;background:rgba(255,255,255,0.85);display:none;align-items:center;justify-content:center;flex-direction:column;cursor:default;border:3px dashed #1890ff;border-radius:6px;z-index:5;">
+
+
+                                <i class="fas fa-clipboard" style="font-size:48px;color:#1890ff;margin-bottom:16px;"></i>
+                                <span style="font-size:16px;color:#1F2937;font-weight:600;margin-bottom:8px;">Ctrl+V 粘贴截屏到此区域</span>
+                                <span style="font-size:13px;color:#6B7280;">请先使用 Win+Shift+S 截取左侧全景画面，再回到此处粘贴</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="annotation-right">
+                        <div class="form-group">
+                            <label class="form-label"><span class="required">*</span> 问题类型</label>
+                            <select class="form-select" id="issue-type">
+                                <option value="">请选择问题类型</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label"><span class="required">*</span> 问题详情</label>
+                            <textarea class="form-textarea" id="issue-detail" placeholder="请简短说明问题情况"></textarea>
+                        </div>
+                        <div class="form-group" style="flex:1;display:flex;flex-direction:column;min-height:0;">
+                            <label class="form-label"><span class="required">*</span> 问题位置 <span style="font-weight:400;color:var(--text-tertiary)">（点击地图选点）</span></label>
+                            <div class="inline-loc-map" id="inline-loc-map"></div>
+                            <div class="inline-loc-status" id="inline-loc-status">
+                                <i class="fas fa-map-marker-alt" style="color:#9CA3B0;font-size:11px;"></i> <span>点击地图选择问题位置</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-foot">
+                <button class="btn btn-cancel" onclick="closeAnnotateModal()">取消</button>
+                <button class="btn btn-primary" onclick="saveIssue()"><i class="fas fa-check"></i> 保存问题</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+    /* ═══════════════════════════════════════════
+       Global state
+       ═══════════════════════════════════════════ */
+    var editorViewer = null;
+    var patrolRecord = null;       // Current patrol record
+    var issueList = [];            // Saved issues for this patrol
+    var currentScreenshot = null;  // Current screenshot data URL
+    var iframeMode = false;        // true when using iframe for external panorama
+    var pageMode = 'view';     // 'view' | 'addIssue'（默认查看模式；新增问题已在全景巡查页完成）
+    var defaultSource = '项目巡检'; // '项目巡检' | '监管巡查' | '街道上报' | '群众上报'
+
+    // Annotation state
+    var annotateTool = 'rect';
+    var annotateColor = '#ff4d4f';
+    var annotations = [];          // Array of {type, points, color}
+    var isDrawing = false;
+    var drawStart = {x:0, y:0};
+    var drawCurrent = {x:0, y:0};
+    var annotateCanvas = null;
+    var annotateCtx = null;
+    var annotateImg = null;
+
+    // Location picker state
+    var inlineLocMap = null;
+    var pickedLocation = {lat: null, lng: null, addr: '', picked: false};
+
+    /* ═══════════════════════════════════════════
+       Issue type dictionary
+       ═══════════════════════════════════════════ */
+    var ISSUE_TYPES = [
+        '围挡破损', '围挡脏污', '围挡缺失', '围挡基础松动',
+        '围挡占道超限', '张贴小广告', '应建未建围挡',
+        '公益广告污损', '公益广告内容不合时宜', '公益广告画面不连贯影响整体美观',
+        '围挡安全隐患', '围挡喷淋不符合要求', '围挡二维码内容不全',
+        '无围挡维护责任人信息', '其他'
+    ];
+
+    function initIssueTypeSelect() {
+        var sel = document.getElementById('issue-type');
+        sel.innerHTML = '<option value="">请选择问题类型</option>';
+        ISSUE_TYPES.forEach(function(t) {
+            var o = document.createElement('option');
+            o.value = t; o.textContent = t;
+            sel.appendChild(o);
+        });
+    }
+
+    /* ═══════════════════════════════════════════
+       Patrol record loading
+       ═══════════════════════════════════════════ */
+    function getQueryParam(name) {
+        var m = window.location.search.match(new RegExp('[?&]' + name + '=([^&]*)'));
+        return m ? decodeURIComponent(m[1]) : '';
+    }
+
+    function loadPatrolRecord() {
+        var patrolId = getQueryParam('patrolId');
+        // Read mode & source from URL
+        var urlMode = getQueryParam('mode');
+        if (urlMode === 'view' || urlMode === 'addIssue') pageMode = urlMode;
+        var urlSource = getQueryParam('source');
+        if (urlSource) defaultSource = urlSource;
+        // Try to load from IndexedDB
+        if (patrolId) {
+            loadFromIndexedDB(patrolId);
+        } else {
+            // Fallback: try to get from localStorage or use demo data
+            loadDemoData();
+        }
+    }
+
+    function loadFromIndexedDB(patrolId) {
+        // Load patrol record from patrol_records_db
+        var req1 = indexedDB.open('patrol_records_db', 1);
+        req1.onsuccess = function() {
+            var db = req1.result;
+            try {
+                var tx = db.transaction('records', 'readonly');
+                var store = tx.objectStore('records');
+                var getReq = store.get('fence_001');
+                getReq.onsuccess = function() {
+                    var records = getReq.result || [];
+                    var found = null;
+                    if (Array.isArray(records)) {
+                        for (var i = 0; i < records.length; i++) {
+                            if (records[i].id === patrolId) { found = records[i]; break; }
+                        }
+                    }
+                    db.close();
+                    if (found) {
+                        // Normalize old-format issues (string → object)
+                        if (found.issues && Array.isArray(found.issues)) {
+                            found.issues = found.issues.map(function(iss){
+                                if (typeof iss === 'string') return {type: iss, detail: iss};
+                                return iss;
+                            });
+                        }
+                        patrolRecord = found;
+                        loadExistingIssues(found);
+                        initPatrolPage();
+                    } else {
+                        loadDemoData();
+                    }
+                };
+                getReq.onerror = function() { db.close(); loadDemoData(); };
+            } catch(e) { db.close(); loadDemoData(); }
+        };
+        req1.onerror = function() { loadDemoData(); };
+    }
+
+    function loadExistingIssues(record) {
+        if (record.issues && Array.isArray(record.issues)) {
+            issueList = record.issues.slice();
+        } else {
+            issueList = [];
+        }
+    }
+
+    // Find matching YZY issue by fenceId + date (for rectification/location data)
+    function findMatchedYZYIssue(patrolRec) {
+        try {
+            var raw = localStorage.getItem('YZY_STREET_ISSUES');
+            if (!raw) return null;
+            var all = JSON.parse(raw);
+            if (!Array.isArray(all)) return null;
+            var fenceId = getQueryParam('fenceId') || '';
+            var found = null;
+            for (var i = 0; i < all.length; i++) {
+                if (all[i].fenceId && all[i].fenceId === fenceId) { found = all[i]; break; }
+            }
+            if (!found) {
+                var engName = getQueryParam('engineering') || '';
+                if (engName) {
+                    for (var j = 0; j < all.length; j++) {
+                        if (all[j].engineerName === engName) { found = all[j]; break; }
+                    }
+                }
+            }
+            if (found) {
+                // Load rectification data from FENCE_ISSUE_CLOSURE
+                try {
+                    var raw2 = localStorage.getItem('FENCE_ISSUE_CLOSURE');
+                    if (raw2) {
+                        var closure = JSON.parse(raw2);
+                        if (closure.rectifications && closure.rectifications[found.id]) {
+                            found._rectification = closure.rectifications[found.id];
+                        }
+                    }
+                } catch(e2) {}
+                return found;
+            }
+        } catch(e) {}
+        return null;
+    }
+
+    // Init Leaflet mini-map for issue location in view mode
+    var _issueLocMap=null;
+    function initIssueLocationMap(lat,lng){
+        var el=document.getElementById('patrol-detail-issue-map');
+        if(!el||typeof L==='undefined')return;
+        // Wait two frames for DOM reflow after display:none → visible
+        requestAnimationFrame(function(){
+        requestAnimationFrame(function(){
+        if(_issueLocMap){_issueLocMap.remove();_issueLocMap=null;}
+        _issueLocMap=L.map(el,{zoomControl:true,attributionControl:false,scrollWheelZoom:true,dragging:true});
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:18}).addTo(_issueLocMap);
+
+        // Collect all layers for fitBounds
+        var allLayers=[];
+
+        // Add issue marker
+        var mk=L.circleMarker([lat,lng],{radius:7,color:'#D13B2F',fillColor:'#D13B2F',fillOpacity:1,weight:2})
+            .bindTooltip('问题位置',{direction:'top',offset:[0,-10]})
+            .addTo(_issueLocMap);
+        allLayers.push(mk);
+
+        // Load fence/project data
+        var fenceId=getQueryParam('fenceId');
+        if(!fenceId){_issueLocMap.setView([lat,lng],16);_issueLocMap.invalidateSize();return;}
+        var hoard=window.MOCK_DATA?window.MOCK_DATA.findHoard(fenceId):null;
+        if(!hoard){_issueLocMap.setView([lat,lng],16);_issueLocMap.invalidateSize();return;}
+        var projects=window.MOCK_DATA?window.MOCK_DATA.getProjects():[];
+        var proj=null;
+        if(hoard.projectId){projects.forEach(function(p){if(p.id===hoard.projectId)proj=p;});}
+
+        // Project redline
+        if(proj&&proj.redlineGeo&&proj.redlineGeo.length>0){
+            var rl=L.polygon(proj.redlineGeo.map(function(p){return[p[0],p[1]];}),{color:'#D13B2F',weight:2,fill:false}).addTo(_issueLocMap);
+            allLayers.push(rl);
+        }
+
+        // This fence gpsShape
+        if(hoard.gpsShape&&hoard.gpsShape.length>0){
+            var fl=L.polygon(hoard.gpsShape.map(function(p){return[p[0],p[1]];}),{color:'#1862D4',weight:2,dashArray:'6 4',fillColor:'rgba(24,98,212,0.10)',fillOpacity:1}).addTo(_issueLocMap);
+            allLayers.push(fl);
+        }
+
+        // Entrances
+        if(hoard.entrances){
+            hoard.entrances.forEach(function(e){
+                L.circleMarker([e.lat,e.lng],{radius:4,color:'#1862D4',fillColor:'#1862D4',fillOpacity:0.8,weight:1.5}).bindTooltip(e.name||'出入口',{direction:'top'}).addTo(_issueLocMap);
+            });
+        }
+
+        // Other fence blocks in same project
+        if(proj&&proj.hoardings){
+            proj.hoardings.forEach(function(h){
+                if(h.id===fenceId)return;
+                if(!h.gpsShape||!h.gpsShape.length)return;
+                L.polygon(h.gpsShape.map(function(p){return[p[0],p[1]];}),{color:'#9CA3B0',weight:1,dashArray:'4 3',fillColor:'rgba(156,163,176,0.04)',fillOpacity:1}).addTo(_issueLocMap);
+                if(h.entrances){
+                    h.entrances.forEach(function(e){
+                        L.circleMarker([e.lat,e.lng],{radius:3,color:'#9CA3B0',fillColor:'#9CA3B0',fillOpacity:0.5,weight:1}).addTo(_issueLocMap);
+                    });
+                }
+            });
+        }
+
+        // Fit bounds to show redline + fence range context (with issue marker included)
+        if(allLayers.length>0){
+            var group=L.featureGroup(allLayers);
+            try{_issueLocMap.fitBounds(group.getBounds(),{padding:[20,20],maxZoom:16});}catch(e){_issueLocMap.setView([lat,lng],15);}
+        }else{
+            _issueLocMap.setView([lat,lng],16);
+        }
+        _issueLocMap.invalidateSize();
+        });
+        });
+    }
+
+    // Open an issue from the patrol detail view → navigates to issue detail page
+    function openIssueFromPatrol(idx) {
+        var fenceId = getQueryParam('fenceId') || '';
+        var iss = (patrolRecord.issues && idx >= 0 && idx < patrolRecord.issues.length) ? patrolRecord.issues[idx] : null;
+        if (!iss || !iss.type) { alert('问题数据不完整'); return; }
+
+        // Search YZY issues by fenceId + type (relaxed matching)
+        var allIssues = (window.MOCK_DATA && window.MOCK_DATA.getStreetIssues) ? window.MOCK_DATA.getStreetIssues() : [];
+        var matchedId = null;
+        for (var i = 0; i < allIssues.length; i++) {
+            if (allIssues[i].fenceId === fenceId && allIssues[i].type === iss.type) {
+                matchedId = allIssues[i].id; break;
+            }
+        }
+        if (!matchedId) {
+            // Try localStorage directly
+            try {
+                var raw = localStorage.getItem('YZY_STREET_ISSUES');
+                if (raw) {
+                    var all = JSON.parse(raw);
+                    for (var j = 0; j < all.length; j++) {
+                        if (all[j].fenceId === fenceId && all[j].type === iss.type) {
+                            matchedId = all[j].id; break;
+                        }
+                    }
+                }
+            } catch(e) {}
+        }
+        if (!matchedId) { alert('未找到关联的问题记录'); return; }
+
+        var url = 'patrol-issue-detail.html?id=' + encodeURIComponent(matchedId);
+        var patrolId = getQueryParam('patrolId');
+        if (patrolId) url += '&patrolId=' + encodeURIComponent(patrolId);
+        var eng = getQueryParam('engineering');
+        if (eng) url += '&engineering=' + encodeURIComponent(eng);
+        if (fenceId) url += '&fenceId=' + encodeURIComponent(fenceId);
+        window.location.href = url;
+    }
+
+    function loadDemoData() {
+        // Try loading from MOCK_DATA hoardings patrol records when IndexedDB fails
+        var fenceId = getQueryParam('fenceId') || '';
+        var patrolId = getQueryParam('patrolId') || '';
+        if (window.MOCK_DATA && fenceId && patrolId) {
+            var hoard = window.MOCK_DATA.findHoard(fenceId);
+            if (hoard && hoard.patrolRecords) {
+                for (var i = 0; i < hoard.patrolRecords.length; i++) {
+                    var pr = hoard.patrolRecords[i];
+                    if (pr.id === patrolId || ('pr'+i === patrolId)) {
+                        var issuesArray = [];
+                        if (pr.issues && Array.isArray(pr.issues)) {
+                            issuesArray = pr.issues.map(function(iss) {
+                                if (typeof iss === 'string') {
+                                    // Convert old string format to object
+                                    return {type: iss, detail: iss};
+                                }
+                                return iss;
+                            });
+                        }
+                        patrolRecord = {
+                            id: pr.id || patrolId,
+                            date: pr.date || '',
+                            time: pr.time || '09:00',
+                            person: pr.inspector || '—',
+                            unit: hoard.constructUnit || '—',
+                            remark: pr.remark || '',
+                            hasIssue: issuesArray.length > 0 || pr.result === '异常',
+                            panoramaSrc: pr.panoramaSrc || '',
+                            issues: issuesArray,
+                            issueType: issuesArray.length > 0 ? issuesArray[0].type : ''
+                        };
+                        issueList = issuesArray.slice();
+                        initPatrolPage();
+                        return;
+                    }
+                }
+            }
+        }
+        // Fallback: hardcoded demo
+        patrolRecord = {
+            id: 'demo_patrol_001',
+            date: new Date().toISOString().split('T')[0],
+            time: new Date().toTimeString().slice(0,5),
+            person: '张项目',
+            unit: '深圳市市政工程总公司',
+            remark: '',
+            hasIssue: true,
+            panoramaSrc: 'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492',
+            issues: [
+                {type:'围挡脏污', unit:'深圳市市政工程总公司', detail:'围挡面板表面有轻微泥浆污渍，面积约0.2㎡，不影响结构安全但需清洁', source:'项目巡检'},
+                {type:'公益广告污损', unit:'深圳市市政工程总公司', detail:'公益广告有污损，画面不清晰，需及时更换', source:'监管巡查', supervisor:'张建国'}
+            ],
+            issueType: '围挡脏污'
+        };
+        issueList = patrolRecord.issues.slice();
+        initPatrolPage();
+    }
+
+    function isDirectImageUrl(url) {
+        if (!url) return false;
+        var u = url.split('?')[0].split('#')[0].toLowerCase();
+        return /\.(jpe?g|png|webp|bmp)$/i.test(u);
+    }
+
+    function initPatrolPage() {
+        // Set header title + buttons based on mode
+        if (pageMode === 'view') {
+            document.getElementById('header-title-text').textContent = '查看巡检记录 - ' + (patrolRecord.date || '');
+            document.getElementById('btn-save-all').style.display = 'none';
+            document.getElementById('btn-close').style.display = '';
+            // Hide issue section, show patrol detail card
+            document.getElementById('addIssue-section').style.display = 'none';
+            document.getElementById('patrol-detail-card').style.display = '';
+            // Populate detail card
+            var hasIssue = patrolRecord.hasIssue;
+            var remark = patrolRecord.remark || '';
+            document.getElementById('patrol-detail-hasIssue').innerHTML = hasIssue
+                ? '<span class="is-issue">是</span>'
+                : '<span class="is-ok">否</span>';
+            if (hasIssue) {
+                document.getElementById('patrol-detail-remark-row').style.display = 'none';
+                document.getElementById('patrol-detail-issue-list').style.display = '';
+                // Render issue list cards
+                var issues=patrolRecord.issues||[];
+                var itemsHtml='';
+                if(issues.length){
+                    issues.forEach(function(iss,i){
+                        itemsHtml+='<div class="issue-card" style="cursor:pointer;margin-bottom:8px" onclick="openIssueFromPatrol('+i+')">'+
+                            '<div class="issue-card-info" style="flex:1;width:100%">'+
+                                '<div class="issue-card-type">'+(iss.type||'—')+'</div>'+
+                                '<div class="issue-card-detail">'+(iss.detail||'—')+'</div>'+
+                                '<span class="issue-card-source">来源：'+(iss.source||'项目巡检')+
+                                (iss.source==='监管巡查'&&iss.supervisor?'（'+iss.supervisor+'）':'')+'</span>'+
+                            '</div>'+
+                        '</div>';
+                    });
+                }else{
+                    // Fallback: single issue from remark
+                    itemsHtml='<div class="issue-card" style="cursor:pointer;margin-bottom:8px" onclick="openIssueFromPatrol(-1)">'+
+                        '<div class="issue-card-info" style="flex:1;width:100%">'+
+                            '<div class="issue-card-type">'+(patrolRecord.issueType||'—')+'</div>'+
+                            '<div class="issue-card-detail">'+(remark||'—')+'</div>'+
+                        '</div>'+
+                    '</div>';
+                }
+                document.getElementById('patrol-detail-issue-items').innerHTML=itemsHtml;
+            } else {
+                document.getElementById('patrol-detail-remark-row').style.display = '';
+                document.getElementById('patrol-detail-issue-list').style.display = 'none';
+                document.getElementById('patrol-detail-remarkLabel').textContent = '备注';
+                document.getElementById('patrol-detail-remark').textContent = remark || '—';
+            }
+        } else {
+            document.getElementById('header-title-text').textContent = '巡查记录 - ' + (patrolRecord.date || '');
+            document.getElementById('btn-save-all').style.display = '';
+            document.getElementById('btn-close').style.display = 'none';
+            document.getElementById('addIssue-section').style.display = '';
+            document.getElementById('patrol-detail-card').style.display = 'none';
+        }
+
+        // Mark all existing issues as persisted (already in 问题闭环处置, cannot be deleted)
+        issueList.forEach(function(issue) { issue._persisted = true; });
+
+        // Update info bar
+        document.getElementById('info-time').textContent = (patrolRecord.date || '--') + ' ' + (patrolRecord.time || '--');
+        document.getElementById('info-person').textContent = patrolRecord.person || '--';
+        var engName = getQueryParam('engineering') || patrolRecord.engineering || '—';
+        document.getElementById('info-engineering').textContent = engName;
+        if (pageMode !== 'view') updateIssueCount();
+
+        // Build panorama scenes data
+        var sceneId = 'patrol_scene';
+        var scenes = {};
+        var panoUrl = patrolRecord.panoramaSrc || 'https://pannellum.org/images/alma.jpg';
+        scenes[sceneId] = {
+            title: patrolRecord.date + ' 巡检',
+            type: 'equirectangular',
+            panorama: panoUrl,
+            hfov: 110,
+            pitch: 0,
+            yaw: 0,
+            hotSpots: [],
+            autoLoad: true
+        };
+
+        // Also load panorama_project_db data if available
+        var req2 = indexedDB.open('panorama_project_db', 1);
+        req2.onsuccess = function() {
+            var db = req2.result;
+            try {
+                var tx = db.transaction('projects', 'readonly');
+                var store = tx.objectStore('projects');
+                var getReq = store.get('active');
+                getReq.onsuccess = function() {
+                    var data = getReq.result;
+                    db.close();
+                    if (data && data.scenes && Object.keys(data.scenes).length > 0) {
+                        initViewer(data.scenes, data.currentSceneId);
+                    } else {
+                        initViewer(scenes, sceneId);
+                    }
+                };
+                getReq.onerror = function() { db.close(); initViewer(scenes, sceneId); };
+            } catch(e) { db.close(); initViewer(scenes, sceneId); }
+        };
+        req2.onerror = function() { initViewer(scenes, sceneId); };
+
+        renderIssueList();
+    }
+
+    function initViewer(scenes, firstSceneId) {
+        var firstScene = scenes[firstSceneId || Object.keys(scenes)[0]];
+        var panoUrl = firstScene ? firstScene.panorama : '';
+
+        // If URL is a web platform (not a direct image), use iframe
+        if (panoUrl && !isDirectImageUrl(panoUrl)) {
+            initIframeViewer(panoUrl);
+            return;
+        }
+
+        // Use Pannellum for direct image URLs
+        hideIframeViewer();
+        if (editorViewer) {
+            try { editorViewer.destroy(); } catch(e) {}
+            editorViewer = null;
+        }
+        editorViewer = pannellum.viewer('editor-container', {
+            "default": {
+                "firstScene": firstSceneId || Object.keys(scenes)[0],
+                "author": "Admin",
+                "sceneFadeDuration": 1000,
+                "autoLoad": true,
+                "showControls": false,
+                "draggable": true,
+                "mouseZoom": true
+            },
+            "scenes": scenes
+        });
+        document.getElementById('btn-screenshot').disabled = false;
+        document.getElementById('btn-screenshot').title = '';
+    }
+
+    function initIframeViewer(url) {
+        // Hide Pannellum container area, show iframe
+        var container = document.getElementById('editor-container');
+        container.style.display = 'none';
+
+        // Create iframe wrapper if not exists
+        var iframe = document.getElementById('patrol-iframe');
+        if (!iframe) {
+            iframe = document.createElement('iframe');
+            iframe.id = 'patrol-iframe';
+            iframe.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;border:none;z-index:1';
+            iframe.allow = 'fullscreen; accelerometer; gyroscope; xr-spatial-tracking';
+            // No sandbox — external panorama platforms need full access
+            container.parentNode.appendChild(iframe);
+        }
+        iframe.src = url;
+        iframe.style.display = 'block';
+
+        // Add fallback bar
+        var bar = document.getElementById('iframe-fallback-bar');
+        if (!bar) {
+            bar = document.createElement('div');
+            bar.id = 'iframe-fallback-bar';
+            bar.style.cssText = 'position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.8);color:#ccc;font-size:12px;padding:6px 12px;display:flex;align-items:center;justify-content:space-between;z-index:20;';
+            bar.innerHTML = '<span>外部全景平台（点击"截图并新增问题"后，请用 Win+Shift+S 截屏后 Ctrl+V 粘贴）</span><a id="iframe-fallback-link" href="#" target="_blank" style="color:#91caff;text-decoration:none">在新标签页打开 →</a>';
+            container.parentNode.appendChild(bar);
+        }
+        bar.style.display = 'flex';
+        document.getElementById('iframe-fallback-link').href = url;
+
+        // Mark iframe mode so captureAndAnnotate uses screen capture
+        iframeMode = true;
+        document.getElementById('btn-screenshot').disabled = false;
+        document.getElementById('btn-screenshot').innerHTML = '<i class="fas fa-camera"></i> 截图并新增问题';
+        document.getElementById('btn-screenshot').title = '';
+    }
+
+    function hideIframeViewer() {
+        iframeMode = false;
+        var iframe = document.getElementById('patrol-iframe');
+        if (iframe) iframe.style.display = 'none';
+        var bar = document.getElementById('iframe-fallback-bar');
+        if (bar) bar.style.display = 'none';
+        var container = document.getElementById('editor-container');
+        if (container) container.style.display = '';
+        document.getElementById('btn-screenshot').disabled = false;
+        document.getElementById('btn-screenshot').innerHTML = '<i class="fas fa-camera"></i> 截图并新增问题';
+    }
+
+    /* ═══════════════════════════════════════════
+       Screenshot & Annotation
+       ═══════════════════════════════════════════ */
+    function captureAndAnnotate() {
+        // Reset state
+        annotations = [];
+        annotateTool = 'rect';
+        annotateColor = '#ff4d4f';
+        pickedLocation = {lat: null, lng: null, addr: '', picked: false};
+        destroyInlineLocMap();
+
+        if (iframeMode) {
+            // External panorama — can't auto-capture, open modal with paste area
+            currentScreenshot = null;
+            openAnnotationModal();
+            return;
+        }
+
+        // Pannellum mode — auto-capture from canvas (fully automatic)
+        if (!editorViewer) { showToast('全景查看器尚未就绪', true); return; }
+
+        var container = document.getElementById('editor-container');
+        var canvas = container.querySelector('canvas');
+        if (!canvas) {
+            var canvases = container.getElementsByTagName('canvas');
+            if (canvases.length > 0) canvas = canvases[0];
+        }
+
+        if (canvas) {
+            try {
+                currentScreenshot = canvas.toDataURL('image/jpeg', 0.85);
+            } catch(e) {
+                showToast('截图失败，请尝试刷新页面后重试', true);
+                return;
+            }
+        } else {
+            showToast('无法获取全景画面，请稍后重试', true);
+            return;
+        }
+
+        openAnnotationModal();
+    }
+
+    function openAnnotationModal() {
+        // Reset form
+        document.getElementById('issue-type').value = '';
+        document.getElementById('issue-detail').value = '';
+
+        // Reset location
+        pickedLocation = {lat: null, lng: null, addr: '', picked: false};
+        document.getElementById('inline-loc-map').classList.remove('picked');
+        var statusEl = document.getElementById('inline-loc-status');
+        statusEl.classList.remove('picked');
+        statusEl.innerHTML = '<i class="fas fa-map-marker-alt" style="color:#9CA3B0;font-size:11px;"></i> <span>点击地图选择问题位置</span>';
+
+        // Reset tool UI
+        document.querySelectorAll('.annotate-tool-btn[data-tool]').forEach(function(b) {
+            b.classList.remove('active');
+        });
+        var rectBtn = document.querySelector('.annotate-tool-btn[data-tool="rect"]');
+        if (rectBtn) rectBtn.classList.add('active');
+
+        document.querySelectorAll('.annotate-color-dot').forEach(function(d, i) {
+            d.classList.toggle('active', i === 0);
+        });
+
+        // Show modal
+        document.getElementById('annotate-modal').classList.add('show');
+
+        // Show paste hint if no screenshot yet (iframe mode), else load image
+        var pasteHint = document.getElementById('annotate-paste-hint');
+        var imgEl = document.getElementById('annotate-img');
+        var canvasEl = document.getElementById('annotate-canvas');
+
+        if (!currentScreenshot) {
+            // iframe mode — show paste area
+            if (pasteHint) pasteHint.style.display = 'flex';
+            if (imgEl) imgEl.style.display = 'none';
+            if (canvasEl) canvasEl.style.display = 'none';
+        } else {
+            // Pannellum mode — hide paste hint, show image
+            if (pasteHint) pasteHint.style.display = 'none';
+            if (imgEl) imgEl.style.display = 'block';
+            if (canvasEl) canvasEl.style.display = '';
+        }
+
+        // Load image and init canvas + inline map after modal is visible
+        setTimeout(function() {
+            if (currentScreenshot) loadScreenshot(currentScreenshot);
+            initInlineLocMap();
+        }, 250);
+    }
+
+    /* ── Paste handler for iframe mode ── */
+    function handlePasteInModal(e) {
+        if (currentScreenshot) return;
+        var items = (e.clipboardData || e.originalEvent.clipboardData).items;
+        if (!items) return;
+        for (var i = 0; i < items.length; i++) {
+            if (items[i].type.indexOf('image') !== -1) {
+                var blob = items[i].getAsFile();
+                var reader = new FileReader();
+                reader.onload = function(ev) {
+                    loadScreenshot(ev.target.result);
+                };
+                reader.readAsDataURL(blob);
+                e.preventDefault();
+                return;
+            }
+        }
+    }
+
+    // Bind paste globally so it works when annotation modal is open
+    document.addEventListener('paste', function(e) {
+        var modal = document.getElementById('annotate-modal');
+        if (!modal.classList.contains('show')) return;
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+        handlePasteInModal(e);
+    });
+
+    /**
+     * loadScreenshot — SINGLE entry point for showing a screenshot in the annotate area.
+     * Preloads with new Image(), then sizes canvas from preloader dimensions
+     * (avoids DOM reflow race that getBoundingClientRect can hit).
+     */
+    function loadScreenshot(dataUrl) {
+        currentScreenshot = dataUrl;
+        var pasteHint = document.getElementById('annotate-paste-hint');
+        if (pasteHint) pasteHint.style.display = 'none';
+
+        annotateCanvas = document.getElementById('annotate-canvas');
+        // Hide canvas until ready
+        annotateCanvas.style.display = 'none';
+
+        var preloader = new Image();
+        preloader.onload = function() {
+            var imgW = preloader.naturalWidth;
+            var imgH = preloader.naturalHeight;
+            if (!imgW || !imgH) { showToast('截图尺寸异常，请重试', true); return; }
+
+            annotateImg = document.getElementById('annotate-img');
+            var container = document.getElementById('annotate-container');
+
+            // Show image
+            annotateImg.src = dataUrl;
+            annotateImg.style.display = 'block';
+
+            // Size canvas from preloader dimensions + container width
+            var cw = container ? container.clientWidth : imgW;
+            var displayW = Math.min(cw - 2, imgW);
+            var ratio = displayW / imgW;
+            var displayH = Math.round(imgH * ratio);
+
+            annotateCanvas.width = displayW;
+            annotateCanvas.height = displayH;
+            annotateCanvas.style.width = displayW + 'px';
+            annotateCanvas.style.height = displayH + 'px';
+            annotateCanvas.style.display = '';
+            annotateCtx = annotateCanvas.getContext('2d');
+
+            redrawAnnotations();
+
+            // Mouse / touch events
+            annotateCanvas.onmousedown = handleAnnotateMouseDown;
+            annotateCanvas.onmousemove = handleAnnotateMouseMove;
+            annotateCanvas.onmouseup = handleAnnotateMouseUp;
+            annotateCanvas.onmouseleave = handleAnnotateMouseUp;
+            annotateCanvas.ontouchstart = handleAnnotateTouchStart;
+            annotateCanvas.ontouchmove = handleAnnotateTouchMove;
+            annotateCanvas.ontouchend = handleAnnotateTouchUp;
+        };
+        preloader.onerror = function() {
+            showToast('截图加载失败，请重试', true);
+        };
+        preloader.src = dataUrl;
+    }
+
+    function initAnnotationCanvas() {
+        if (currentScreenshot) loadScreenshot(currentScreenshot);
+    }
+
+    /* resizeAnnotationCanvas — for window resize after initial load */
+    function resizeAnnotationCanvas() {
+        if (!annotateImg || !annotateCanvas) return;
+        var nw = annotateImg.naturalWidth || annotateCanvas.width;
+        var nh = annotateImg.naturalHeight || annotateCanvas.height;
+        if (!nw || !nh) return;
+        var container = document.getElementById('annotate-container');
+        var cw = container ? container.clientWidth : nw;
+        var displayW = Math.min(cw - 2, nw);
+        var ratio = displayW / nw;
+        var displayH = Math.round(nh * ratio);
+        annotateCanvas.width = displayW;
+        annotateCanvas.height = displayH;
+        annotateCanvas.style.width = displayW + 'px';
+        annotateCanvas.style.height = displayH + 'px';
+        redrawAnnotations();
+    }
+
+    function getCanvasPos(e) {
+        if (!annotateCanvas) return {x:0, y:0};
+        var rect = annotateCanvas.getBoundingClientRect();
+        return {
+            x: (e.clientX - rect.left) * (annotateCanvas.width / rect.width),
+            y: (e.clientY - rect.top) * (annotateCanvas.height / rect.height)
+        };
+    }
+
+    function getTouchCanvasPos(e) {
+        if (!annotateCanvas || !e.touches || e.touches.length === 0) return {x:0, y:0};
+        var rect = annotateCanvas.getBoundingClientRect();
+        return {
+            x: (e.touches[0].clientX - rect.left) * (annotateCanvas.width / rect.width),
+            y: (e.touches[0].clientY - rect.top) * (annotateCanvas.height / rect.height)
+        };
+    }
+
+    function handleAnnotateMouseDown(e) {
+        e.preventDefault();
+        isDrawing = true;
+        drawStart = getCanvasPos(e);
+        drawCurrent = drawStart;
+    }
+
+    function handleAnnotateMouseMove(e) {
+        if (!isDrawing) return;
+        drawCurrent = getCanvasPos(e);
+        redrawAnnotations();
+        drawCurrentShape();
+    }
+
+    function handleAnnotateMouseUp(e) {
+        if (!isDrawing) return;
+        isDrawing = false;
+        drawCurrent = getCanvasPos(e);
+        addCurrentAnnotation();
+        redrawAnnotations();
+    }
+
+    function handleAnnotateTouchStart(e) {
+        e.preventDefault();
+        if (e.touches.length === 1) {
+            isDrawing = true;
+            drawStart = getTouchCanvasPos(e);
+            drawCurrent = drawStart;
+        }
+    }
+
+    function handleAnnotateTouchMove(e) {
+        if (!isDrawing) return;
+        e.preventDefault();
+        drawCurrent = getTouchCanvasPos(e);
+        redrawAnnotations();
+        drawCurrentShape();
+    }
+
+    function handleAnnotateTouchUp(e) {
+        if (!isDrawing) return;
+        isDrawing = false;
+        drawCurrent = getTouchCanvasPos(e);
+        addCurrentAnnotation();
+        redrawAnnotations();
+    }
+
+    function addCurrentAnnotation() {
+        var dx = Math.abs(drawCurrent.x - drawStart.x);
+        var dy = Math.abs(drawCurrent.y - drawStart.y);
+        // Require minimum size to avoid accidental tiny marks
+        if (annotateTool === 'arrow') {
+            if (Math.sqrt(dx*dx + dy*dy) < 8) return;
+        } else {
+            if (dx < 5 && dy < 5) return;
+        }
+        annotations.push({
+            type: annotateTool,
+            x1: drawStart.x, y1: drawStart.y,
+            x2: drawCurrent.x, y2: drawCurrent.y,
+            color: annotateColor
+        });
+    }
+
+    function drawCurrentShape() {
+        if (!annotateCtx) return;
+        var shape = {
+            type: annotateTool,
+            x1: drawStart.x, y1: drawStart.y,
+            x2: drawCurrent.x, y2: drawCurrent.y,
+            color: annotateColor
+        };
+        drawShape(annotateCtx, shape);
+    }
+
+    function drawShape(ctx, shape) {
+        ctx.save();
+        ctx.strokeStyle = shape.color;
+        ctx.fillStyle = shape.color;
+        ctx.lineWidth = 3;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+
+        var x1 = shape.x1, y1 = shape.y1, x2 = shape.x2, y2 = shape.y2;
+
+        if (shape.type === 'rect') {
+            var rx = Math.min(x1, x2), ry = Math.min(y1, y2);
+            var rw = Math.abs(x2 - x1), rh = Math.abs(y2 - y1);
+            ctx.globalAlpha = 0.15;
+            ctx.fillRect(rx, ry, rw, rh);
+            ctx.globalAlpha = 1;
+            ctx.strokeRect(rx, ry, rw, rh);
+        } else if (shape.type === 'circle') {
+            var cx = (x1 + x2) / 2, cy = (y1 + y2) / 2;
+            var rx2 = Math.abs(x2 - x1) / 2, ry2 = Math.abs(y2 - y1) / 2;
+            ctx.globalAlpha = 0.15;
+            ctx.beginPath();
+            ctx.ellipse(cx, cy, rx2, ry2, 0, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.globalAlpha = 1;
+            ctx.beginPath();
+            ctx.ellipse(cx, cy, rx2, ry2, 0, 0, 2 * Math.PI);
+            ctx.stroke();
+        } else if (shape.type === 'arrow') {
+            // Draw arrow line
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+            // Draw arrowhead
+            var angle = Math.atan2(y2 - y1, x2 - x1);
+            var headLen = 14;
+            ctx.beginPath();
+            ctx.moveTo(x2, y2);
+            ctx.lineTo(x2 - headLen * Math.cos(angle - Math.PI/6), y2 - headLen * Math.sin(angle - Math.PI/6));
+            ctx.moveTo(x2, y2);
+            ctx.lineTo(x2 - headLen * Math.cos(angle + Math.PI/6), y2 - headLen * Math.sin(angle + Math.PI/6));
+            ctx.stroke();
+        }
+        ctx.restore();
+    }
+
+    function redrawAnnotations() {
+        if (!annotateCtx || !annotateCanvas) return;
+        annotateCtx.clearRect(0, 0, annotateCanvas.width, annotateCanvas.height);
+        for (var i = 0; i < annotations.length; i++) {
+            drawShape(annotateCtx, annotations[i]);
+        }
+    }
+
+    function setAnnotateTool(tool, btn) {
+        annotateTool = tool;
+        document.querySelectorAll('.annotate-tool-btn[data-tool]').forEach(function(b) {
+            b.classList.remove('active');
+        });
+        if (btn) btn.classList.add('active');
+    }
+
+    function setAnnotateColor(color, el) {
+        annotateColor = color;
+        document.querySelectorAll('.annotate-color-dot').forEach(function(d) {
+            d.classList.remove('active');
+        });
+        if (el) el.classList.add('active');
+    }
+
+    function undoAnnotation() {
+        annotations.pop();
+        redrawAnnotations();
+    }
+
+    function clearAnnotations() {
+        annotations = [];
+        redrawAnnotations();
+    }
+
+    /* ═══════════════════════════════════════════
+       Annotation Modal
+       ═══════════════════════════════════════════ */
+    function closeAnnotateModal() {
+        document.getElementById('annotate-modal').classList.remove('show');
+        destroyInlineLocMap();
+        currentScreenshot = null;
+        annotations = [];
+        annotateCanvas = null;
+        annotateCtx = null;
+        annotateImg = null;
+        // Reset paste hint
+        var pasteHint = document.getElementById('annotate-paste-hint');
+        if (pasteHint) pasteHint.style.display = 'none';
+    }
+
+    function saveIssue() {
+        // Validate
+        var issueType = document.getElementById('issue-type').value;
+        var issueDetail = document.getElementById('issue-detail').value.trim();
+
+        if (!issueType) { showToast('请选择问题类型', true); return; }
+        if (!issueDetail) { showToast('请填写问题详情', true); return; }
+        if (!pickedLocation.picked) { showToast('请在地图上点击选择问题位置', true); return; }
+
+        var loc = pickedLocation;
+
+        // Generate combined image (screenshot + annotations)
+        var combinedImg = currentScreenshot;
+        if (annotations.length > 0 && annotateCanvas) {
+            // Create an offscreen canvas to combine
+            var offCanvas = document.createElement('canvas');
+            var img = document.getElementById('annotate-img');
+            offCanvas.width = annotateCanvas.width;
+            offCanvas.height = annotateCanvas.height;
+            var octx = offCanvas.getContext('2d');
+            // Draw image
+            octx.drawImage(img, 0, 0, offCanvas.width, offCanvas.height);
+            // Draw annotations
+            octx.drawImage(annotateCanvas, 0, 0);
+            combinedImg = offCanvas.toDataURL('image/jpeg', 0.85);
+        }
+
+        // For thumbnail, create a smaller version
+        var thumbImg = combinedImg;
+        if (annotateCanvas) {
+            var thumbCanvas = document.createElement('canvas');
+            var maxThumb = 120;
+            var scale = Math.min(maxThumb / annotateCanvas.width, maxThumb / annotateCanvas.height, 1);
+            thumbCanvas.width = annotateCanvas.width * scale;
+            thumbCanvas.height = annotateCanvas.height * scale;
+            var tctx = thumbCanvas.getContext('2d');
+            var img2 = new Image();
+            img2.src = combinedImg;
+            // Use a temp offscreen approach
+            tctx.drawImage(document.getElementById('annotate-img'), 0, 0, thumbCanvas.width, thumbCanvas.height);
+            // Re-draw annotations scaled
+            tctx.save();
+            tctx.scale(scale, scale);
+            tctx.drawImage(annotateCanvas, 0, 0);
+            tctx.restore();
+            try { thumbImg = thumbCanvas.toDataURL('image/jpeg', 0.7); } catch(e) { thumbImg = combinedImg; }
+        }
+
+        var issue = {
+            id: 'issue_' + Date.now(),
+            type: issueType,
+            detail: issueDetail,
+            source: defaultSource,
+            _persisted: false,
+            location: {
+                lat: loc.lat,
+                lng: loc.lng,
+                addr: loc.addr
+            },
+            screenshot: combinedImg,
+            thumbnail: thumbImg,
+            annotations: annotations.slice(), // Store annotations for future editing
+            createdAt: new Date().toISOString()
+        };
+
+        issueList.push(issue);
+        updateIssueCount();
+        renderIssueList();
+        closeAnnotateModal();
+
+        // Auto-save to IndexedDB
+        saveIssuesToDB();
+
+        showToast('问题已保存');
+    }
+
+    /* ═══════════════════════════════════════════
+       Inline Location Map (embedded in annotation modal)
+       ═══════════════════════════════════════════ */
+    function getFenceContext() {
+        var ctx = { fenceGps: null, fenceEntrances: null, redlineGeo: null, centerLat: 22.548, centerLng: 114.061 };
+        try {
+            var urlParams = new URLSearchParams(window.location.search);
+            var pn = urlParams.get('project') || '';
+            var en = urlParams.get('engineering') || '';
+            if (window.MOCK_DATA && window.MOCK_DATA.getHoardings) {
+                var allHoardings = window.MOCK_DATA.getHoardings();
+                for (var i = 0; i < allHoardings.length; i++) {
+                    var h = allHoardings[i];
+                    if ((pn && en && h.projectName === pn && h.engineerName === en) || (!pn && h.defaultDemo)) {
+                        ctx.fenceGps = h.gpsShape;
+                        ctx.fenceEntrances = h.entrances;
+                        if (ctx.fenceGps && ctx.fenceGps.length > 0) {
+                            ctx.centerLat = ctx.fenceGps[0][0];
+                            ctx.centerLng = ctx.fenceGps[0][1];
+                        }
+                        if (window.MOCK_DATA.getProjects) {
+                            var projects = window.MOCK_DATA.getProjects();
+                            for (var j = 0; j < projects.length; j++) {
+                                if (projects[j].name === h.projectName && projects[j].redlineGeo) {
+                                    ctx.redlineGeo = projects[j].redlineGeo;
+                                    break;
+                                }
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+        } catch(e) {}
+        return ctx;
+    }
+
+    function initInlineLocMap() {
+        destroyInlineLocMap();
+
+        var mapEl = document.getElementById('inline-loc-map');
+        if (!mapEl) return;
+
+        var ctx = getFenceContext();
+        if (pickedLocation.picked) {
+            ctx.centerLat = pickedLocation.lat;
+            ctx.centerLng = pickedLocation.lng;
+        }
+
+        var m = L.map(mapEl, {
+            zoomControl: true,
+            attributionControl: false,
+            doubleClickZoom: true
+        });
+        m.zoomControl.setPosition('bottomright');
+
+        // Satellite basemap
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            maxZoom: 19
+        }).addTo(m);
+        // Labels overlay
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
+            maxZoom: 19, opacity: 0.4
+        }).addTo(m);
+
+        // ── Draw project redline ──
+        if (ctx.redlineGeo && ctx.redlineGeo.length >= 3) {
+            L.polygon(ctx.redlineGeo, {
+                color: '#D13B2F', weight: 2.5, fillOpacity: 0.08, fillColor: '#D13B2F'
+            }).addTo(m).bindTooltip('项目红线', { direction: 'top' });
+        }
+
+        // ── Draw fence range ──
+        if (ctx.fenceGps && ctx.fenceGps.length >= 2) {
+            if (ctx.fenceGps.length === 2) {
+                L.polyline(ctx.fenceGps, { color: '#1862D4', weight: 2.5 }).addTo(m)
+                    .bindTooltip('围挡线段', { direction: 'top' });
+            } else {
+                L.polygon(ctx.fenceGps, {
+                    color: '#1862D4', weight: 2.5, dashArray: '6 3',
+                    fillOpacity: 0.1, fillColor: '#1862D4'
+                }).addTo(m).bindTooltip('围挡范围', { direction: 'top' });
+            }
+        }
+
+        // ── Draw entrances ──
+        if (ctx.fenceEntrances) {
+            ctx.fenceEntrances.forEach(function(e) {
+                var c = e.type === 'vehicle' ? '#1862D4'
+                    : e.type === 'pedestrian' ? '#1A9042'
+                    : e.type === 'temporary' ? '#f0832c'
+                    : '#D13B2F';
+                L.circleMarker([e.lat, e.lng], {
+                    radius: 5, color: c, fillColor: c, fillOpacity: 0.6, weight: 2
+                }).addTo(m).bindTooltip(e.name || (e.type === 'vehicle' ? '车辆出入口' : e.type === 'pedestrian' ? '行人出入口' : '出入口'), { direction: 'top' });
+            });
+        }
+
+        // ── Legend ──
+        var legend = L.control({ position: 'topleft' });
+        legend.onAdd = function() {
+            var div = L.DomUtil.create('div', '');
+            div.style.cssText = 'background:rgba(255,255,255,0.92);padding:3px 8px;border-radius:4px;font-size:10px;line-height:1.8;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,0.1);';
+            div.innerHTML = '<span style="color:#D13B2F;">━</span> 红线 <span style="color:#1862D4;margin-left:4px;">━</span> 围挡 <span style="color:#1A9042;margin-left:4px;">●</span> 出入口';
+            return div;
+        };
+        legend.addTo(m);
+
+        // ── Click to pick location ──
+        var pickMarker = null;
+
+        m.on('click', function(e) {
+            var lat = e.latlng.lat, lng = e.latlng.lng;
+            pickedLocation.lat = lat;
+            pickedLocation.lng = lng;
+            pickedLocation.addr = lat.toFixed(6) + ', ' + lng.toFixed(6);
+            pickedLocation.picked = true;
+
+            // Update marker
+            if (pickMarker) { m.removeLayer(pickMarker); }
+            pickMarker = L.marker([lat, lng], {
+                icon: L.divIcon({
+                    className: '',
+                    html: '<div style="width:20px;height:20px;background:#D13B2F;border:3px solid #fff;border-radius:50%;box-shadow:0 1px 6px rgba(0,0,0,0.4);transform:translate(-10px,-10px);cursor:pointer;"></div>',
+                    iconSize: [0, 0]
+                })
+            }).addTo(m);
+
+            // Update status
+            document.getElementById('inline-loc-map').classList.add('picked');
+            var statusEl = document.getElementById('inline-loc-status');
+            statusEl.classList.add('picked');
+            statusEl.innerHTML = '<i class="fas fa-check-circle" style="color:#1A9042;font-size:11px;"></i> <span>位置已选择：' + pickedLocation.addr + '</span>';
+        });
+
+        // ── If already picked, restore marker ──
+        if (pickedLocation.picked) {
+            pickMarker = L.marker([pickedLocation.lat, pickedLocation.lng], {
+                icon: L.divIcon({
+                    className: '',
+                    html: '<div style="width:20px;height:20px;background:#D13B2F;border:3px solid #fff;border-radius:50%;box-shadow:0 1px 6px rgba(0,0,0,0.4);transform:translate(-10px,-10px);cursor:pointer;"></div>',
+                    iconSize: [0, 0]
+                })
+            }).addTo(m);
+        }
+
+        m.setView([ctx.centerLat, ctx.centerLng], 16);
+        inlineLocMap = m;
+
+        // invalidateSize after a short delay (modal animation)
+        setTimeout(function() { if (m) m.invalidateSize(); }, 400);
+    }
+
+    function destroyInlineLocMap() {
+        if (inlineLocMap) {
+            try { inlineLocMap.remove(); } catch(e) {}
+            inlineLocMap = null;
+        }
+        var mapEl = document.getElementById('inline-loc-map');
+        if (mapEl) {
+            mapEl.classList.remove('picked');
+            // Clear any Leaflet-generated child elements
+            mapEl.innerHTML = '';
+        }
+    }
+
+    /* ═══════════════════════════════════════════
+       Issue List Rendering
+       ═══════════════════════════════════════════ */
+    function renderIssueList() {
+        var listEl = document.getElementById('all-issue-list');
+        var emptyEl = document.getElementById('all-issue-empty');
+        if (!listEl || !emptyEl) return;
+
+        listEl.innerHTML = '';
+        if (issueList.length === 0) {
+            emptyEl.style.display = 'block';
+            return;
+        }
+        emptyEl.style.display = 'none';
+
+        issueList.forEach(function(issue, index) {
+            var li = document.createElement('li');
+            li.className = 'issue-card';
+            var deleteBtn = '';
+            if (!issue._persisted) {
+                deleteBtn = '<button class="issue-card-delete" title="删除此问题" onclick="deleteIssue(\'' + issue.id + '\')">&times;</button>';
+            }
+            li.innerHTML =
+                '<div class="issue-card-info" style="flex:1;width:100%">' +
+                    '<div class="issue-card-type">' + escHtml(issue.type) + '</div>' +
+                    '<div class="issue-card-detail">' + escHtml(issue.detail) + '</div>' +
+                    '<span class="issue-card-source">来源：' + escHtml(issue.source || defaultSource) + 
+                    (issue.source==='监管巡查'&&issue.supervisor?'（' + escHtml(issue.supervisor) + '）':'') + '</span>' +
+                '</div>' + deleteBtn;
+            listEl.appendChild(li);
+        });
+    }
+
+    function deleteIssue(issueId) {
+        var issue = issueList.find(function(item) { return item.id === issueId; });
+        if (issue && issue._persisted) {
+            showToast('该问题已进入问题闭环处置流程，不可删除', true);
+            return;
+        }
+        if (!confirm('确定要删除此问题记录吗？')) return;
+        issueList = issueList.filter(function(item) { return item.id !== issueId; });
+        updateIssueCount();
+        renderIssueList();
+        saveIssuesToDB();
+        showToast('问题已删除');
+    }
+
+    function updateIssueCount() {
+        var countEl = document.getElementById('all-issue-count');
+        if (countEl) countEl.textContent = issueList.length;
+    }
+
+    /* ═══════════════════════════════════════════
+       Save All Issues (final save)
+       ═══════════════════════════════════════════ */
+    function saveAllIssues() {
+        // Filter out _persisted flag before saving
+        var cleanIssues = issueList.map(function(item) {
+            var clean = {};
+            for (var k in item) { if (k !== '_persisted') clean[k] = item[k]; }
+            return clean;
+        });
+        patrolRecord.issues = cleanIssues;
+        patrolRecord.hasIssue = cleanIssues.length > 0;
+        patrolRecord.issueCount = cleanIssues.length;
+        saveIssuesToDB();
+        showToast('全部问题已保存');
+        // Close this page and go back after a short delay
+        setTimeout(function() {
+            if (window.opener) { window.close(); }
+            else { history.back(); }
+        }, 800);
+    }
+
+    function saveIssuesToDB() {
+        if (!patrolRecord) return;
+        // Update the patrol record with issues
+        patrolRecord.issues = issueList.slice();
+        patrolRecord.hasIssue = issueList.length > 0;
+        patrolRecord.issueCount = issueList.length;
+
+        // Save to patrol_records_db
+        var req = indexedDB.open('patrol_records_db', 1);
+        req.onsuccess = function() {
+            var db = req.result;
+            var tx = db.transaction('records', 'readwrite');
+            var store = tx.objectStore('records');
+
+            // Read existing records, update the one matching our patrol
+            var getReq = store.get('fence_001');
+            getReq.onsuccess = function() {
+                var records = getReq.result || [];
+                if (!Array.isArray(records)) { records = []; }
+                var found = false;
+                for (var i = 0; i < records.length; i++) {
+                    if (records[i].id === patrolRecord.id) {
+                        records[i] = patrolRecord;
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    records.push(patrolRecord);
+                }
+                store.put(records, 'fence_001');
+                db.close();
+            };
+            getReq.onerror = function() { db.close(); };
+        };
+        req.onerror = function() {};
+    }
+
+    /* ═══════════════════════════════════════════
+       Utility
+       ═══════════════════════════════════════════ */
+    function escHtml(s) {
+        var d = document.createElement('div');
+        d.textContent = s || '';
+        return d.innerHTML;
+    }
+
+    function showToast(msg, isError) {
+        var existing = document.querySelector('.toast');
+        if (existing) existing.remove();
+        var el = document.createElement('div');
+        el.className = 'toast';
+        el.textContent = msg;
+        if (isError) el.style.background = 'rgba(209,59,47,0.9)';
+        document.body.appendChild(el);
+        requestAnimationFrame(function() { el.classList.add('show'); });
+        setTimeout(function() {
+            el.classList.remove('show');
+            setTimeout(function() { if (el.parentNode) el.remove(); }, 300);
+        }, 2000);
+    }
+
+    function goBack() {
+        // Auto-save before going back
+        saveIssuesToDB();
+        var source = getQueryParam('source');
+        if (source === 'panorama') {
+            // Return to panorama patrol page with fence pre-selected
+            var fenceId = getQueryParam('fenceId') || '';
+            var patrolDate = getQueryParam('patrolDate') || '';
+            var url = '../supervisor-pc/panorama_patrol_v3.html';
+            var params = [];
+            if (fenceId) params.push('fenceId='+encodeURIComponent(fenceId));
+            if (patrolDate) params.push('patrolDate='+encodeURIComponent(patrolDate));
+            if (params.length) url += '?'+params.join('&');
+            window.location.href = url;
+        } else if (window.opener) { window.close(); }
+        else { history.back(); }
+    }
+
+    /* ═══════════════════════════════════════════
+       Init
+       ═══════════════════════════════════════════ */
+    initIssueTypeSelect();
+    loadPatrolRecord();
+
+    // Handle window resize for annotation canvas
+    window.addEventListener('resize', function() {
+        if (annotateCanvas && annotateImg) {
+            resizeAnnotationCanvas();
+        }
+    });
+    </script>
+</body>
+</html>
