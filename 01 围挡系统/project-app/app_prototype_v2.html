@@ -1,0 +1,2551 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<title>围挡管理 APP</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+/* ═══════════ CSS Design Token ═══════════ */
+:root {
+  --font-family: "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+  --bg: #eef4fb; --panel: #ffffff; --panel-2: #f6f9fe;
+  --blue: #0f5bd8; --blue-deep: #0a2f6f; --blue-soft: #dce9ff;
+  --blue-50: #EBF2FF; --blue-100: #C6D9FF; --blue-200: #9DBEFF;
+  --blue-500: #1862D4; --blue-600: #104FAD;
+  --gray-0: #FFF; --gray-50: #F7F8FA; --gray-100: #F0F1F5; --gray-200: #E3E6ED;
+  --gray-300: #C6CBD8; --gray-400: #9CA3B0; --gray-500: #6B7280; --gray-600: #4B5563;
+  --gray-700: #374151; --gray-800: #1F2937; --gray-900: #111827;
+  --green: #17b26a; --green-light: #E6F4EA;
+  --yellow: #f5b400; --yellow-light: #FEF3CD;
+  --red: #e5484d; --red-light: #FDECEA;
+  --text: #10233f; --text-sub: #5e718d; --text-tertiary: #9CA3B0;
+  --border: rgba(16,35,63,0.08);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.04); --shadow-md: 0 8px 20px rgba(20,52,107,0.06); --shadow-lg: 0 12px 28px rgba(23,51,105,0.08);
+  --radius-sm: 4px; --radius-md: 8px; --radius-lg: 14px; --radius-xl: 20px;
+  --font-xs: 11px; --font-sm: 12px; --font-md: 14px; --font-lg: 16px; --font-xl: 18px;
+  --fw-regular: 400; --fw-medium: 500; --fw-bold: 600; --fw-heavy: 700;
+  --safe-top: 47px; --safe-bottom: 34px; --tab-bar-height: 50px;
+  --fast: 0.15s ease;
+  --phone-w: 390px; --phone-h: 844px;
+  /* v2 compatibility aliases */
+  --color-primary-500: var(--blue); --color-primary-600: var(--blue-deep); --color-primary-50: var(--blue-50);
+  --color-success: var(--green); --color-success-light: var(--green-light);
+  --color-warning: var(--yellow); --color-warning-light: var(--yellow-light);
+  --color-danger: var(--red); --color-danger-light: var(--red-light);
+  --color-gray-0: var(--gray-0); --color-gray-50: var(--gray-50); --color-gray-100: var(--gray-100);
+  --color-gray-200: var(--gray-200); --color-gray-300: var(--gray-300); --color-gray-400: var(--gray-400);
+  --color-gray-500: var(--gray-500); --color-gray-700: var(--gray-700); --color-gray-800: var(--gray-800);
+  --text-primary: var(--text); --text-secondary: var(--text-sub);
+  --border-color: var(--gray-200); --border-color-light: rgba(16,35,63,0.05);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-family);background:#eef4fb;display:flex;justify-content:center;align-items:center;min-height:100vh;padding:20px}
+.phone-frame{position:relative;width:390px;height:844px;margin:20px auto;background:linear-gradient(180deg,#f7faff,#edf4ff);border-radius:40px;overflow:hidden;box-shadow:0 0 0 2px #1a1a1a,0 0 0 6px #333,0 0 0 8px #1a1a1a,0 20px 60px rgba(0,0,0,0.3)}
+.phone-notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:126px;height:34px;background:#000;border-radius:0 0 20px 20px;z-index:999}
+.phone-home-indicator{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:134px;height:5px;background:rgba(0,0,0,0.15);border-radius:3px;z-index:999}
+.phone-screen{position:absolute;top:0;left:0;right:0;bottom:0;overflow:hidden;background:var(--bg)}
+.toast{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.78);color:#fff;padding:10px 22px;border-radius:var(--radius-md);font-size:var(--font-md);z-index:9999;pointer-events:none;transition:opacity 0.3s;white-space:nowrap}
+
+/* ═══════════ Screen Stack ═══════════ */
+.screen{position:absolute;top:0;left:0;width:100%;height:100%;overflow-y:auto;overflow-x:hidden;background:linear-gradient(180deg,#f7faff,#edf4ff);transform:translateX(100%);transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);z-index:1;-webkit-overflow-scrolling:touch;scrollbar-width:none;-ms-overflow-style:none}
+.screen::-webkit-scrollbar{display:none}
+#fullMapCardList::-webkit-scrollbar{display:none}
+#detailContent::-webkit-scrollbar{display:none}
+.screen.active{transform:translateX(0)}
+.screen.push-left{transform:translateX(-30%)}
+.screen.has-tab{padding-bottom:calc(var(--tab-bar-height) + var(--safe-bottom) + 8px)}
+
+/* ═══════════ Bottom Tab Bar ═══════════ */
+.tab-bar{position:absolute;bottom:0;left:0;right:0;width:100%;max-width:100%;height:calc(var(--tab-bar-height) + var(--safe-bottom));padding-bottom:var(--safe-bottom);background:var(--panel);border-top:1px solid var(--border);display:flex;z-index:100;box-sizing:border-box}
+.tab-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:10px;color:var(--text-tertiary);cursor:pointer;transition:color var(--fast);padding-top:4px;-webkit-tap-highlight-color:transparent}
+.tab-item.active{color:var(--blue);font-weight:var(--fw-medium)}
+.tab-item i{font-size:20px}
+.tab-badge{position:absolute;top:-2px;right:-4px;min-width:14px;height:14px;border-radius:7px;background:var(--red);color:#fff;font-size:9px;font-weight:var(--fw-heavy);display:flex;align-items:center;justify-content:center;padding:0 3px;line-height:1;transform:translateX(22px)}
+
+/* ═══════════ Common Components ═══════════ */
+.nav-bar{display:flex;align-items:center;padding:var(--safe-top) 0 0;background:var(--panel);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10}
+.nav-bar-inner{display:flex;align-items:center;height:44px;padding:0 16px}
+.nav-back{width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:var(--blue);border-radius:var(--radius-md);cursor:pointer;flex-shrink:0;-webkit-tap-highlight-color:transparent}
+.nav-back:active{background:var(--gray-100)}
+.nav-title{flex:1;font-size:var(--font-lg);font-weight:var(--fw-heavy);color:var(--text);text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nav-action{font-size:var(--font-sm);color:var(--blue);padding:0 4px;cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent;font-weight:var(--fw-medium)}
+
+.card{background:var(--panel);border-radius:var(--radius-lg);padding:16px;margin:0 16px 12px;box-shadow:var(--shadow-sm);overflow:hidden;border:1px solid var(--border)}
+.card-header-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.card-title{font-size:var(--font-md);font-weight:var(--fw-heavy);color:var(--text);display:flex;align-items:center;gap:6px}
+.card-title-dot{width:6px;height:6px;border-radius:50%;background:var(--blue);flex-shrink:0}
+.detail-sub-title{font-size:12px;font-weight:var(--fw-bold);color:var(--blue);padding:6px 0 6px;margin:16px 0 8px;letter-spacing:.05em;text-transform:uppercase}
+
+.tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;font-size:var(--font-xs);font-weight:var(--fw-medium);white-space:nowrap}
+.tag-blue{background:rgba(15,91,216,0.12);color:var(--blue)}
+.tag-yellow{background:rgba(245,180,0,0.12);color:var(--yellow)}
+.tag-red{background:rgba(229,72,77,0.12);color:var(--red)}
+.tag-green{background:rgba(22,178,106,.12);color:var(--green)}
+.tag-gray{background:rgba(156,163,176,0.12);color:var(--gray-500)}
+
+.field-row{display:flex;padding:7px 0;font-size:var(--font-sm)}
+.field-row+.field-row{border-top:1px solid var(--border)}
+.field-label{color:var(--text-sub);width:90px;flex-shrink:0}
+.field-value{color:var(--text);flex:1;word-break:break-all}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:4px;padding:10px 20px;border-radius:var(--radius-md);font-size:var(--font-md);font-weight:var(--fw-medium);border:none;cursor:pointer;transition:all var(--fast);-webkit-tap-highlight-color:transparent}
+.btn-primary{background:var(--blue);color:#fff}
+.btn-primary:active{background:var(--blue-deep)}
+.btn-outline{background:var(--panel);color:var(--text);border:1px solid var(--gray-300)}
+.btn-outline:active{background:var(--gray-50)}
+.btn-block{width:100%}
+.btn-sm{padding:6px 12px;font-size:var(--font-sm)}
+
+/* ═══════════ PC端操作提示 ═══════════ */
+.pc-hint{text-align:center;font-size:12px;color:var(--text-tertiary);padding:10px 16px;line-height:1.5}
+
+/* ═══════════ Project Context Bar ═══════════ */
+.project-context-bar{margin:0;padding:calc(var(--safe-top) + 10px) 16px 14px;background:linear-gradient(135deg,#0c3d97,#0f5bd8 60%,#3d86ff);color:#fff;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.project-context-bar::after{content:'';position:absolute;top:-30px;right:-30px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,0.06)}
+.project-context-info{flex:1;min-width:0;position:relative;z-index:1}
+.project-context-bar-row1{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;position:relative;z-index:1}
+.project-context-name{font-size:var(--font-md);font-weight:var(--fw-heavy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
+.project-context-switch{flex-shrink:0;margin-left:12px;padding:6px 12px;background:rgba(255,255,255,0.2);border-radius:var(--radius-xl);font-size:var(--font-sm);color:#fff;font-weight:var(--fw-medium);position:relative;z-index:1;cursor:pointer;display:flex;align-items:center;gap:4px;white-space:nowrap;border:none}
+.project-context-switch:active{background:rgba(255,255,255,0.3)}
+.project-context-meta{font-size:var(--font-xs);opacity:0.8;position:relative;z-index:1;display:flex;align-items:center;flex-wrap:wrap}
+
+/* ═══════════ Home Section Title ═══════════ */
+.home-section-title{display:flex;align-items:center;justify-content:space-between;padding:0 16px 0;margin-top:16px;margin-bottom:10px;font-size:var(--font-lg);font-weight:var(--fw-medium);color:var(--gray-800)}
+.home-section-title-left{display:flex;align-items:center;gap:8px}
+.home-section-title-left::before{content:'';width:3px;height:16px;background:var(--blue-500);border-radius:1.5px;flex-shrink:0}
+.home-section-title-right{font-size:var(--font-sm);color:var(--blue-500);cursor:pointer;display:flex;align-items:center;gap:4px;font-weight:var(--fw-regular)}
+
+/* ═══════════ Home Map Section ═══════════ */
+.home-map-section{margin:0 16px 12px}
+.home-map-card{background:var(--panel);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-sm)}
+.home-map-view{width:100%;height:190px}
+
+/* ═══════════ Calendar ═══════════ */
+.calendar-section{margin:0 16px 8px;background:var(--panel);border-radius:var(--radius-lg);padding:10px 12px;box-shadow:var(--shadow-sm)}
+.calendar-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.calendar-month-label{font-size:var(--font-md);font-weight:var(--fw-medium);color:var(--gray-800)}
+.calendar-nav{display:flex;gap:4px}
+.calendar-nav-btn{width:26px;height:26px;display:flex;align-items:center;justify-content:center;border-radius:var(--radius-md);color:var(--text-tertiary);font-size:var(--font-sm);cursor:pointer}
+.calendar-nav-btn:active{background:var(--gray-100)}
+.calendar-weekdays{display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:2px}
+.calendar-weekday{text-align:center;font-size:var(--font-xs);color:var(--text-tertiary);padding:2px 0;font-weight:var(--fw-regular)}
+.calendar-days{display:grid;grid-template-columns:repeat(7,1fr);gap:1px}
+.calendar-day{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:var(--radius-md);position:relative;font-size:var(--font-sm);color:var(--gray-800);cursor:default}
+.calendar-day[onclick]{cursor:pointer}
+.calendar-day[onclick]:active{background:var(--gray-100)}
+.calendar-day--today{font-weight:var(--fw-medium);color:#fff;background:var(--blue-500);border-radius:50%;margin:4px}
+.calendar-day--other{color:var(--text-tertiary);opacity:0.4}
+.calendar-dot{width:4px;height:4px;border-radius:50%;position:absolute;bottom:1px}
+.calendar-dot--done{background:var(--color-success)}
+.calendar-dot--issue{background:var(--color-danger)}
+.calendar-dot--miss{background:var(--gray-200)}
+.calendar-summary{margin-top:8px;padding-top:6px;border-top:1px solid var(--gray-100);font-size:var(--font-xs);color:var(--gray-500);display:flex;gap:10px;justify-content:center}
+.calendar-summary span{display:flex;align-items:center;gap:4px}
+.patrol-filter-chip{font-size:var(--font-xs);padding:3px 8px;border-radius:999px;border:1px solid var(--gray-300);background:var(--panel);color:var(--text-sub);cursor:pointer;white-space:nowrap;transition:all var(--fast)}
+.patrol-filter-chip.active{background:var(--blue-500);color:#fff;border-color:var(--blue-500)}
+
+/* ── 新增巡检卡片按钮 ── */
+.patrol-add-btn{display:flex;align-items:center;gap:14px;background:var(--panel);border:1.5px solid var(--gray-200);border-radius:var(--radius-lg);padding:14px 16px;cursor:pointer;transition:all .2s;box-shadow:var(--shadow-sm);margin:0 2px}
+.patrol-add-btn:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(20,52,107,.1);border-color:var(--blue-200)}
+.patrol-add-btn:active{transform:translateY(0);background:var(--blue-50)}
+.patrol-add-btn-icon{width:44px;height:44px;border-radius:var(--radius-md);background:linear-gradient(135deg,#e8f0fe,#d2e3fc);display:flex;align-items:center;justify-content:center;color:var(--blue);flex-shrink:0}
+.patrol-add-btn-text{flex:1;text-align:left}
+.patrol-add-btn-title{font-size:15px;font-weight:var(--fw-bold);color:var(--text);line-height:1.3}
+.patrol-add-btn-sub{font-size:11px;color:var(--text-sub);margin-top:2px;line-height:1.3}
+.patrol-add-btn-arrow{color:var(--gray-300);flex-shrink:0}
+.patrol-filter-group{display:flex;align-items:center;gap:4px}
+.date-picker-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:200;display:flex;align-items:flex-end;justify-content:center}
+.date-picker-sheet{width:390px;background:var(--panel);border-radius:20px 20px 0 0;padding:20px 16px 30px;animation:slideUp 0.25s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.date-picker-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.date-picker-title{font-size:var(--font-lg);font-weight:var(--fw-bold);color:var(--text)}
+.dp-nav{width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:50%;cursor:pointer;color:var(--text-tertiary);font-size:var(--font-lg)}
+.dp-nav:active{background:var(--gray-100)}
+.date-picker-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px 2px;text-align:center;align-items:center}
+.date-picker-weekday{font-size:var(--font-xs);color:var(--text-tertiary);padding:4px 0}
+.date-picker-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:var(--font-md);color:var(--text);cursor:pointer}
+.date-picker-day:active{background:var(--gray-100)}
+.date-picker-day.selected{background:var(--blue-500);color:#fff;font-weight:var(--fw-medium)}
+.date-picker-day.today{font-weight:var(--fw-bold);color:var(--blue-500)}
+.date-picker-day.selected.today{color:#fff}
+.date-picker-day.other{color:var(--text-tertiary);opacity:0.3;pointer-events:none}
+.date-picker-actions{display:flex;gap:10px;margin-top:16px}
+.date-picker-actions .btn{flex:1}
+
+/* ═══════════ QR Screen ═══════════ */
+.qr-container{display:flex;flex-direction:column;align-items:center;padding:40px 32px;text-align:center}
+.qr-box{width:220px;height:220px;background:var(--panel);border-radius:var(--radius-lg);display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-md);margin-bottom:20px;border:1px solid var(--gray-100)}
+.qr-placeholder{width:180px;height:180px;background:repeating-linear-gradient(0deg,transparent,transparent 9px,#333 9px,#333 10px),repeating-linear-gradient(90deg,transparent,transparent 9px,#333 9px,#333 10px);opacity:0.12;border-radius:var(--radius-sm)}
+.qr-fid{font-size:var(--font-xl);font-weight:var(--fw-bold)}
+.qr-name{font-size:var(--font-md);color:var(--text-secondary);margin-top:4px}
+.qr-addr{font-size:var(--font-sm);color:var(--text-tertiary);margin-top:2px}
+.qr-download-btn{margin-top:24px;padding:10px 40px;background:var(--color-primary-500);color:#fff;border-radius:var(--radius-lg);font-size:var(--font-md);font-weight:var(--fw-medium);cursor:pointer}
+.qr-download-btn:active{background:var(--color-primary-600)}
+
+/* ═══════════ Eng Card Actions ═══════════ */
+.eng-card-right{display:flex;gap:6px;flex-shrink:0;align-items:center}
+.eng-card-btn{padding:6px 10px;font-size:var(--font-xs);border-radius:var(--radius-sm);font-weight:var(--fw-medium);white-space:nowrap;cursor:pointer}
+.eng-card-btn:active{opacity:0.7}
+.eng-card-btn--outline{background:var(--gray-0);color:var(--text-primary);border:1px solid var(--gray-300)}
+
+.bottom-bar{position:sticky;bottom:0;background:var(--panel);padding:12px 16px;padding-bottom:calc(12px + var(--safe-bottom));border-top:1px solid var(--gray-100);display:flex;gap:10px;z-index:10}
+.detail-bottom-bar{z-index:100;background:var(--panel);border-top:1px solid var(--gray-100)}
+.bottom-bar .btn{flex:1;height:48px;font-size:var(--font-md)}
+.detail-tabs{background:var(--panel);border-bottom:1px solid var(--gray-100);padding:0 16px;height:40px;display:flex;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;position:sticky;top:44px;z-index:90;white-space:nowrap}
+.detail-tabs::-webkit-scrollbar{display:none}
+.detail-tab-item{font-size:var(--font-sm);color:var(--text-tertiary);font-weight:var(--fw-regular);height:40px;line-height:40px;cursor:pointer;flex:1;text-align:center;position:relative;transition:color 0.2s;-webkit-tap-highlight-color:transparent}
+.detail-tab-item.active{color:var(--blue-500);font-weight:var(--fw-medium)}
+.detail-tab-item.active::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:calc(100% - 28px);height:2px;background:var(--blue-500);border-radius:1px;transition:left 0.2s,transform 0.2s,width 0.2s}
+.detail-map{width:100%;aspect-ratio:16/9;border-radius:var(--radius-sm);overflow:hidden;background:var(--gray-200);position:relative;z-index:1}
+.detail-map-legend{position:absolute;bottom:6px;right:6px;z-index:999;background:rgba(255,255,255,0.9);border-radius:6px;padding:4px 8px;font-size:10px;line-height:1.7;box-shadow:var(--shadow-sm);pointer-events:none}
+.section-card{scroll-margin-top:92px}
+.detail-panel{display:none}
+.detail-panel.active{display:block}
+
+/* ═══════════ Patrol Detail Viewer ═══════════ */
+.patrol-viewer{position:relative;width:100%;height:240px;background:#1a1a2e;border-radius:var(--radius-lg);overflow:hidden;margin-bottom:12px}
+.patrol-viewer-overlay{position:absolute;inset:0;background:radial-gradient(circle at 30% 40%,rgba(24,98,212,0.15),transparent 60%),radial-gradient(circle at 70% 60%,rgba(23,178,106,0.1),transparent 50%)}
+.patrol-viewer-icon{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:6px;color:rgba(255,255,255,0.35);pointer-events:none;z-index:3}
+.patrol-viewer-icon svg{width:48px;height:48px}
+.patrol-viewer-icon span{font-size:var(--font-xs)}
+.patrol-viewer-top{position:absolute;top:10px;left:10px;right:10px;display:flex;justify-content:space-between;z-index:5}
+.patrol-viewer-pill{height:28px;padding:0 10px;border-radius:14px;border:1px solid rgba(255,255,255,0.2);background:rgba(0,0,0,0.4);color:#fff;font-size:var(--font-xs);display:flex;align-items:center;gap:4px}
+.eng-info-card{background:var(--panel-2);border-radius:var(--radius-md);padding:12px 14px;margin:8px 0}
+.eng-info-card .info-item:last-child{padding-bottom:0}
+
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;color:var(--text-tertiary)}
+.empty-state svg{width:48px;height:48px;margin-bottom:12px;opacity:0.4}
+
+/* ═══════════ Home Screen ═══════════ */
+.eng-card{background:var(--panel);border-radius:var(--radius-lg);padding:14px 16px;margin:0 16px 8px;box-shadow:var(--shadow-sm);cursor:pointer;transition:transform 0.15s,box-shadow 0.15s;-webkit-tap-highlight-color:transparent;position:relative;border:1px solid var(--border)}
+.eng-card-status-badge{position:absolute;top:12px;right:14px;display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:var(--radius-sm);font-size:var(--font-xs);font-weight:var(--fw-medium);white-space:nowrap}
+.eng-card-status-badge.blue{background:var(--blue-50);color:var(--blue-500)}
+.eng-card-status-badge.yellow{background:var(--yellow-light);color:#C47D00}
+.eng-card-status-badge.red{background:var(--red-light);color:#C44D40}
+.eng-card-status-badge.gray{background:rgba(156,163,176,0.12);color:var(--gray-500)}
+.eng-card:active{transform:scale(0.985)}
+.eng-card--warn{border-left:3px solid #E8A020}
+.eng-card--danger{border-left:3px solid #DC4A3F}
+.eng-card-row{display:flex;align-items:center;margin-bottom:0}
+.eng-card-row+.eng-card-row{margin-top:6px}
+.eng-card-id{font-size:var(--font-sm);color:var(--text-tertiary);display:flex;align-items:center;gap:4px}
+.eng-card-name{font-size:var(--font-sm);font-weight:var(--fw-regular);color:var(--gray-700);flex:1}
+.eng-card-qr{width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:var(--blue-500);cursor:pointer;border-radius:var(--radius-sm);flex-shrink:0}
+.eng-card-qr:active{background:var(--blue-50)}
+.eng-card-qr i{font-size:20px}
+.eng-card-custody{font-size:var(--font-md);font-weight:var(--fw-bold);color:var(--gray-800);display:flex;align-items:center;gap:4px}
+.map-card-item{background:var(--panel);margin:8px 10px;border-radius:var(--radius-lg);padding:10px 12px;box-shadow:var(--shadow-sm);cursor:pointer;transition:background 0.15s,box-shadow 0.15s;border-left:3px solid transparent}
+.map-card-item:active{background:var(--blue-50)}
+.map-card-item.active{border-left-color:var(--blue-500);background:var(--blue-50);box-shadow:var(--shadow-sm)}
+.eng-card.active{border-left-color:var(--blue-500)!important;background:var(--blue-50)!important;box-shadow:var(--shadow-sm)!important}
+.eng-card-custody i{font-size:var(--font-md)}
+.eng-card-unit-full{font-size:var(--font-sm);color:var(--gray-700);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.eng-card-pending{font-size:var(--font-sm);color:#B87A00;font-weight:var(--fw-medium);flex-shrink:0;margin-left:auto}
+.eng-card-issue-tag{font-size:var(--font-xs);padding:2px 7px;border-radius:var(--radius-sm);flex-shrink:0;margin-left:8px;font-weight:var(--fw-medium)}
+.eng-card-issue-tag.ok{color:var(--color-success);background:var(--color-success-light)}
+.eng-card-issue-tag.warn{color:#B87A00;background:var(--yellow-light)}
+.eng-card-issue-tag.error{color:#C44D40;background:var(--red-light)}
+.tag-outline{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:var(--radius-sm);font-size:var(--font-xs);font-weight:var(--fw-medium);white-space:nowrap;flex-shrink:0}
+.tag-outline.blue{background:var(--blue-50);color:var(--blue-500)}
+.tag-outline.yellow{background:var(--yellow-light);color:#C47D00}
+.tag-outline.red{background:var(--red-light);color:#C44D40}
+.tag-solid{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:var(--radius-sm);font-size:var(--font-xs);font-weight:var(--fw-medium);white-space:nowrap}
+.tag-solid.green{background:var(--color-success-light);color:var(--color-success)}
+.tag-solid.red{background:var(--red-light);color:#C44D40}
+.tag-solid.orange{background:var(--yellow-light);color:#C47D00}
+.tag-pending{display:inline-flex;align-items:center;gap:3px;height:22px;padding:0 8px;border-radius:var(--radius-sm);font-size:var(--font-xs);font-weight:var(--fw-medium);background:var(--yellow-light);color:#B87A00}
+
+/* ═══════════ List Screen ═══════════ */
+.search-bar-wrap{padding:8px 16px;background:var(--panel)}
+.search-bar{display:flex;align-items:center;background:var(--gray-100);border-radius:var(--radius-xl);padding:8px 14px;gap:8px}
+.search-bar svg{width:18px;height:18px;color:var(--text-tertiary);flex-shrink:0}
+.search-bar input{border:none;background:none;flex:1;font-size:var(--font-md);outline:none;color:var(--text-primary)}
+.search-bar input::placeholder{color:var(--text-tertiary)}
+.filter-tabs{display:flex;gap:6px;padding:8px 12px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.filter-tabs::-webkit-scrollbar{display:none}
+.filter-tab{flex-shrink:0;padding:7px 15px;border-radius:var(--radius-xl);font-size:var(--font-sm);font-weight:var(--fw-medium);color:var(--text-secondary);background:var(--gray-100);border:none;cursor:pointer;transition:all 0.15s;white-space:nowrap}
+.filter-tab.active{background:var(--blue-500);color:#fff}
+
+.fence-card{background:var(--panel);border-radius:var(--radius-lg);padding:14px 16px;margin:0 16px 8px;box-shadow:var(--shadow-sm);cursor:pointer;-webkit-tap-highlight-color:transparent;border:1px solid var(--border)}
+.fence-card:active{transform:scale(0.985)}
+.fence-card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.fence-card-id{font-size:var(--font-md);font-weight:var(--fw-bold);color:var(--text-primary)}
+.fence-card-fields{display:grid;grid-template-columns:1fr 1fr;gap:4px 16px;font-size:var(--font-sm)}
+.fence-card-fields .fi{display:flex;flex-direction:column;gap:1px}
+.fence-card-fields .fik{color:var(--text-tertiary);font-size:var(--font-xs)}
+.fence-card-fields .fiv{color:var(--text-primary)}
+
+/* ═══════════ Detail Screen ═══════════ */
+.detail-section{margin-bottom:0}
+.section-card{margin:0 16px 8px}
+.info-grid{display:grid;grid-template-columns:1fr;gap:0}
+.info-item{padding:9px 0}
+.info-item+.info-item{border-top:1px solid var(--border)}
+.info-label{font-size:var(--font-xs);color:var(--text-tertiary);margin-bottom:2px}
+.info-value{font-size:var(--font-md);color:var(--text-primary);word-break:break-all}
+.info-expand-btn{font-size:var(--font-xs);color:var(--color-primary-500);cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:2px;-webkit-tap-highlight-color:transparent}
+.info-expand-btn:active{opacity:0.7}
+.detail-map{width:100%;aspect-ratio:16/9;border-radius:var(--radius-md);overflow:hidden;background:var(--gray-200)}
+
+/* ═══════════ Form Screen ═══════════ */
+.form-section{margin:0 12px 12px}
+.form-section-title{font-size:var(--font-md);font-weight:var(--fw-bold);color:var(--text-primary);padding:8px 0 6px;display:flex;align-items:center;gap:6px}
+.form-group{margin-bottom:10px}
+.form-label{font-size:var(--font-sm);color:var(--text-secondary);margin-bottom:4px;display:flex;align-items:center;gap:2px}
+.form-label .req{color:var(--color-danger)}
+.form-input{width:100%;height:44px;padding:0 12px;border:1px solid var(--gray-200);border-radius:var(--radius-md);font-size:var(--font-md);color:var(--text-primary);background:var(--panel);outline:none;transition:border-color 0.15s;font-family:var(--font-family)}
+.form-input:focus{border-color:var(--blue-500)}
+.form-input:disabled{background:var(--gray-100);color:var(--text-tertiary)}
+.form-textarea{width:100%;min-height:72px;padding:10px 12px;border:1px solid var(--gray-200);border-radius:var(--radius-md);font-size:var(--font-md);color:var(--text-primary);background:var(--panel);outline:none;resize:vertical;font-family:var(--font-family)}
+.form-textarea:focus{border-color:var(--blue-500)}
+.form-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239CA3B0' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'%3E%3C/path%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:36px}
+.form-hint{font-size:var(--font-xs);color:var(--text-tertiary);margin-top:2px}
+.form-row{display:flex;gap:8px}
+.form-row .form-group{flex:1}
+.more-toggle{display:flex;align-items:center;justify-content:center;gap:4px;padding:10px;font-size:var(--font-sm);color:var(--color-primary-500);cursor:pointer}
+.form-input[readonly]{background:var(--gray-100);color:var(--text-tertiary);cursor:default}
+.form-textarea{height:auto!important;padding:10px 12px!important;line-height:1.5}
+.radio-label{display:flex;align-items:center;gap:6px;cursor:pointer;font-size:var(--font-md);color:var(--text-primary)}
+.radio-label input[type="radio"]{width:18px;height:18px;accent-color:var(--blue)}
+.required{color:var(--color-danger);margin-right:2px;font-weight:var(--fw-bold)}
+/* ActionSheet */
+.sheet-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);z-index:300;display:flex;align-items:flex-end;justify-content:center;animation:fadeIn 0.2s}
+.sheet-panel{background:var(--color-gray-0);border-radius:16px 16px 0 0;width:100%;max-width:var(--phone-w);max-height:65vh;display:flex;flex-direction:column}
+.sheet-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border-color-light);flex-shrink:0}
+.sheet-title{font-size:var(--font-md);font-weight:600;color:var(--text-primary)}
+.sheet-close{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:var(--color-gray-100);border:none;cursor:pointer;font-size:16px;color:var(--text-secondary)}
+.sheet-list{overflow-y:auto;padding:8px 0 20px}
+.sheet-section-label{font-size:var(--font-xs);color:var(--text-tertiary);padding:8px 16px 4px;text-transform:uppercase;letter-spacing:0.5px}
+.sheet-item{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;cursor:pointer;border-bottom:1px solid var(--border-color-light);transition:background 0.1s}
+.sheet-item:active{background:var(--color-gray-50)}
+.sheet-item.disabled{cursor:default;color:var(--text-tertiary)}
+.sheet-item.disabled:active{background:transparent}
+.sheet-item.selected{color:var(--color-primary-500);font-weight:500}
+.sheet-item-tag{font-size:11px;padding:1px 8px;border-radius:3px;background:var(--color-gray-100);color:var(--text-tertiary);flex-shrink:0}
+.sheet-item-check{color:var(--color-primary-500);font-size:14px;flex-shrink:0}
+/* Info card mini */
+.eng-info-mini{background:var(--panel-2);border-radius:var(--radius-md);padding:10px 14px;margin-top:6px;border-left:3px solid var(--blue-500);font-size:var(--font-xs);color:var(--text-secondary);display:none}
+.eng-info-mini.show{display:block}
+.eng-info-mini-line{margin:2px 0}
+.eng-info-mini-line strong{color:var(--text-primary)}
+/* More section */
+.more-section{margin:0 12px 12px}
+.more-section-bar{display:flex;align-items:center;justify-content:center;gap:6px;padding:10px 0;color:var(--color-primary-500);font-size:var(--font-sm);cursor:pointer;user-select:none}
+.more-section-content{display:none}
+.more-section-content.show{display:block}
+
+/* ═══════════ Patrol Screen ═══════════ */
+.patrol-stat{padding:10px 16px;font-size:var(--font-xs);color:var(--text-sub)}
+.patrol-stat strong{color:var(--blue)}
+.patrol-day-header{font-size:var(--font-sm);font-weight:var(--fw-heavy);padding:8px 16px 6px;display:flex;align-items:center;gap:8px}
+.patrol-day-header::after{content:'';flex:1;height:1px;background:var(--gray-200)}
+.patrol-card{background:var(--panel);border-radius:var(--radius-lg);border:1px solid var(--border);overflow:hidden;margin:0 16px 10px;box-shadow:var(--shadow-sm);cursor:pointer;transition:box-shadow .15s}
+.patrol-card:hover{box-shadow:0 4px 12px rgba(0,0,0,.06)}
+.patrol-card-body{padding:14px 16px}
+.patrol-info{min-width:0;display:flex;flex-direction:column;gap:6px}
+.patrol-info-top{display:flex;justify-content:space-between;align-items:flex-start}
+.patrol-person{font-size:14px;font-weight:var(--fw-bold);color:var(--text);line-height:1.3}
+.patrol-time{font-size:var(--font-xs);color:var(--text-tertiary);white-space:nowrap;line-height:1.3;padding-top:2px}
+.patrol-field{font-size:12px;color:var(--text-sub);line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.patrol-result{font-size:var(--font-xs);font-weight:var(--fw-bold);display:inline-flex;align-items:center;gap:4px;align-self:flex-start}
+.patrol-result--normal{color:var(--green)}
+.patrol-result--abnormal{color:var(--red)}
+.patrol-remark{font-size:12px;color:var(--text-sub);line-height:1.5;word-break:break-all;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;background:var(--gray-50);padding:8px 10px;border-radius:var(--radius-sm);margin-top:2px}
+.patrol-action-btn{flex:1;padding:8px;text-align:center;font-size:var(--font-xs);color:var(--blue);font-weight:var(--fw-medium)}
+.patrol-action-btn:active{background:var(--gray-50)}
+.patrol-action-btn+.patrol-action-btn{border-left:1px solid var(--border)}
+.segmented{display:flex;background:var(--gray-100);border-radius:var(--radius-md);padding:2px;margin:0 16px 10px}
+.segmented-btn{flex:1;padding:6px 0;text-align:center;font-size:var(--font-sm);color:var(--text-sub);font-weight:var(--fw-medium);border-radius:6px;cursor:pointer}
+.segmented-btn.active{background:var(--panel);color:var(--text);box-shadow:var(--shadow-sm)}
+
+/* ═══════════ Notification Screen ═══════════ */
+.notif-item{display:flex;gap:10px;padding:14px 16px;background:var(--gray-0);border-bottom:1px solid var(--border);cursor:pointer}
+.notif-item:active{background:var(--gray-50)}
+.notif-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:6px}
+.notif-dot.unread{background:var(--color-danger)}
+.notif-dot.read{background:var(--gray-300)}
+.notif-body{flex:1}
+.notif-title{font-size:var(--font-md);color:var(--text-primary);font-weight:var(--fw-medium);margin-bottom:2px}
+.notif-desc{font-size:var(--font-sm);color:var(--text-secondary);line-height:1.4}
+.notif-time{font-size:var(--font-xs);color:var(--text-tertiary);margin-top:4px}
+
+/* ═══════════ Profile Screen ═══════════ */
+.profile-header{background:var(--blue-500);color:#fff;padding:calc(var(--safe-top) + 8px) 16px 24px;text-align:center}
+.profile-avatar{width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:var(--fw-bold);margin:0 auto 10px}
+.profile-name{font-size:var(--font-xl);font-weight:var(--fw-bold)}
+.profile-org{font-size:var(--font-sm);opacity:0.8;margin-top:2px}
+.menu-list{margin:10px 12px}
+.menu-item{display:flex;align-items:center;gap:10px;padding:14px 16px;background:var(--gray-0);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.menu-item:first-child{border-radius:var(--radius-md) var(--radius-md) 0 0}
+.menu-item:last-child{border-radius:0 0 var(--radius-md) var(--radius-md)}
+.menu-item:only-child{border-radius:var(--radius-md)}
+.menu-item:active{background:var(--gray-50)}
+.menu-item+.menu-item{border-top:1px solid var(--border)}
+.menu-item svg{width:20px;height:20px;color:var(--text-secondary)}
+.menu-item-text{flex:1;font-size:var(--font-md);color:var(--text-primary)}
+.menu-item-arrow{color:var(--text-tertiary);font-size:var(--font-sm)}
+
+/* ═══════════ Modal ═══════════ */
+.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);z-index:200;display:flex;align-items:flex-end;justify-content:center;animation:fadeIn 0.2s}
+.modal-sheet{background:var(--color-gray-0);border-radius:16px 16px 0 0;width:100%;max-width:var(--phone-w);max-height:70vh;overflow-y:auto;padding:8px 0 24px;animation:slideUp 0.25s ease}
+.modal-sheet-title{text-align:center;font-size:var(--font-md);font-weight:600;color:var(--text-primary);padding:10px 16px 14px;border-bottom:1px solid var(--border-color-light);margin-bottom:8px}
+.modal-option{padding:14px 20px;font-size:var(--font-md);color:var(--text-primary);cursor:pointer;display:flex;align-items:center;gap:8px}
+.modal-option:active{background:var(--color-gray-50)}
+.modal-option.selected{color:var(--color-primary-500);font-weight:500}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+
+/* ═══════════ Utility ═══════════ */
+.text-primary{color:var(--text-primary)}.text-secondary{color:var(--text-secondary)}.text-tertiary{color:var(--text-tertiary)}
+.mt-2{margin-top:8px}.mt-3{margin-top:12px}.mb-2{margin-bottom:8px}.mb-3{margin-bottom:12px}
+.hidden{display:none!important}
+
+</style>
+</head>
+<body>
+<div class="phone-frame" id="phoneFrame">
+  <div class="phone-notch"></div>
+  <div class="phone-screen" id="phoneScreen">
+
+    <!-- ═══════════ Home Screen ═══════════ -->
+    <div class="screen has-tab active" id="screenHome">
+      <div id="homeProjectBar" class="project-context-bar"></div>
+      <div id="homeMapSection"></div>
+      <div id="homeEngList"></div>
+      <div style="height:20px"></div>
+    </div>
+
+    <!-- ═══════════ List Screen ═══════════ -->
+    <div class="screen has-tab" id="screenList">
+      <div class="search-bar-wrap" id="searchBarWrap">
+        <div class="search-bar" id="searchBarTrigger" onclick="toggleSearch()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <span style="color:var(--text-tertiary);font-size:var(--font-md)">搜索围挡编号、工程名称</span>
+        </div>
+        <div class="search-bar hidden" id="searchBarInput">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" placeholder="搜索..." id="searchInput" oninput="filterFences()">
+          <span style="color:var(--color-primary-500);font-size:var(--font-sm);cursor:pointer;white-space:nowrap" onclick="toggleSearch()">取消</span>
+        </div>
+      </div>
+      <div class="filter-tabs" id="filterTabs"></div>
+      <div id="fenceList"></div>
+      <div class="empty-state hidden" id="listEmpty">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/></svg>
+        <span>暂无围挡记录</span>
+      </div>
+      <div style="height:16px"></div>
+    </div>
+
+    <!-- ═══════════ Patrol Screen ═══════════ -->
+    <div class="screen has-tab" id="screenPatrol" style="padding-top:0">
+      <div id="patrolFenceBar" class="project-context-bar" style="cursor:pointer" onclick="switchPatrolFence()"></div>
+      <div style="padding:10px 16px 0"><div class="patrol-add-btn" onclick="addPatrolForCurrent()"><div class="patrol-add-btn-icon"><i class="ti ti-camera-plus" style="font-size:22px"></i></div><div class="patrol-add-btn-text"><div class="patrol-add-btn-title">新增巡检</div></div><div class="patrol-add-btn-arrow"><i class="ti ti-chevron-right" style="font-size:18px"></i></div></div></div>
+      <div id="calendarMount"></div>
+      <div class="home-section-title" style="margin-top:16px"><div class="home-section-title-left">巡检记录</div><div class="patrol-filter-group" id="patrolFilterGroup"></div></div>
+      <div id="patrolList"></div>
+      <div class="empty-state" id="patrolEmpty">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+        <span>暂无巡检记录</span>
+      </div>
+    </div>
+
+    <!-- ═══════════ Notifications Screen ═══════════ -->
+    <div class="screen has-tab" id="screenNotif">
+      <div style="padding:12px 16px;font-size:var(--font-lg);font-weight:var(--fw-bold);color:var(--text-primary);background:var(--panel);border-bottom:1px solid var(--gray-100);position:sticky;top:0;z-index:10">消息</div>
+      <div id="notifList"></div>
+    </div>
+
+    <!-- ═══════════ Profile Screen ═══════════ -->
+    <div class="screen has-tab" id="screenProfile">
+      <div class="profile-header">
+        <div class="profile-avatar">张</div>
+        <div class="profile-name">张建国</div>
+        <div class="profile-org">中建三局集团有限公司 · 项目负责人</div>
+      </div>
+      <div class="menu-list">
+        <div class="menu-item" onclick="switchProject()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+          <span class="menu-item-text">切换项目</span><span class="menu-item-arrow">›</span>
+        </div>
+        <div class="menu-item" onclick="navToTab('screenList')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          <span class="menu-item-text">围挡档案管理</span><span class="menu-item-arrow">›</span>
+        </div>
+        <div class="menu-item" onclick="APP.patrolPeriodFilter='all';APP.patrolCustomDate=null;navToTab('screenPatrol')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          <span class="menu-item-text">巡检记录</span><span class="menu-item-arrow">›</span>
+        </div>
+        <div class="menu-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          <span class="menu-item-text">关于系统</span><span class="menu-item-arrow">v2.0</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════ Detail Screen (pushed) ═══════════ -->
+    <div class="screen" id="screenDetail" style="display:flex;flex-direction:column;overflow:hidden">
+      <div class="nav-bar" style="flex-shrink:0">
+        <div class="nav-back" onclick="goBack()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></div>
+        <div class="nav-title">围挡记录详情</div>
+        <div class="nav-action" onclick="showQR(APP.currentFenceId)" style="cursor:pointer;display:flex;align-items:center;padding-right:4px"><i class="ti ti-qrcode" style="font-size:20px;color:#374151"></i></div>
+      </div>
+      <div id="detailTabs" class="detail-tabs" style="display:none;flex-shrink:0"></div>
+      <div id="detailContent" style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;position:relative;scrollbar-width:none"></div>
+      <div class="bottom-bar detail-bottom-bar" style="flex-shrink:0;flex-direction:column;align-items:stretch">
+        <div class="pc-hint" style="padding:0 0 8px;font-size:11px">如需变更围挡记录，请在网页端进行操作</div>
+        <div class="patrol-add-btn" onclick="addPatrolForCurrent()" style="margin:0;border-radius:var(--radius-md)">
+          <div class="patrol-add-btn-icon" style="width:36px;height:36px"><i class="ti ti-camera-plus" style="font-size:18px"></i></div>
+          <div class="patrol-add-btn-text"><div class="patrol-add-btn-title" style="font-size:14px">新增巡检</div></div>
+          <div class="patrol-add-btn-arrow"><i class="ti ti-chevron-right" style="font-size:16px"></i></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════ Change/Edit Screen (pushed) ═══════════ -->
+    <div class="screen" id="screenChange">
+      <div class="nav-bar">
+        <div class="nav-back" onclick="goBack()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></div>
+        <div class="nav-title" id="changeTitle">变更围挡</div>
+        <div class="nav-action"></div>
+      </div>
+      <div id="changeContent"></div>
+      <div class="bottom-bar">
+        <button class="btn btn-outline" onclick="goBack()">取消</button>
+        <button class="btn btn-primary" onclick="submitChange()">提交变更</button>
+      </div>
+    </div>
+
+    <!-- ═══════════ Add Screen (pushed) ═══════════ -->
+    <div class="screen" id="screenAdd">
+      <div class="nav-bar">
+        <div class="nav-back" onclick="goBack()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></div>
+        <div class="nav-title">新增围挡</div>
+        <div class="nav-action"></div>
+      </div>
+      <div id="addContent"></div>
+      <div class="bottom-bar">
+        <button class="btn btn-outline" onclick="goBack()">取消</button>
+        <button class="btn btn-primary" onclick="submitAdd()">提交登记</button>
+      </div>
+    </div>
+
+    <!-- ═══════════ Map Fullscreen (pushed) ═══════════ -->
+    <div class="screen" id="screenMapFull" style="display:flex;flex-direction:column;overflow:hidden">
+      <div class="nav-bar">
+        <div class="nav-back" onclick="goBack()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></div>
+        <div class="nav-title">围挡地图</div>
+        <div class="nav-action"></div>
+      </div>
+      <div id="fullMap" style="flex:1;width:100%;min-height:0;position:relative;z-index:0;overflow:hidden">
+        <div id="mapLegend" style="display:none;position:absolute;top:10px;right:10px;z-index:999;background:rgba(255,255,255,0.94);border-radius:8px;padding:8px 12px;font-size:11px;line-height:1.8;box-shadow:0 2px 8px rgba(0,0,0,0.12);pointer-events:none"></div>
+        </div>
+      </div>
+      <div id="fullMapCardListWrap" style="display:none;min-height:0;margin-top:-12px;position:relative;z-index:10;border-radius:20px 20px 0 0;background:#FFFFFF;box-shadow:0 -6px 20px rgba(0,0,0,0.12);overflow:hidden">
+        <div id="fullMapCardList" style="overflow-y:auto;scrollbar-width:none;-ms-overflow-style:none;background:#FFFFFF">
+          <div style="display:flex;flex-direction:column;align-items:center;padding:12px 0 4px">
+            <div style="width:36px;height:4px;background:#D6D9E0;border-radius:2px"></div>
+          </div>
+          <div id="fullMapCardListInner" style="padding:4px 0 12px"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════ QR Screen (pushed) ═══════════ -->
+    <div class="screen" id="screenQR">
+      <div class="nav-bar">
+        <div class="nav-back" onclick="goBack()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></div>
+        <div class="nav-title">围挡二维码</div>
+        <div class="nav-action"></div>
+      </div>
+      <div id="qrContent"></div>
+    </div>
+
+
+    <!-- ═══════════ Patrol Detail Screen (pushed) ═══════════ -->
+    <div class="screen" id="screenPatrolDetail">
+      <div class="nav-bar">
+        <div class="nav-back" onclick="goBack()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></div>
+        <div class="nav-title">巡检记录详情</div>
+        <div class="nav-action"></div>
+      </div>
+      <div id="patrolDetailContent"></div>
+    </div>
+
+    <!-- ═══════════ Add Patrol Screen (pushed) ═══════════ -->
+    <div class="screen" id="screenAddPatrol">
+      <div class="nav-bar">
+        <div class="nav-back" onclick="goBack()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></div>
+        <div class="nav-title">新增巡检记录</div>
+        <div class="nav-action"></div>
+      </div>
+      <div id="addPatrolContent" style="padding:16px">
+        <div class="form-group">
+          <label class="form-label"><span class="required">*</span> 巡检时间</label>
+          <input type="datetime-local" class="form-input" id="addPatrolDatetime">
+        </div>
+        <div class="form-group">
+          <label class="form-label">巡检人</label>
+          <input type="text" class="form-input" id="addPatrolPerson" value="" placeholder="请输入巡检人姓名">
+        </div>
+        <div class="form-group">
+          <label class="form-label"><span class="required">*</span> 全景照片链接</label>
+          <input type="url" class="form-input" id="addPatrolPanoUrl" placeholder="请输入全景照片链接，如 https://www.720yun.com/vr/...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">是否存在问题项</label>
+          <div style="display:flex;gap:20px;padding-top:4px">
+            <label class="radio-label"><input type="radio" name="addPatrolHasIssue" value="no" checked onchange="handleAddPatrolIssueChange()"> 否</label>
+            <label class="radio-label"><input type="radio" name="addPatrolHasIssue" value="yes" onchange="handleAddPatrolIssueChange()"> 是</label>
+          </div>
+        </div>
+        <div class="form-group" id="addPatrolRemarkGroup">
+          <label class="form-label" id="addPatrolRemarkLabel">备注</label>
+          <textarea class="form-input form-textarea" id="addPatrolRemark" placeholder="请输入备注信息" style="min-height:80px;resize:vertical;font-family:var(--font-family);padding:10px"></textarea>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:24px">
+          <button class="btn btn-default btn-block" onclick="goBack()" style="flex:1">取消</button>
+          <button class="btn btn-primary btn-block" onclick="saveAddPatrol()" style="flex:1">保存</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════ Fullscreen Panorama Viewer (inside phone frame) ═══════════ -->
+    <div class="fullscreen-viewer" id="fullscreenViewer" onclick="closeFullscreenViewer()" style="display:none;position:absolute;inset:0;background:rgba(0,0,0,.97);z-index:999;flex-direction:column">
+      <span style="position:absolute;top:16px;right:16px;color:rgba(255,255,255,.7);font-size:24px;cursor:pointer;z-index:10;width:36px;height:36px;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.4);border-radius:50%" onclick="closeFullscreenViewer()">&times;</span>
+      <iframe id="fullscreenIframe" src="" style="width:100%;height:100%;border:none;display:none" allow="fullscreen; accelerometer; gyroscope" sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
+      <img id="fullscreenImg" src="" style="max-width:100%;max-height:100%;object-fit:contain;cursor:default;display:none" onclick="event.stopPropagation()">
+      <div id="fullscreenFallback" style="display:none;position:absolute;inset:0;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:rgba(255,255,255,.4);font-size:14px;background:linear-gradient(135deg,#0a1929,#0f2744,#1a3c7a)">
+        <i class="ti ti-photo" style="font-size:56px"></i>
+        <span>无全景照片可查看</span>
+      </div>
+    </div>
+
+    <!-- ═══════════ FAB ═══════════ -->
+
+    <!-- ═══════════ Bottom Tab Bar ═══════════ -->
+    <div class="tab-bar" id="tabBar">
+    <div class="tab-item active" data-tab="screenHome" onclick="navToTab('screenHome')">
+      <i class="ti ti-home"></i>
+      <span>首页</span>
+    </div>
+    <div class="tab-item" data-tab="screenIssue" onclick="showToast('功能开发中')">
+      <i class="ti ti-alert-triangle"></i>
+      <span>问题</span>
+    </div>
+    <div class="tab-item" data-tab="screenPatrol" onclick="APP.patrolPeriodFilter='all';APP.patrolCustomDate=null;navToTab('screenPatrol')">
+      <i class="ti ti-clipboard-text"></i>
+      <span>巡检</span>
+    </div>
+    <div class="tab-item" data-tab="screenNotif" onclick="navToTab('screenNotif')">
+      <i class="ti ti-bell"></i>
+      <span>消息</span>
+      <span class="tab-badge" id="notifBadge">3</span>
+    </div>
+    <div class="tab-item" data-tab="screenProfile" onclick="navToTab('screenProfile')">
+      <i class="ti ti-user"></i>
+      <span>我的</span>
+    </div>
+  </div>
+
+  <div class="phone-home-indicator"></div>
+
+  </div><!-- .phone-screen -->
+</div><!-- .phone-frame -->
+
+<!-- ═══════════ Scripts ═══════════ -->
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="../shared_data.js"></script>
+<script src="../mock-data.js"></script>
+<script>
+/* ═══════════ App State ═══════════ */
+var APP={
+  currentProjectId:'p1',
+  currentFenceId:null,
+  screenStack:[],
+  filterStatus:'全部',
+  searchKeyword:'',
+  currentTab:'screenHome',
+  projects:[],
+  allFences:[],
+  homeMap:null,
+  fullMap:null
+};
+
+function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function showToast(msg){
+  var t=document.createElement('div');t.className='toast';t.textContent=msg;
+  document.querySelector('.phone-screen').appendChild(t);
+  setTimeout(function(){t.style.opacity='0';setTimeout(function(){t.remove();},300);},1500);
+}
+
+/* ═══════════ Navigation ═══════════ */
+function navToTab(tabId){
+  APP.currentTab=tabId;
+  APP.screenStack=[];
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active','push-left')});
+  document.getElementById(tabId).classList.add('active');
+  document.querySelectorAll('.tab-item').forEach(function(t){t.classList.remove('active')});
+  document.querySelector('[data-tab="'+tabId+'"]').classList.add('active');
+    if(tabId==='screenHome')renderHome();
+  if(tabId==='screenList')renderList();
+  if(tabId==='screenPatrol'){renderPatrolFenceBar();renderCalendarInto();renderPatrolList();}
+}
+
+function navigateTo(screenId,fenceId){
+  if(fenceId)APP.currentFenceId=fenceId;
+  var currentActive=document.querySelector('.screen.active');
+  if(currentActive){currentActive.classList.remove('active');currentActive.classList.add('push-left');}
+  var target=document.getElementById(screenId);
+  target.classList.add('active');
+  APP.screenStack.push(currentActive?currentActive.id:APP.currentTab);
+  document.getElementById('tabBar').style.display='none';
+    if(screenId==='screenDetail')renderDetail();
+  if(screenId==='screenChange')renderChangeForm();
+  if(screenId==='screenAdd')renderAddForm();
+  if(screenId==='screenPatrolDetail')renderPatrolDetail();
+}
+
+function goBack(){
+  var current=document.querySelector('.screen.active');
+  if(!current)return;
+  current.classList.remove('active');
+  current.classList.remove('push-left');
+  var prevId=APP.screenStack.pop();
+  if(!prevId||prevId===current.id)prevId=APP.currentTab;
+  var prev=document.getElementById(prevId);
+  if(prev){
+    prev.classList.remove('push-left');
+    prev.classList.add('active');
+  }
+  if(APP.screenStack.length===0){
+    document.getElementById('tabBar').style.display='';
+    document.querySelectorAll('.screen.has-tab').forEach(function(s){
+      if(s.id!==prevId)s.classList.remove('push-left','active');
+    });
+    document.querySelectorAll('.tab-item').forEach(function(t){t.classList.remove('active')});
+    var tabItem=document.querySelector('[data-tab="'+prevId+'"]');
+    if(tabItem)tabItem.classList.add('active');
+    // Re-render when returning to a tab screen
+    if(prevId==='screenHome')renderHome();
+    if(prevId==='screenList')renderList();
+    if(prevId==='screenPatrol'){renderPatrolFenceBar();renderCalendarInto();renderPatrolList();}
+  }
+    if(APP.fullMap){APP.fullMap.remove();APP.fullMap=null;}
+}
+
+/* ═══════════ Data Loading ═══════════ */
+function loadData(){
+  APP.projects=MOCK_DATA.getProjects();
+  APP.allFences=[];
+  MOCK_DATA.getHoardings().forEach(function(h){
+    var f={};
+    f.id=h.id;
+    f.fenceId=h.id;
+    f.engId='';
+    f._projectName=h.projectName||'';
+    f._projectId=h.projectId||'';
+    f._projectDistrict=h.projectDistrict||'';
+    f._projectStreet=h.projectStreet||'';
+    f._projectLat=h.projectLat||22.54;
+    f._projectLng=h.projectLng||113.95;
+    f._redlineGeo=h.redlineGeo||null;
+    f.engineerName=h.engineerName||'';
+    f.fenceStatus=h.fenceStatus||'已安装';
+    f.issueStatus=h.issueStatus||'正常';
+    f.length=h.length||0;
+    f.height=h.height||0;
+    f.material=h.material||'';
+    f.setupDate=h.setupDate||'';
+    f.planRemoveDate=h.planRemoveDate||'';
+    f.engStatus=h.engStatus||'';
+    f.constructUnit=h.constructUnit||'';
+    f.custodyStart=h.custodyStart||'';
+    f.custodyEnd=h.custodyEnd||'';
+    f.fenceResponsible=h.fenceResponsible||'';
+    f.fenceResponsiblePhone=h.fenceResponsiblePhone||'';
+    f.regulatorUnit=h.regulatorUnit||'';
+    f.buildUnit=h.buildUnit||'';
+    f.supervisorUnit=h.supervisorUnit||'';
+    f.designUnit=h.designUnit||'';
+    f.area=h.area||0;
+    f.address=h.address||'';
+    f.roadOccupation=h.roadOccupation||'人行道占用宽度2m';
+    f.roadOccupationArea=h.roadOccupationArea||0;
+    f.fenceStyle=h.fenceStyle||'仿真绿篱';
+    f.publicityContent=h.publicityContent||'';
+    f.entrances=h.entrances||[];
+    f.gpsShape=h.gpsShape||buildGpsShape({lat:h.projectLat,lng:h.projectLng},{});
+    f._verifyRecords=h.verifyRecords||[];
+    f._changeRecords=h.changeRecords||[];
+    f._patrolRecords=h.patrolRecords||[];
+    f._hasVerify=f._verifyRecords.length>0;
+    APP.allFences.push(f);
+  });
+  // Sort by status priority: 超期未拆 > 超期未拆 > 已安装 > 超期未拆
+  var statusOrder=['超期未拆','已安装','超期未拆'];
+  APP.allFences.sort(function(a,b){
+    var ai=statusOrder.indexOf(a.fenceStatus), bi=statusOrder.indexOf(b.fenceStatus);
+    return (ai===-1?99:ai)-(bi===-1?99:bi);
+  });
+  console.log('[SORT] APP.allFences after sort:');
+  APP.allFences.forEach(function(f){console.log('  '+f.id+' fenceStatus='+f.fenceStatus+' project='+f._projectName);});
+}
+
+function buildGpsShape(p,eng){
+  var lat=p.lat||p.projectLat||22.54;
+  var lng=p.lng||p.projectLng||113.95;
+  var d=0.004;
+  return [[lat+d,lng-d],[lat+d,lng+d],[lat-d,lng+d],[lat-d,lng-d]];
+}
+
+function getCurrentFence(){
+  if(!APP.currentFenceId)return null;
+  for(var i=0;i<APP.allFences.length;i++){
+    if(APP.allFences[i].id===APP.currentFenceId)return APP.allFences[i];
+  }
+  return null;
+}
+
+function getProjectFences(pid){
+  var fences=APP.allFences.filter(function(f){return f._projectId===pid});
+  var statusOrder=['超期未拆','已安装','超期未拆'];
+  fences.sort(function(a,b){
+    var ai=statusOrder.indexOf(a.fenceStatus), bi=statusOrder.indexOf(b.fenceStatus);
+    return (ai===-1?99:ai)-(bi===-1?99:bi);
+  });
+  return fences;
+}
+
+/* ═══════════ Calendar Data ═══════════ */
+var calendarYear=2026,calendarMonth=5;
+function getCalendarFromRecords(projectId){
+  var done=[],issue=[],seen={};
+  loadData();
+  var fences=getProjectFences(projectId);
+  fences.forEach(function(f){
+    var ps=f._patrolRecords||[];
+    ps.forEach(function(p){
+      if(!p.date)return;
+      var parts=p.date.split('-');
+      if(parseInt(parts[0])!==calendarYear||parseInt(parts[1])!==calendarMonth)return;
+      var day=parseInt(parts[2],10);
+      if(seen[day])return;
+      seen[day]=true;
+      if(p.result==='正常')done.push(day);
+      else issue.push(day);
+    });
+  });
+  return {done:done,issue:issue,today:new Date().getDate()};
+}
+
+/* ═══════════ Home Screen ═══════════ */
+function renderHome(){
+  loadData();
+  var cp=APP.projects.find(function(p){return p.id===APP.currentProjectId})||APP.projects[0];
+  if(!cp)return;
+  APP.currentProjectId=cp.id;
+  var fences=getProjectFences(cp.id);
+
+  renderProjectContext(cp,fences);
+  renderHomeMapSection(cp,fences);
+  renderHomeFenceCards(fences);
+  setTimeout(function(){initHomeMap(fences,cp);},300);
+}
+
+function renderProjectContext(cp,fences){
+  var planRemoveDate='--';
+  for(var i=0;i<fences.length;i++){
+    if(fences[i].planRemoveDate){planRemoveDate=fences[i].planRemoveDate;break;}
+  }
+  var hasActive=fences.some(function(f){return f.fenceStatus==='已安装'||f.fenceStatus==='超期未拆'});
+  var projectStatus=hasActive?'在建':'已完工';
+  document.getElementById('homeProjectBar').innerHTML=
+    '<div class="project-context-bar-row1">'+
+    '<div class="project-context-name">'+cp.name+'</div>'+
+    '<div class="project-context-switch" onclick="switchProject()"><i class="ti ti-arrows-exchange" style="font-size:13px"></i>切换</div>'+
+    '</div>'+
+    '<div class="project-context-meta">'+
+    '<span style="color:rgba(255,255,255,0.7)">项目状态：</span><span style="color:#fff;font-weight:500">'+projectStatus+'</span>'+
+    '<span style="color:rgba(255,255,255,0.5);margin:0 8px">·</span>'+
+    '<span style="color:rgba(255,255,255,0.7)">计划拆除：</span><span style="color:#fff;font-weight:500">'+planRemoveDate+'</span>'+
+    '</div>';
+}
+
+function renderHomeFenceCards(fences){
+  var html='';
+  fences.forEach(function(f){
+    var isPending=!f._hasVerify;
+    var unitName=f.constructUnit||'';
+    var cardClass='';
+    if(f.issueStatus==='有问题'||f.issueStatus==='整改逾期'){
+      cardClass=' eng-card--danger';
+    }else if(f.issueStatus==='待整改'){
+      cardClass=' eng-card--warn';
+    }
+    html+=
+      '<div class="eng-card'+cardClass+'" onclick="navigateTo(\'screenDetail\',\''+f.id+'\')">'+
+      getStatusBadge(f.fenceStatus)+
+      // Row 1: Custody period
+      '<div class="eng-card-row">'+
+      '<span class="eng-card-custody">管护期限：'+(f.custodyStart||'--')+' - '+(f.custodyEnd||'--')+'</span>'+
+      '</div>'+
+      // Row 2: Unit
+      '<div class="eng-card-row">'+
+      '<span class="eng-card-unit-full">'+unitName+'</span>'+
+      '</div>'+
+      // Row 3: Engineer name
+      '<div class="eng-card-row">'+
+      '<span class="eng-card-name">'+(f.engineerName||'--')+'</span>'+
+      '</div>'+
+      // Row 4: Length + Issue tag + Pending text
+      '<div class="eng-card-row">'+
+      '<span class="eng-card-id">'+(f.length||'--')+'m</span>'+
+      getIssueTag(f.issueStatus)+
+      (isPending?'<span class="eng-card-pending">待校核</span>':'')+
+      '</div>'+
+      '</div>';
+  });
+  document.getElementById('homeEngList').innerHTML='<div style="padding-top:12px"><div class="home-section-title" style="margin-top:0"><div class="home-section-title-left">围挡记录</div></div>'+(html||'<div class="empty-state"><span>暂无围挡记录</span></div>')+'<div class="pc-hint">如需新增围挡记录，请在网页端进行操作</div></div>';
+}
+
+function getStatusBadge(s){
+  var cls='',label=s;
+  if(s==='已安装')cls='blue';
+  else if(s==='超期未拆')cls='yellow';
+  else if(s==='超期未拆')cls='gray';
+  if(!cls)return '';
+  return '<span class="eng-card-status-badge '+cls+'">'+label+'</span>';
+}
+
+function getIssueTag(s){
+  if(!s||s==='正常')return '';
+  var cls=s==='待整改'?'warn':'error';
+  return '<span class="eng-card-issue-tag '+cls+'">'+s+'</span>';
+}
+
+function getStatusTagOutline(s){
+  var cls='',label=s;
+  if(s==='已安装')cls='blue';
+  else if(s==='超期未拆')cls='yellow';
+  else if(s==='超期未拆')cls='gray';
+  return '<span class="tag-outline '+cls+'">'+label+'</span>';
+}
+
+function getIssueStatusSolid(s){
+  if(s==='正常')return '<span class="tag-solid green">正常</span>';
+  if(s==='待整改')return '<span class="tag-solid red">待整改</span>';
+  if(s==='整改逾期')return '<span class="tag-solid red">整改逾期</span>';
+  return '<span class="tag-solid green">正常</span>';
+}
+
+function renderHomeMapSection(cp,fences){
+  var html='<div class="home-section-title">'+
+    '<div class="home-section-title-left">围挡地图</div>'+
+    '<div class="home-section-title-right" onclick="openFullMapFromHome()"><i class="ti ti-arrows-maximize" style="font-size:13px"></i>全屏查看</div>'+
+    '</div>'+
+    '<div class="home-map-section">'+
+    '<div class="home-map-card"><div class="home-map-view" id="homeMapView"></div></div>'+
+    '</div>';
+  document.getElementById('homeMapSection').innerHTML=html;
+}
+
+function initHomeMap(fences,cp){
+  var mapEl=document.getElementById('homeMapView');
+  if(!mapEl)return;
+  if(APP.homeMap){APP.homeMap.remove();APP.homeMap=null;}
+  var clat=cp.lat||cp.projectLat||22.54;
+  var clng=cp.lng||cp.projectLng||113.95;
+  APP.homeMap=L.map(mapEl,{attributionControl:false,zoomControl:false,scrollWheelZoom:false,dragging:true}).setView([clat,clng],14);
+  L.tileLayer('https://webst0{s}.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}',{subdomains:'1234',maxZoom:18}).addTo(APP.homeMap);
+  if(cp.redlineGeo&&cp.redlineGeo.length){
+    L.polygon(cp.redlineGeo,{color:'#D13B2F',weight:2,fillOpacity:0.08,fillColor:'#D13B2F'}).addTo(APP.homeMap);
+  }
+  fences.forEach(function(f,fi){
+    if(f.fenceStatus==='超期未拆')return;
+    if(f.gpsShape&&f.gpsShape.length){
+      L.polygon(f.gpsShape,{color:'#1862D4',weight:1.5,fillOpacity:0.1,fillColor:'#1862D4'}).addTo(APP.homeMap);
+    }
+    (f.entrances||[]).forEach(function(e){
+      var elat=e.lat!==undefined?e.lat:clat+(e.y-150)*0.00002;
+      var elng=e.lng!==undefined?e.lng:clng+(e.x-350)*0.00002;
+      L.circleMarker([elat,elng],{radius:5,color:'#1A9042',weight:2,fillOpacity:1,fillColor:'#1A9042'}).addTo(APP.homeMap).bindTooltip(e.name||e.type||'出入口');
+    });
+  });
+  setTimeout(function(){APP.homeMap.invalidateSize();},100);
+}
+
+function openFullMapFromHome(){
+  var allFences=getProjectFences(APP.currentProjectId);
+  var fences=allFences.filter(function(f){return f.fenceStatus!=='超期未拆';});
+  if(!fences.length){alert('暂无围挡范围数据');return;}
+  var clat=fences[0]._projectLat,clng=fences[0]._projectLng;
+  navigateTo('screenMapFull');
+  setTimeout(function(){
+    var el=document.getElementById('fullMap');
+    if(!el)return;
+    if(APP.fullMap){APP.fullMap.remove();}
+    var allBounds=[];
+    var polyLayers={}; // fenceId -> {polygon, markers, fenceObj}
+    var selectedFenceId=null;
+    APP.fullMap=L.map(el,{attributionControl:false,zoomControl:true});
+    L.tileLayer('https://webst0{s}.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}',{subdomains:'1234',maxZoom:18}).addTo(APP.fullMap);
+    var cp=APP.projects.find(function(p){return p.id===APP.currentProjectId})||APP.projects[0];
+    if(cp&&cp.redlineGeo&&cp.redlineGeo.length){
+      L.polygon(cp.redlineGeo,{color:'#D13B2F',weight:2,fillOpacity:0.08,fillColor:'#D13B2F'}).addTo(APP.fullMap);
+    }
+
+    var cardWrap=document.getElementById('fullMapCardListWrap');
+    var cardInner=document.getElementById('fullMapCardListInner');
+    var mapLegend=document.getElementById('mapLegend');
+
+    // Build single card HTML
+    function buildCard(f){
+      var isPending=!f._hasVerify;
+      var unitName=f.constructUnit||'';
+      var cardClass='';
+      if(f.issueStatus==='有问题'||f.issueStatus==='整改逾期'){
+        cardClass=' eng-card--danger';
+      }else if(f.issueStatus==='待整改'){
+        cardClass=' eng-card--warn';
+      }
+      return '<div class="eng-card'+cardClass+'" data-fence-id="'+f.id+'" onclick="event.stopPropagation();goToFenceDetail(\''+f.id+'\')" style="margin:0 10px 8px;cursor:pointer">'+
+        getStatusBadge(f.fenceStatus)+
+        '<div class="eng-card-row">'+
+        '<span class="eng-card-custody">管护期限：'+(f.custodyStart||'--')+' - '+(f.custodyEnd||'--')+'</span>'+
+        '</div>'+
+        '<div class="eng-card-row">'+
+        '<span class="eng-card-unit-full">'+escHtml(unitName)+'</span>'+
+        '</div>'+
+        '<div class="eng-card-row">'+
+        '<span class="eng-card-name">'+escHtml(f.engineerName||'--')+'</span>'+
+        '</div>'+
+        '<div class="eng-card-row">'+
+        '<span class="eng-card-id">'+(f.length||'--')+'m</span>'+
+        getIssueTag(f.issueStatus)+
+        (isPending?'<span class="eng-card-pending">待校核</span>':'')+
+        '</div>'+
+        '</div>';
+    }
+
+    // Select function: highlight polygon + show card
+    function selectFence(fenceId){
+      selectedFenceId=fenceId;
+      Object.keys(polyLayers).forEach(function(k){
+        var layers=polyLayers[k];
+        var isSel=k===fenceId;
+        if(layers.polygon){
+          layers.polygon.setStyle({
+            color:isSel?'#F59E0B':'#1862D4',
+            weight:isSel?3:2,
+            fillOpacity:isSel?0.25:0.1,
+            fillColor:isSel?'#F59E0B':'#1862D4'
+          });
+          if(isSel)layers.polygon.bringToFront();
+        }
+        (layers.markers||[]).forEach(function(m){
+          m.setStyle({radius:isSel?7:6,color:isSel?'#F59E0B':'#1A9042',fillColor:isSel?'#F59E0B':'#1A9042'});
+        });
+      });
+      // Show single card
+      var f=polyLayers[fenceId]&&polyLayers[fenceId].fenceObj;
+      if(f){
+        cardInner.innerHTML=buildCard(f);
+        cardWrap.style.display='';
+        cardWrap.style.flex='0 0 auto';
+      }
+    }
+
+    // Deselect function
+    function deselectFence(){
+      if(!selectedFenceId)return;
+      var layers=polyLayers[selectedFenceId];
+      if(layers&&layers.polygon){
+        layers.polygon.setStyle({color:'#1862D4',weight:2,fillOpacity:0.1,fillColor:'#1862D4'});
+        (layers.markers||[]).forEach(function(m){
+          m.setStyle({radius:6,color:'#1A9042',fillColor:'#1A9042'});
+        });
+      }
+      selectedFenceId=null;
+      cardWrap.style.display='none';
+    }
+
+    // Click on empty map to deselect
+    var _featureClicked=false;
+    APP.fullMap.on('click',function(){
+      if(!_featureClicked){deselectFence();}
+      _featureClicked=false;
+    });
+
+    fences.forEach(function(f){
+      var markers=[];
+      if(f.gpsShape&&f.gpsShape.length){
+        allBounds=allBounds.concat(f.gpsShape);
+        var poly=L.polygon(f.gpsShape,{color:'#1862D4',weight:2,fillOpacity:0.1,fillColor:'#1862D4'}).addTo(APP.fullMap);
+        poly.on('click',function(){_featureClicked=true;selectFence(f.id);});
+        (f.entrances||[]).forEach(function(e){
+          var elat=e.lat!==undefined?e.lat:clat+(e.y-150)*0.00002;
+          var elng=e.lng!==undefined?e.lng:clng+(e.x-350)*0.00002;
+          var cm=L.circleMarker([elat,elng],{radius:6,color:'#1A9042',weight:2,fillOpacity:1,fillColor:'#1A9042'}).addTo(APP.fullMap).bindTooltip(e.name||e.type||'出入口');
+          cm.on('click',function(){_featureClicked=true;selectFence(f.id);});
+          markers.push(cm);
+        });
+        polyLayers[f.id]={polygon:poly,markers:markers,fenceObj:f};
+      }
+    });
+    if(allBounds.length){APP.fullMap.fitBounds(L.latLngBounds(allBounds).pad(0.2));}
+
+    // Show simple legend (project-level map — no "other fence" distinction)
+    setMapLegend('project');
+    mapLegend.style.display='';
+    // Hide card list initially
+    cardWrap.style.display='none';
+  },350);
+}
+
+function setMapLegend(type){
+  var ml=document.getElementById('mapLegend');
+  if(!ml)return;
+  if(type==='project'){
+    ml.innerHTML=
+      '<div style="font-weight:600;margin-bottom:2px;color:#374151">图例</div>'+
+      '<div><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#D13B2F;margin-right:6px;vertical-align:middle"></span>项目红线</div>'+
+      '<div><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#1862D4;margin-right:6px;vertical-align:middle"></span>围挡范围</div>'+
+      '<div><span style="display:inline-block;width:8px;height:8px;border-radius:50%;border:1.5px solid #1A9042;background:transparent;margin-right:6px;vertical-align:middle"></span>出入口</div>';
+  }else{
+    ml.innerHTML=
+      '<div style="font-weight:600;margin-bottom:2px;color:#374151">图例</div>'+
+      '<div><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#D13B2F;margin-right:6px;vertical-align:middle"></span>项目红线</div>'+
+      '<div><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#1862D4;margin-right:6px;vertical-align:middle"></span>当前围挡</div>'+
+      '<div><span style="display:inline-block;width:10px;height:10px;border-radius:2px;border:1.5px dashed #9CA3B0;margin-right:6px;vertical-align:middle"></span>其他围挡</div>'+
+      '<div><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#1A9042;margin-right:6px;vertical-align:middle"></span>当前出入口</div>'+
+      '<div><span style="display:inline-block;width:8px;height:8px;border-radius:50%;border:1.5px solid #9CA3B0;margin-right:6px;vertical-align:middle"></span>其他出入口</div>';
+  }
+}
+
+function goToFenceDetail(fenceId){
+  APP.currentFenceId=fenceId;
+  var prevId=APP.screenStack.length?APP.screenStack[APP.screenStack.length-1]:'';
+  if(prevId==='screenDetail'){
+    // Came from detail page, just go back
+    goBack();
+  }else{
+    // Came from home, go back then navigate to detail
+    goBack();
+    setTimeout(function(){
+      renderDetail();
+      navigateTo('screenDetail');
+    },350);
+  }
+}
+
+/* ═══════════ Calendar Functions ═══════════ */
+function renderCalendarInto(){
+  var m=document.getElementById('calendarMount');
+  if(!m)return;
+  loadData();
+  var fences=getProjectFences(APP.currentProjectId);
+  var totalPatrols=0;
+  fences.forEach(function(f){var ps=f._patrolRecords||[];totalPatrols+=ps.length;});
+  m.innerHTML='<div class="home-section-title" style="margin-top:24px"><div class="home-section-title-left">巡检日历</div>'+
+    (totalPatrols>0?'<span style="font-size:var(--font-xs);color:var(--text-sub);white-space:nowrap">本月已巡检 <strong style="color:var(--blue)">'+totalPatrols+'</strong> 次</span>':'')+
+    '</div>'+
+    buildCalendarHtml();
+}
+
+function buildCalendarHtml(){
+  var pId=APP.currentProjectId;
+  var data=getCalendarFromRecords(pId);
+  var today=data.today||14;
+  var isCurrentMonth=(new Date()).getFullYear()===calendarYear&&(new Date()).getMonth()+1===calendarMonth;
+  var weekdays=['一','二','三','四','五','六','日'];
+  var firstDay=new Date(calendarYear,calendarMonth-1,1);
+  var daysInMonth=new Date(calendarYear,calendarMonth,0).getDate();
+  var startDow=firstDay.getDay()-1;if(startDow<0)startDow=6;
+  var html='<div class="calendar-section"><div class="calendar-header"><div class="calendar-nav"><div class="calendar-nav-btn" onclick="changeYear(-1)" title="上一年"><i class="ti ti-chevrons-left"></i></div><div class="calendar-nav-btn" onclick="changeMonth(-1)" title="上一月"><i class="ti ti-chevron-left"></i></div></div><div class="calendar-month-label">'+calendarYear+'年'+calendarMonth+'月</div><div class="calendar-nav"><div class="calendar-nav-btn" onclick="changeMonth(1)" title="下一月"><i class="ti ti-chevron-right"></i></div><div class="calendar-nav-btn" onclick="changeYear(1)" title="下一年"><i class="ti ti-chevrons-right"></i></div></div></div><div class="calendar-weekdays">';
+  weekdays.forEach(function(w){html+='<div class="calendar-weekday">'+w+'</div>';});
+  html+='</div><div class="calendar-days">';
+  for(var i=0;i<startDow;i++)html+='<div class="calendar-day calendar-day--other"></div>';
+  for(var d=1;d<=daysInMonth;d++){
+    var isToday=d===today&&isCurrentMonth;
+    var dot='';
+    if(data.issue.indexOf(d)>-1)dot='<div class="calendar-dot calendar-dot--issue"></div>';
+    else if(data.done.indexOf(d)>-1)dot='<div class="calendar-dot calendar-dot--done"></div>';
+    else if(isCurrentMonth&&d<today)dot='<div class="calendar-dot calendar-dot--miss"></div>';
+    html+='<div class="calendar-day'+(isToday?' calendar-day--today':'')+'" onclick="onCalendarDay('+d+')">'+d+dot+'</div>';
+  }
+  html+='</div><div class="calendar-summary"><span><span class="calendar-dot calendar-dot--done" style="position:static;width:8px;height:8px;display:inline-block"></span> 已巡检 '+data.done.length+'天</span><span><span class="calendar-dot calendar-dot--issue" style="position:static;width:8px;height:8px;display:inline-block"></span> 有问题 '+data.issue.length+'天</span><span><span class="calendar-dot calendar-dot--miss" style="position:static;width:8px;height:8px;display:inline-block"></span> 未巡检 '+Math.max(0,isCurrentMonth?today-1-data.done.length-data.issue.length:0)+'天</span></div></div>';
+  return html;
+}
+
+function changeMonth(delta){
+  calendarMonth+=delta;
+  if(calendarMonth>12){calendarMonth=1;calendarYear++;}
+  if(calendarMonth<1){calendarMonth=12;calendarYear--;}
+  renderCalendarInto();
+}
+
+function changeYear(delta){
+  calendarYear+=delta;
+  renderCalendarInto();
+}
+
+function onCalendarDay(d){
+  var dateStr=calendarYear+'-'+String(calendarMonth).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+  APP.patrolPeriodFilter='custom';
+  APP.patrolCustomDate=dateStr;
+  navToTab('screenPatrol');
+  renderPatrolList();
+  setTimeout(function(){
+    var el=document.getElementById('patrol-day-'+dateStr);
+    if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
+  },150);
+}
+
+/* ═══════════ QR Functions ═══════════ */
+function showQR(fid){
+  APP.currentFenceId=fid;
+  navigateTo('screenQR');
+  setTimeout(function(){renderQR();},100);
+}
+
+function renderQR(){
+  var f=getCurrentFence();
+  if(!f)return;
+  var cp=APP.projects.find(function(p){return p.id===APP.currentProjectId})||APP.projects[0];
+  var html='<div class="qr-container">'+
+    '<div class="qr-box"><div class="qr-placeholder"></div></div>'+
+    '<div><div class="qr-fid">'+f.id+'</div>'+
+    '<div class="qr-name">'+(cp?cp.name:'')+' · '+(f.engineerName||'')+'</div>'+
+    '<div class="qr-addr">'+(f._projectStreet||f.address||'')+'</div></div>'+
+    '<div class="qr-download-btn" onclick="alert(\'二维码已保存（原型演示）\')">下载二维码</div>'+
+    '</div>';
+  document.getElementById('qrContent').innerHTML=html;
+}
+
+function getStatusTagHTML(s){
+  var map={'已安装':'<span class="tag tag-blue">已安装</span>','超期未拆':'<span class="tag tag-yellow">超期未拆</span>','超期未拆':'<span class="tag tag-gray">超期未拆</span>'};
+  return map[s]||'<span class="tag">'+s+'</span>';
+}
+
+/* ═══════════ List Screen ═══════════ */
+function renderList(){
+  loadData();
+  var fences=getProjectFences(APP.currentProjectId);
+  var tabs=['全部','已安装','超期未拆','超期未拆'];
+  var tabHTML='';
+  tabs.forEach(function(t){
+    tabHTML+='<div class="filter-tab'+(APP.filterStatus===t?' active':'')+'" onclick="setFilter(\''+t+'\')">'+t+'</div>';
+  });
+  document.getElementById('filterTabs').innerHTML=tabHTML;
+  filterFences();
+}
+
+function setFilter(status){
+  APP.filterStatus=status;
+  document.querySelectorAll('.filter-tab').forEach(function(t){t.classList.remove('active')});
+  event.target.classList.add('active');
+  filterFences();
+}
+
+function toggleSearch(){
+  var trigger=document.getElementById('searchBarTrigger');
+  var input=document.getElementById('searchBarInput');
+  if(trigger.classList.contains('hidden')){
+    trigger.classList.remove('hidden');
+    input.classList.add('hidden');
+    APP.searchKeyword='';
+    document.getElementById('searchInput').value='';
+    filterFences();
+  }else{
+    trigger.classList.add('hidden');
+    input.classList.remove('hidden');
+    setTimeout(function(){document.getElementById('searchInput').focus();},100);
+  }
+}
+
+function filterFences(){
+  var fences=getProjectFences(APP.currentProjectId);
+  if(APP.filterStatus!=='全部')fences=fences.filter(function(f){return f.fenceStatus===APP.filterStatus});
+  if(APP.searchKeyword)fences=fences.filter(function(f){
+    var kw=APP.searchKeyword.toLowerCase();
+    return (f.id||'').toLowerCase().indexOf(kw)>-1||(f.engineerName||'').toLowerCase().indexOf(kw)>-1;
+  });
+
+  var html='';
+  fences.forEach(function(f){
+    html+=
+      '<div class="fence-card" onclick="navigateTo(\'screenDetail\',\''+f.id+'\')">'+
+      '<div class="fence-card-top">'+
+      '<div class="fence-card-id">'+f.id+'</div>'+
+      '<span class="tag '+getStatusTagClass(f.fenceStatus)+'">'+getStatusLabel(f.fenceStatus)+'</span>'+
+      '</div>'+
+      '<div class="fence-card-fields">'+
+      '<div class="fi"><div class="fik">关联工程</div><div class="fiv">'+(f.engineerName||'--')+'</div></div>'+
+      '<div class="fi"><div class="fik">工程状态</div><div class="fiv">'+(f.engStatus||'--')+'</div></div>'+
+      '<div class="fi"><div class="fik">围挡长度</div><div class="fiv">'+(f.length||'--')+' m</div></div>'+
+      '<div class="fi"><div class="fik">管护期限</div><div class="fiv">'+(f.custodyEnd||'--')+'</div></div>'+
+      '<div class="fi"><div class="fik">责任单位</div><div class="fiv">'+(f.constructUnit||'--')+'</div></div>'+
+      '<div class="fi"><div class="fik">问题状态</div><div class="fiv">'+getIssueStatusHTML(f.issueStatus)+'</div></div>'+
+      '</div>'+
+      '</div>';
+  });
+  document.getElementById('fenceList').innerHTML=html;
+  document.getElementById('listEmpty').classList.toggle('hidden',fences.length>0);
+}
+
+document.getElementById('searchInput').addEventListener('input',function(){
+  APP.searchKeyword=this.value;
+  filterFences();
+});
+
+/* ═══════════ Detail Screen ═══════════ */
+function renderDetail(){
+  var f=getCurrentFence();
+  if(!f)return;
+  var cd=f.custodyStart||'--';
+  var ce=f.custodyEnd||'--';
+
+  var html='';
+
+  // ═══ Panel 1: 基本信息 ═══
+  html+='<div class="detail-panel active" id="detailPanel-basic" style="padding:4px 0 100px">';
+  html+='<div class="card section-card" style="padding-top:4px">';
+
+  // ── 本体信息 ──
+  html+='<div class="detail-sub-title">本体信息</div>';
+  html+='<div style="margin-bottom:8px"><div class="info-label">围挡范围</div>';
+  html+='<div style="position:relative"><div id="detailMiniMap" class="detail-map" onclick="openFullMap()"></div>';
+  html+='<div id="detailMapLegend" class="detail-map-legend"></div></div></div>';
+  html+=infoRow('围挡名称',f.fenceName||'科技南路管网改造围挡');
+  html+=infoRow('所属街道',f._projectStreet);
+  html+=infoRow('围挡材质',f.material);
+  html+=infoRow('围挡长度',f.length+' m');
+  html+=infoRow('围挡高度',f.height+' m');
+  html+=infoRow('围挡面积',f.area?f.area+' m²':'--');
+  html+=infoRow('围挡风格',f.fenceStyle);
+  html+=infoRow('宣传画/公益广告',f.publicityContent);
+  // 围挡状态 / 问题状态 / 是否待校核
+  var fsTagMap={'已安装':'<span class="tag tag-blue">已安装</span>','超期未拆':'<span class="tag tag-yellow">超期未拆</span>','超期未拆':'<span class="tag tag-gray">超期未拆</span>'};
+  var isTagMap={'正常':'<span class="tag tag-green">正常</span>','待整改':'<span class="tag tag-red">待整改</span>','整改逾期':'<span class="tag tag-red">整改逾期</span>'};
+  var nv=f.needVerify||'';
+  var nvHtml=nv==='是'?'<span class="tag tag-yellow">待校核</span>':(nv==='否'?'<span class="tag tag-gray">无需校核</span>':'—');
+  html+=infoRowHtml('围挡状态',fsTagMap[f.fenceStatus]||f.fenceStatus||'—');
+  html+=infoRowHtml('问题状态',isTagMap[f.issueStatus]||f.issueStatus||'—');
+  html+=infoRowHtml('是否待校核',nvHtml);
+
+  // ── 关联项目工程 ──
+  html+='<div class="detail-sub-title">关联项目工程</div>';
+  html+=infoRow('项目名称',f._projectName);
+  html+=infoRowWithAction('工程名称',f.engineerName,'<span class="info-expand-btn" onclick="event.stopPropagation();toggleEngCard(this)">展开 <i class="ti ti-chevron-down" style="font-size:12px"></i></span>');
+  html+='<div class="eng-info-card hidden" id="engInfoCard">'+buildEngCardFields(f)+'</div>';
+  html+=infoRow('责任单位',f.constructUnit);
+  html+=infoRow('围挡管护期限',cd+' ~ '+ce);
+  html+=infoRow('围挡责任人',f.fenceResponsible);
+  html+=infoRow('围挡责任人联系电话',f.fenceResponsiblePhone);
+
+  // ── 计划信息 ──
+  html+='<div class="detail-sub-title">计划信息</div>';
+  html+=infoRow('围挡设置时间',f.setupDate);
+  html+=infoRow('计划拆除时间',f.planRemoveDate);
+  html+=infoRow('围挡变更计划','--');
+
+  // ── 占道信息 ──
+  html+='<div class="detail-sub-title">占道信息</div>';
+  html+=infoRow('占道面积',f.roadOccupationArea?f.roadOccupationArea+' m²':'--');
+  html+=infoRow('占道范围',f.roadOccupation);
+  html+=infoRow('交通组织方案','--');
+
+  html+='</div>';
+  html+='</div>';
+
+  // ═══ Panel 2: 巡检记录 (full list) ═══
+  html+='<div class="detail-panel" id="detailPanel-patrol" style="padding:4px 0 100px">';
+  var patrols=f._patrolRecords||[];
+  APP._patrolCache=[];
+  if(patrols.length){
+    patrols.sort(function(a,b){return b.date.localeCompare(a.date)});
+    patrols.forEach(function(p){p._engName=f.engineerName;p._respUnit=f.constructUnit;});
+    var weekdays=['日','一','二','三','四','五','六'];
+    var dayMap={};
+    patrols.forEach(function(p){
+      var d=p.date||'';
+      if(!dayMap[d])dayMap[d]=[];
+      dayMap[d].push(p);
+    });
+    var dayKeys=Object.keys(dayMap).sort(function(a,b){return b.localeCompare(a)});
+    dayKeys.forEach(function(dateStr){
+      var parts=dateStr.split('-');
+      var label=parts[0]+'年'+parseInt(parts[1],10)+'月'+parseInt(parts[2],10)+'日';
+      var d=new Date(dateStr);
+      var wd=isNaN(d.getTime())?'':('星期'+weekdays[d.getDay()]);
+      var records=dayMap[dateStr];
+      html+='<div class="patrol-day-header">'+label+' '+wd+' <span style="font-size:var(--font-xs);color:var(--text-sub);font-weight:var(--fw-regular)">'+records.length+'条</span></div>';
+      records.forEach(function(p){
+        var cacheIdx=APP._patrolCache.length;
+        APP._patrolCache.push({record:p,fenceId:f.id});
+        var resultLabel=p.result==='正常'?'正常':'问题';
+        var resultCls=p.result==='正常'?'patrol-result--normal':'patrol-result--abnormal';
+        var dotColor=p.result==='正常'?'var(--green)':'var(--red)';
+        html+='<div class="patrol-card" onclick="openPatrolDetail('+cacheIdx+')">'+
+          '<div class="patrol-card-body">'+
+          '<div class="patrol-info">'+
+          '<div class="patrol-info-top">'+
+          '<div class="patrol-person">巡检人：'+escHtml(p.inspector)+'</div>'+
+          '<div class="patrol-time">'+_patrolTime(p)+'</div>'+
+          '</div>'+
+          '<div class="patrol-result '+resultCls+'">'+
+          '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:'+dotColor+';flex-shrink:0"></span>'+
+          resultLabel+'</div>'+
+          ((p.issues&&p.issues.length)?'<div class="patrol-remark">问题详情：'+escHtml(p.issues.join('、'))+'</div>':(p.remark?'<div class="patrol-remark">备注：'+escHtml(p.remark)+'</div>':''))+
+          '</div></div>'+
+          '</div>';
+      });
+    });
+  }else{
+    html+='<div style="padding:40px 16px;text-align:center;color:var(--text-tertiary);font-size:var(--font-sm)">暂无巡检记录</div>';
+  }
+  html+='</div>';
+
+  // ═══ Panel 3: 校核与变更记录 (full list) ═══
+  var vrs=f._verifyRecords||[];
+  var crs=f._changeRecords||[];
+  html+='<div class="detail-panel" id="detailPanel-verify" style="padding:4px 0 100px">';
+  if(crs.length||vrs.length){
+    crs.forEach(function(c){
+      var vr=vrs.find(function(v){return v.changeId===c.id});
+      html+='<div class="card" style="margin-top:12px">';
+      html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span style="font-weight:var(--fw-heavy);font-size:var(--font-md)">'+escHtml(c.changer)+'</span><span style="font-size:var(--font-xs);color:var(--text-tertiary)">'+escHtml(c.date)+'</span></div>';
+      html+='<div style="font-size:var(--font-sm);color:var(--text-sub);margin-bottom:4px">'+escHtml(c.unit)+' · '+escHtml(c.role)+'</div>';
+      html+='<div style="font-size:var(--font-sm);margin-bottom:8px">'+escHtml(c.content)+'</div>';
+      if(c.field&&c.before&&c.after){
+        html+='<div style="background:var(--gray-50);border-radius:var(--radius-md);padding:10px 12px;margin-bottom:8px;font-size:var(--font-sm)">';
+        html+='<span style="color:var(--text-sub)">'+escHtml(c.field)+'：</span>';
+        html+='<span style="color:var(--text-tertiary);text-decoration:line-through">'+escHtml(c.before)+'</span>';
+        html+=' <span style="color:var(--text-tertiary);margin:0 4px">→</span> ';
+        html+='<span style="color:var(--blue);font-weight:var(--fw-medium)">'+escHtml(c.after)+'</span>';
+        html+='</div>';
+      }
+      if(vr){
+        var vclass=vr.type==='pass'?'tag-green':'tag-red';
+        var vtext=vr.type==='pass'?'校核通过':'校核不通过';
+        html+='<div style="border-top:1px solid var(--border);padding-top:8px;margin-top:4px">';
+        html+='<span class="tag '+vclass+'" style="margin-right:8px">'+vtext+'</span>';
+        html+='<span style="font-size:var(--font-xs);color:var(--text-tertiary)">'+escHtml(vr.verifier)+' · '+escHtml(vr.unit)+' · '+escHtml(vr.role)+' · '+vr.date+'</span>';
+        if(vr.content)html+='<div style="font-size:var(--font-sm);color:var(--text-sub);margin-top:4px">'+escHtml(vr.content)+'</div>';
+        html+='</div>';
+      }else{
+        html+='<div style="border-top:1px solid var(--border);padding-top:8px;margin-top:4px"><span class="tag tag-yellow">待校核</span></div>';
+      }
+      html+='</div>';
+    });
+    vrs.forEach(function(vr){
+      if(!vr.changeId||!crs.find(function(c){return c.id===vr.changeId})){
+        html+='<div class="card" style="margin-top:12px">';
+        html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span style="font-weight:var(--fw-heavy);font-size:var(--font-md)">'+escHtml(vr.verifier)+'</span><span style="font-size:var(--font-xs);color:var(--text-tertiary)">'+escHtml(vr.date)+'</span></div>';
+        html+='<div style="font-size:var(--font-sm);color:var(--text-sub);margin-bottom:4px">'+escHtml(vr.unit)+' · '+escHtml(vr.role)+'</div>';
+        var vclass=vr.type==='pass'?'tag-green':'tag-red';
+        var vtext=vr.type==='pass'?'校核通过':'校核不通过';
+        html+='<span class="tag '+vclass+'">'+vtext+'</span>';
+        if(vr.content)html+='<div style="font-size:var(--font-sm);color:var(--text-sub);margin-top:6px">'+escHtml(vr.content)+'</div>';
+        html+='</div>';
+      }
+    });
+  }else{
+    html+='<div style="padding:40px 16px;text-align:center;color:var(--text-tertiary);font-size:var(--font-sm)">暂无校核与变更记录</div>';
+  }
+  html+='</div>';
+
+  document.getElementById('detailContent').innerHTML=html;
+
+  // Render tab bar — 3 tabs switching panels
+  var tabs=[
+    {panel:'detailPanel-basic',label:'基本信息'},
+    {panel:'detailPanel-patrol',label:'巡检记录'},
+    {panel:'detailPanel-verify',label:'校核变更'}
+  ];
+  var tabHtml='';
+  tabs.forEach(function(t){
+    tabHtml+='<div class="detail-tab-item" data-panel="'+t.panel+'" onclick="switchDetailTab(\''+t.panel+'\')">'+t.label+'</div>';
+  });
+  var tabBar=document.getElementById('detailTabs');
+  tabBar.innerHTML=tabHtml;
+  tabBar.style.display='';
+  tabBar.querySelector('.detail-tab-item').classList.add('active');
+
+  setTimeout(function(){initDetailMap(f);},300);
+}
+
+function switchDetailTab(panelId){
+  // Hide all panels, show target
+  var panels=document.querySelectorAll('#detailContent .detail-panel');
+  panels.forEach(function(p){p.classList.remove('active');});
+  var target=document.getElementById(panelId);
+  if(target)target.classList.add('active');
+  // Update tab active state
+  var tabs=document.querySelectorAll('#detailTabs .detail-tab-item');
+  tabs.forEach(function(t){t.classList.toggle('active',t.dataset.panel===panelId);});
+  // Scroll to top when switching panels
+  var dc=document.getElementById('detailContent');
+  if(dc)dc.scrollTop=0;
+}
+
+/* ── Patrol Record Detail ── */
+function openPatrolDetail(cacheIdx){
+  var pd=APP._patrolCache[cacheIdx];
+  if(!pd)return;
+  APP.currentPatrol=pd;
+  navigateTo('screenPatrolDetail');
+}
+
+function renderPatrolDetail(){
+  var pd=APP.currentPatrol;
+  if(!pd)return;
+  var p=pd.record;
+  var fenceId=pd.fenceId;
+
+  var isAbnormal=p.result!=='正常';
+  var resultTag=isAbnormal?'问题':'正常';
+  var resultBg=isAbnormal?'rgba(220,38,38,0.85)':'rgba(22,178,106,0.85)';
+  var patrolTime=p.date+' '+_patrolTime(p);
+  var panoUrl=p.panoramaSrc||'';
+
+  var html='<div style="padding:12px 16px">';
+  // Viewer area — always show fallback with "点击查看全景"
+  html+='<div class="patrol-viewer" id="patrolViewer" onclick="openFullscreenViewer()" style="cursor:pointer">';
+  html+='<div style="position:absolute;inset:0;background:linear-gradient(135deg,#0a1929 0%,#0f2744 40%,#1a3c7a 70%,#0a1929 100%);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px">';
+  html+='<i class="ti ti-360" style="font-size:48px;color:rgba(255,255,255,.2)"></i>';
+  html+='<span style="font-size:14px;color:rgba(255,255,255,.35);font-weight:600;letter-spacing:.04em">点击查看全景图</span>';
+  if(panoUrl) html+='<span style="font-size:10px;color:rgba(255,255,255,.15);max-width:90%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+escHtml(panoUrl)+'</span>';
+  html+='</div>';
+  html+='<div class="patrol-viewer-overlay"></div>';
+  html+='<div class="patrol-viewer-top">';
+  html+='<span class="patrol-viewer-pill" style="background:'+resultBg+';border-color:transparent;font-weight:700;padding:0 10px;text-shadow:0 1px 2px rgba(0,0,0,.3)">'+resultTag+'</span>';
+  html+='<span class="patrol-viewer-pill" style="display:none"></span>';
+  html+='</div></div>';
+
+  // Info card
+  html+='<div class="card"><div class="card-header-row"><div class="card-title"><span class="card-title-dot"></span>巡检信息</div></div>';
+  html+=infoRow('巡检人',p.inspector);
+  html+=infoRow('巡检时间',patrolTime);
+  if(p.issues&&p.issues.length){
+    html+='<div class="info-item"><div class="info-label">问题详情</div><div class="info-value">';
+    p.issues.forEach(function(issue,i){
+      html+='<div style="margin-bottom:3px;font-size:var(--font-sm)"><span style="color:var(--red);margin-right:4px">!</span>'+escHtml(issue)+'</div>';
+    });
+    html+='</div></div>';
+  }else if(p.remark){
+    html+=infoRow('备注',p.remark);
+  }
+  html+='</div>';
+
+  html+='</div>';
+  document.getElementById('patrolDetailContent').innerHTML=html;
+}
+
+function openFullscreenViewer(){
+  var pd=APP.currentPatrol;
+  if(!pd)return;
+  var panoUrl=pd.record.panoramaSrc||'';
+  var viewer=document.getElementById('fullscreenViewer');
+  var iframe=document.getElementById('fullscreenIframe');
+  var img=document.getElementById('fullscreenImg');
+  var fb=document.getElementById('fullscreenFallback');
+  viewer.style.display='flex';
+  if(panoUrl){
+    // Web-based panorama URL (720yun etc) → iframe; direct image → <img>
+    if(/\.(jpe?g|png|webp|bmp)$/i.test(panoUrl.split('?')[0].split('#')[0])){
+      img.src=panoUrl; img.style.display='block'; iframe.style.display='none'; fb.style.display='none';
+    }else{
+      iframe.src=panoUrl; iframe.style.display='block'; img.style.display='none'; fb.style.display='none';
+    }
+  }else{
+    img.style.display='none'; iframe.style.display='none'; fb.style.display='flex';
+  }
+}
+function closeFullscreenViewer(){
+  document.getElementById('fullscreenViewer').style.display='none';
+  document.getElementById('fullscreenImg').src='';
+  document.getElementById('fullscreenIframe').src='';
+}
+
+function infoRowHtml(label,html){
+  return '<div class="info-item"><div class="info-label">'+label+'</div><div class="info-value">'+(html||'—')+'</div></div>';
+}
+function infoRow(label,value){
+  return '<div class="info-item"><div class="info-label">'+label+'</div><div class="info-value">'+(value||'--')+'</div></div>';
+}
+
+function infoRowWithAction(label,value,actionHtml){
+  return '<div class="info-item"><div class="info-label">'+label+'</div><div class="info-value" style="display:flex;align-items:center;justify-content:space-between"><span>'+(value||'--')+'</span>'+actionHtml+'</div></div>';
+}
+
+function toggleEngCard(btn){
+  var card=document.getElementById('engInfoCard');
+  if(!card)return;
+  card.classList.toggle('hidden');
+  var icon=btn.querySelector('i');
+  if(card.classList.contains('hidden')){
+    btn.innerHTML='展开 <i class="ti ti-chevron-down" style="font-size:12px"></i>';
+  }else{
+    btn.innerHTML='收起 <i class="ti ti-chevron-up" style="font-size:12px"></i>';
+  }
+}
+
+function buildEngCardFields(f){
+  var fields=[
+    ['监管单位',f.regulatorUnit],
+    ['建设单位',f.buildUnit],
+    ['施工单位',f.constructUnit],
+    ['监理单位',f.supervisorUnit],
+    ['设计单位',f.designUnit],
+    ['所属区域',(f._projectDistrict||'')+(f._projectStreet||'')],
+    ['地址',f.address],
+    ['建设单位联系人',f.buildContact],
+    ['施工单位联系人',f.constructContact],
+    ['工程计划工期',f.custodyStart&&f.custodyEnd?f.custodyStart+' ~ '+f.custodyEnd:'--']
+  ];
+  var html='';
+  fields.forEach(function(pair){html+=infoRow(pair[0],pair[1]);});
+  return html;
+}
+
+function initDetailMap(f){
+  var el=document.getElementById('detailMiniMap');
+  if(!el)return;
+  el._leaflet_map&&el._leaflet_map.remove();
+  var pts=f.gpsShape||[];
+  if(!pts.length)return;
+  var bounds=L.latLngBounds(pts);
+  var map=L.map(el,{attributionControl:false,zoomControl:false,scrollWheelZoom:false,dragging:false}).fitBounds(bounds.pad(0.3));
+  L.tileLayer('https://webst0{s}.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}',{subdomains:'1234',maxZoom:18}).addTo(map);
+
+  // Project redline
+  if(f._redlineGeo&&f._redlineGeo.length){
+    L.polygon(f._redlineGeo,{color:'#D13B2F',weight:2,fillOpacity:0.15,fillColor:'#D13B2F'}).addTo(map).bindTooltip('项目红线');
+    bounds=f._redlineGeo.concat(pts); // expand bounds
+  }
+
+  // Other hoardings (gray dashed, gray hollow entrances)
+  var others=MOCK_DATA.getOtherHoardings(f.id);
+  others.forEach(function(o,oi){
+    if(o.gpsShape&&o.gpsShape.length){
+      L.polygon(o.gpsShape,{color:'#9CA3B0',weight:1.5,fillOpacity:0.08,fillColor:'#9CA3B0',dashArray:'6 4'}).addTo(map)
+        .bindTooltip('<span style="font-size:10px;background:#6B7280;color:#fff;padding:1px 6px;border-radius:3px">'+(oi+1)+'</span> '+escHtml(o.engineerName||''),{direction:'center'});
+      bounds=bounds.concat(o.gpsShape);
+    }
+    (o.entrances||[]).forEach(function(e){
+      var elat=e.lat!==undefined?e.lat:f._projectLat+(e.y-150)*0.00002;
+      var elng=e.lng!==undefined?e.lng:f._projectLng+(e.x-350)*0.00002;
+      L.circleMarker([elat,elng],{radius:4,color:'#9CA3B0',weight:1.5,fillOpacity:0,fillColor:'transparent'}).addTo(map);
+    });
+  });
+
+  // Current fence polygon
+  L.polygon(pts,{color:'#1862D4',weight:2,fillOpacity:0.1,fillColor:'#1862D4'}).addTo(map);
+  // Current fence entrances
+  var clat=f._projectLat,clng=f._projectLng;
+  (f.entrances||[]).forEach(function(e){
+    var elat=e.lat!==undefined?e.lat:clat+(e.y-150)*0.00002;
+    var elng=e.lng!==undefined?e.lng:clng+(e.x-350)*0.00002;
+    L.circleMarker([elat,elng],{radius:5,color:'#1A9042',weight:2,fillOpacity:1,fillColor:'#1A9042'}).addTo(map).bindTooltip(e.name||e.type);
+  });
+
+  if(bounds.length){map.fitBounds(L.latLngBounds(bounds).pad(0.3));}
+  el._leaflet_map=map;
+
+  // Legend
+  document.getElementById('detailMapLegend').innerHTML=
+    '<div style="font-weight:600;margin-bottom:2px">图例</div>'+
+    '<div><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#D13B2F;margin-right:4px;vertical-align:middle"></span>项目红线</div>'+
+    '<div><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#1862D4;margin-right:4px;vertical-align:middle"></span>当前围挡</div>'+
+    '<div><span style="display:inline-block;width:10px;height:10px;border-radius:2px;border:1.5px dashed #9CA3B0;margin-right:4px;vertical-align:middle"></span>其他围挡</div>'+
+    '<div><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#1A9042;margin-right:4px;vertical-align:middle"></span>当前出入口</div>'+
+    '<div><span style="display:inline-block;width:8px;height:8px;border-radius:50%;border:1.5px solid #9CA3B0;margin-right:4px;vertical-align:middle"></span>其他出入口</div>';
+}
+
+function openFullMap(){
+  var f=getCurrentFence();
+  if(!f||!(f.gpsShape&&f.gpsShape.length))return;
+  navigateTo('screenMapFull');
+  var clat=f._projectLat,clng=f._projectLng;
+  var fences=getProjectFences(APP.currentProjectId);
+  var proj=APP.projects.find(function(p){return p.id===APP.currentProjectId});
+  setTimeout(function(){
+    var el=document.getElementById('fullMap');
+    if(!el)return;
+    if(APP.fullMap){APP.fullMap.remove();}
+    var allBounds=L.latLngBounds(f.gpsShape);
+
+    // Add other fences to bounds
+    fences.forEach(function(of){
+      if(of.id!==f.id&&of.gpsShape&&of.gpsShape.length){
+        of.gpsShape.forEach(function(p){allBounds.extend(p);});
+      }
+    });
+    // Add redline to bounds
+    if(proj&&proj.redlineGeo&&proj.redlineGeo.length){
+      proj.redlineGeo.forEach(function(p){allBounds.extend(p);});
+    }
+
+    APP.fullMap=L.map(el,{attributionControl:false,zoomControl:true}).fitBounds(allBounds.pad(0.2));
+    L.tileLayer('https://webst0{s}.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}',{subdomains:'1234',maxZoom:18}).addTo(APP.fullMap);
+
+    // ── Project redline ──
+    if(proj&&proj.redlineGeo&&proj.redlineGeo.length){
+      L.polygon(proj.redlineGeo,{color:'#D13B2F',weight:2,fillOpacity:0.06,fillColor:'#D13B2F'}).addTo(APP.fullMap).bindTooltip('项目红线');
+    }
+
+    // ── Other fences (gray dashed) ──
+    fences.forEach(function(of){
+      if(of.id===f.id||!of.gpsShape||!of.gpsShape.length)return;
+      L.polygon(of.gpsShape,{color:'#9CA3B0',weight:1.5,dashArray:'6 4',fillOpacity:0.05,fillColor:'#9CA3B0'}).addTo(APP.fullMap).bindTooltip(of.id+' '+(of.engineerName||''));
+      // Other entrances (gray hollow)
+      (of.entrances||[]).forEach(function(e){
+        L.circleMarker([e.lat,e.lng],{radius:5,color:'#9CA3B0',weight:1.5,fillOpacity:0.3,fillColor:'#9CA3B0'}).addTo(APP.fullMap).bindTooltip(e.name||e.type);
+      });
+    });
+
+    var cardWrap=document.getElementById('fullMapCardListWrap');
+    var cardInner=document.getElementById('fullMapCardListInner');
+    setMapLegend('detail');
+    document.getElementById('mapLegend').style.display='';
+
+    // ── Current fence polygon (blue) ──
+    var selected=false;
+    var poly=L.polygon(f.gpsShape,{color:'#1862D4',weight:2,fillOpacity:0.1,fillColor:'#1862D4'}).addTo(APP.fullMap);
+    (f.entrances||[]).forEach(function(e){
+      L.circleMarker([e.lat,e.lng],{radius:6,color:'#1A9042',weight:2,fillOpacity:1,fillColor:'#1A9042'}).addTo(APP.fullMap).bindTooltip(e.name||e.type);
+    });
+
+    function selectFence(){
+      if(selected)return;
+      selected=true;
+      poly.setStyle({color:'#F59E0B',weight:3,fillOpacity:0.25,fillColor:'#F59E0B'});
+      poly.bringToFront();
+      var isPending=!f._hasVerify;
+      var unitName=f.constructUnit||'';
+      cardInner.innerHTML=
+        '<div class="eng-card" data-fence-id="'+f.id+'" onclick="event.stopPropagation();goToFenceDetail(\''+f.id+'\')" style="margin:0 10px 8px;cursor:pointer">'+
+        getStatusBadge(f.fenceStatus)+
+        '<div class="eng-card-row"><span class="eng-card-custody">管护期限：'+(f.custodyStart||'--')+' - '+(f.custodyEnd||'--')+'</span></div>'+
+        '<div class="eng-card-row"><span class="eng-card-unit-full">'+escHtml(unitName)+'</span></div>'+
+        '<div class="eng-card-row"><span class="eng-card-name">'+escHtml(f.engineerName||'--')+'</span></div>'+
+        '<div class="eng-card-row"><span class="eng-card-id">'+(f.length||'--')+'m</span>'+
+        getIssueTag(f.issueStatus)+
+        (isPending?'<span class="eng-card-pending">待校核</span>':'')+
+        '</div>'+
+        '</div>';
+      cardWrap.style.display='';
+      cardWrap.style.flex='0 0 auto';
+    }
+
+    var _fc=false;
+    poly.on('click',function(){_fc=true;selectFence();});
+    APP.fullMap.on('click',function(){if(!_fc&&selected){selected=false;poly.setStyle({color:'#1862D4',weight:2,fillOpacity:0.1,fillColor:'#1862D4'});cardWrap.style.display='none';}_fc=false;});
+
+    cardWrap.style.display='none';
+  },350);
+}
+
+/* ═══════════ Change Form ═══════════ */
+function renderChangeForm(){
+  var f=getCurrentFence();
+  if(!f)return;
+  document.getElementById('changeTitle').textContent='变更围挡';
+  var html='<div style="padding:0 0 80px">';
+  html+=formSection('关联项目工程',[
+    {label:'项目名称',value:f._projectName,disabled:true},
+    {label:'工程名称',value:f.engineerName,disabled:true},
+    {label:'责任单位',value:f.constructUnit,disabled:true},
+    {label:'围挡责任人',value:f.fenceResponsible||'王强',required:true},
+    {label:'联系电话',value:f.fenceResponsiblePhone||'13900139001',required:true,type:'tel'}
+  ]);
+  html+=formSection('项目围挡计划信息',[
+    {label:'围挡设置时间',value:f.setupDate||'2025-09-15',type:'date',required:true},
+    {label:'计划拆除时间',value:f.planRemoveDate||'',type:'date',required:true}
+  ]);
+  html+=formSection('围挡本体信息',[
+    {label:'围挡名称',value:f.fenceName||'',required:true},
+    {label:'所属街道',value:f._projectStreet||'粤海街道',type:'select',required:true},
+    {label:'围挡材质',value:f.material||'装配式钢结构喷绘围挡',required:true},
+    {label:'围挡长度',value:f.length||320,type:'number',required:true,suffix:'m'},
+    {label:'围挡高度',value:f.height||2.5,type:'number',required:true,suffix:'m'},
+    {label:'围挡风格',value:f.fenceStyle||'仿真绿篱'},
+    {label:'宣传画/公益广告',value:f.publicityContent||''}
+  ]);
+  html+='<div class="card section-card" onclick="navigateTo(\'screenMapFull\')"><div style="display:flex;align-items:center;gap:8px;color:var(--color-primary-500);font-size:var(--font-md)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>编辑围挡范围（地图绘制） ›</div></div>';
+  html+=formSection('围挡占道信息',[
+    {label:'占道面积',value:f.roadOccupationArea||0,type:'number',required:false,suffix:'sqm'},
+    {label:'占道范围',value:f.roadOccupation||'人行道占用宽度2m'}
+  ]);
+  html+='</div>';
+  document.getElementById('changeContent').innerHTML=html;
+}
+
+function formSection(title,fields){
+  var h='<div class="form-section"><div class="form-section-title"><span class="card-title-dot"></span>'+title+'</div>';
+  fields.forEach(function(f){
+    var req=f.required?'<span class="req">*</span>':'';
+    h+='<div class="form-group"><div class="form-label">'+req+f.label+'</div>';
+    if(f.disabled){
+      h+='<input class="form-input" value="'+f.value+'" disabled>';
+    }else if(f.type==='date'){
+      h+='<input class="form-input" type="date" value="'+f.value+'" style="color-scheme:light">';
+    }else if(f.type==='number'){
+      h+='<div style="display:flex;gap:8px;align-items:center"><input class="form-input" type="number" value="'+f.value+'" style="flex:1"><span style="color:var(--text-secondary);font-size:var(--font-sm)">'+(f.suffix||'')+'</span></div>';
+    }else if(f.type==='tel'){
+      h+='<input class="form-input" type="tel" value="'+f.value+'">';
+    }else{
+      h+='<input class="form-input" value="'+(f.value||'')+'">';
+    }
+    h+='</div>';
+  });
+  h+='</div>';
+  return h;
+}
+
+function submitChange(){alert('变更提交成功（原型演示）');goBack();}
+
+/* ═══════════ Add Form ═══════════ */
+var ADD_FORM={
+  projectId:'',projectName:'',
+  engineerName:'',unitName:'',
+  custodyStart:'',custodyEnd:'',
+  fencePerson:'王强',fencePhone:'13900139001',
+  setupDate:'2025-09-15',planRemoveDate:'',
+  fenceStreet:'粤海街道',fenceMaterial:'装配式钢结构喷绘围挡',
+  fenceLength:'320',fenceHeight:'2.5',
+  fenceStyle:'仿真绿篱',fencePoster:'文明城市公益宣传画面',
+  roadOccupy:'人行道占用宽度2m',roadArea:'156.8'
+};
+var ADD_ENG_OPTIONS=[];
+
+function buildEngineerOptions(){
+  var options=[];
+  var mockNames=MOCK_DATA.getProjects().map(function(p){return p.name;});
+  SD.getProjects().forEach(function(p){
+    var isMine=mockNames.indexOf(p.name)>=0;
+    (p.engineers||[]).forEach(function(e){
+      if(!e.name)return;
+      var hasFence=!!e.fenceId;
+      var tag='',disabled=false;
+      if(hasFence){tag='已添加';disabled=true;}
+      else if(!isMine){tag='无权限';disabled=true;}
+      options.push({projectName:p.name,engineerName:e.name,tag:tag,disabled:disabled,isMine:isMine});
+    });
+  });
+  ADD_ENG_OPTIONS=options;
+}
+
+function getUnitOptions(name){
+  var map={
+    '基坑围护工程':['深圳市深建基坑工程有限公司','深圳市中建基坑工程有限公司'],
+    '主体结构工程':['深圳市龙华建筑集团总公司'],
+    '土方开挖工程':['深圳市宝安基础工程有限公司','深圳市基础建设有限公司'],
+    '管道铺设工程':['深圳市市政工程总公司'],
+    '沟槽开挖工程':['深圳市市政工程总公司'],
+    '道路恢复工程':['深圳市市政工程总公司'],
+    '桩基工程':['深圳市罗湖桩基施工有限公司'],
+    '外立面装修工程':['深圳市装饰工程有限公司'],
+    '基础工程':['深圳市基础建设有限公司'],
+    '路基施工工程':['深圳市光明建筑工程公司']
+  };
+  return map[name]||['请手动输入责任单位'];
+}
+
+function renderAddForm(){
+  loadData();
+  buildEngineerOptions();
+  var cp=APP.projects.find(function(p){return p.id===APP.currentProjectId})||APP.projects[0];
+  ADD_FORM.projectId=cp.id;
+  ADD_FORM.projectName=cp.name;
+
+  var currentOpts=ADD_ENG_OPTIONS.filter(function(o){return o.projectName===cp.name;});
+  var otherOpts=ADD_ENG_OPTIONS.filter(function(o){return o.projectName!==cp.name;});
+  window._addCurrentEngOpts=currentOpts;
+  window._addOtherEngOpts=otherOpts;
+
+  var h='<div style="padding:0 0 100px">';
+
+  /* ═══ 1. 关联项目工程 ═══ */
+  h+='<div class="form-section">';
+  h+='<div class="form-section-title"><span class="card-title-dot"></span>关联项目工程</div>';
+
+  h+='<div class="form-group"><div class="form-label"><span class="req">*</span>项目名称</div>';
+  h+='<input class="form-input" id="addProjectName" value="'+escHtml(cp.name)+'" readonly></div>';
+
+  h+='<div class="form-group"><div class="form-label"><span class="req">*</span>工程名称</div>';
+  h+='<input class="form-input" id="addEngineerName" value="" placeholder="请选择工程" readonly onclick="openEngineerSheet()" style="cursor:pointer"></div>';
+
+  h+='<div class="form-group"><div class="form-label"><span class="req">*</span>责任单位</div>';
+  h+='<input class="form-input" id="addUnitName" value="" placeholder="请先选择工程" readonly onclick="openUnitSheet()" style="cursor:pointer;background:var(--gray-100);color:var(--text-tertiary)"></div>';
+
+  h+='<div class="form-group"><div class="form-label"><span class="req">*</span>围挡管护期限</div>';
+  h+='<div style="display:flex;gap:6px;align-items:center">';
+  h+='<input class="form-input" type="date" id="addCustodyStart" value="" style="flex:1;color-scheme:light;min-width:0" onchange="syncCustodyDates()">';
+  h+='<span style="color:var(--text-tertiary);flex-shrink:0">至</span>';
+  h+='<input class="form-input" type="date" id="addCustodyEnd" value="" style="flex:1;color-scheme:light;min-width:0" onchange="syncCustodyDates()">';
+  h+='</div></div>';
+
+  h+='<div class="form-group"><div class="form-label"><span class="req">*</span>围挡责任人</div>';
+  h+='<input class="form-input" id="addFencePerson" value="'+ADD_FORM.fencePerson+'" placeholder="请输入围挡责任人姓名"></div>';
+
+  h+='<div class="form-group"><div class="form-label"><span class="req">*</span>围挡责任人联系电话</div>';
+  h+='<input class="form-input" type="tel" id="addFencePhone" value="'+ADD_FORM.fencePhone+'" placeholder="请输入联系电话"></div>';
+
+  h+='<div class="eng-info-mini" id="engInfoMini"></div>';
+  h+='</div>';
+
+  /* ═══ 2. 项目围挡计划信息 ═══ */
+  h+='<div class="form-section">';
+  h+='<div class="form-section-title"><span class="card-title-dot"></span>项目围挡计划信息</div>';
+
+  h+='<div class="form-group"><div class="form-label"><span class="req">*</span>围挡设置时间</div>';
+  h+='<input class="form-input" type="date" id="addSetupDate" value="'+ADD_FORM.setupDate+'" style="color-scheme:light"></div>';
+
+  h+='<div class="form-group"><div class="form-label"><span class="req">*</span>计划拆除时间</div>';
+  h+='<input class="form-input" type="date" id="addPlanRemoveDate" value="'+ADD_FORM.planRemoveDate+'" style="color-scheme:light"></div>';
+
+  h+='</div>';
+
+  /* ═══ 3. 围挡本体信息 ═══ */
+  h+='<div class="form-section">';
+  h+='<div class="form-section-title"><span class="card-title-dot"></span>围挡本体信息</div>';
+
+  h+='<div class="form-group"><div class="form-label"><span class="req">*</span>围挡范围</div>';
+  h+='<div class="card section-card" onclick="navigateTo(\'screenMapFull\')" style="cursor:pointer;margin:0">';
+  h+='<div style="display:flex;align-items:center;gap:8px;color:var(--color-primary-500);font-size:var(--font-md)">';
+  h+='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>';
+  h+='打开地图绘制围挡范围 ›</div></div></div>';
+
+  h+='<div class="form-group"><div class="form-label"><span class="req">*</span>围挡名称</div>';
+  h+='<input class="form-input" id="addFenceName" value="" placeholder="请输入围挡名称"></div>';
+  h+='<div class="form-group"><div class="form-label"><span class="req">*</span>所属街道</div>';
+  h+='<input class="form-input" id="addFenceStreet" value="" placeholder="请选择所属街道" readonly onclick="openStreetSheet()" style="cursor:pointer"></div>';
+
+  h+='<div class="form-group"><div class="form-label"><span class="req">*</span>围挡材质</div>';
+  h+='<select class="form-input" id="addFenceMaterial" onchange="handleMaterialChange()" style="width:100%;height:36px;border:1px solid var(--border-color-default);border-radius:var(--border-radius-md);font-size:var(--font-sm);background:#fff">';
+  h+='<option value="">请选择围挡材质</option>';
+  h+='<option value="现代风格装配式钢结构仿真绿草皮围挡">现代风格装配式钢结构仿真绿草皮围挡</option>';
+  h+='<option value="装配式钢结构喷绘围挡">装配式钢结构喷绘围挡</option>';
+  h+='<option value="装配式钢结构普通围挡">装配式钢结构普通围挡</option>';
+  h+='<option value="装配式PVC围挡">装配式PVC围挡</option>';
+  h+='<option value="通透式围挡">通透式围挡</option>';
+  h+='<option value="其他">其他（请自定义录入）</option>';
+  h+='</select>';
+  h+='<input class="form-input" id="addFenceMaterialOther" placeholder="请输入围挡材质" style="display:none;margin-top:8px" oninput="handleMaterialOtherInputAPP()">';
+  h+='</div>';
+
+  h+='<div class="form-group"><div class="form-label"><span class="req">*</span>围挡长度</div>';
+  h+='<div style="display:flex;gap:8px;align-items:center"><input class="form-input" type="number" id="addFenceLength" value="'+ADD_FORM.fenceLength+'" placeholder="请输入围挡长度" style="flex:1"><span style="color:var(--text-secondary);font-size:var(--font-sm)">m</span></div></div>';
+
+  h+='<div class="form-group"><div class="form-label"><span class="req">*</span>围挡高度</div>';
+  h+='<div style="display:flex;gap:8px;align-items:center"><input class="form-input" type="number" id="addFenceHeight" value="'+ADD_FORM.fenceHeight+'" placeholder="请输入围挡高度" style="flex:1"><span style="color:var(--text-secondary);font-size:var(--font-sm)">m</span></div></div>';
+
+  h+='</div>';
+
+  /* ═══ 4. 围挡占道信息 ═══ */
+  h+='<div class="form-section">';
+  h+='<div class="form-section-title"><span class="card-title-dot"></span>围挡占道信息</div>';
+
+  h+='<div class="form-group"><div class="form-label"><span class="req">*</span>占道面积</div>';
+  h+='<div style="display:flex;gap:8px;align-items:center"><input class="form-input" type="number" id="addRoadArea" value="'+ADD_FORM.roadArea+'" placeholder="请输入占道面积" style="flex:1"><span style="color:var(--text-secondary);font-size:var(--font-sm)">m²</span></div></div>';
+
+  h+='</div>';
+
+  /* ═══ 更多信息 ═══ */
+  h+='<div class="more-section">';
+  h+='<div class="more-section-bar" onclick="toggleMoreInfo()"><span id="moreToggleIcon">▶</span> 更多信息</div>';
+  h+='<div class="more-section-content" id="moreInfoContent">';
+
+  h+='<div style="font-size:var(--font-sm);color:var(--text-secondary);font-weight:500;margin-bottom:6px">围挡本体 · 补充信息</div>';
+
+  h+='<div class="form-group"><div class="form-label">围挡风格</div>';
+  h+='<input class="form-input" id="addFenceStyle" value="'+ADD_FORM.fenceStyle+'" placeholder="如：仿真绿篱、公益广告型等"></div>';
+
+  h+='<div class="form-group"><div class="form-label">宣传画/公益广告</div>';
+  h+='<input class="form-input" id="addFencePoster" value="'+ADD_FORM.fencePoster+'" placeholder="请输入宣传画或公益广告描述"></div>';
+
+  h+='<div style="font-size:var(--font-sm);color:var(--text-secondary);font-weight:500;margin:8px 0 6px">占道信息 · 补充信息</div>';
+
+  h+='<div class="form-group"><div class="form-label">占道范围</div>';
+  h+='<input class="form-input" id="addRoadOccupy" value="'+ADD_FORM.roadOccupy+'" placeholder="请描述占道范围，如：人行道占用宽度2m"></div>';
+
+  h+='</div></div>';
+
+  h+='</div>';
+  document.getElementById('addContent').innerHTML=h;
+}
+
+/* ═══ ActionSheet Helpers ═══ */
+function showActionSheet(title,items,onSelect){
+  // items: [{label, tag, disabled, selected}]
+  var overlay=document.createElement('div');
+  overlay.className='sheet-overlay';
+  overlay.onclick=function(e){if(e.target===overlay)overlay.remove();};
+  var h='<div class="sheet-panel" onclick="event.stopPropagation()">';
+  h+='<div class="sheet-header"><span class="sheet-title">'+title+'</span><button class="sheet-close" onclick="this.closest(\'.sheet-overlay\').remove()">×</button></div>';
+  h+='<div class="sheet-list">';
+  var currentSection='';
+  items.forEach(function(item){
+    if(item.section&&item.section!==currentSection){
+      currentSection=item.section;
+      h+='<div class="sheet-section-label">'+currentSection+'</div>';
+    }
+    var cls=item.disabled?' disabled':'';
+    if(item.selected)cls+=' selected';
+    h+='<div class="sheet-item'+cls+'" onclick="'+(!item.disabled?'window._sheetCallback(\''+item.value.replace(/'/g,"\\'")+'\')':'')+'">';
+    h+='<span>'+item.label+'</span>';
+    if(item.tag)h+='<span class="sheet-item-tag">'+item.tag+'</span>';
+    if(item.selected)h+='<span class="sheet-item-check">✓</span>';
+    h+='</div>';
+  });
+  h+='</div></div>';
+  overlay.innerHTML=h;
+  document.body.appendChild(overlay);
+  window._sheetCallback=function(v){overlay.remove();onSelect(v);};
+}
+
+function openEngineerSheet(){
+  var current=window._addCurrentEngOpts||[];
+  var other=window._addOtherEngOpts||[];
+  var items=[];
+  if(current.length)items.push({section:'当前项目工程',label:'',value:'',disabled:true,tag:''});
+  current.forEach(function(o){
+    items.push({label:o.engineerName,value:o.engineerName,tag:o.tag||'',disabled:o.disabled});
+  });
+  if(other.length)items.push({section:'其他项目工程',label:'',value:'',disabled:true,tag:''});
+  other.forEach(function(o){
+    items.push({label:o.engineerName+' ('+o.projectName+')',value:o.engineerName,tag:o.tag||'',disabled:o.disabled});
+  });
+  showActionSheet('选择工程',items,function(v){selectEngineer(v);});
+}
+
+function selectEngineer(name){
+  ADD_FORM.engineerName=name;
+  var el=document.getElementById('addEngineerName');
+  if(el)el.value=name;
+  // Populate unit
+  var units=getUnitOptions(name);
+  ADD_FORM.unitName='';
+  var uEl=document.getElementById('addUnitName');
+  if(uEl){uEl.value='';uEl.placeholder='请选择责任单位';uEl.style.background='';uEl.style.color='';}
+  window._currentUnits=units;
+  renderEngInfoMini(name);
+}
+
+function openUnitSheet(){
+  var units=window._currentUnits||[];
+  if(!units.length){alert('请先选择工程');return;}
+  var items=units.map(function(u){return{label:u,value:u,tag:'',disabled:false};});
+  showActionSheet('选择责任单位',items,function(v){selectUnit(v);});
+}
+
+function selectUnit(name){
+  ADD_FORM.unitName=name;
+  var el=document.getElementById('addUnitName');
+  if(el)el.value=name;
+}
+
+function openStreetSheet(){
+  var streets=['桂园街道','黄贝街道','东门街道','南湖街道','笋岗街道','清水河街道','翠竹街道','东湖街道','莲塘街道','粤海街道','南头街道','沙河街道','西丽街道','桃源街道','福田街道','香蜜湖街道','民治街道','龙华街道','新安街道','西乡街道'];
+  var items=streets.map(function(s){return{label:s,value:s,tag:'',disabled:false};});
+  showActionSheet('选择所属街道',items,function(v){
+    ADD_FORM.fenceStreet=v;
+    var el=document.getElementById('addFenceStreet');
+    if(el)el.value=v;
+  });
+}
+
+function syncCustodyDates(){
+  var s=document.getElementById('addCustodyStart');
+  var e=document.getElementById('addCustodyEnd');
+  if(s&&e&&s.value&&e.value&&e.value<s.value){e.value=s.value;}
+}
+
+function renderEngInfoMini(engName){
+  var card=document.getElementById('engInfoMini');
+  if(!card)return;
+  var cp=APP.projects.find(function(p){return p.id===APP.currentProjectId})||APP.projects[0];
+  var projName=cp.name;
+  // Find engineer data from SD
+  var eng=null;
+  SD.getProjects().forEach(function(p){
+    if(p.name===projName){
+      (p.engineers||[]).forEach(function(e){
+        if(e.name===engName)eng={engineer:e,project:p};
+      });
+    }
+  });
+  if(!eng){card.classList.remove('show');return;}
+  var e=eng.engineer,p=eng.project;
+  var lines=[
+    '监管单位：<strong>'+escHtml(p.regulatorUnit||'—')+'</strong>',
+    '建设单位：<strong>'+escHtml(p.buildUnit||'—')+'</strong>',
+    '施工单位：<strong>'+escHtml(p.constructUnit||'—')+'</strong>',
+    '工程计划工期：<strong>'+escHtml(e.planPeriod||'—')+'</strong>',
+    '地址：<strong>'+escHtml(e.address||p.address||'—')+'</strong>'
+  ];
+  var h='';
+  lines.forEach(function(l){h+='<div class="eng-info-mini-line">'+l+'</div>';});
+  card.innerHTML=h;
+  card.classList.add('show');
+}
+
+function toggleMoreInfo(){
+  var content=document.getElementById('moreInfoContent');
+  var icon=document.getElementById('moreToggleIcon');
+  if(!content||!icon)return;
+  var isOpen=content.classList.contains('show');
+  if(isOpen){content.classList.remove('show');icon.textContent='▶';}
+  else{content.classList.add('show');icon.textContent='▼';}
+}
+
+function submitAdd(){
+  // Validate required fields
+  var required=[
+    {id:'addProjectName',label:'项目名称'},
+    {id:'addEngineerName',label:'工程名称'},
+    {id:'addUnitName',label:'责任单位'},
+    {id:'addCustodyStart',label:'管护开始日期'},
+    {id:'addCustodyEnd',label:'管护结束日期'},
+    {id:'addFencePerson',label:'围挡责任人'},
+    {id:'addFencePhone',label:'联系电话'},
+    {id:'addSetupDate',label:'围挡设置时间'},
+    {id:'addPlanRemoveDate',label:'计划拆除时间'},
+    {id:'addFenceMaterial',label:'围挡材质'},
+    {id:'addFenceLength',label:'围挡长度'},
+    {id:'addFenceHeight',label:'围挡高度'},
+    {id:'addFenceName',label:'围挡名称'},
+    {id:'addFenceStreet',label:'所属街道'},
+    {id:'addRoadArea',label:'占道面积'}
+  ];
+  for(var i=0;i<required.length;i++){
+    var el=document.getElementById(required[i].id);
+    if(el&&!el.value.trim()){
+      alert('请填写：'+required[i].label);
+      if(el.focus)el.focus();
+      return;
+    }
+  }
+  // Validate dates
+  var cs=document.getElementById('addCustodyStart').value;
+  var ce=document.getElementById('addCustodyEnd').value;
+  if(cs&&ce&&ce<cs){alert('管护结束日期不能早于开始日期');return;}
+  // Collect data
+  var data={
+    projectName:document.getElementById('addProjectName').value,
+    engineerName:document.getElementById('addEngineerName').value,
+    unitName:document.getElementById('addUnitName').value,
+    custodyStart:cs, custodyEnd:ce,
+    fencePerson:document.getElementById('addFencePerson').value,
+    fencePhone:document.getElementById('addFencePhone').value,
+    setupDate:document.getElementById('addSetupDate').value,
+    planRemoveDate:document.getElementById('addPlanRemoveDate').value,
+    fenceMaterial:function(){var s=document.getElementById('addFenceMaterial');if(s&&s.value==='其他'){var o=document.getElementById('addFenceMaterialOther');return o?o.value:'';}return s?s.value:'';}(),
+    fenceLength:document.getElementById('addFenceLength').value,
+    fenceHeight:document.getElementById('addFenceHeight').value,
+    fenceStreet:document.getElementById('addFenceStreet').value,
+    fenceStyle:document.getElementById('addFenceStyle').value,
+    fencePoster:document.getElementById('addFencePoster').value,
+    roadOccupy:document.getElementById('addRoadOccupy').value,
+    roadArea:document.getElementById('addRoadArea').value
+  };
+  // Add to MOCK_DATA
+  var proj=MOCK_DATA.getProjects().find(function(p){return p.name===data.projectName;});
+  if(proj){
+    var newId=MOCK_DATA.nextHoardId();
+    MOCK_DATA.addHoard(proj.id,{
+      id:newId,
+      engineerName:data.engineerName,
+      engStatus:'在建',
+      fenceStatus:'已安装',
+      issueStatus:'正常',
+      needVerify:'是',
+      custodyStart:data.custodyStart,
+      custodyEnd:data.custodyEnd,
+      planRemoveDate:data.planRemoveDate,
+      setupDate:data.setupDate,
+      length:parseFloat(data.fenceLength)||0,
+      height:parseFloat(data.fenceHeight)||0,
+      area:parseFloat(data.roadArea)||0,
+      material:data.fenceMaterial,
+      fenceStyle:data.fenceStyle,
+      publicityContent:data.fencePoster,
+      roadOccupation:data.roadOccupy,
+      roadOccupationArea:parseFloat(data.roadArea)||0,
+      fenceResponsible:data.fencePerson,
+      fenceResponsiblePhone:data.fencePhone,
+      address:proj.address,
+      gpsShape:[[proj.lat+0.002,proj.lng-0.002],[proj.lat+0.002,proj.lng+0.002],[proj.lat-0.002,proj.lng+0.002],[proj.lat-0.002,proj.lng-0.002]],
+      entrances:[],
+      verifyRecords:[],
+      changeRecords:[],
+      patrolRecords:[]
+    });
+  }
+  alert('围挡记录提交成功！');
+  goBack();goBack();
+}
+
+/* ═══════════ Patrol ═══════════ */
+// Init patrol fence filter (called on tab load)
+if(!APP.patrolFenceId){
+  var allFences=getProjectFences(APP.currentProjectId);
+  var firstActive=allFences.find(function(f){return f.fenceStatus!=='超期未拆';});
+  APP.patrolFenceId=firstActive?firstActive.id:'';
+}
+
+function switchPatrolFence(){
+  var fences=getProjectFences(APP.currentProjectId);
+  var overlay=document.createElement('div');
+  overlay.style.cssText='position:absolute;inset:0;background:rgba(0,0,0,0.45);z-index:999;display:flex;align-items:flex-end';
+  overlay.onclick=function(e){if(e.target===overlay)overlay.remove();};
+  var h='<div class="date-picker-sheet" style="max-height:65vh;overflow-y:auto;border-radius:16px 16px 0 0;background:#fff;padding:0 0 20px;width:100%">';
+  h+='<div style="padding:14px 16px;font-weight:700;font-size:16px;text-align:center;border-bottom:1px solid #eee;position:sticky;top:0;background:#fff;border-radius:16px 16px 0 0">选择围挡记录</div>';
+  fences.forEach(function(f,i){
+    var isSel=f.id===APP.patrolFenceId;
+    h+='<div data-fence-id="'+escHtml(f.id)+'" class="patrol-fence-sheet-item" style="margin:8px 12px;cursor:pointer;border:'+(isSel?'2px solid #1862D4':'1px solid #eee')+';background:#fff;border-radius:12px;padding:12px;box-shadow:0 1px 3px rgba(0,0,0,.04);position:relative">';
+    h+=getStatusBadge(f.fenceStatus);
+    h+='<div style="font-size:14px;font-weight:600;color:#1F2937;margin-bottom:4px;padding-right:70px">'+escHtml(f.engineerName||'--')+'</div>';
+    h+='<div style="font-size:12px;color:#6B7280;margin-bottom:2px">责任单位：'+escHtml(f.constructUnit||'--')+'</div>';
+    h+='<div style="font-size:11px;color:#9CA3B0">管护期限：'+(f.custodyStart||'--')+' ~ '+(f.custodyEnd||'--')+'</div>';
+    h+='</div>';
+  });
+  h+='</div>';
+  overlay.innerHTML=h;
+  overlay.className='date-picker-overlay';
+  var ps=document.getElementById('phoneScreen');
+  if(ps)ps.appendChild(overlay); else document.body.appendChild(overlay);
+  // Bind click events
+  var items=overlay.querySelectorAll('.patrol-fence-sheet-item');
+  items.forEach(function(item){
+    item.onclick=function(){
+      var fid=item.getAttribute('data-fence-id');
+      APP.patrolFenceId=fid;
+      overlay.remove();
+      renderPatrolFenceBar();
+      renderPatrolList();
+    };
+  });
+}
+
+function renderPatrolFenceBar(){
+  loadData();
+  var fences=getProjectFences(APP.currentProjectId);
+  if(!APP.patrolFenceId){
+    var fa=fences.find(function(f){return f.fenceStatus!=='超期未拆';});
+    APP.patrolFenceId=fa?fa.id:(fences.length?fences[0].id:'');
+  }
+  var f=fences.find(function(x){return x.id===APP.patrolFenceId;})||fences[0];
+  if(!f)return;
+  var bar=document.getElementById('patrolFenceBar');
+  if(!bar)return;
+  var sc=f.fenceStatus==='已安装'?'blue':f.fenceStatus==='超期未拆'?'yellow':'gray';
+  bar.innerHTML=
+    '<div class="project-context-bar-row1">'+
+    '<div class="project-context-name">'+escHtml(f.engineerName||'--')+'</div>'+
+    '<div class="project-context-switch"><i class="ti ti-arrows-exchange" style="font-size:13px"></i>切换</div>'+
+    '</div>'+
+    '<div class="project-context-meta">'+
+    '<span style="color:rgba(255,255,255,0.7)">关联工程</span><span style="color:#fff;font-weight:500;margin-left:4px">'+escHtml(f.engineerName||'--')+'</span>'+
+    '<span style="color:rgba(255,255,255,0.5);margin:0 8px">·</span>'+
+    '<span style="color:rgba(255,255,255,0.7)">责任单位</span><span style="color:#fff;font-weight:500;margin-left:4px">'+escHtml(f.constructUnit||'--')+'</span>'+
+    '</div>'+
+    '<div class="project-context-meta" style="margin-top:4px;display:flex;align-items:center;gap:8px">'+
+    '<span class="tag tag-'+sc+'">'+escHtml(f.fenceStatus||'--')+'</span>'+
+    '<span style="color:rgba(255,255,255,0.7)">管护期限</span><span style="color:#fff;font-weight:500;margin-left:4px">'+(f.custodyStart||'--')+' ~ '+(f.custodyEnd||'--')+'</span>'+
+    '</div>';
+}
+
+function renderPatrolProjectBar(){
+  renderPatrolFenceBar();
+}
+
+function _patrolTime(p){
+  if(p.time)return p.time;
+  var h=9+((p.id||'').length||1)*3;
+  var m=((p.id||'x').charCodeAt(0)||0)%60;
+  var s=((p.id||'x').charCodeAt(1)||0)%60;
+  return String(h%24).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+}
+
+var _patrolImgIdx=0;
+function _patrolImgSrc(){
+  var imgs=['../全景照片示例01.jpg','../全景照片示例02.jpg'];
+  return imgs[(_patrolImgIdx++)%2];
+}
+
+function renderPatrolList(){
+  loadData();
+  renderPatrolFenceBar();
+  _patrolImgIdx=0;
+  var weekdays=['日','一','二','三','四','五','六'];
+  var allEmpty=true;
+  var periodFilter=APP.patrolPeriodFilter||'all';
+  var customDate=APP.patrolCustomDate||null;
+
+  var html='';
+  APP._patrolCache=[];
+
+
+	var fenceId=APP.patrolFenceId;
+	if(!fenceId){
+	  var af=getProjectFences(APP.currentProjectId).filter(function(f){return f.fenceStatus!=='超期未拆';});
+	  fenceId=af.length?af[0].id:'';
+	  APP.patrolFenceId=fenceId;
+	}
+	var fence=getProjectFences(APP.currentProjectId).find(function(f){return f.id===fenceId;});
+	var patrols=fence?fence._patrolRecords||[]:[];
+	if(!patrols.length){
+	  html='<div style="padding:40px 16px;text-align:center;color:var(--text-tertiary);font-size:var(--font-sm)">暂无巡检记录</div>';
+	}else{
+	  allEmpty=false;
+	  patrols.sort(function(a,b){return b.date.localeCompare(a.date)});
+	  if(periodFilter==='custom'&&customDate) patrols=patrols.filter(function(p){return p.date===customDate;});
+	  var dayMap={};
+	  patrols.forEach(function(p){var d=p.date||'';if(!dayMap[d])dayMap[d]=[];dayMap[d].push(p);});
+	  var dayKeys=Object.keys(dayMap).sort(function(a,b){return b.localeCompare(a)});
+	  dayKeys.forEach(function(dateStr){
+	    var parts=dateStr.split('-');
+	    var label=parts[0]+'年'+parseInt(parts[1],10)+'月'+parseInt(parts[2],10)+'日';
+	    var d=new Date(dateStr);
+	    var wd=isNaN(d.getTime())?'':('星期'+weekdays[d.getDay()]);
+	    var records=dayMap[dateStr];
+	    html+='<div class="patrol-day-header">'+label+' '+wd+' <span style="font-size:var(--font-xs);color:var(--text-sub);font-weight:var(--fw-regular)">'+records.length+'条</span></div>';
+	    records.forEach(function(p){
+	      var cacheIdx=APP._patrolCache.length;
+	      APP._patrolCache.push({record:p,fenceId:fenceId});
+	      var resultLabel=p.result==='正常'?'正常':'问题';
+	      var resultCls=p.result==='正常'?'patrol-result--normal':'patrol-result--abnormal';
+	      var dotColor=p.result==='正常'?'var(--green)':'var(--red)';
+	      html+='<div class="patrol-card" onclick="openPatrolDetail('+cacheIdx+')">'+
+	        '<div class="patrol-card-body">'+
+	        '<div class="patrol-info">'+
+	        '<div class="patrol-info-top">'+
+	        '<div class="patrol-person">巡检人：'+escHtml(p.inspector)+'</div>'+
+	        '<div class="patrol-time">'+_patrolTime(p)+'</div>'+
+	        '</div>'+
+	        '<div class="patrol-result '+resultCls+'">'+
+	        '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:'+dotColor+';flex-shrink:0"></span>'+
+	        resultLabel+'</div>'+
+	        ((p.issues&&p.issues.length)?'<div class="patrol-remark">问题详情：'+escHtml(p.issues.join('、'))+'</div>':(p.remark?'<div class="patrol-remark">备注：'+escHtml(p.remark)+'</div>':''))+
+	        '</div></div>'+
+	        '</div>';
+	    });
+	  });
+	}
+
+	  document.getElementById('patrolList').innerHTML=html;
+	  document.getElementById('patrolEmpty').classList.toggle('hidden',!allEmpty);
+	  renderPatrolFilterBar();
+}
+
+
+function renderPatrolFilterBar(){
+  var group=document.getElementById('patrolFilterGroup');
+  if(!group)return;
+  var period=APP.patrolPeriodFilter||'all';
+  var customDate=APP.patrolCustomDate||null;
+  var filters=[
+    {key:'all',label:'全部'}
+  ];
+  var html='';
+  filters.forEach(function(f){
+    var isActive=period===f.key;
+    var onclick=f.key==='custom'?'showDatePicker()':'APP.patrolPeriodFilter=\'all\';APP.patrolCustomDate=null;renderPatrolList()';
+    html+='<span class="patrol-filter-chip'+(isActive?' active':'')+'" onclick="'+onclick+'">'+f.label+'</span>';
+  });
+  group.innerHTML=html;
+}
+
+function showDatePicker(){
+  var overlay=document.createElement('div');
+  overlay.className='date-picker-overlay';
+  overlay.onclick=function(e){if(e.target===overlay)overlay.remove();};
+  var customDate=APP.patrolCustomDate||null;
+  overlay._py=calendarYear;
+  overlay._pm=calendarMonth;
+  if(customDate){var cd=new Date(customDate);overlay._py=cd.getFullYear();overlay._pm=cd.getMonth()+1;}
+
+  function buildSheet(){
+    var py=overlay._py,pm=overlay._pm;
+    var titleHtml='<div class="date-picker-header"><div class="dp-nav" onclick="var e=arguments[0];e.stopPropagation();"><i class="ti ti-chevron-left"></i></div><div class="date-picker-title">'+py+'年 '+pm+'月</div><div class="dp-nav" onclick="var e=arguments[0];e.stopPropagation();"><i class="ti ti-chevron-right"></i></div></div>';
+    var weekdays=['一','二','三','四','五','六','日'];
+    var firstDay=new Date(py,pm-1,1);
+    var daysInMonth=new Date(py,pm,0).getDate();
+    var startDow=firstDay.getDay()-1;if(startDow<0)startDow=6;
+    var today=new Date();
+    var isCurrentMonth=today.getFullYear()===py&&today.getMonth()+1===pm;
+    var todayNum=today.getDate();
+    var gridHtml='<div class="date-picker-grid">';
+    weekdays.forEach(function(w){gridHtml+='<div class="date-picker-weekday">'+w+'</div>';});
+    for(var i=0;i<startDow;i++)gridHtml+='<div class="date-picker-day other"></div>';
+    for(var d=1;d<=daysInMonth;d++){
+      var cls='date-picker-day';
+      if(isCurrentMonth&&d===todayNum)cls+=' today';
+      var ds=py+'-'+String(pm).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+      if(customDate===ds)cls+=' selected';
+      gridHtml+='<div class="'+cls+'" onclick="APP.patrolPeriodFilter=\'custom\';APP.patrolCustomDate=\''+ds+'\';var o=document.querySelector(\'.date-picker-overlay\');if(o)o.remove();renderPatrolList()">'+d+'</div>';
+    }
+    gridHtml+='</div>';
+    var actionsHtml='<div class="date-picker-actions"><div class="btn btn-outline btn-sm" onclick="APP.patrolPeriodFilter=\'all\';APP.patrolCustomDate=null;var o=document.querySelector(\'.date-picker-overlay\');if(o)o.remove();renderPatrolList()">重置</div><div class="btn btn-primary btn-sm" onclick="var o=document.querySelector(\'.date-picker-overlay\');if(o)o.remove()">取消</div></div>';
+    overlay.innerHTML='<div class="date-picker-sheet">'+titleHtml+gridHtml+actionsHtml+'</div>';
+    // Wire nav buttons
+    var navs=overlay.querySelectorAll('.dp-nav');
+    navs[0].onclick=function(e){e.stopPropagation();overlay._pm--;if(overlay._pm<1){overlay._pm=12;overlay._py--;}buildSheet();};
+    navs[1].onclick=function(e){e.stopPropagation();overlay._pm++;if(overlay._pm>12){overlay._pm=1;overlay._py++;}buildSheet();};
+  }
+  buildSheet();
+  document.body.appendChild(overlay);
+}
+
+function getAddPatrolFence(){
+  var f=getCurrentFence();
+  if(!f&&APP.patrolFenceId){
+    var fences=getProjectFences(APP.currentProjectId);
+    f=fences.find(function(x){return x.id===APP.patrolFenceId;});
+  }
+  return f;
+}
+
+function addPatrolForCurrent(){
+  var f=getAddPatrolFence();
+  if(!f){showToast('请先选择围挡记录');return;}
+  // Reset form
+  var now=new Date();
+  var dt=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0')+'T'+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+  document.getElementById('addPatrolDatetime').value=dt;
+  document.getElementById('addPatrolPerson').value=(APP.currentUser||'张项目');
+  document.getElementById('addPatrolPanoUrl').value='';
+  document.querySelector('input[name="addPatrolHasIssue"][value="no"]').checked=true;
+  handleAddPatrolIssueChange();
+  document.getElementById('addPatrolRemark').value='';
+  navigateTo('screenAddPatrol');
+}
+
+function handleAddPatrolIssueChange(){
+  var hasIssue=document.querySelector('input[name="addPatrolHasIssue"]:checked').value==='yes';
+  var label=document.getElementById('addPatrolRemarkLabel');
+  var placeholder=document.getElementById('addPatrolRemark');
+  if(hasIssue){
+    label.innerHTML='<span class="required">*</span> 问题详情';
+    placeholder.placeholder='请描述巡检发现的问题';
+  }else{
+    label.textContent='备注';
+    placeholder.placeholder='请输入备注信息';
+  }
+}
+
+function saveAddPatrol(){
+  var dt=document.getElementById('addPatrolDatetime').value;
+  var person=document.getElementById('addPatrolPerson').value.trim();
+  var panoUrl=document.getElementById('addPatrolPanoUrl').value.trim();
+  var remark=document.getElementById('addPatrolRemark').value.trim();
+  var hasIssue=document.querySelector('input[name="addPatrolHasIssue"]:checked').value==='yes';
+
+  if(!dt){showToast('请选择巡检时间');return;}
+  if(!panoUrl){showToast('请填写全景照片链接');return;}
+  if(!person){showToast('请填写巡检人');return;}
+  if(hasIssue&&!remark){showToast('请填写问题详情');return;}
+
+  var date=dt.split('T')[0];
+  var time=dt.split('T')[1]||'09:00';
+  var rec={
+    id:'pr_app_'+Date.now(),
+    date:date, time:time, inspector:person,
+    result:hasIssue?'问题':'正常',
+    issues:hasIssue?[remark]:[],
+    remark:remark, hasIssue:hasIssue,
+    panoramaSrc:panoUrl
+  };
+
+  var f=getAddPatrolFence();
+  if(!f){showToast('围挡数据丢失');return;}
+  f._patrolRecords=f._patrolRecords||[];
+  f._patrolRecords.push(rec);
+  showToast('巡检记录已添加');
+  goBack();
+  // Refresh detail and patrol screens
+  setTimeout(function(){
+    if(APP.screenStack[APP.screenStack.length-1]==='screenDetail') renderDetail();
+    renderPatrolFenceBar();
+    renderPatrolList();
+  },300);
+}
+
+/* ═══════════ Notifications ═══════════ */
+function renderNotifications(){
+  var notifs=[
+    {title:'围挡 WD-2026-0001 校核通过',desc:'您提交的围挡变更申请已通过监管单位校核',time:'2026-05-11 15:40',unread:true},
+    {title:'围挡 WD-2026-0002 校核不通过',desc:'围挡长度变更超出合理范围，请重新核实测量数据后重新提交',time:'2026-05-10 11:20',unread:true},
+    {title:'整改通知',desc:'WD-2026-0003 存在隐患，请于5月15日前完成整改并提交凭证',time:'2026-05-08 09:00',unread:true},
+    {title:'系统通知',desc:'围挡管理系统已升级至 v2.0，新增移动端适配功能',time:'2026-05-01 08:00',unread:false}
+  ];
+  var html='';
+  notifs.forEach(function(n){
+    html+=
+      '<div class="notif-item">'+
+      '<div class="notif-dot '+(n.unread?'unread':'read')+'"></div>'+
+      '<div class="notif-body"><div class="notif-title">'+n.title+'</div><div class="notif-desc">'+n.desc+'</div><div class="notif-time">'+n.time+'</div></div>'+
+      '</div>';
+  });
+  document.getElementById('notifList').innerHTML=html;
+}
+
+/* ═══════════ Project Switcher ═══════════ */
+function switchProject(){
+  var overlay=document.createElement('div');
+  overlay.className='modal-overlay';
+  overlay.onclick=function(e){if(e.target===overlay)overlay.remove();};
+  var sheet='<div class="modal-sheet"><div class="modal-sheet-title">切换项目</div>';
+  APP.projects.forEach(function(p){
+    var sel=p.id===APP.currentProjectId;
+    sheet+='<div class="modal-option'+(sel?' selected':'')+'" onclick="APP.currentProjectId=\''+p.id+'\';document.querySelector(\'.modal-overlay\').remove();renderHome();renderList();renderPatrolList()">'+(sel?'✓ ':'')+p.name+'</div>';
+  });
+  sheet+='</div>';
+  overlay.innerHTML=sheet;
+  document.body.appendChild(overlay);
+}
+
+/* ═══════════ Helpers ═══════════ */
+function getStatusTagClass(s){
+  var map={'已安装':'tag-blue','超期未拆':'tag-yellow','超期未拆':'tag-gray'};
+  return map[s]||'';
+}
+function getStatusLabel(s){
+  var map={'已安装':'已安装','超期未拆':'超期未拆','超期未拆':'超期未拆'};
+  return map[s]||s||'--';
+}
+function getIssueStatusHTML(s){
+  if(s==='正常')return '<span style="color:#1A9042">● 正常</span>';
+  if(s==='待整改')return '<span style="color:#B87A00">● 待整改</span>';
+  if(s==='整改逾期')return '<span style="color:#C44D40">● 整改逾期</span>';
+  return s||'--';
+}
+
+/* ═══════════ Init ═══════════ */
+(function init(){
+  loadData();
+  renderHome();
+  renderList();
+  renderPatrolList();
+  renderNotifications();
+})();
+function handleMaterialChange(){
+  var other=document.getElementById('addFenceMaterialOther');
+  var sel=document.getElementById('addFenceMaterial');
+  if(!other||!sel)return;
+  if(sel.value==='其他'){other.style.display='';}
+  else{other.style.display='none';other.value='';}
+}
+function handleMaterialOtherInputAPP(){
+  var sel=document.getElementById('addFenceMaterial');
+  if(sel)sel.value='其他';
+}
+</script>
+</body>
+</html>
