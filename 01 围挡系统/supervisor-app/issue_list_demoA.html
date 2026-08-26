@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
+<title>方案A — 点击展开整行胶囊多选</title>
+<style>
+:root{
+  --blue:#2F55EB;--blue-50:#E9EBFD;
+  --gray-50:#F9F9F9;--gray-100:#E6E8EA;--gray-200:#C6CACD;--gray-300:#A7ABB0;--gray-400:#888D92;--gray-900:#1C1F23;--gray-0:#FFFFFF;
+  --bg:#F5F7FA;--panel:#FFFFFF;
+  --green:#3BB346;--orange:#FC8800;--red:#F93920;
+  --text:#555B61;--text-sub:#888D92;--text-tertiary:#A7ABB0;
+  --border:#E9F0F7;--shadow-sm:0 4px 10px rgba(0,0,0,0.05);
+  --font-xs:12px;--font-sm:12px;--font-md:14px;--font-lg:16px;
+  --fw-medium:500;--fw-bold:600;--fw-heavy:700;
+  --safe-top:47px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{font-family:"PingFang SC","Microsoft YaHei","Helvetica Neue",Arial,sans-serif;font-size:var(--font-md);color:var(--text);background:var(--bg);line-height:1.5;height:100%;overflow:hidden}
+.phone-frame{position:relative;width:390px;height:844px;margin:20px auto;background:var(--bg);border-radius:40px;overflow:hidden;box-shadow:0 0 0 2px #1a1a1a,0 0 0 6px #333,0 0 0 8px #1a1a1a,0 20px 60px rgba(0,0,0,0.3)}
+.phone-notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:126px;height:34px;background:#000;border-radius:0 0 20px 20px;z-index:999}
+.nav-bar{flex-shrink:0;padding-top:var(--safe-top);background:var(--panel);border-bottom:1px solid var(--border)}
+.nav-bar-inner{display:flex;align-items:center;height:56px;padding:0 16px}
+.nav-bar-title{flex:1;text-align:center;font-size:var(--font-lg);font-weight:var(--fw-heavy);color:var(--gray-900)}
+.nav-bar-back{width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:var(--blue);font-size:18px;text-decoration:none}
+.screen-body{flex:1;overflow-y:auto}.screen-body::-webkit-scrollbar{display:none}
+
+.stats-bar{display:flex;padding:12px 16px;gap:8px}
+.stat-card{flex:1;text-align:center;background:var(--panel);border-radius:4px;padding:10px 8px;box-shadow:var(--shadow-sm);border:1px solid var(--border)}
+.stat-num{font-size:22px;font-weight:var(--fw-heavy)}.stat-card.danger .stat-num{color:var(--red)}.stat-card.warn .stat-num{color:var(--orange)}.stat-card.success .stat-num{color:var(--green)}
+.stat-label{font-size:11px;color:var(--text-sub);margin-top:2px}
+
+.search-bar{padding:0 16px 6px}
+.search-wrap{display:flex;align-items:center;background:var(--gray-100);border-radius:20px;padding:0 12px;height:36px}
+.search-wrap svg{width:14px;height:14px;color:var(--text-tertiary);flex-shrink:0}
+.search-input{flex:1;border:none;background:none;font-size:var(--font-xs);margin-left:6px;color:var(--text);height:36px;outline:none}
+
+/* Filter bar — two triggers, each opens a row of chips below */
+.filter-bar{padding:0 16px 6px}
+.filter-row{display:flex;gap:6px}
+.filter-trig{flex:1;position:relative;height:28px;padding:0 24px 0 8px;font-size:11px;color:var(--text-sub);background:transparent;border:1px solid var(--gray-200);border-radius:14px;cursor:pointer;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:26px;transition:border-color .15s}
+.filter-trig::after{content:'';position:absolute;right:8px;top:50%;transform:translateY(-40%);width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-top:5px solid var(--gray-300);pointer-events:none}
+.filter-trig.open{border-color:var(--blue)}
+.chip-row{display:none;gap:5px;padding:6px 16px 4px;overflow-x:auto;white-space:nowrap}
+.chip-row.open{display:flex}
+.chip-row::-webkit-scrollbar{display:none}
+.chip-c{display:inline-block;padding:4px 10px;border-radius:999px;font-size:11px;font-weight:var(--fw-medium);background:var(--panel);color:var(--text-sub);border:1px solid var(--gray-200);cursor:pointer;transition:all .12s;flex-shrink:0;user-select:none}
+.chip-c.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+
+.issue-table{width:100%;border-collapse:collapse;font-size:var(--font-xs)}
+.issue-table thead th{font-size:11px;color:var(--text-sub);font-weight:var(--fw-medium);padding:8px 4px;border-bottom:1px solid var(--border);text-align:center;white-space:nowrap;background:var(--bg)}
+.issue-table thead th:first-child{padding-left:16px;text-align:left}
+.issue-table tbody td{padding:12px 4px;border-bottom:1px solid #E3E6ED;text-align:center;color:var(--text);vertical-align:middle}
+.issue-table tbody td:first-child{padding-left:16px;text-align:left}
+.issue-table tbody tr{cursor:pointer;transition:background .1s}
+.issue-table tbody tr:active{background:var(--gray-50)}
+.issue-table .proj-name{font-size:var(--font-sm);font-weight:var(--fw-medium);color:var(--text);line-height:1.4}
+.issue-table .proj-name.virtual{color:var(--orange);font-weight:var(--fw-bold)}
+.issue-table .proj-status{font-size:11px;color:var(--text-sub);margin-top:2px}
+.issue-table .num{font-weight:var(--fw-bold);font-size:var(--font-sm)}
+.issue-table .num.warn{color:var(--orange)}.issue-table .num.danger{color:var(--red)}.issue-table .num.success{color:var(--green)}.issue-table .num.zero{color:var(--text-tertiary)}
+
+.demo-label{position:absolute;top:12px;right:16px;font-size:11px;color:var(--orange);font-weight:var(--fw-bold);z-index:500;background:rgba(252,136,0,0.1);padding:2px 8px;border-radius:999px}
+</style>
+</head>
+<body>
+<div class="phone-frame">
+  <div class="phone-notch"></div>
+  <div class="demo-label">方案A·多选</div>
+  <div style="display:flex;flex-direction:column;height:100%">
+    <div class="nav-bar"><div class="nav-bar-inner">
+      <span class="nav-bar-back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></span>
+      <span class="nav-bar-title">围挡问题处置情况</span><span style="width:32px;flex-shrink:0"></span>
+    </div></div>
+    <div class="stats-bar">
+      <div class="stat-card warn"><div class="stat-num">14</div><div class="stat-label">待整改</div></div>
+      <div class="stat-card danger"><div class="stat-num">5</div><div class="stat-label">整改逾期</div></div>
+      <div class="stat-card success"><div class="stat-num">45</div><div class="stat-label">整改完成</div></div>
+    </div>
+    <div class="search-bar">
+      <div class="search-wrap">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gray-300)" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input class="search-input" placeholder="搜索项目名称">
+      </div>
+    </div>
+
+    <div class="filter-bar">
+      <div class="filter-row">
+        <button class="filter-trig" id="btnfence" onclick="toggleChipRow('fence')">全部围挡状态</button>
+        <button class="filter-trig" id="btnproj" onclick="toggleChipRow('proj')">全部项目状态</button>
+      </div>
+    </div>
+    <div class="chip-row" id="chipfence">
+      <span class="chip-c active" data-v="all" onclick="chipPick(this,'fence')">全部</span>
+      <span class="chip-c" data-v="setting" onclick="chipPick(this,'fence')">已安装</span>
+      <span class="chip-c" data-v="removing" onclick="chipPick(this,'fence')">超期未拆</span>
+      <span class="chip-c" data-v="removed" onclick="chipPick(this,'fence')">超期未拆</span>
+    </div>
+    <div class="chip-row" id="chipproj">
+      <span class="chip-c active" data-v="all" onclick="chipPick(this,'proj')">全部</span>
+      <span class="chip-c" data-v="在建" onclick="chipPick(this,'proj')">在建</span>
+      <span class="chip-c" data-v="停工" onclick="chipPick(this,'proj')">停工</span>
+      <span class="chip-c" data-v="竣工验收" onclick="chipPick(this,'proj')">竣工验收</span>
+    </div>
+
+    <div class="screen-body">
+      <table class="issue-table">
+        <thead><tr>
+          <th>项目名称</th><th style="width:48px">待整改</th><th style="width:48px">逾期</th><th style="width:48px">整改完成</th>
+        </tr></thead>
+        <tbody>
+          <tr><td><span class="proj-name virtual">未报建-应建未建围挡</span></td><td><span class="num warn">2</span></td><td><span class="num zero">0</span></td><td><span class="num zero">0</span></td></tr>
+          <tr><td><span class="proj-name">福田中心区市政管网改造工程</span><div class="proj-status">已安装 | 在建</div></td><td><span class="num danger">4</span></td><td><span class="num danger">2</span></td><td><span class="num success">12</span></td></tr>
+          <tr><td><span class="proj-name">南山区科技园综合体项目</span><div class="proj-status">超期未拆 | 在建</div></td><td><span class="num warn">3</span></td><td><span class="num warn">1</span></td><td><span class="num success">8</span></td></tr>
+          <tr><td><span class="proj-name">宝安区新安街道住宅楼项目</span><div class="proj-status">已安装 | 竣工验收</div></td><td><span class="num zero">0</span></td><td><span class="num zero">0</span></td><td><span class="num success">6</span></td></tr>
+          <tr><td><span class="proj-name">龙华区民治街道城市更新项目</span><div class="proj-status">已安装 | 在建</div></td><td><span class="num warn">1</span></td><td><span class="num warn">1</span></td><td><span class="num success">10</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleChipRow(type){
+  var row=document.getElementById('chip'+type); var btn=document.getElementById('btn'+type);
+  row.classList.toggle('open'); btn.classList.toggle('open');
+}
+function chipPick(el,type){
+  var row=document.getElementById('chip'+type); var btn=document.getElementById('btn'+type); var isAll=el.dataset.v==='all';
+  if(isAll){ var chips=row.querySelectorAll('.chip-c'); var wasOn=el.classList.contains('active'); chips.forEach(function(c){c.classList.remove('active')}); if(!wasOn)chips.forEach(function(c){c.classList.add('active')}); }
+  else{ el.classList.toggle('active'); var allC=row.querySelector('.chip-c[data-v="all"]'); allC.classList.remove('active'); var anyOff=row.querySelector('.chip-c:not([data-v="all"]):not(.active)'); if(!anyOff){allC.classList.add('active');row.querySelectorAll('.chip-c:not([data-v="all"])').forEach(function(c){c.classList.remove('active')});} }
+  var actives=row.querySelectorAll('.chip-c.active:not([data-v="all"])');var allOn=row.querySelector('.chip-c[data-v="all"].active');
+  if(allOn||actives.length===0)btn.textContent=row.querySelector('.chip-c[data-v="all"]').textContent.trim()+'';
+  else{var labels=[];actives.forEach(function(c){labels.push(c.textContent.trim())});btn.textContent=labels.join('、')+'';}
+}
+document.addEventListener('click',function(e){var t=e.target;if(!t.closest('.filter-bar')&&!t.closest('.chip-row')){document.querySelectorAll('.chip-row.open').forEach(function(r){r.classList.remove('open')});document.querySelectorAll('.filter-trig.open').forEach(function(b){b.classList.remove('open')});}});
+</script>
+</body>
+</html>

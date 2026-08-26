@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
+<title>全景查看 - 深圳市建设施工围挡数字化管理系统</title>
+<style>
+:root{
+  --blue-50:#E9EBFD;--blue-100:#C8CDFA;--blue-200:#A2ADF6;
+  --blue-300:#788CF3;--blue-400:#5670F0;--blue-500:#2F55EB;--blue-600:#294CDF;
+  --blue-700:#1C41D3;--blue-800:#0A35C7;--blue-900:#0D47A1;
+  --blue:var(--blue-500);--blue-deep:var(--blue-700);--blue-soft:var(--blue-50);
+  --gray-50:#F9F9F9;--gray-100:#E6E8EA;--gray-200:#C6CACD;
+  --gray-300:#A7ABB0;--gray-400:#888D92;--gray-500:#6B7075;--gray-600:#555B61;
+  --gray-700:#41464C;--gray-800:#2E3238;--gray-900:#1C1F23;
+  --gray-0:#FFFFFF;
+  --bg:#F5F7FA;--panel:#FFFFFF;--panel-2:#F9F9F9;
+  --green:#3BB346;--green-light:rgba(59,179,70,0.10);
+  --yellow:#D0AA00;--yellow-light:rgba(208,170,0,0.10);
+  --orange:#FC8800;--orange-light:rgba(252,136,0,0.10);
+  --red:#F93920;--red-light:rgba(249,57,32,0.10);
+  --text:#555B61;--text-sub:#888D92;--text-tertiary:#A7ABB0;
+  --border:#E9F0F7;
+  --radius-sm:2px;--radius-md:4px;
+  --font-family:"PingFang SC","Microsoft YaHei","Helvetica Neue",Arial,sans-serif;
+  --font-xs:12px;--font-sm:12px;--font-md:14px;--font-lg:16px;--font-xl:18px;
+  --fw-regular:400;--fw-medium:500;--fw-bold:600;--fw-heavy:700;
+  --safe-top:47px;--safe-bottom:34px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{font-family:var(--font-family);font-size:var(--font-md);color:var(--text);background:var(--bg);line-height:1.5;-webkit-font-smoothing:antialiased;height:100%;overflow:hidden}
+.phone-frame{position:relative;width:390px;height:844px;margin:20px auto;background:var(--bg);border-radius:40px;overflow:hidden;box-shadow:0 0 0 2px #1a1a1a,0 0 0 6px #333,0 0 0 8px #1a1a1a,0 20px 60px rgba(0,0,0,0.3)}
+.phone-notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:126px;height:34px;background:#000;border-radius:0 0 20px 20px;z-index:999}
+.phone-home-indicator{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:134px;height:5px;background:rgba(255,255,255,0.15);border-radius:3px;z-index:999}
+.phone-screen{position:absolute;top:0;left:0;right:0;bottom:0;overflow:hidden;background:#000}
+
+/* Top Bar — solid bar, panorama starts below it */
+.top-overlay{position:absolute;top:0;left:0;right:0;padding-top:var(--safe-top);z-index:50}
+.top-bar{display:flex;align-items:center;padding:0 12px;height:52px;gap:10px;background:rgba(0,0,0,.72)}
+.top-back{width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;z-index:1}
+.top-back svg{width:18px;height:18px;color:#fff}
+.top-info{flex:1;min-width:0;text-align:left}
+.top-title{font-size:var(--font-sm);color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:var(--fw-medium);line-height:1.3}
+.top-time{font-size:var(--font-xs);color:rgba(255,255,255,.50);line-height:1.3}
+.top-cal{width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;z-index:1}
+.top-cal svg{width:16px;height:16px;color:#fff}
+
+/* Pano Container — lives between top bar and bottom bar, no overlap */
+.pano-container{position:absolute;top:calc(var(--safe-top) + 52px);left:0;right:0;bottom:calc(var(--safe-bottom) + 52px);background:#000}
+.pano-container iframe{width:100%;height:100%;border:none}
+.pano-fallback{position:absolute;inset:0;background:#000;display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px}
+.pano-fallback svg{width:80px;height:80px;color:rgba(255,255,255,.12)}
+.pano-fallback .title{font-size:var(--font-xl);color:rgba(255,255,255,.45);font-weight:var(--fw-bold);letter-spacing:.04em}
+.pano-fallback .sub{font-size:var(--font-xs);color:rgba(255,255,255,.25)}
+
+/* Bottom Handle — solid bar, panorama ends above it */
+.btm-handle{position:absolute;bottom:0;left:0;right:0;padding-bottom:var(--safe-bottom);z-index:50;background:rgba(0,0,0,.72)}
+.btm-bar{display:flex;align-items:center;padding:0 8px;height:52px;gap:10px}
+.btm-arrow{width:32px;height:32px;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;z-index:1}
+.btm-arrow svg{width:18px;height:18px;color:#fff}
+.btm-center{flex:1;text-align:center;cursor:pointer;min-width:0;padding:0 2px;z-index:1}
+.btm-info{font-size:var(--font-xs);color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.btm-info .btm-tag{display:inline-block;font-size:10px;padding:2px 6px;border-radius:999px;margin-left:4px}
+.btm-tag-green{display:inline-block;font-size:10px;padding:2px 6px;border-radius:999px;margin-left:4px;background:var(--green-light);color:var(--green)}
+.btm-tag-red{display:inline-block;font-size:10px;padding:2px 6px;border-radius:999px;margin-left:4px;background:var(--red-light);color:var(--red)}
+
+/* Bottom Drawer */
+.btm-drawer{position:absolute;bottom:0;left:0;right:0;height:50%;background:var(--panel);border-radius:12px 12px 0 0;z-index:60;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column}
+.btm-drawer.show{transform:translateY(0)}
+.drawer-handle{display:flex;justify-content:center;padding:8px 0}
+.drawer-bar{width:36px;height:4px;background:var(--gray-200);border-radius:2px}
+.drawer-head{display:flex;align-items:center;justify-content:space-between;padding:4px 16px 8px}
+.drawer-close{width:28px;height:28px;border-radius:50%;background:var(--gray-100);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-sub)}
+.drawer-tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0}
+.drawer-tab{flex:1;text-align:center;padding:10px 0;font-size:var(--font-sm);color:var(--text-sub);font-weight:var(--fw-medium);cursor:pointer;position:relative}
+.drawer-tab.active{color:var(--gray-900);font-weight:var(--fw-heavy)}
+.drawer-tab.active::after{content:'';position:absolute;bottom:0;left:18px;right:18px;height:3px;background:var(--blue);border-radius:2px}
+.drawer-body{flex:1;overflow-y:auto;padding:12px 16px}
+.drawer-body::-webkit-scrollbar{display:none}
+.dr-row{display:flex;padding:8px 0;font-size:var(--font-sm);border-bottom:1px solid var(--border)}
+.dr-row:last-child{border-bottom:none}
+.dr-label{color:var(--text-sub);min-width:80px;flex-shrink:0}
+.dr-value{color:var(--text);flex:1;word-break:break-all}
+.dr-btn{display:block;width:100%;height:36px;margin-top:12px;background:var(--blue);color:#fff;border:none;border-radius:var(--radius-md);font-size:var(--font-md);font-weight:var(--fw-medium);cursor:pointer}
+.issue-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius-md);padding:10px;margin-bottom:8px}
+.issue-type{font-size:var(--font-sm);font-weight:var(--fw-bold);color:var(--text);margin-bottom:3px}
+.issue-desc{font-size:var(--font-xs);color:var(--text-sub);margin-bottom:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.tag{display:inline-block;font-size:var(--font-xs);font-weight:var(--fw-medium);padding:3px 8px;border-radius:999px}
+.tag-green{background:var(--green-light);color:var(--green)}
+.tag-orange{background:var(--orange-light);color:var(--orange)}
+.tag-red{background:var(--red-light);color:var(--red)}
+.tag-grey{background:var(--gray-100);color:var(--gray-500)}
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 0;color:var(--text-sub)}
+.empty-state svg{width:36px;height:36px;opacity:.25;margin-bottom:6px}
+.empty-state span{font-size:var(--font-xs)}
+
+/* Calendar Drawer */
+.cal-overlay{position:absolute;inset:0;z-index:70;display:none}
+.cal-overlay.show{display:flex}
+.cal-mask{position:absolute;inset:0;background:rgba(0,0,0,.54)}
+.cal-panel{position:absolute;right:0;top:0;bottom:0;width:88%;background:var(--panel);z-index:2;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;padding-top:var(--safe-top)}
+.cal-overlay.show .cal-panel{transform:translateX(0)}
+.cal-head{display:flex;align-items:center;justify-content:center;position:relative;padding:14px 16px 6px}
+.cal-head-title{font-size:var(--font-md);font-weight:var(--fw-heavy);color:var(--text);text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cal-close{position:absolute;right:16px;top:50%;transform:translateY(-50%);width:28px;height:28px;border-radius:50%;background:var(--gray-100);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-sub);flex-shrink:0}
+.cal-nav-row{display:flex;align-items:center;justify-content:space-between;padding:0 16px 14px}
+.cal-mth{flex:1;font-size:var(--font-lg);font-weight:var(--fw-heavy);text-align:center}
+.cal-nav-btn{width:36px;height:36px;display:flex;align-items:center;justify-content:center;color:var(--blue);border-radius:50%;cursor:pointer}
+.cal-nav-btn:active{background:var(--gray-100)}
+.cal-nav-btn svg{width:18px;height:18px}
+/* Calendar body — fill remaining panel height, center grid */
+.cal-body{flex:1;overflow-y:auto;display:flex;flex-direction:column;align-items:center;padding:0}
+.cal-grid{width:280px;display:grid;grid-template-columns:repeat(7,1fr);margin:0 auto}
+.cal-dow{text-align:center;font-size:var(--font-xs);color:var(--text-sub);padding:6px 0 4px;font-weight:var(--fw-medium)}
+.cal-day{text-align:center;padding:4px 0 4px;cursor:pointer;position:relative;border-radius:var(--radius-md)}
+.cal-day:active{background:var(--gray-100)}
+.cal-day .day-num{display:inline-block;width:30px;height:30px;line-height:30px;font-size:var(--font-sm);color:var(--text);border-radius:50%;transition:all var(--fast)}
+.cal-day.other .day-num{color:var(--gray-300)}
+.cal-day.today .day-num{font-weight:var(--fw-heavy);color:var(--blue)}
+.cal-day.selected .day-num{background:var(--blue);color:#fff;font-weight:var(--fw-heavy)}
+.cal-dots{display:flex;justify-content:center;padding:1px 0 0}
+.cal-dot{width:4px;height:4px;border-radius:50%;background:var(--blue);flex-shrink:0}
+
+/* ═══ Patrol records in calendar drawer ═══ */
+.cal-records{flex:1;overflow-y:auto;border-top:1px solid var(--border);padding-bottom:12px;width:280px;margin:0 auto}
+.cal-records::-webkit-scrollbar{display:none}
+.cal-rec-title{font-size:var(--font-sm);font-weight:var(--fw-heavy);color:var(--text);padding:12px 0 6px;text-align:left}
+.cal-rec-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius-md);padding:10px 12px;margin-bottom:6px;cursor:pointer;transition:all var(--fast);width:100%}
+.cal-rec-card:active,.cal-rec-card.active{background:var(--blue-50);border-color:var(--blue)}
+.cal-rec-card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:3px}
+.cal-rec-time{font-size:var(--font-xs);font-weight:var(--fw-heavy);color:var(--text)}
+.cal-rec-badge{font-size:10px;padding:2px 6px;border-radius:999px;font-weight:var(--fw-medium)}
+.cal-rec-badge.normal{background:var(--green-light);color:var(--green)}
+.cal-rec-badge.abnormal{background:var(--red-light);color:var(--red)}
+.cal-rec-person{font-size:var(--font-xs);color:var(--text-sub)}
+.cal-rec-empty{padding:24px 0;text-align:center;font-size:var(--font-xs);color:var(--text-tertiary)}
+
+/* Toast */
+.toast{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#222;color:#fff;padding:10px 18px;border-radius:8px;font-size:var(--font-lg);z-index:999;opacity:0;transition:all .3s ease;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1}
+</style>
+<script src="../mock-data.js"></script>
+</head>
+<body>
+<div class="phone-frame">
+  <div class="phone-notch"></div>
+  <div class="phone-home-indicator"></div>
+  <div class="phone-screen">
+    <!-- Pano Container -->
+    <div class="pano-container">
+      <iframe id="panoIframe" src="" allowfullscreen allow="camera;gyroscope;accelerometer;vr"></iframe>
+      <div class="pano-fallback" id="panoFallback">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        <span class="title">暂无全景链接</span>
+        <span class="sub">该巡检记录未上传全景照片</span>
+      </div>
+    </div>
+    <!-- Top Overlay -->
+    <div class="top-overlay">
+      <div class="top-bar">
+        <button class="top-back" onclick="goBack()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button>
+        <div class="top-info">
+          <div class="top-title" id="topTitle">巡查记录</div>
+          <div class="top-time" id="topTime"></div>
+        </div>
+        <button class="top-cal" onclick="openCalendar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button>
+      </div>
+    </div>
+    <!-- Bottom Handle -->
+    <div class="btm-handle">
+      <div class="btm-bar">
+        <div class="btm-arrow" onclick="prevRecord()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></div>
+        <div class="btm-center" onclick="openDrawer()"><div class="btm-info" id="btmInfo">--</div></div>
+        <div class="btm-arrow" onclick="nextRecord()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div>
+      </div>
+    </div>
+    <!-- Bottom Drawer -->
+    <div class="btm-drawer" id="btmDrawer">
+      <div class="drawer-handle"><div class="drawer-bar"></div></div>
+      <div class="drawer-head"><span></span><button class="drawer-close" onclick="closeDrawer()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+      <div class="drawer-tabs"><span class="drawer-tab active" onclick="switchDrawerTab(this,'info')">记录信息</span><span class="drawer-tab" onclick="switchDrawerTab(this,'issues')">关联问题</span></div>
+      <div class="drawer-body" id="drawerBody"></div>
+    </div>
+    <!-- Calendar Drawer -->
+    <div class="cal-overlay" id="calOverlay">
+      <div class="cal-mask" onclick="closeCalendar()"></div>
+      <div class="cal-panel">
+        <div class="cal-head"><span class="cal-head-title" id="calHeadTitle">围挡巡检日历</span><button class="cal-close" onclick="closeCalendar()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+        <div class="cal-nav-row"><button class="cal-nav-btn" onclick="calNav(-1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button><span class="cal-mth" id="calMth"></span><button class="cal-nav-btn" onclick="calNav(1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button></div>
+        <div class="cal-body"><div class="cal-grid" id="calGrid"></div><div class="cal-records" id="calRecords"></div></div>
+      </div>
+    </div>
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+  </div>
+</div>
+<script>
+function goBack(){window.location.href='panorama_patrol.html';}
+var _fences=[],_curFid='',_curDate='',_curRecIdx=0,_curRecords=[],_drawerTab='info';
+var _calYear,_calMonth,_calSelDate,_toastTimer;
+
+(function init(){
+  var m=location.search.match(/data=([^&]+)/);if(!m){showError('参数错误');return;}
+  var d=JSON.parse(decodeURIComponent(m[1]));_curFid=d.fid;_curDate=d.date;
+  try{loadFromMock();}catch(e){}
+  if(!_fences.length){loadFallback();}
+  var cur=null;for(var i=0;i<_fences.length;i++){if(_fences[i].id===_curFid){cur=_fences[i];break;}}
+  if(!cur){for(var i=0;i<_fences.length;i++){if(_fences[i].id===_curFid){cur=_fences[i];break;}}}
+  if(!cur&&_fences.length>0){cur=_fences[0];_curFid=cur.id;}
+  if(!cur){showError('未找到围挡数据');return;}
+  _curRecords=cur.patrolRecords.filter(function(r){return r.date===_curDate;}).sort(function(a,b){return(b.time||'').localeCompare(a.time||'');});
+  if(!_curRecords.length){_curRecords=[{date:_curDate,time:'--',inspector:'--',result:'正常',panoramaSrc:'',issues:[]}];}
+  var cd=new Date(_curDate+'T00:00:00');_calYear=cd.getFullYear();_calMonth=cd.getMonth()+1;_calSelDate=_curDate;
+  updateTop();updateHandle();
+})();
+
+function showError(m){var fb=document.getElementById('panoFallback');fb.style.display='flex';fb.querySelector('.title').textContent=m;}
+
+function loadFromMock(){
+  var projects=MOCK_DATA.getProjects();
+  projects.forEach(function(p){
+    (p.hoardings||[]).forEach(function(h){
+      _fences.push({id:h.id,engName:h.engineerName,projName:p.name,fenceStatus:h.fenceStatus||'已安装',issueStatus:h.issueStatus||'正常',patrolRecords:(h.patrolRecords||[]).slice()});
+    });
+  });
+}
+
+function loadFallback(){
+  _fences=[
+    {id:'WD-2026-0001',engName:'管道铺设工程',projName:'福田中心区景观工程提升项目',fenceStatus:'已安装',issueStatus:'待整改',patrolRecords:[
+      {id:'pr1',date:'2026-05-08',time:'14:45',inspector:'张巡检',result:'正常',issues:[],panoramaSrc:'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492'},
+      {id:'pr2',date:'2026-05-10',time:'10:12',inspector:'张巡检',result:'正常',issues:[],panoramaSrc:'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492'},
+      {id:'pr3',date:'2026-05-12',time:'16:20',inspector:'张巡检',result:'正常',issues:[],panoramaSrc:'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492'},
+      {id:'pr4',date:'2026-05-14',time:'09:30',inspector:'张巡检',result:'正常',issues:[],panoramaSrc:'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492'},
+      {id:'pr5',date:'2026-05-16',time:'15:00',inspector:'张巡检',result:'正常',issues:[],panoramaSrc:'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492'},
+      {id:'pr6',date:'2026-05-18',time:'11:15',inspector:'张巡检',result:'正常',issues:[],panoramaSrc:'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492'},
+      {id:'pr7',date:'2026-05-20',time:'14:00',inspector:'张巡检',result:'正常',issues:[],panoramaSrc:'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492'},
+      {id:'pr8',date:'2026-05-22',time:'10:30',inspector:'张巡检',result:'正常',issues:[],panoramaSrc:'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492'},
+      {id:'pr9',date:'2026-05-24',time:'16:45',inspector:'张巡检',result:'正常',issues:[],panoramaSrc:'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492'},
+      {id:'pr10',date:'2026-05-09',time:'15:20',inspector:'刘伟',result:'异常',issues:[
+        {type:'围挡脏污',unit:'深圳市市政工程总公司',detail:'围挡面板表面有轻微泥浆污渍，面积约0.2㎡，不影响结构安全但需清洁',source:'项目巡检'},
+        {type:'公益广告污损',unit:'深圳市市政工程总公司',detail:'公益广告有污损，画面不清晰，需及时更换',source:'监管巡查',supervisor:'张建国'}
+      ],panoramaSrc:'https://www.720yun.com/vr/1c1jt7mOey1'}
+    ]},
+    {id:'WD-2026-0002',engName:'沟槽开挖工程',projName:'福田中心区景观工程提升项目',fenceStatus:'超期未拆',issueStatus:'整改逾期',patrolRecords:[{id:'pr1',date:'2026-05-10',time:'10:00',inspector:'陈刚',result:'异常',issues:[{type:'围挡尺寸不合规',detail:'围挡实测高度2.0m，低于规范要求的2.5m标准高度'}],panoramaSrc:'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492'}]},
+    {id:'WD-2026-0003',engName:'道路恢复工程',projName:'福田中心区景观工程提升项目',fenceStatus:'超期未拆',issueStatus:'正常',patrolRecords:[{id:'pr1',date:'2026-05-11',time:'11:00',inspector:'刘伟',result:'异常',issues:[{type:'围挡材质不符合规范',detail:'现场围挡使用PVC材质，不符合设计要求'}],panoramaSrc:'https://www.720yun.com/vr/1c1jt7mOey1'}]},
+    {id:'WD-2026-0004',engName:'基坑围护工程',projName:'南山区科技园综合体项目',fenceStatus:'已安装',issueStatus:'待整改',patrolRecords:[{id:'pr1',date:'2026-05-09',time:'11:20',inspector:'王强',result:'异常',issues:[{type:'围挡基础沉降',detail:'基坑围护工程围挡东南角基础出现不均匀沉降约5cm'}],panoramaSrc:'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492'}]},
+    {id:'WD-2026-0005',engName:'主体结构工程',projName:'南山区科技园综合体项目',fenceStatus:'已安装',issueStatus:'正常',patrolRecords:[{id:'pr1',date:'2026-05-08',time:'14:00',inspector:'王工',result:'异常',issues:[{type:'围挡占道超限',detail:'围挡外堆放钢筋成品超出占道许可范围约4m'}],panoramaSrc:'https://www.720yun.com/vr/1c1jt7mOey1'}]},
+    {id:'WD-2026-0006',engName:'绿化迁移工程',projName:'福田中心区城市环境品质提升项目',fenceStatus:'待认领',issueStatus:'正常',patrolRecords:[
+      {id:'pr_lh1',date:'2026-05-28',time:'09:15',inspector:'林监理',result:'正常',issues:[],panoramaSrc:'https://ips.cscecsteel.com/kgsy/projectTourist/9018a67e-e58b-4283-9cf6-4eae3d515492'},
+      {id:'pr_lh2',date:'2026-06-10',time:'14:30',inspector:'林监理',result:'正常',issues:[],panoramaSrc:'https://www.720yun.com/vr/1c1jt7mOey1'},
+      {id:'pr_lh3',date:'2026-07-22',time:'18:00',inspector:'张项目',result:'异常',issues:[],panoramaSrc:'https://www.720yun.com/vr/1c1jt7mOey1'}
+    ]}
+  ];
+}
+
+function updateTop(){
+  var cur=findFence();var r=_curRecords[_curRecIdx];
+  document.getElementById('topTitle').textContent='巡查记录 - '+(cur?cur.engName:'--');
+  document.getElementById('topTime').textContent=(r?r.date:'--')+' '+(r?r.time||'--:--':'--');
+}
+function updateHandle(){
+  var r=_curRecords[_curRecIdx];if(!r)return;
+  var isAb=r.result==='异常',ic=(r.issues||[]).length;
+  var tag=isAb?'<span class=\"btm-tag-red\">'+ic+'条问题</span>':'<span class=\"btm-tag-green\">正常</span>';
+  document.getElementById('btmInfo').innerHTML='巡检人：'+r.inspector+' '+tag;
+  refreshPano();
+}
+function refreshPano(){
+  var r=_curRecords[_curRecIdx],panoUrl=r?r.panoramaSrc||'':'';var fb=document.getElementById('panoFallback'),iframe=document.getElementById('panoIframe');
+  if(panoUrl){iframe.src=panoUrl;fb.style.display='none';}
+  else{fb.style.display='flex';}
+}
+function prevRecord(){
+  if(_curRecIdx>0){_curRecIdx--;updateTop();updateHandle();return;}
+  var idx=-1;for(var i=0;i<_fences.length;i++){if(_fences[i].id===_curFid){idx=i;break;}}
+  if(idx<=0)return;
+  for(var i=idx-1;i>=0;i--){var rs=_fences[i].patrolRecords.filter(function(r){return r.date===_curDate;});if(rs.length>0){switchFence(_fences[i].id,rs,rs.length-1);return;}}
+}
+function nextRecord(){
+  if(_curRecIdx<_curRecords.length-1){_curRecIdx++;updateTop();updateHandle();return;}
+  var idx=-1;for(var i=0;i<_fences.length;i++){if(_fences[i].id===_curFid){idx=i;break;}}
+  if(idx<0||idx>=_fences.length-1)return;
+  for(var i=idx+1;i<_fences.length;i++){var rs=_fences[i].patrolRecords.filter(function(r){return r.date===_curDate;});if(rs.length>0){switchFence(_fences[i].id,rs,0);return;}}
+}
+function switchFence(fid,recs,recIdx){_curFid=fid;_curRecords=recs;_curRecIdx=recIdx;updateTop();updateHandle();renderDrawer();}
+function openDrawer(){document.getElementById('btmDrawer').classList.add('show');renderDrawer();}
+function closeDrawer(){document.getElementById('btmDrawer').classList.remove('show');}
+function switchDrawerTab(el,t){_drawerTab=t;var tabs=document.querySelectorAll('.drawer-tab');tabs.forEach(function(tab){tab.classList.remove('active');});el.classList.add('active');renderDrawer();}
+function renderDrawer(){
+  var r=_curRecords[_curRecIdx];if(!r)return;
+  var cur=findFence(),html='';
+  if(_drawerTab==='info'){
+    html+='<div class="dr-row"><span class="dr-label">巡检人</span><span class="dr-value">'+esp(r.inspector)+'</span></div>';
+    html+='<div class="dr-row"><span class="dr-label">巡检时间</span><span class="dr-value">'+(r.date||'')+' '+(r.time||'')+'</span></div>';
+    var isAb=r.result==='异常',ic=(r.issues||[]).length;
+    html+='<div class="dr-row"><span class="dr-label">围挡状态</span><span class="dr-value">'+(isAb?'<span class="tag tag-orange">'+ic+'个问题</span>':'<span class="tag tag-green">正常</span>')+'</span></div>';
+    html+='<button class="dr-btn" onclick="goIssueDetail()">查看详情</button>';
+  }else{
+    if(r.issues&&r.issues.length){r.issues.forEach(function(iss, idx){
+      var st='tag-orange',stLabel='待整改';if(cur&&cur.issueStatus==='整改逾期'){st='tag-red';stLabel='整改逾期';}else if(cur&&cur.issueStatus==='正常'){st='tag-green';stLabel='正常';}
+      html+='<div class="issue-card" onclick="goPatrolIssue('+idx+')" style="cursor:pointer"><div class="issue-type">'+esp(iss.type)+'</div><div class="issue-desc">'+esp(iss.detail)+'</div><span class="tag '+st+'">'+stLabel+'</span></div>';
+    });}else{html='<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg><span>暂无关联问题</span></div>';}
+  }
+  document.getElementById('drawerBody').innerHTML=html;
+}
+function goIssueDetail(){
+  var r=_curRecords[_curRecIdx]; if(!r)return;
+  window.location.href='app_prototype.html#patrolDetail='+encodeURIComponent(_curFid)+','+encodeURIComponent(r.id||'');
+}
+function goPatrolIssue(idx){
+  var r=_curRecords[_curRecIdx]; if(!r)return;
+  window.location.href='app_prototype.html#patrolIssue='+encodeURIComponent(_curFid)+','+encodeURIComponent(r.id||'')+','+idx;
+}
+
+function openCalendar(){document.getElementById('calOverlay').classList.add('show');renderCalendar();}
+function closeCalendar(){document.getElementById('calOverlay').classList.remove('show');}
+function renderCalendar(){
+  var cur=findFence();
+  document.getElementById('calHeadTitle').textContent=(cur?cur.engName:'--')+' · 巡检日历';
+  document.getElementById('calMth').textContent=_calYear+'年'+_calMonth+'月';
+  var issueDates={},normalDates={};
+  if(cur){cur.patrolRecords.forEach(function(r){normalDates[r.date]=true;if(r.issues&&r.issues.length>0)issueDates[r.date]=true;});}
+  var today=new Date(),todayStr=today.getFullYear()+'-'+pad(today.getMonth()+1)+'-'+pad(today.getDate());
+  var y=_calYear,m=_calMonth,dim=new Date(y,m,0).getDate(),fdow=new Date(y,m-1,1).getDay();
+  var pds=[],pdim=new Date(y,m-1,0).getDate();
+  for(var i=fdow-1;i>=0;i--){pds.push({d:pdim-i,cls:'other'});}
+  var cds=[];
+  for(var d=1;d<=dim;d++){var ds=y+'-'+pad(m)+'-'+pad(d),cl='';if(ds===todayStr)cl='today';if(ds===_calSelDate)cl+=' selected';cds.push({d:d,cls:cl,ds:ds,dot:!!normalDates[ds]});}
+  var rem=(pds.length+cds.length)%7===0?0:7-(pds.length+cds.length)%7;
+  var nds=[];for(var nd=1;nd<=rem;nd++){nds.push({d:nd,cls:'other'});}
+  var all=pds.concat(cds).concat(nds);
+  var html='一二三四五六日'.split('').map(function(w){return'<div class=\"cal-dow\">'+w+'</div>';}).join('');
+  html+=all.map(function(day){
+    var oc=day.cls.indexOf('other')>=0?'':'onclick=\"calPick(\''+day.ds+'\','+!!day.dot+')\"';
+    var inner='<div class=\"day-num\">'+day.d+'</div>';
+    if(day.dot){inner+='<div class=\"cal-dots\"><span class=\"cal-dot\"></span></div>';}
+    else{inner+='<div class=\"cal-dots\" style=\"visibility:hidden\"><span class=\"cal-dot\"></span></div>';}
+    return'<div class=\"cal-day '+day.cls+'\" '+oc+'>'+inner+'</div>';
+  }).join('');
+  document.getElementById('calGrid').innerHTML=html;
+
+  // Render patrol records for selected date
+  var recHtml='',recs=[];
+  if(cur){recs=cur.patrolRecords.filter(function(r){return r.date===_calSelDate;}).sort(function(a,b){return(b.time||'').localeCompare(a.time||'');});}
+  if(recs.length){
+    recHtml+='<div class=\"cal-rec-title\">共 '+recs.length+' 条记录</div>';
+    recs.forEach(function(r,ri){
+      var isAb=r.result==='异常',ic=(r.issues||[]).length,badge=isAb?'<span class=\"cal-rec-badge abnormal\">'+ic+'个问题</span>':'<span class=\"cal-rec-badge normal\">正常</span>';
+      var activeCls=(_curRecIdx===ri&&_curDate===_calSelDate)?' active':'';
+      recHtml+='<div class=\"cal-rec-card'+activeCls+'\" onclick=\"calSelectRec('+ri+')\"><div class=\"cal-rec-card-head\"><span class=\"cal-rec-time\">'+esp(r.date)+' '+esp(r.time||'')+'</span>'+badge+'</div><div class=\"cal-rec-person\">巡检人：'+esp(r.inspector||'--')+'</div></div>';
+    });
+  }else{recHtml='<div class=\"cal-rec-empty\">该日期暂无巡检记录</div>';}
+  document.getElementById('calRecords').innerHTML=recHtml;
+}
+function calSelectRec(idx){
+  var cur=findFence();if(!cur)return;
+  var recs=cur.patrolRecords.filter(function(r){return r.date===_calSelDate;}).sort(function(a,b){return(b.time||'').localeCompare(a.time||'');});
+  if(!recs[idx])return;
+  _curDate=_calSelDate;_curRecords=recs;_curRecIdx=idx;
+  closeCalendar();updateTop();updateHandle();renderDrawer();renderCalendar();
+}
+function calNav(dir){_calMonth+=dir;if(_calMonth>12){_calMonth=1;_calYear++;}if(_calMonth<1){_calMonth=12;_calYear--;}renderCalendar();}
+function calPick(ds,hasRecord){
+  if(!hasRecord){showToast('该日期暂无巡检记录');return;}
+  var cur=findFence();if(!cur)return;_calSelDate=ds;
+  var recs=cur.patrolRecords.filter(function(r){return r.date===ds;}).sort(function(a,b){return(b.time||'').localeCompare(a.time||'');});
+  if(!recs.length){showToast('该日期暂无巡检记录');return;}
+  _curDate=ds;_curRecords=recs;_curRecIdx=0;
+  // Don't close drawer if user clicks date — just re-render with records
+  renderCalendar();
+}
+
+function findFence(){for(var i=0;i<_fences.length;i++){if(_fences[i].id===_curFid)return _fences[i];}return null;}
+function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(_toastTimer);_toastTimer=setTimeout(function(){t.classList.remove('show')},2000);}
+function esp(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function pad(n){return n<10?'0'+n:''+n;}
+</script>
+</body>
+</html>
